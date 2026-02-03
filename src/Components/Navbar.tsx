@@ -85,7 +85,7 @@ const Buttons = () => {
       </button>
 
       <a
-        href="https://datahacks-25.devpost.com/"
+        href="https://datahacks-2026.devpost.com/"
         target="_blank"
         rel="noopener noreferrer"
         className={btnClass}
