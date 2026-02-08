@@ -12,10 +12,10 @@ import {
 const navLinks = [
   { name: "Devpost", href: "https://datahacks-2026.devpost.com/" },
   { name: "Tracks", href: "#tracks" },
-  { name: "Challenges", href: "#challenges" },
   { name: "Prizes", href: "#prizes" },
+  { name: "Challenges", href: "#challenges" },
   { name: "Sponsors", href: "#sponsors" },
-  { name: "Team", href: "#team" },
+  { name: "Judges", href: "#team" },
   { name: "FAQ", href: "#faq" },
   { name: "Contact", href: "#contact" },
 ];
