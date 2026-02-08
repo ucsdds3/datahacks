@@ -26,12 +26,12 @@
        answer: "DataHacks is completely free! We provide meals, snacks, swag, and all the resources you need for 24 hours of hacking. For students traveling from outside San Diego, we also offer limited travel reimbursement. Apply for reimbursement in your registration.",
      },
      {
-      question: "Is it overnight?",
+      question: "Is it overnight? Where do I sleep?",
       answer: "Yes! DataHacks is a 36-hour overnight hackathon. The event starts in the morning of the first day and ends in the afternoon of the second day, with awards and closing ceremonies immediately following. We provide a safe and comfortable environment for all participants to hack through the night, including a designated quiet area for rest.",
     },
      {
        question: "What should I bring?",
-       answer: "Bring your laptop, charger, student ID, and anything you need to be comfortable overnight (pillow, blanket, etc.). We'll provide everything else!",
+       answer: "Bring your phone, laptop, charger, student ID, and anything you need to be comfortable overnight (pillow, blanket, etc.). We'll provide everything else!",
      },
      {
        question: "Do I need a team?",

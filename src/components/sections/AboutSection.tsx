@@ -78,6 +78,28 @@
            </p>
          </motion.div>
 
+         {/* Photo Grid */}
+        <motion.div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-16 ">
+          {["photo1.png", "photo2.png", "photo3.png"].map((photo, i) => (
+            <div
+              key={i}
+              className="rounded-2xl overflow-hidden shadow-lg bg-black/10"
+            >
+              <img
+                src={`/images/${photo}`}
+                alt="DataHacks event"
+                className="
+                  w-full
+                  h-48
+                  md:h-52
+                  object-cover
+                "
+              />
+            </div>
+          ))}
+        </motion.div>
+
+
          {/* Clubsr */}
          <motion.div
            initial={{ opacity: 0, y: 20 }}
