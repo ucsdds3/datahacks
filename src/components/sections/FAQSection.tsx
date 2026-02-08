@@ -14,6 +14,10 @@
  
    const faqs = [
     {
+      question: "What is the theme of DataHacks?",
+      answer: "Each year, DataHacks focuses on a specific theme, and all submissions must revolve around this theme. This year's theme will be revealed during the opening ceremony. This is to prevent teams from starting their projects before the event and to encourage creativity and innovation within the theme.",
+    },
+    {
       question: "Who hosts DataHacks?",
       answer: "DataHacks has been annually hosted for several years by the Data Science Student Society (DS3), welcoming ~250 UCSD undergraduates. This year, we are excited to partner with Triton Quantitative Trading (TQT), Google Developer Group on Campus (GDG), AWS Cloud Club, Startup Incubator Club, and the Biomedical Engineering Society to bring an even bigger and better hackathon experience for 400 undergraduates and graduates from any university!",
     },
@@ -48,6 +52,10 @@
      {
       question: "Will specific hardware be provided for the hardware track?",
       answer: "Yes, our sponsors have provided us with hardware to hand out to teams interested in the hardware track. We will have a limited number of kits available, so be sure to indicate your interest in the hardware track when you register. Please note that we may not have the specific hardware you need and that our inventory is limited. Hardware will be distributed on a first-come, first-served basis at the start of the hackathon and will be returned at the end of the event. Winning teams can keep their kits!",
+    },
+    {
+      question: "Can I submit past projects or start planning prior to the hackathon?",
+      answer: "No, all projects must be conceived and developed during the 36 hours of the hackathon, this will be checked via GitHub. This is to ensure a level playing field and to encourage creativity and innovation within the time constraints. You can form teams before the event, but actual development should happen during the hackathon. It will be impossible to brainstorm beforehand without knowing the theme, which will be revealed at the start of the event.",
     },
      {
        question: "What are the judging criteria?",
