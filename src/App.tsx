@@ -1,28 +1,27 @@
-import Landing from "./Components/Landing";
-import Navbar from "./Components/Navbar";
-import Description from "./Components/Description";
-import Prizes from "./Components/Prizes";
-import Sponsors from "./Components/Sponsors";
-import FAQ from "./Components/FAQ";
-import Footer from "./Components/Footer";
-import info from "./info.json";
-import "./index.css";
-// import banner from "../Assets/Images/banner.png";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
 
-const App = () => {
-  return (
-    <div>
-      <Navbar />
-      <Landing />
-      <div className="bg-[#65B2C9] flex flex-col items-center gap-[10vh] md:px-[10vw] xl:px-[20vw] p-5 py-[10vh] ">
-        <Description />
-        <Prizes />
-        <Sponsors />
-        <FAQ questions={info.faq} />
-      </div>
-      <Footer />
-    </div>
-  );
-};
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
 
 export default App;

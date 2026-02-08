@@ -1,5 +1,85 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-body {
-  font-family: "Poppins", sans-serif;
+/* DataHacks 2026 - Ocean Theme Design System */
+
+@layer base {
+  :root {
+    /* Ocean Theme Colors */
+    --background: 195 100% 95%;
+    --foreground: 210 50% 10%;
+
+    --card: 195 80% 98%;
+    --card-foreground: 210 50% 10%;
+
+    --popover: 195 80% 98%;
+    --popover-foreground: 210 50% 10%;
+
+    /* Primary - Ocean Blue */
+    --primary: 200 80% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary - Seafoam Green */
+    --secondary: 165 60% 45%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 195 30% 90%;
+    --muted-foreground: 210 20% 40%;
+
+    /* Accent - Sandy Yellow */
+    --accent: 45 90% 60%;
+    --accent-foreground: 30 50% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 200 40% 80%;
+    --input: 200 40% 85%;
+    --ring: 200 80% 50%;
+
+    --radius: 0.5rem;
+
+    /* Ocean Theme Extended Colors */
+    --sky: 200 100% 85%;
+    --sun: 40 100% 60%;
+    --sand: 40 60% 75%;
+    --shallow-water: 190 80% 70%;
+    --mid-water: 200 85% 45%;
+    --deep-water: 210 90% 25%;
+    --abyss: 220 95% 12%;
+    --bioluminescent: 180 100% 70%;
+    --coral: 350 80% 60%;
+    --seaweed: 140 50% 40%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer utilities {
+  .text-shadow-glow {
+    text-shadow: 0 0 20px hsl(var(--bioluminescent) / 0.8),
+                 0 0 40px hsl(var(--bioluminescent) / 0.5);
+  }
+  
+  .box-shadow-glow {
+    box-shadow: 0 0 30px hsl(var(--bioluminescent) / 0.4),
+                0 0 60px hsl(var(--bioluminescent) / 0.2);
+  }
+}
+
+[data-radix-portal] {
+  z-index: 10040;
 }
