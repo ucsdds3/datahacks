@@ -32,7 +32,7 @@
     { name: "AWS Cloud Club", logo: "/club-logos/aws.png" },
     { name: "Triton Quantiative Trading (TQT)", logo: "/club-logos/tqt.png" },
     { name: "Biomedical Engineering Society (BMES)", logo: "/club-logos/bmes.png" },
-    { name: "Startup Incubator Club", logo: "🏛️" },
+    { name: "Startup Incubator Club", logo: "/club-logos/startup.PNG" },
   ];
   
  
@@ -85,7 +85,7 @@
            transition={{ duration: 0.5, delay: 0.1 }}
            className="mb-12"
          >
-           <h2 className="text-center text-bioluminescent font-large mb-6">Organizing Student Organizations</h2>
+           <h2 className="font-display text-xl md:text-2xl font-bold text-white text-center mb-6">Organizers</h2>
            <div className="flex flex-wrap justify-center gap-8">
              {clubs.map((sponsor, i) => (
                <motion.div

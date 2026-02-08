@@ -18,71 +18,58 @@
    const ref = useRef(null);
    const isInView = useInView(ref, { once: true, margin: "-100px" });
     
-    const tracks = [
-      {
-        icon: Bot,
-        title: "Machine Learning",
-        description:
-          "Build intelligent systems using data-driven methods such as analysis, prediction, classification, and optimization.",
-        color: "from-deep-water to-mid-water",
-      },
-      {
-        icon: Cpu,
-        title: "Hardware",
-        description:
-          "Engineer sensor-driven systems using microcontrollers and edge AI.",
-        color: "from-mid-water to-seaweed",
-      },
-      {
-        icon: Search,
-        title: "GCP & Google AI",
-        description:
-          "Create scalable applications using Google Cloud Platform and Google's AI ecosystem.",
-        color: "from-accent to-primary",
-      },
-      {
-        icon: Cloud,
-        title: "AWS",
-        description:
-          "Design and deploy scalable data-intensive systems using AWS services.",
-        color: "from-mid-water to-deep-water",
-      },
-      {
-        icon: Rocket,
-        title: "Entrepreneurship",
-        description:
-          "Turn data-driven ideas into viable solutions with real-world impact, with an emphesis on presentation.",
-        color: "from-secondary to-accent",
-      },
-      {
-        icon: NotebookPen,
-        title: "Marimo x Sphinx",
-        description:
-          "Build interactive data apps and documentation-first workflows.",
-        color: "from-primary to-secondary",
-      },
-      {
-        icon: Dna,
-        title: "Biotechnology",
-        description:
-          "Applying your skills towards specific biological and health-related problems.",
-        color: "from-seaweed to-secondary",
-      },
-      {
-        icon: TrendingUp,
-        title: "Economics",
-        description:
-          "Build economic or financial models for forecasting, optimization, and data-driven decision making.",
-        color: "from-accent to-sun",
-      },
-      {
-        icon: Palette,
-        title: "Design",
-        description:
-          "Craft intuitive and visually compelling user experiences for data-driven products. ",
-        color: "from-secondary to-primary",
-      },
-    ];    
+   const tracks = [
+    {
+      icon: Bot,
+      title: "Machine Learning & AI",
+      description:
+        "Develop intelligent systems using data-driven techniques such as modeling, prediction, and classification.",
+      color: "from-deep-water to-mid-water",
+    },
+    {
+      icon: Cpu,
+      title: "Hardware & IoT",
+      description:
+        "Build sensor-driven systems using microcontrollers, embedded devices, and edge computing.",
+      color: "from-mid-water to-seaweed",
+    },
+    {
+      icon: Cloud,
+      title: "Cloud Development",
+      description:
+        "Design and deploy scalable systems for processing, storage, and real-time apps using cloud infrastructure.",
+      color: "from-mid-water to-deep-water",
+    },
+    {
+      icon: Dna,
+      title: "Biotechnology",
+      description:
+        "Prototype systems or devices that interface with biological data, signals, or processes through applied engineering.",
+      color: "from-seaweed to-secondary",
+    },
+    {
+      icon: TrendingUp,
+      title: "Economics",
+      description:
+        "Create quantitative models for forecasting, optimization, and analysis of complex systems and decision-making.",
+      color: "from-accent to-sun",
+    },
+    {
+      icon: Palette,
+      title: "UI/UX Design",
+      description:
+        "Design intuitive, accessible, and engaging user experiences that communicate data and system behavior.",
+      color: "from-secondary to-primary",
+    },
+    {
+      icon: Rocket,
+      title: "Entrepreneurship",
+      description:
+        "Transform technical ideas into compelling solutions by focusing on impact, feasibility, and effective storytelling.",
+      color: "from-secondary to-accent",
+    },
+  ];
+  
   
  
    return (
@@ -104,10 +91,10 @@
            className="text-center mb-16"
          >
            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-             Hackathon Tracks
+             Domain Tracks
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-             Choose your area of focus and dive deep into solving real environmental challenges.
+           Choose one primary domain track and optionally one secondary track that best represent your project.
            </p>
          </motion.div>
  

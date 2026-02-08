@@ -9,68 +9,20 @@
    const isInView = useInView(ref, { once: true, margin: "-100px" });
  
    const judges = [
-     {
-       name: "Dr. Sarah Chen",
-       title: "Director of Data Science",
-       affiliation: "UC San Diego",
-       image: "👩‍🔬",
-     },
-     {
-       name: "James Rodriguez",
-       title: "Chief Data Officer",
-       affiliation: "EnergyTech Corp",
-       image: "👨‍💼",
-     },
-     {
-       name: "Dr. Emily Watson",
-       title: "Climate Researcher",
-       affiliation: "Scripps Institution",
-       image: "👩‍🏫",
-     },
-     {
-       name: "Michael Park",
-       title: "AI/ML Lead",
-       affiliation: "GreenAI Labs",
-       image: "👨‍💻",
-     },
+    {
+      name: "To-be Revealed",
+      title: "To-be Revealed",
+      affiliation: "To-be Revealed",
+      image: "🧑‍💻",
+    },
    ];
  
    const mentors = [
      {
-       name: "Alex Thompson",
-       title: "Senior Engineer",
-       affiliation: "TechCorp",
+       name: "To-be Revealed",
+       title: "To-be Revealed",
+       affiliation: "To-be Revealed",
        image: "🧑‍💻",
-     },
-     {
-       name: "Maria Garcia",
-       title: "Data Scientist",
-       affiliation: "Climate Analytics",
-       image: "👩‍💻",
-     },
-     {
-       name: "David Kim",
-       title: "ML Engineer",
-       affiliation: "EcoTech",
-       image: "👨‍🔧",
-     },
-     {
-       name: "Lisa Chen",
-       title: "Product Manager",
-       affiliation: "SustainTech",
-       image: "👩‍💼",
-     },
-     {
-       name: "Ryan Johnson",
-       title: "PhD Candidate",
-       affiliation: "UC San Diego",
-       image: "🧑‍🎓",
-     },
-     {
-       name: "Sophie Williams",
-       title: "Software Engineer",
-       affiliation: "OceanData Inc",
-       image: "👩‍🔬",
      },
    ];
  
@@ -112,7 +64,7 @@
              Judges & Mentors
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-             Learn from industry experts and get guidance throughout the hackathon.
+             Learn from alumni, faculty, & industry experts to get guidance throughout the hackathon.
            </p>
          </motion.div>
  
@@ -130,7 +82,8 @@
              <motion.div
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
-               className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
+              //  className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
+              className="flex justify-center"
              >
                {judges.map((judge, index) => (
                  <motion.div
@@ -149,7 +102,8 @@
              <motion.div
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
-               className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
+              //  className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
+              className="flex justify-center"
              >
                {mentors.map((mentor, index) => (
                  <motion.div
@@ -165,6 +119,18 @@
            </TabsContent>
          </Tabs>
        </div>
+
+       <motion.p
+           initial={{ opacity: 0 }}
+           animate={isInView ? { opacity: 1 } : {}}
+           transition={{ duration: 0.5, delay: 0.5 }}
+           className="text-2xl text-center text-white/60 mt-12"
+         >
+           Interested in mentoring or judging?{" "}
+           <a href="mailto:ds3@ucsd.edu" className="text-accent hover:underline">
+             Contact us
+           </a>
+         </motion.p>
      </section>
    );
  };

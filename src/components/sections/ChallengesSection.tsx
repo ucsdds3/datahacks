@@ -1,7 +1,7 @@
  import { motion } from "framer-motion";
  import { useInView } from "framer-motion";
  import { useRef } from "react";
- import { Building2, Lightbulb, Target } from "lucide-react";
+ import { Building2, Lightbulb, Target, Cloud, NotebookIcon } from "lucide-react";
  import Bubbles from "../animations/Bubbles";
  
  const ChallengesSection = () => {
@@ -9,36 +9,92 @@
    const isInView = useInView(ref, { once: true, margin: "-100px" });
  
    const challenges = [
-     {
-       sponsor: "Sponsor Challenge 1",
-       title: "Smart Grid Optimization",
-       description: "Design an AI-powered solution to optimize energy distribution across smart grids, reducing waste and improving efficiency.",
-       prize: "$2,000",
-       icon: Lightbulb,
-     },
-     {
-       sponsor: "Sponsor Challenge 2",
-       title: "Carbon Footprint Tracker",
-       description: "Build a user-friendly application that helps individuals and businesses track and reduce their carbon footprint.",
-       prize: "$1,500",
-       icon: Target,
-     },
-     {
-       sponsor: "Sponsor Challenge 3",
-       title: "Ocean Plastic Detection",
-       description: "Create a computer vision system to detect and map plastic pollution in ocean imagery from satellites or drones.",
-       prize: "$1,500",
-       icon: Building2,
-     },
-   ];
- 
+    {
+      sponsor: "General Challenge",
+      title: "Best Use of Data",
+      description:
+        "Awarded to the project that demonstrates the most thoughtful, impactful, and effective use of data, whether through analysis, modeling, visualization, or decision-making.",
+      prize: "$1,000",
+      icon: Lightbulb,
+    },
+  
+    {
+      sponsor: "Cloud Platform Challenge",
+      title: "AWS Challenge",
+      description:
+        "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
+      prize: "$1,000",
+      icon: Cloud,
+    },
+  
+    {
+      sponsor: "Cloud Platform Challenge",
+      title: "Google Cloud Platform Challenge",
+      description:
+        "Build and deploy your project using Google Cloud Platform or Google AI tools. Submissions will be judged on effective integration and system design.",
+      prize: "$1,000",
+      icon: Target,
+    },
+  
+    {
+      sponsor: "ML & AI Tooling Challenge",
+      title: "Marimo & Sphinx Challenge",
+      description:
+        "Develop your machine learning or data science project using Marimo notebooks and Sphinx for modeling, analysis, and documentation. Judged on clarity, reproducibility, and workflow design.",
+      prize: "$1,000",
+      icon: NotebookIcon,
+    },
+  
+    {
+      sponsor: "Data Platform Challenge",
+      title: "Databricks Challenge",
+      description:
+        "Leverage the Databricks platform for data processing, analytics, or machine learning workflows. Evaluated on effective use of the Databricks ecosystem.",
+      prize: "$500",
+      icon: Building2,
+    },
+  
+    {
+      sponsor: "Edge Computing Challenge",
+      title: "Qualcomm Edge-AI Challenge",
+      description:
+        "Build a project that runs intelligence at the edge using embedded devices. Projects will be judged on system design, efficiency, and real-world applicability.",
+      prize: "$500",
+      icon: Building2,
+    },
+    // {
+    //   sponsor: "AI Systems Challenge",
+    //   title: "Claude Challenge",
+    //   description:
+    //     "Incorporate Claude into your project for reasoning, analysis, or intelligent system behavior. Projects will be evaluated on effective and responsible use of large language models.",
+    //   prize: "$500",
+    //   icon: Building2,
+    // },
+    // {
+    //   sponsor: "Biotechnology Challenge",
+    //   title: "Biotech Systems Challenge I",
+    //   description:
+    //     "Build a project that interfaces with biological data, signals, or bio-inspired systems. Details and evaluation criteria will be revealed at kickoff.",
+    //   prize: "$1,000",
+    //   icon: Building2,
+    // },
+    // {
+    //   sponsor: "Biotechnology Challenge",
+    //   title: "Biotech Systems Challenge II",
+    //   description:
+    //     "Design and prototype a system or device informed by biological processes or data. Specific challenge details will be announced at the event.",
+    //   prize: "$500",
+    //   icon: Building2,
+    // },
+  ];
+  
    return (
      <section
        id="challenges"
        ref={ref}
        className="relative py-24 md:py-32 overflow-hidden"
        style={{
-         background: "linear-gradient(180deg, hsl(210 88% 30%) 0%, hsl(215 90% 22%) 100%)",
+         background: "linear-gradient(180deg, hsl(215 90% 22%) 0%, hsl(218 92% 18%) 100%)",
        }}
      >
        <Bubbles count={8} />

@@ -10,26 +10,27 @@
    const prizes = [
      {
        place: "1st Place",
-       prize: "$5,000",
+       prize: "$600",
        icon: Trophy,
        color: "from-sun via-accent to-sun",
-       extras: ["Internship Interviews", "Tech Swag Pack", "Featured on Website"],
+       extras: ["Sponsor Swag Pack", "Featured on Website", "Platform Credits", "Talent Pool Boost"],
      },
      {
        place: "2nd Place",
-       prize: "$3,000",
+       prize: "$300",
        icon: Award,
        color: "from-gray-300 via-white to-gray-300",
-       extras: ["Resume Review", "Tech Swag Pack", "LinkedIn Feature"],
+       extras: ["Sponsor Swag Pack", "LinkedIn Feature"],
      },
      {
        place: "3rd Place",
-       prize: "$1,500",
+       prize: "$100",
        icon: Medal,
        color: "from-amber-600 via-amber-500 to-amber-600",
-       extras: ["Tech Swag Pack", "Certificate"],
+       extras: ["Sponsor Swag Pack"],
      },
    ];
+  
  
    const trackPrizes = [
      { track: "Renewable Energy", prize: "$1,000" },
@@ -44,7 +45,7 @@
        ref={ref}
        className="relative py-24 md:py-32 overflow-hidden"
        style={{
-         background: "linear-gradient(180deg, hsl(215 90% 22%) 0%, hsl(218 92% 18%) 100%)",
+        background: "linear-gradient(180deg, hsl(210 88% 30%) 0%, hsl(215 90% 22%) 100%)",
        }}
      >
        {/* Treasure glow effect */}
@@ -58,10 +59,10 @@
            className="text-center mb-16"
          >
            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-             Prizes & Rewards
+            Track Prizes
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-             Over $15,000 in prizes plus exclusive opportunities with our sponsors!
+           EACH domain track awards top teams with cash prizes, swag, and sponsor-provided rewards. Prize amounts and rewards may vary by track.
            </p>
          </motion.div>
  
@@ -99,8 +100,7 @@
            ))}
          </div>
  
-         {/* Track Prizes */}
-         <motion.div
+         {/* <motion.div
            initial={{ opacity: 0, y: 30 }}
            animate={isInView ? { opacity: 1, y: 0 } : {}}
            transition={{ duration: 0.6, delay: 0.5 }}
@@ -117,7 +117,8 @@
                </div>
              ))}
            </div>
-         </motion.div>
+         </motion.div> */}
+
        </div>
      </section>
    );

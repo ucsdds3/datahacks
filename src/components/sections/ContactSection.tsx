@@ -9,10 +9,10 @@
    const isInView = useInView(ref, { once: true, margin: "-100px" });
  
    const socialLinks = [
-     { name: "Instagram", url: "https://instagram.com/datahacks", icon: "📷" },
-     { name: "Twitter", url: "https://twitter.com/datahacks", icon: "🐦" },
-     { name: "Discord", url: "https://discord.gg/datahacks", icon: "💬" },
-     { name: "LinkedIn", url: "https://linkedin.com/company/datahacks", icon: "💼" },
+     { name: "Instagram", url: "https://www.instagram.com/ds3atucsd/?hl=en", icon: "📷" },
+     { name: "Website", url: "https://www.ds3atucsd.com/", icon: "🌍" },
+     { name: "Discord", url: "https://discord.gg/9yYWrTej", icon: "💬" },
+     { name: "LinkedIn", url: "https://linkedin.com/company/data-science-student-society-at-ucsd/", icon: "💼" },
    ];
  
    return (
@@ -80,7 +80,7 @@
                <div>
                  <h4 className="font-display text-lg font-bold text-white mb-1">Email Us</h4>
                  <a href="mailto:datahacks@ucsd.edu" className="text-bioluminescent hover:underline">
-                   datahacks@ucsd.edu
+                   ds3@ucsd.edu
                  </a>
                </div>
              </div>
@@ -129,16 +129,16 @@
                Ready to Dive In?
              </h3>
              <p className="text-white/70 mb-6">
-               Join 500+ students in tackling the world's most pressing environmental challenges. 
-               Registration is open now!
+               Join 400+ students in tackling real-world challenges in data science, engineering, artificial intelligence, design, and entrepreneurship. 
+               Registration opens 02/16/2026!
              </p>
              <Button
                asChild
                size="lg"
                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
              >
-               <a href="https://datahacks.ucsd.edu/register" target="_blank" rel="noopener noreferrer">
-                 Register Now <ExternalLink className="w-4 h-4 ml-2" />
+               <a href="#" target="_blank" rel="noopener noreferrer">
+               Registration opens 02/16/2026! <ExternalLink className="w-4 h-4 ml-2" />
                </a>
              </Button>
            </motion.div>
@@ -156,16 +156,16 @@
                MLH Code of Conduct
              </a>
              <span>•</span>
-             <a href="https://datahacks.ucsd.edu" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
+             <a href="https://datahacks.ds3ucsd.com/" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
                DataHacks Official
              </a>
              <span>•</span>
-             <a href="https://ucsd.edu" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
-               UC San Diego
+             <a href="https://www.ds3atucsd.com/" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
+               Data Science Student Society (DS3)
              </a>
            </div>
            <p className="text-white/40 text-sm">
-             © 2026 DataHacks at UC San Diego. Made with 🌊 and data.
+             © 2026 DataHacks at UC San Diego. Made with data.
            </p>
          </motion.footer>
        </div>

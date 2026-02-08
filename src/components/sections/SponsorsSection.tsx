@@ -8,20 +8,22 @@
  
    // Placeholder sponsors - replace with actual sponsor logos
    const tiers = {
-     platinum: [
-       { name: "Platinum Sponsor 1", logo: "🏢" },
-       { name: "Platinum Sponsor 2", logo: "🏛️" },
+     sponsors: [
+      //  { name: "Qualcomm", logo: "/sponsors/qualcomm.png" },
+      //  { name: "Amazon", logo: "/sponsors/amazon.png" },
+      //  { name: "Google", logo: "/sponsors/google.png" },
+      //  { name: "Databricks", logo: "/sponsors/databricks.png" },
+      //  { name: "Data Science Alliance", logo: "/sponsors/dsa.png" },
+      //  { name: "Marimo", logo: "/sponsors/marimo.png" },
+      //  { name: "Sphinx", logo: "/sponsors/sphinx.png" },
+       { name: "HDSI", logo: "/sponsors/hdsi.png" },
+       { name: "Scripps", logo: "/sponsors/scripps.png" },
+       { name: "The Basement", logo: "/sponsors/basement.png" },
      ],
-     gold: [
-       { name: "Gold Sponsor 1", logo: "🏗️" },
-       { name: "Gold Sponsor 2", logo: "🏭" },
-       { name: "Gold Sponsor 3", logo: "🏦" },
-     ],
-     silver: [
-       { name: "Silver Sponsor 1", logo: "🏬" },
-       { name: "Silver Sponsor 2", logo: "🏫" },
-       { name: "Silver Sponsor 3", logo: "🏨" },
-       { name: "Silver Sponsor 4", logo: "🏤" },
+     partners: [
+      { name: "MongoDB", logo: "/partners/mongo.png" },
+      { name: "GitHub", logo: "/partners/github.png" },
+      { name: "JetBrains", logo: "/partners/jetbrains.png" },
      ],
    };
  
@@ -42,7 +44,7 @@
            className="text-center mb-16"
          >
            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-             Our Sponsors
+             Sponsors & Partners
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
              Thank you to our amazing sponsors for making DataHacks 2026 possible!
@@ -56,15 +58,34 @@
            transition={{ duration: 0.5, delay: 0.1 }}
            className="mb-12"
          >
-           <h3 className="text-center text-bioluminescent font-medium mb-6">Platinum Partners</h3>
+           <h3 className="text-3xl text-center text-accent font-medium mb-6">Sponsors</h3>
            <div className="flex flex-wrap justify-center gap-8">
-             {tiers.platinum.map((sponsor, i) => (
+             {tiers.sponsors.map((sponsor, i) => (
                <motion.div
                  key={sponsor.name}
                  whileHover={{ scale: 1.05 }}
-                 className="w-48 h-32 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-bioluminescent/30 hover:border-bioluminescent/60 transition-colors"
-               >
-                 <span className="text-5xl">{sponsor.logo}</span>
+                 className="
+                    w-64 h-40
+                    p-6
+                    bg-white/70
+                    backdrop-blur-md
+                    rounded-2xl
+                    flex items-center justify-center
+                    border border-bioluminescent/30
+                    hover:border-bioluminescent/60
+                    hover:scale-105
+                    transition-all duration-300
+                  "
+              >
+                 {typeof sponsor.logo === "string" && sponsor.logo.startsWith("/") ? (
+                    <img
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      className="max-h-24 object-contain"
+                    />
+                  ) : (
+                    <span className="text-5xl">{sponsor.logo}</span>
+                  )}
                </motion.div>
              ))}
            </div>
@@ -77,48 +98,48 @@
            transition={{ duration: 0.5, delay: 0.2 }}
            className="mb-12"
          >
-           <h3 className="text-center text-accent font-medium mb-6">Gold Partners</h3>
+           <h3 className="text-3xl text-center text-bioluminescent font-medium mb-6">Partners</h3>
            <div className="flex flex-wrap justify-center gap-6">
-             {tiers.gold.map((sponsor) => (
+             {tiers.partners.map((sponsor) => (
                <motion.div
                  key={sponsor.name}
                  whileHover={{ scale: 1.05 }}
-                 className="w-40 h-28 bg-white/10 backdrop-blur-md rounded-xl flex items-center justify-center border border-accent/30 hover:border-accent/60 transition-colors"
-               >
-                 <span className="text-4xl">{sponsor.logo}</span>
+                 className="
+                    w-44 h-30
+                    p-6
+                    bg-white/70
+                    backdrop-blur-md
+                    rounded-2xl
+                    flex items-center justify-center
+                    border border-bioluminescent/30
+                    hover:border-bioluminescent/60
+                    hover:scale-105
+                    transition-all duration-300
+                  "
+              >
+                 {typeof sponsor.logo === "string" && sponsor.logo.startsWith("/") ? (
+                    <img
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      className="max-h-24 max-w-full object-contain"
+                    />
+                  ) : (
+                    <span className="text-5xl">{sponsor.logo}</span>
+                  )}
                </motion.div>
              ))}
            </div>
          </motion.div>
  
-         {/* Silver Tier */}
-         <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={isInView ? { opacity: 1, y: 0 } : {}}
-           transition={{ duration: 0.5, delay: 0.3 }}
-         >
-           <h3 className="text-center text-white/60 font-medium mb-6">Silver Partners</h3>
-           <div className="flex flex-wrap justify-center gap-4">
-             {tiers.silver.map((sponsor) => (
-               <motion.div
-                 key={sponsor.name}
-                 whileHover={{ scale: 1.05 }}
-                 className="w-32 h-24 bg-white/5 backdrop-blur-md rounded-lg flex items-center justify-center border border-white/20 hover:border-white/40 transition-colors"
-               >
-                 <span className="text-3xl">{sponsor.logo}</span>
-               </motion.div>
-             ))}
-           </div>
-         </motion.div>
- 
+         
          <motion.p
            initial={{ opacity: 0 }}
            animate={isInView ? { opacity: 1 } : {}}
            transition={{ duration: 0.5, delay: 0.5 }}
-           className="text-center text-white/60 mt-12"
+           className="text-2xl text-center text-white/60 mt-12"
          >
            Interested in sponsoring?{" "}
-           <a href="#contact" className="text-accent hover:underline">
+           <a href="mailto:ds3@ucsd.edu" className="text-accent hover:underline">
              Contact us
            </a>
          </motion.p>

@@ -67,15 +67,6 @@
          transition={{ duration: 0.8 }}
          className="container mx-auto px-4 text-center z-10 mt-16"
        >
-         {/* MLH Badge */}
-         <motion.div
-           initial={{ opacity: 0, scale: 0.8 }}
-           animate={{ opacity: 1, scale: 1 }}
-           transition={{ delay: 0.2 }}
-           className="inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm rounded-full px-4 py-2 mb-6 shadow-lg"
-         >
-           <span className="text-sm font-medium text-foreground">Official MLH Member Event</span>
-         </motion.div>
  
          <motion.h1
            initial={{ opacity: 0, y: 20 }}
@@ -93,7 +84,6 @@
            transition={{ delay: 0.5 }}
            className="text-xl md:text-2xl text-muted-foreground mb-2 font-medium"
          >
-           Dive Into Data for a Sustainable Future
          </motion.p>
  
          <motion.div
@@ -143,8 +133,8 @@
              size="lg"
              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
            >
-             <a href="https://datahacks.ucsd.edu/register" target="_blank" rel="noopener noreferrer">
-               Register Now 🌊
+             <a href="#" target="_blank" rel="noopener noreferrer">
+               Registration Opens 02/16/2026
              </a>
            </Button>
          </motion.div>
