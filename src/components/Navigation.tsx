@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/sheet";
 
 const navLinks = [
-  { name: "About", href: "#about" },
+  { name: "Devpost", href: "https://datahacks-2026.devpost.com/" },
   { name: "Tracks", href: "#tracks" },
   { name: "Challenges", href: "#challenges" },
   { name: "Prizes", href: "#prizes" },
