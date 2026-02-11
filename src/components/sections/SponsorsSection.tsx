@@ -9,13 +9,13 @@
    // Placeholder sponsors - replace with actual sponsor logos
    const tiers = {
      sponsors: [
-      //  { name: "Qualcomm", logo: "/sponsors/qualcomm.png" },
+       { name: "Qualcomm", logo: "/sponsors/qualcomm.png" },
       //  { name: "Amazon", logo: "/sponsors/amazon.png" },
       //  { name: "Google", logo: "/sponsors/google.png" },
-      //  { name: "Databricks", logo: "/sponsors/databricks.png" },
-      //  { name: "Data Science Alliance", logo: "/sponsors/dsa.png" },
-      //  { name: "Marimo", logo: "/sponsors/marimo.png" },
-      //  { name: "Sphinx", logo: "/sponsors/sphinx.png" },
+       { name: "Databricks", logo: "/sponsors/databricks.png" },
+       { name: "Data Science Alliance", logo: "/sponsors/dsa.png" },
+       { name: "Marimo", logo: "/sponsors/marimo.png" },
+       { name: "Sphinx", logo: "/sponsors/sphinx.png" },
        { name: "HDSI", logo: "/sponsors/hdsi.png" },
        { name: "Scripps", logo: "/sponsors/scripps.png" },
        { name: "The Basement", logo: "/sponsors/basement.png" },
