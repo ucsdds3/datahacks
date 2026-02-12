@@ -10,21 +10,21 @@
    const prizes = [
      {
        place: "1st Place",
-       prize: "$600",
+       prize: "$TBD",
        icon: Trophy,
        color: "from-sun via-accent to-sun",
        extras: ["Sponsor Swag Pack", "Featured on Website", "Platform Credits", "Talent Pool Boost"],
      },
      {
        place: "2nd Place",
-       prize: "$300",
+       prize: "$TBD",
        icon: Award,
        color: "from-gray-300 via-white to-gray-300",
        extras: ["Sponsor Swag Pack", "LinkedIn Feature"],
      },
      {
        place: "3rd Place",
-       prize: "$100",
+       prize: "$TBD",
        icon: Medal,
        color: "from-amber-600 via-amber-500 to-amber-600",
        extras: ["Sponsor Swag Pack"],

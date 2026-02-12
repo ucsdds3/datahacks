@@ -14,7 +14,7 @@
       title: "Best Use of Data",
       description:
         "Awarded to the project that demonstrates the most thoughtful, impactful, and effective use of data, whether through analysis, modeling, visualization, or decision-making.",
-      prize: "$1,000",
+      prize: "$TBD",
       icon: Lightbulb,
     },
   
@@ -23,7 +23,7 @@
       title: "AWS Challenge",
       description:
         "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
-      prize: "$1,000",
+      prize: "$TBD",
       icon: Cloud,
     },
   
@@ -32,7 +32,7 @@
       title: "Google Cloud Platform Challenge",
       description:
         "Build and deploy your project using Google Cloud Platform or Google AI tools. Submissions will be judged on effective integration and system design.",
-      prize: "$1,000",
+      prize: "$TBD",
       icon: Target,
     },
   
@@ -41,7 +41,7 @@
       title: "Marimo & Sphinx Challenge",
       description:
         "Develop your machine learning or data science project using Marimo notebooks and Sphinx for modeling, analysis, and documentation. Judged on clarity, reproducibility, and workflow design.",
-      prize: "$1,000",
+      prize: "$TBD",
       icon: NotebookIcon,
     },
   
@@ -50,7 +50,7 @@
       title: "Databricks Challenge",
       description:
         "Leverage the Databricks platform for data processing, analytics, or machine learning workflows. Evaluated on effective use of the Databricks ecosystem.",
-      prize: "$500",
+      prize: "$TBD",
       icon: Building2,
     },
   
@@ -59,7 +59,7 @@
       title: "Qualcomm Edge-AI Challenge",
       description:
         "Build a project that runs intelligence at the edge using embedded devices. Projects will be judged on system design, efficiency, and real-world applicability.",
-      prize: "$500",
+      prize: "$TBD",
       icon: Building2,
     },
     // {
