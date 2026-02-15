@@ -129,13 +129,11 @@
            transition={{ delay: 0.9 }}
          >
            <Button
-             asChild
+             disabled
              size="lg"
-             className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+             className="bg-accent/60 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-xl cursor-not-allowed opacity-75"
            >
-             <a href="#" target="_blank" rel="noopener noreferrer">
-               Registration Opens 02/16/2026
-             </a>
+             Registration Opens 02/16/2026
            </Button>
          </motion.div>
        </motion.div>

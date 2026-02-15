@@ -29,6 +29,7 @@
    const PersonCard = ({ person }: { person: typeof judges[0] }) => (
      <motion.div
        whileHover={{ y: -5 }}
+       title={`${person.name} - ${person.title}`}
        className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
      >
        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-bioluminescent/30 to-secondary/30 rounded-full flex items-center justify-center mb-4 text-4xl group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">

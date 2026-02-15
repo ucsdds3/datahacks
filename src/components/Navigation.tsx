@@ -84,10 +84,10 @@ const Navigation = () => {
               </a>
             ))}
             <Button
-              asChild
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
+              disabled
+              className="bg-accent/60 text-accent-foreground font-bold cursor-not-allowed opacity-75"
             >
-              <a href="#register">Register</a>
+              Register
             </Button>
           </div>
         </div>
@@ -141,12 +141,11 @@ const Navigation = () => {
                 </a>
               ))}
               <Button
-                asChild
-                className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold mt-4"
+                disabled
+                className="bg-accent/60 text-accent-foreground font-bold mt-4 cursor-not-allowed opacity-75"
+                onClick={() => setIsOpen(false)}
               >
-                <a href="#register" onClick={() => setIsOpen(false)}>
-                  Register Now
-                </a>
+                Register Now
               </Button>
             </div>
           </SheetContent>

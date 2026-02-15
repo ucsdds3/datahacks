@@ -64,6 +64,7 @@
                <motion.div
                  key={sponsor.name}
                  whileHover={{ scale: 1.05 }}
+                 title={sponsor.name}
                  className="
                     w-64 h-40
                     p-6
@@ -104,6 +105,7 @@
                <motion.div
                  key={sponsor.name}
                  whileHover={{ scale: 1.05 }}
+                 title={sponsor.name}
                  className="
                     w-44 h-30
                     p-6

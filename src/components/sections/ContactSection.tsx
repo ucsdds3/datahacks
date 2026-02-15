@@ -108,6 +108,7 @@
                      href={link.url}
                      target="_blank"
                      rel="noopener noreferrer"
+                     title={link.name}
                      whileHover={{ scale: 1.1 }}
                      className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-2xl hover:bg-white/20 transition-colors"
                    >
@@ -133,13 +134,11 @@
                Registration opens 02/16/2026!
              </p>
              <Button
-               asChild
+               disabled
                size="lg"
-               className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
+               className="w-full bg-accent/60 text-accent-foreground font-bold cursor-not-allowed opacity-75"
              >
-               <a href="#" target="_blank" rel="noopener noreferrer">
-               Registration opens 02/16/2026! <ExternalLink className="w-4 h-4 ml-2" />
-               </a>
+               Registration opens 02/16/2026!
              </Button>
            </motion.div>
          </div>
