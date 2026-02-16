@@ -20,6 +20,13 @@
     
    const tracks = [
     {
+      icon: NotebookPen,
+      title: "Data Analytics",
+      description:
+        "Use statistics and data-driven experimentation to analyze trends and power evidence-based business decisions.",
+      color: "from-deep-water to-mid-water",
+    },
+    {
       icon: Bot,
       title: "Machine Learning & AI",
       description:

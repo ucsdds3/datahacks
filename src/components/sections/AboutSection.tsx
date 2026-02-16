@@ -113,7 +113,7 @@
                <motion.div
                  key={sponsor.name}
                  whileHover={{ scale: 1.05 }}
-                 className="w-48 h-32 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-bioluminescent/30 hover:border-bioluminescent/60 transition-colors"
+                 className="w-48 h-32 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-bioluminescent/30 hover:border-bioluminescent/60 transition-colors"
                >
                  {typeof sponsor.logo === "string" && sponsor.logo.startsWith("/") ? (
                     <img
