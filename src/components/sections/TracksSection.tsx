@@ -63,7 +63,7 @@
     },
     {
       icon: Palette,
-      title: "UI/UX Design",
+      title: "UI/UX Design & Web Development",
       description:
         "Design intuitive, accessible, and engaging user experiences that communicate data and system behavior.",
       color: "from-secondary to-primary",
