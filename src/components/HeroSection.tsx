@@ -133,8 +133,8 @@
              size="lg"
              className="bg-accent hover:bg-accent/90 text-accent-foreground font-bold text-lg px-8 py-6 rounded-full shadow-xl hover:shadow-2xl transition-all hover:scale-105"
            >
-             <a href="#" target="_blank" rel="noopener noreferrer">
-               Registration Opens 02/16/2026
+             <a href="https://docs.google.com/forms/d/e/1FAIpQLScWZ1-QNCF55GJrnIhXD2ZLJqriXSOJ8V8gDQFkzbQqKNRmlQ/viewform?usp=sharing&ouid=113914661221302710293" target="_blank" rel="noopener noreferrer">
+               Registration OPEN NOW!
              </a>
            </Button>
          </motion.div>

@@ -137,8 +137,8 @@
                size="lg"
                className="w-full bg-accent hover:bg-accent/90 text-accent-foreground font-bold"
              >
-               <a href="#" target="_blank" rel="noopener noreferrer">
-               Registration opens 02/16/2026! <ExternalLink className="w-4 h-4 ml-2" />
+               <a href="https://docs.google.com/forms/d/e/1FAIpQLScWZ1-QNCF55GJrnIhXD2ZLJqriXSOJ8V8gDQFkzbQqKNRmlQ/viewform" target="_blank" rel="noopener noreferrer">
+               Registration OPEN NOW! <ExternalLink className="w-4 h-4 ml-2" />
                </a>
              </Button>
            </motion.div>

@@ -79,45 +79,43 @@ const SponsorsSection = () => {
           </p>
         </motion.div>
 
-        {/* Sponsor Tiers */}
-        {sponsorTiers.map((tier, index) => (
-          <motion.div
-            key={tier.name}
-            initial={{ opacity: 0, y: 10 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.4, delay: 0.08 * index }}
-            className="mb-12"
-          >
-            <h3 className={`text-2xl text-center font-semibold mb-6 ${tier.color}`}>
-              {tier.name}
-            </h3>
+        {/* Sponsor Tiers (Stacked, No Labels) */}
+{sponsorTiers.map((tier, index) => (
+  <motion.div
+    key={tier.name}
+    initial={{ opacity: 0, y: 10 }}
+    animate={isInView ? { opacity: 1, y: 0 } : {}}
+    transition={{ duration: 0.4, delay: 0.08 * index }}
+    className="mb-10"
+  >
+    <div className="flex flex-wrap justify-center gap-6">
+      {tier.sponsors.map((sponsor) => (
+        <motion.div
+          key={sponsor.name}
+          whileHover={{ scale: 1.05 }}
+          className={`
+            ${tier.cardSize}
+            p-4
+            bg-white/80
+            backdrop-blur-md
+            rounded-xl
+            flex items-center justify-center
+            border border-white/20
+            transition-all duration-300
+          `}
+        >
+          <img
+            src={sponsor.logo}
+            alt={sponsor.name}
+            className="max-h-16 object-contain"
+          />
+        </motion.div>
+      ))}
+    </div>
+  </motion.div>
+))}
 
-            <div className="flex flex-wrap justify-center gap-6">
-              {tier.sponsors.map((sponsor) => (
-                <motion.div
-                  key={sponsor.name}
-                  whileHover={{ scale: 1.05 }}
-                  className={`
-                    ${tier.cardSize}
-                    p-4
-                    bg-white/80
-                    backdrop-blur-md
-                    rounded-xl
-                    flex items-center justify-center
-                    border border-white/20
-                    transition-all duration-300
-                  `}
-                >
-                  <img
-                    src={sponsor.logo}
-                    alt={sponsor.name}
-                    className="max-h-16 object-contain"
-                  />
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
+
 
         {/* Partners */}
         <motion.div
