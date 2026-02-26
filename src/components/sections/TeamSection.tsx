@@ -95,7 +95,7 @@ import { motion } from "framer-motion";
     {
       name: "Jyothi Vaidyanathan",
       title: "Workday Integration Engineer",
-      affiliation: "Google",
+      affiliation: "Lyft",
       image: "/judges/lyft.png",
     },
     {
