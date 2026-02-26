@@ -70,7 +70,7 @@
     },
     {
       icon: Rocket,
-      title: "Entrepreneurship",
+      title: "Product & Entrepreneurship",
       description:
         "Transform technical ideas into compelling solutions by focusing on impact, feasibility, and effective storytelling.",
       color: "from-secondary to-accent",

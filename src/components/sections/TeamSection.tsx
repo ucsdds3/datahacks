@@ -1,4 +1,4 @@
- import { motion } from "framer-motion";
+import { motion } from "framer-motion";
  import { useInView } from "framer-motion";
  import { useRef, useState } from "react";
  import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,40 +7,241 @@
  const TeamSection = () => {
    const ref = useRef(null);
    const isInView = useInView(ref, { once: true, margin: "-100px" });
- 
+   const [showAll, setShowAll] = useState(false);
+   const [showAllMentors, setShowAllMentors] = useState(false);
+
    const judges = [
     {
-      name: "To-be Revealed",
-      title: "To-be Revealed",
-      affiliation: "To-be Revealed",
-      image: "🧑‍💻",
+      name: "Ishita Verma",
+      title: "Senior MLE",
+      affiliation: "Neflix",
+      image: "/judges/netflix.png",
+    },
+    {
+      name: "Allan Sun",
+      title: "SWE",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Gayathri Nallore",
+      title: "Senior TPM",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Asif Amanullah",
+      title: "Senior Data Engineer",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Manoj Mohan",
+      title: "SDE",
+      affiliation: "Amazon",
+      image: "/judges/amazon.png",
+    },
+    {
+      name: "Chelsea Fernanades",
+      title: "SDE",
+      affiliation: "Amazon",
+      image: "/judges/amazon.png",
+    },
+    {
+      name: "Ngoc Doan",
+      title: "SWE",
+      affiliation: "DoorDash",
+      image: "/judges/doordash.png",
+    },
+    {
+      name: "Aditya Mallajosyula",
+      title: "Member of Technical Staff",
+      affiliation: "Oracle",
+      image: "/judges/oracle.png",
+    },
+    {
+      name: "Manushi Seth",
+      title: "Engineering Manager",
+      affiliation: "Sonos",
+      image: "/judges/sonos.png",
+    },
+    {
+      name: "Anishek Kamal",
+      title: "Data + AI Architect",
+      affiliation: "Microsoft + Toya AI",
+      image: "/judges/microsoft.png",
+    },
+    {
+      name: "Bhargav Piduru",
+      title: "Senior SWE",
+      affiliation: "Hyundai",
+      image: "/judges/hyundai.png",
+    },
+    {
+      name: "Stella Li",
+      title: "Lead PM",
+      affiliation: "BILL",
+      image: "/judges/bill.png",
     },
    ];
  
    const mentors = [
-     {
-       name: "To-be Revealed",
-       title: "To-be Revealed",
-       affiliation: "To-be Revealed",
-       image: "🧑‍💻",
-     },
+    {
+      name: "Juan Saldarriaga",
+      title: "Senior Computational Designer",
+      affiliation: "Google",
+      image: "/judges/google.png",
+    },
+    {
+      name: "Jyothi Vaidyanathan",
+      title: "Workday Integration Engineer",
+      affiliation: "Google",
+      image: "/judges/lyft.png",
+    },
+    {
+      name: "Ishita Verma",
+      title: "Senior MLE",
+      affiliation: "Neflix",
+      image: "/judges/netflix.png",
+    },
+    {
+      name: "Allan Sun",
+      title: "SWE",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Gayathri Nallore",
+      title: "Senior TPM",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Asif Amanullah",
+      title: "Senior Data Engineer",
+      affiliation: "Apple",
+      image: "/judges/apple.png",
+    },
+    {
+      name: "Manoj Mohan",
+      title: "SDE",
+      affiliation: "Amazon",
+      image: "/judges/amazon.png",
+    },
+    {
+      name: "Chelsea Fernanades",
+      title: "SDE",
+      affiliation: "Amazon",
+      image: "/judges/amazon.png",
+    },
+    {
+      name: "Ngoc Doan",
+      title: "SWE",
+      affiliation: "DoorDash",
+      image: "/judges/doordash.png",
+    },
+    {
+      name: "Aditya Mallajosyula",
+      title: "Member of Technical Staff",
+      affiliation: "Oracle",
+      image: "/judges/oracle.png",
+    },
+    {
+      name: "Manushi Seth",
+      title: "Engineering Manager",
+      affiliation: "Sonos",
+      image: "/judges/sonos.png",
+    },
+    {
+      name: "Anishek Kamal",
+      title: "Data + AI Architect",
+      affiliation: "Microsoft + Toya AI",
+      image: "/judges/microsoft.png",
+    },
+    {
+      name: "Bhargav Piduru",
+      title: "Senior SWE",
+      affiliation: "Hyundai",
+      image: "/judges/hyundai.png",
+    },
+    {
+      name: "Stella Li",
+      title: "Lead PM",
+      affiliation: "BILL",
+      image: "/judges/bill.png",
+    },
    ];
  
    const PersonCard = ({ person }: { person: typeof judges[0] }) => (
-     <motion.div
-       whileHover={{ y: -5 }}
-       className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
-     >
-       <div className="w-20 h-20 mx-auto bg-gradient-to-br from-bioluminescent/30 to-secondary/30 rounded-full flex items-center justify-center mb-4 text-4xl group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">
-         {person.image}
-       </div>
-       <h4 className="font-display text-lg font-bold text-white mb-1">
-         {person.name}
-       </h4>
-       <p className="text-bioluminescent text-sm mb-1">{person.title}</p>
-       <p className="text-white/50 text-sm">{person.affiliation}</p>
-     </motion.div>
-   );
+    <motion.div
+      whileHover={{ y: -5 }}
+      className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
+    >
+      <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 overflow-hidden bg-white/80 group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">
+        {typeof person.image === "string" && person.image.startsWith("/") ? (
+          <img
+            src={person.image}
+            alt={person.name}
+            className="w-3/4 h-3/4 object-contain"
+          />
+        ) : (
+          <span className="text-4xl">{person.image}</span>
+        )}
+      </div>
+  
+      <h4 className="font-display text-lg font-bold text-white mb-1">
+        {person.name}
+      </h4>
+  
+      <p className="text-bioluminescent text-sm mb-1">
+        {person.title}
+      </p>
+  
+      <p className="text-white/50 text-sm">
+        {person.affiliation}
+      </p>
+    </motion.div>
+  );
+
+  const PersonGrid = ({
+    people,
+    showAll,
+    setShowAll,
+  }: {
+    people: typeof judges;
+    showAll: boolean;
+    setShowAll: (val: boolean) => void;
+  }) => (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
+      >
+        {(showAll ? people : people.slice(0, 8)).map((person, index) => (
+          <motion.div
+            key={person.name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: index * 0.1 }}
+          >
+            <PersonCard person={person} />
+          </motion.div>
+        ))}
+      </motion.div>
+
+      {people.length > 8 && (
+        <div className="flex justify-center mt-8">
+          <button
+            onClick={() => setShowAll(!showAll)}
+            className="px-6 py-2 rounded-full border border-bioluminescent/40 text-bioluminescent hover:bg-bioluminescent/10 transition-colors text-sm font-medium"
+          >
+            {showAll ? "Show Less ↑" : `Show ${people.length - 8} More ↓`}
+          </button>
+        </div>
+      )}
+    </>
+  );
  
    return (
      <section
@@ -79,43 +280,11 @@
            </TabsList>
  
            <TabsContent value="judges">
-             <motion.div
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-              //  className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
-              className="flex justify-center"
-             >
-               {judges.map((judge, index) => (
-                 <motion.div
-                   key={judge.name}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={isInView ? { opacity: 1, y: 0 } : {}}
-                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                 >
-                   <PersonCard person={judge} />
-                 </motion.div>
-               ))}
-             </motion.div>
+             <PersonGrid people={judges} showAll={showAll} setShowAll={setShowAll} />
            </TabsContent>
  
            <TabsContent value="mentors">
-             <motion.div
-               initial={{ opacity: 0 }}
-               animate={{ opacity: 1 }}
-              //  className="grid sm:grid-cols-2 md:grid-cols-3 gap-6"
-              className="flex justify-center"
-             >
-               {mentors.map((mentor, index) => (
-                 <motion.div
-                   key={mentor.name}
-                   initial={{ opacity: 0, y: 20 }}
-                   animate={isInView ? { opacity: 1, y: 0 } : {}}
-                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                 >
-                   <PersonCard person={mentor} />
-                 </motion.div>
-               ))}
-             </motion.div>
+             <PersonGrid people={mentors} showAll={showAllMentors} setShowAll={setShowAllMentors} />
            </TabsContent>
          </Tabs>
        </div>
