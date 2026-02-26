@@ -65,9 +65,9 @@ const Navigation = () => {
           }}
         >
           <img
-            src="/datahacks-logo.png"
+            src="/club-logos/emblem.png"
             alt="DataHacks 2026"
-            style={{ width: "70px" }}
+            style={{ width: "90px" }}
           />
         </a>
 
