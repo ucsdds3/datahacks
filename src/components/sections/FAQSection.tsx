@@ -35,8 +35,12 @@
     },
      {
        question: "What should I bring?",
-       answer: "Bring your phone, laptop, charger, student ID, and anything you need to be comfortable overnight (pillow, blanket, etc.). We'll provide everything else!",
+       answer: "Bring your phone, laptop, charger, student ID, government-issued ID, and anything you need to be comfortable overnight (pillow, blanket, etc.). We'll provide everything else!",
      },
+     {
+      question: "Can I bring a monitor? Mouse & Keyboard?",
+      answer: "Due to limited space and power supply, we do NOT reccomend you bring a monitor or other bulky peripherals. Keyboard and mice are fine.",
+    },
      {
        question: "Do I need a team?",
        answer: "Teams can have 1-4 members. You can come with a team or find teammates at our team formation event at the start of the hackathon.",
@@ -59,7 +63,7 @@
     },
      {
        question: "What are the judging criteria?",
-       answer: "Projects are judged on innovation, technical complexity, impact on the theme (energy/climate/environment), and presentation quality. Exact rubrics will be revealed later.",
+       answer: "Projects are judged on innovation, technical complexity, impact on the theme, and presentation quality. Exact rubrics will be revealed later. Each track will be judged independently.",
      },
      {
        question: "Will there be travel reimbursement?",
