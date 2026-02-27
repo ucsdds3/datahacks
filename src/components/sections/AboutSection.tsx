@@ -41,6 +41,11 @@ const AboutSection = () => {
         logo: "/club-logos/startup.PNG",
         url: "https://www.startupincubatorsd.com/",
       },
+      {
+        name: "Product Management Club",
+        logo: "/club-logos/pmc.png",
+        url: "https://www.instagram.com/pmcatucsd/",
+      },
     ],
     partners: [
       {

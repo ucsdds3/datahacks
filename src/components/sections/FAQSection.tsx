@@ -19,7 +19,7 @@
     },
     {
       question: "Who hosts DataHacks?",
-      answer: "DataHacks has been annually hosted for several years by the Data Science Student Society (DS3), welcoming ~250 UCSD undergraduates. This year, we are excited to partner with Triton Quantitative Trading (TQT), Google Developer Group on Campus (GDG), AWS Cloud Club, Startup Incubator Club, and the Biomedical Engineering Society to bring an even bigger and better hackathon experience for 400 undergraduates and graduates from any university!",
+      answer: "DataHacks has been annually hosted for several years by the Data Science Student Society (DS3), welcoming ~250 UCSD undergraduates. This year, we are excited to partner with Triton Quantitative Trading (TQT), Google Developer Group on Campus (GDG), AWS Cloud Club, Startup Incubator Club, Product Management Club, and the Biomedical Engineering Society to bring an even bigger and better hackathon experience for 400 undergraduates and graduates from any university!",
     },
      {
        question: "Who can participate in DataHacks?",
