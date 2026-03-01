@@ -18,7 +18,7 @@ const AboutSection = () => {
     coOrganizers: [
       {
         name: "Google Developer Group on Campus (GDG)",
-        logo: "/club-logos/gdg.webp",
+        logo: "/club-logos/gdg.png",
         url: "https://gdg.community.dev/gdg-on-campus-at-university-of-california-san-diego-united-states/",
       },
       {
@@ -187,7 +187,7 @@ const AboutSection = () => {
                     <img
                       src={club.logo}
                       alt={club.name}
-                      className="max-h-20 max-w-full object-contain"
+                      className="max-h-20 max-w-25 object-contain"
                     />
                   </motion.div>
                 </a>
