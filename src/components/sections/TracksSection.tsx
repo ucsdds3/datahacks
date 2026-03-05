@@ -28,7 +28,7 @@
     },
     {
       icon: Bot,
-      title: "Machine Learning & AI",
+      title: "Machine Learning & Bio-AI",
       description:
         "Develop intelligent systems using data-driven techniques such as modeling, prediction, and classification.",
       color: "from-deep-water to-mid-water",

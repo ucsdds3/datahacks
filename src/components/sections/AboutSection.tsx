@@ -17,6 +17,11 @@ const AboutSection = () => {
     ],
     coOrganizers: [
       {
+        name: "BRAIN",
+        logo: "/club-logos/brain.png",
+        url: "",
+      },
+      {
         name: "Google Developer Group on Campus (GDG)",
         logo: "/club-logos/gdg.png",
         url: "https://gdg.community.dev/gdg-on-campus-at-university-of-california-san-diego-united-states/",
