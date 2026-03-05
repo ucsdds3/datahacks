@@ -20,17 +20,17 @@
     
    const tracks = [
     {
+      icon: Bot,
+      title: "Bio-AI & Machine Learning",
+      description:
+        "Develop intelligent systems using data-driven techniques such as modeling, prediction, and classification.",
+      color: "from-deep-water to-mid-water",
+    },
+    {
       icon: NotebookPen,
       title: "Data Analytics",
       description:
         "Use statistics and data-driven experimentation to analyze trends and power evidence-based business decisions.",
-      color: "from-deep-water to-mid-water",
-    },
-    {
-      icon: Bot,
-      title: "Machine Learning & Bio-AI",
-      description:
-        "Develop intelligent systems using data-driven techniques such as modeling, prediction, and classification.",
       color: "from-deep-water to-mid-water",
     },
     {
