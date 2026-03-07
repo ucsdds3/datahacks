@@ -43,7 +43,7 @@ const SponsorsSection = () => {
       sponsors: [
         { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
         { name: "Data Science Alliance", logo: "/sponsors/dsa.png", url: "https://www.datasciencealliance.org" },
-        { name: "Radiant Earth", logo: "/sponsors/radiant-earth.png", url: "https://radiant.earth/" },
+        { name: "cng", logo: "/sponsors/CNG.png", url: "https://cloudnativegeo.org/" },
       ],
     },
   ];
