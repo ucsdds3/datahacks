@@ -23,6 +23,7 @@ const SponsorsSection = () => {
       sponsors: [
         { name: "Marimo", logo: "/sponsors/marimo.png" },
         { name: "Sphinx", logo: "/sponsors/sphinx.png" },
+        { name: "COGS", logo: "/sponsors/cogs.png" },
       ],
     },
     {
@@ -32,6 +33,7 @@ const SponsorsSection = () => {
       sponsors: [
         { name: "Databricks", logo: "/sponsors/databricks.png" },
         { name: "Scripps", logo: "/sponsors/scripps.png" },
+        { name: "AS", logo: "/sponsors/AS.png" },
       ],
     },
     {
@@ -107,7 +109,7 @@ const SponsorsSection = () => {
           <img
             src={sponsor.logo}
             alt={sponsor.name}
-            className="max-h-16 object-contain"
+            className="max-h-20 object-contain"
           />
         </motion.div>
       ))}
