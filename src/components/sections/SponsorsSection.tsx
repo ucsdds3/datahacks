@@ -12,8 +12,8 @@ const SponsorsSection = () => {
       color: "text-white",
       cardSize: "w-72 h-44",
       sponsors: [
-        { name: "Qualcomm", logo: "/sponsors/qualcomm.png" },
-        { name: "HDSI", logo: "/sponsors/hdsi.png" },
+        { name: "Qualcomm", logo: "/sponsors/qualcomm.png", url: "https://www.qualcomm.com" },
+        { name: "SCIDS", logo: "/sponsors/scids.png", url: "https://scids.ucsd.edu/" },
       ],
     },
     {
@@ -21,9 +21,9 @@ const SponsorsSection = () => {
       color: "text-accent",
       cardSize: "w-60 h-36",
       sponsors: [
-        { name: "Marimo", logo: "/sponsors/marimo.png" },
-        { name: "Sphinx", logo: "/sponsors/sphinx.png" },
-        { name: "COGS", logo: "/sponsors/cogs.png" },
+        { name: "Marimo", logo: "/sponsors/marimo.png", url: "https://marimo.io" },
+        { name: "Sphinx", logo: "/sponsors/sphinx.png", url: "https://www.sphinx.ai/" },
+        { name: "COGS", logo: "/sponsors/cogs.png", url: "https://cogsci.ucsd.edu/" },
       ],
     },
     {
@@ -31,9 +31,9 @@ const SponsorsSection = () => {
       color: "text-white/70",
       cardSize: "w-52 h-32",
       sponsors: [
-        { name: "Databricks", logo: "/sponsors/databricks.png" },
-        { name: "Scripps", logo: "/sponsors/scripps.png" },
-        { name: "AS", logo: "/sponsors/AS.png" },
+        { name: "Databricks", logo: "/sponsors/databricks.png", url: "https://www.databricks.com" },
+        { name: "Scripps", logo: "/sponsors/scripps.png", url: "https://scripps.ucsd.edu" },
+        { name: "AS", logo: "/sponsors/AS.png", url: "https://as.ucsd.edu" },
       ],
     },
     {
@@ -41,17 +41,21 @@ const SponsorsSection = () => {
       color: "text-accent/70",
       cardSize: "w-44 h-28",
       sponsors: [
-        { name: "The Basement", logo: "/sponsors/basement.png" },
-        { name: "Data Science Alliance", logo: "/sponsors/dsa.png" },
+        { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
+        { name: "Data Science Alliance", logo: "/sponsors/dsa.png", url: "https://www.datasciencealliance.org" },
+        { name: "Radiant Earth", logo: "/sponsors/radiant-earth.png", url: "https://radiant.earth/" },
       ],
     },
   ];
 
   // Partners (separate + smaller)
   const partners = [
-    { name: "MongoDB", logo: "/partners/mongo.png" },
-    { name: "GitHub", logo: "/partners/github.png" },
-    { name: "JetBrains", logo: "/partners/jetbrains.png" },
+    { name: "MongoDB", logo: "/partners/mongo.png", url: "https://www.mongodb.com" },
+    { name: "JetBrains", logo: "/partners/jetbrains.png", url: "https://www.jetbrains.com" },
+    { name: "GitHub", logo: "/partners/github.png", url: "https://github.com" },
+    { name: "Atlassian", logo: "/partners/atlassian.png", url: "https://www.atlassian.com" },
+    { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
+    { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
   ];
 
   return (
@@ -82,42 +86,55 @@ const SponsorsSection = () => {
         </motion.div>
 
         {/* Sponsor Tiers (Stacked, No Labels) */}
-{sponsorTiers.map((tier, index) => (
-  <motion.div
-    key={tier.name}
-    initial={{ opacity: 0, y: 10 }}
-    animate={isInView ? { opacity: 1, y: 0 } : {}}
-    transition={{ duration: 0.4, delay: 0.08 * index }}
-    className="mb-10"
-  >
-    <div className="flex flex-wrap justify-center gap-6">
-      {tier.sponsors.map((sponsor) => (
-        <motion.div
-          key={sponsor.name}
-          whileHover={{ scale: 1.05 }}
-          className={`
-            ${tier.cardSize}
-            p-4
-            bg-white/80
-            backdrop-blur-md
-            rounded-xl
-            flex items-center justify-center
-            border border-white/20
-            transition-all duration-300
-          `}
-        >
-          <img
-            src={sponsor.logo}
-            alt={sponsor.name}
-            className="max-h-20 object-contain"
-          />
-        </motion.div>
-      ))}
-    </div>
-  </motion.div>
-))}
+        {sponsorTiers.map((tier, index) => (
+          <motion.div
+            key={tier.name}
+            initial={{ opacity: 0, y: 10 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.4, delay: 0.08 * index }}
+            className="mb-10"
+          >
+            <div className="flex flex-wrap justify-center gap-6">
+              {tier.sponsors.map((sponsor) => {
+                const card = (
+                  <motion.div
+                    key={sponsor.name}
+                    whileHover={{ scale: 1.05 }}
+                    className={`
+                      ${tier.cardSize}
+                      p-4
+                      bg-white/80
+                      backdrop-blur-md
+                      rounded-xl
+                      flex items-center justify-center
+                      border border-white/20
+                      transition-all duration-300
+                      ${sponsor.url ? "cursor-pointer" : ""}
+                    `}
+                  >
+                    <img
+                      src={sponsor.logo}
+                      alt={sponsor.name}
+                      className="max-h-20 object-contain"
+                    />
+                  </motion.div>
+                );
 
-
+                return sponsor.url ? (
+                  <a
+                    key={sponsor.name}
+                    href={sponsor.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={sponsor.name}
+                  >
+                    {card}
+                  </a>
+                ) : card;
+              })}
+            </div>
+          </motion.div>
+        ))}
 
         {/* Partners */}
         <motion.div
@@ -126,33 +143,44 @@ const SponsorsSection = () => {
           transition={{ duration: 0.4, delay: 0.4 }}
           className="mt-16"
         >
-          <h3 className="text-xl text-center text-white/60 font-medium mb-4">
-            Partners
-          </h3>
-
           <div className="flex flex-wrap justify-center gap-4">
-            {partners.map((partner) => (
-              <motion.div
-                key={partner.name}
-                whileHover={{ scale: 1.05 }}
-                className="
-                  w-32 h-16
-                  p-3
-                  bg-white/80
-                  backdrop-blur-sm
-                  rounded-lg
-                  flex items-center justify-center
-                  border border-white/10
-                  transition-all duration-300
-                "
-              >
-                <img
-                  src={partner.logo}
-                  alt={partner.name}
-                  className="max-h-10 object-contain"
-                />
-              </motion.div>
-            ))}
+            {partners.map((partner) => {
+              const card = (
+                <motion.div
+                  key={partner.name}
+                  whileHover={{ scale: 1.05 }}
+                  className={`
+                    w-32 h-16
+                    p-3
+                    bg-white/80
+                    backdrop-blur-sm
+                    rounded-lg
+                    flex items-center justify-center
+                    border border-white/10
+                    transition-all duration-300
+                    ${partner.url ? "cursor-pointer" : ""}
+                  `}
+                >
+                  <img
+                    src={partner.logo}
+                    alt={partner.name}
+                    className="max-h-10 object-contain"
+                  />
+                </motion.div>
+              );
+
+              return partner.url ? (
+                <a
+                  key={partner.name}
+                  href={partner.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={partner.name}
+                >
+                  {card}
+                </a>
+              ) : card;
+            })}
           </div>
         </motion.div>
 

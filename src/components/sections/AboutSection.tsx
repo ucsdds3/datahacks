@@ -68,6 +68,11 @@ const AboutSection = () => {
         logo: "/club-logos/cbc.png",
         url: "https://www.instagram.com/cbcatucsd/?hl=en",
       },
+      {
+        name: "TESC",
+        logo: "/club-logos/tesc.png",
+        url: "https://tescatucsd.org/",
+      },
     ],
   };
 
@@ -220,7 +225,7 @@ const AboutSection = () => {
                     <img
                       src={club.logo}
                       alt={club.name}
-                      className="max-h-14 max-w-full object-contain opacity-90"
+                      className="max-h-14 max-w-28 object-contain opacity-90"
                     />
                   </motion.div>
                 </a>
