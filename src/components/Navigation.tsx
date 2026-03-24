@@ -11,6 +11,7 @@ import {
 
 const navLinks = [
   { name: "Devpost", href: "https://datahacks-2026.devpost.com/" },
+  { name: "Timeline", href: "#timeline" },
   { name: "Tracks", href: "#tracks" },
   { name: "Prizes", href: "#prizes" },
   { name: "Challenges", href: "#challenges" },
@@ -83,12 +84,7 @@ const Navigation = () => {
                 {link.name}
               </a>
             ))}
-            <Button
-              asChild
-              className="bg-accent text-accent-foreground hover:bg-accent/90 font-bold"
-            >
-              <a href="https://docs.google.com/forms/d/e/1FAIpQLScWZ1-QNCF55GJrnIhXD2ZLJqriXSOJ8V8gDQFkzbQqKNRmlQ/viewform?usp=sharing&ouid=113914661221302710293" target="_blank">Register</a>
-            </Button>
+
           </div>
         </div>
 

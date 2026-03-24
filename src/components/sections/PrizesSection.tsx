@@ -59,7 +59,7 @@
            className="text-center mb-16"
          >
            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-            Track Prizes
+            $10,000 in Prizes
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
            EACH domain track awards top teams with cash prizes, swag, and sponsor-provided rewards. Prize amounts and rewards may vary by track.

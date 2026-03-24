@@ -51,6 +51,16 @@ const AboutSection = () => {
         logo: "/club-logos/pmc.png",
         url: "https://www.instagram.com/pmcatucsd/",
       },
+      {
+        name: "CSES",
+        logo: "/club-logos/CSES.png",
+        url: "https://csesucsd.com/",
+      },
+      {
+        name: "SDx",
+        logo: "/club-logos/Sdx.png",
+        url: "https://sdxucsd.com/",
+      },
     ],
     partners: [
       {

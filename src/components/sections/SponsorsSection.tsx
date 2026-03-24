@@ -44,6 +44,9 @@ const SponsorsSection = () => {
         { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
         { name: "Data Science Alliance", logo: "/sponsors/dsa.png", url: "https://www.datasciencealliance.org" },
         { name: "cng", logo: "/sponsors/CNG.png", url: "https://cloudnativegeo.org/" },
+        { name: "Atlassian", logo: "/sponsors/atlassian.png", url: "https://www.atlassian.com" },
+        { name: "IEEE SD", logo: "/sponsors/IEEE_SD.png", url: "https://sdieee.org/sdieee/" },
+        { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
       ],
     },
   ];
@@ -53,7 +56,6 @@ const SponsorsSection = () => {
     { name: "MongoDB", logo: "/partners/mongo.png", url: "https://www.mongodb.com" },
     { name: "JetBrains", logo: "/partners/jetbrains.png", url: "https://www.jetbrains.com" },
     { name: "GitHub", logo: "/partners/github.png", url: "https://github.com" },
-    { name: "Atlassian", logo: "/partners/atlassian.png", url: "https://www.atlassian.com" },
     { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
     { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
   ];

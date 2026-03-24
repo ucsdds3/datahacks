@@ -1,247 +1,147 @@
-import { motion } from "framer-motion";
- import { useInView } from "framer-motion";
- import { useRef, useState } from "react";
- import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
- import { JellyfishGroup } from "../animations/Jellyfish";
- 
- const TeamSection = () => {
-   const ref = useRef(null);
-   const isInView = useInView(ref, { once: true, margin: "-100px" });
-   const [showAll, setShowAll] = useState(false);
-   const [showAllMentors, setShowAllMentors] = useState(false);
+import { motion, useInView } from "framer-motion";
+import { useRef, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  useJudgesAndMentors,
+  type TeamMember,
+} from "@/hooks/useJudgesAndMentors";
+import { JellyfishGroup } from "../animations/Jellyfish";
 
-   const judges = [
-    {
-      name: "Ishita Verma",
-      title: "Senior MLE",
-      affiliation: "Neflix",
-      image: "/judges/netflix.png",
-    },
-    {
-      name: "Allan Sun",
-      title: "SWE",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Gayathri Nallore",
-      title: "Senior TPM",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Asif Amanullah",
-      title: "Senior Data Engineer",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Manoj Mohan",
-      title: "SDE",
-      affiliation: "Amazon",
-      image: "/judges/amazon.png",
-    },
-    {
-      name: "Chelsea Fernanades",
-      title: "SDE",
-      affiliation: "Amazon",
-      image: "/judges/amazon.png",
-    },
-    {
-      name: "Ngoc Doan",
-      title: "SWE",
-      affiliation: "DoorDash",
-      image: "/judges/doordash.png",
-    },
-    {
-      name: "Aditya Mallajosyula",
-      title: "Member of Technical Staff",
-      affiliation: "Oracle",
-      image: "/judges/oracle.png",
-    },
-    {
-      name: "Manushi Seth",
-      title: "Engineering Manager",
-      affiliation: "Sonos",
-      image: "/judges/sonos.png",
-    },
-    {
-      name: "Anishek Kamal",
-      title: "Data + AI Architect",
-      affiliation: "Microsoft + Toya AI",
-      image: "/judges/microsoft.png",
-    },
-    {
-      name: "Bhargav Piduru",
-      title: "Senior SWE",
-      affiliation: "Hyundai",
-      image: "/judges/hyundai.png",
-    },
-    {
-      name: "Stella Li",
-      title: "Lead PM",
-      affiliation: "BILL",
-      image: "/judges/bill.png",
-    },
-   ];
- 
-   const mentors = [
-    {
-      name: "Juan Saldarriaga",
-      title: "Senior Computational Designer",
-      affiliation: "Google",
-      image: "/judges/google.png",
-    },
-    {
-      name: "Jyothi Vaidyanathan",
-      title: "Workday Integration Engineer",
-      affiliation: "Lyft",
-      image: "/judges/lyft.png",
-    },
-    {
-      name: "Ishita Verma",
-      title: "Senior MLE",
-      affiliation: "Neflix",
-      image: "/judges/netflix.png",
-    },
-    {
-      name: "Allan Sun",
-      title: "SWE",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Gayathri Nallore",
-      title: "Senior TPM",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Asif Amanullah",
-      title: "Senior Data Engineer",
-      affiliation: "Apple",
-      image: "/judges/apple.png",
-    },
-    {
-      name: "Manoj Mohan",
-      title: "SDE",
-      affiliation: "Amazon",
-      image: "/judges/amazon.png",
-    },
-    {
-      name: "Chelsea Fernanades",
-      title: "SDE",
-      affiliation: "Amazon",
-      image: "/judges/amazon.png",
-    },
-    {
-      name: "Ngoc Doan",
-      title: "SWE",
-      affiliation: "DoorDash",
-      image: "/judges/doordash.png",
-    },
-    {
-      name: "Aditya Mallajosyula",
-      title: "Member of Technical Staff",
-      affiliation: "Oracle",
-      image: "/judges/oracle.png",
-    },
-    {
-      name: "Manushi Seth",
-      title: "Engineering Manager",
-      affiliation: "Sonos",
-      image: "/judges/sonos.png",
-    },
-    {
-      name: "Anishek Kamal",
-      title: "Data + AI Architect",
-      affiliation: "Microsoft + Toya AI",
-      image: "/judges/microsoft.png",
-    },
-    {
-      name: "Bhargav Piduru",
-      title: "Senior SWE",
-      affiliation: "Hyundai",
-      image: "/judges/hyundai.png",
-    },
-    {
-      name: "Stella Li",
-      title: "Lead PM",
-      affiliation: "BILL",
-      image: "/judges/bill.png",
-    },
-   ];
- 
-   const PersonCard = ({ person }: { person: typeof judges[0] }) => (
-    <motion.div
-      whileHover={{ y: -5 }}
-      className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
-    >
-      <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 overflow-hidden bg-white/80 group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">
-        {typeof person.image === "string" && person.image.startsWith("/") ? (
-          <img
-            src={person.image}
-            alt={person.name}
-            className="w-3/4 h-3/4 object-contain"
-          />
-        ) : (
-          <span className="text-4xl">{person.image}</span>
-        )}
-      </div>
-  
-      <h4 className="font-display text-lg font-bold text-white mb-1">
-        {person.name}
-      </h4>
-  
-      <p className="text-bioluminescent text-sm mb-1">
-        {person.title}
-      </p>
-  
-      <p className="text-white/50 text-sm">
-        {person.affiliation}
-      </p>
-    </motion.div>
+const getInitials = (name: string) =>
+  name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+
+const TeamSection = () => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [showAll, setShowAll] = useState(false);
+  const [showAllMentors, setShowAllMentors] = useState(false);
+  const { data, isLoading, isError } = useJudgesAndMentors();
+
+  const PersonCard = ({ person }: { person: TeamMember }) => {
+    const [showLogo, setShowLogo] = useState(Boolean(person.logoSrc));
+
+    return (
+      <motion.div
+        whileHover={{ y: -5 }}
+        className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
+      >
+        <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 overflow-hidden bg-white/80 border border-white/15 group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">
+          {showLogo && person.logoSrc ? (
+            <img
+              src={person.logoSrc}
+              alt={person.affiliation}
+              className="w-3/4 h-3/4 object-contain"
+              onError={() => setShowLogo(false)}
+            />
+          ) : (
+            <span className="font-display text-2xl font-bold">
+              {getInitials(person.name)}
+            </span>
+          )}
+        </div>
+
+        <h4 className="font-display text-lg font-bold text-white mb-1">
+          {person.name}
+        </h4>
+
+        <p className="text-bioluminescent text-sm mb-1">{person.title}</p>
+
+        <p className="text-white/50 text-sm">{person.affiliation}</p>
+      </motion.div>
+    );
+  };
+
+  const LoadingGrid = () => (
+    <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div
+          key={index}
+          className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20"
+        >
+          <Skeleton className="w-20 h-20 rounded-full mx-auto mb-4 bg-white/10" />
+          <Skeleton className="h-5 w-3/4 mx-auto mb-2 bg-white/10" />
+          <Skeleton className="h-4 w-2/3 mx-auto mb-2 bg-white/10" />
+          <Skeleton className="h-4 w-1/2 mx-auto bg-white/10" />
+        </div>
+      ))}
+    </div>
+  );
+
+  const EmptyState = ({ label }: { label: string }) => (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-6 py-10 text-center text-white/70">
+      No {label.toLowerCase()} are listed yet. Check back soon.
+    </div>
+  );
+
+  const ErrorState = () => (
+    <div className="rounded-2xl border border-coral/30 bg-coral/10 px-6 py-10 text-center text-white/80">
+      We couldn&apos;t load the latest judges and mentors right now.
+    </div>
   );
 
   const PersonGrid = ({
     people,
-    showAll,
-    setShowAll,
+    label,
+    showAllPeople,
+    setShowAllPeople,
   }: {
-    people: typeof judges;
-    showAll: boolean;
-    setShowAll: (val: boolean) => void;
-  }) => (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
-      >
-        {(showAll ? people : people.slice(0, 8)).map((person, index) => (
-          <motion.div
-            key={person.name}
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.4, delay: index * 0.1 }}
-          >
-            <PersonCard person={person} />
-          </motion.div>
-        ))}
-      </motion.div>
+    people: TeamMember[];
+    label: string;
+    showAllPeople: boolean;
+    setShowAllPeople: (value: boolean) => void;
+  }) => {
+    if (isLoading) {
+      return <LoadingGrid />;
+    }
 
-      {people.length > 8 && (
-        <div className="flex justify-center mt-8">
-          <button
-            onClick={() => setShowAll(!showAll)}
-            className="px-6 py-2 rounded-full border border-bioluminescent/40 text-bioluminescent hover:bg-bioluminescent/10 transition-colors text-sm font-medium"
-          >
-            {showAll ? "Show Less ↑" : `Show ${people.length - 8} More ↓`}
-          </button>
-        </div>
-      )}
-    </>
-  );
+    if (isError) {
+      return <ErrorState />;
+    }
+
+    if (people.length === 0) {
+      return <EmptyState label={label} />;
+    }
+
+    const visiblePeople = showAllPeople ? people : people.slice(0, 8);
+
+    return (
+      <>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
+        >
+          {visiblePeople.map((person, index) => (
+            <motion.div
+              key={person.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <PersonCard person={person} />
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {people.length > 8 && (
+          <div className="flex justify-center mt-8">
+            <button
+              onClick={() => setShowAllPeople(!showAllPeople)}
+              className="px-6 py-2 rounded-full border border-bioluminescent/40 text-bioluminescent hover:bg-bioluminescent/10 transition-colors text-sm font-medium"
+            >
+              {showAllPeople ? "Show Less ↑" : `Show ${people.length - 8} More ↓`}
+            </button>
+          </div>
+        )}
+      </>
+    );
+  };
  
    return (
      <section
@@ -272,19 +172,29 @@ import { motion } from "framer-motion";
          <Tabs defaultValue="judges" className="w-full">
            <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-white/10 mb-12">
              <TabsTrigger value="judges" className="data-[state=active]:bg-bioluminescent data-[state=active]:text-deep-water">
-               Judges
+               Judges{data ? ` (${data.judges.length})` : ""}
              </TabsTrigger>
              <TabsTrigger value="mentors" className="data-[state=active]:bg-bioluminescent data-[state=active]:text-deep-water">
-               Mentors
+               Mentors{data ? ` (${data.mentors.length})` : ""}
              </TabsTrigger>
            </TabsList>
  
            <TabsContent value="judges">
-             <PersonGrid people={judges} showAll={showAll} setShowAll={setShowAll} />
+             <PersonGrid
+               people={data?.judges ?? []}
+               label="Judges"
+               showAllPeople={showAll}
+               setShowAllPeople={setShowAll}
+             />
            </TabsContent>
  
            <TabsContent value="mentors">
-             <PersonGrid people={mentors} showAll={showAllMentors} setShowAll={setShowAllMentors} />
+             <PersonGrid
+               people={data?.mentors ?? []}
+               label="Mentors"
+               showAllPeople={showAllMentors}
+               setShowAllPeople={setShowAllMentors}
+             />
            </TabsContent>
          </Tabs>
        </div>
@@ -295,7 +205,8 @@ import { motion } from "framer-motion";
            transition={{ duration: 0.5, delay: 0.5 }}
            className="text-2xl text-center text-white/60 mt-12"
          >
-           Interested in mentoring or judging?{" "}
+           {/* Interested in mentoring or judging?{" "} */}
+           We have hit our mentor & judge capacity.{" "}
            <a href="mailto:ds3@ucsd.edu" className="text-accent hover:underline">
              Contact us
            </a>
