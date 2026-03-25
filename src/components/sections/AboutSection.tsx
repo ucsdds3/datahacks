@@ -18,7 +18,7 @@ const AboutSection = () => {
     coOrganizers: [
       {
         name: "BRAIN",
-        logo: "/club-logos/brain.png",
+        logo: "/club-logos/BRAIN.png",
         url: "",
       },
       {
