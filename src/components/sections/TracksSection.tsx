@@ -49,7 +49,7 @@
     },
     {
       icon: Dna,
-      title: "Biotechnology",
+      title: "Mechanical Design & Biotechnology",
       description:
         "Prototype systems or devices that interface with biological data, signals, or processes through applied engineering.",
       color: "from-seaweed to-secondary",

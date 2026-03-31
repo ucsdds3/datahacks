@@ -31,8 +31,12 @@ const SponsorsSection = () => {
       color: "text-white/70",
       cardSize: "w-52 h-32",
       sponsors: [
+        { name: "Google", logo: "/sponsors/google.png", url: "https://www.google.com" },
+        // { name: "Amazon", logo: "/sponsors/amazon.png", url: "https://www.amazon.com" },
         { name: "Databricks", logo: "/sponsors/databricks.png", url: "https://www.databricks.com" },
+        { name: "Vercel", logo: "/sponsors/vercel.png", url: "https://vercel.com" },
         { name: "Scripps", logo: "/sponsors/scripps.png", url: "https://scripps.ucsd.edu" },
+        { name: "CSE", logo: "/sponsors/CSE.png", url: "https://cse.ucsd.edu" },
         { name: "AS", logo: "/sponsors/AS.png", url: "https://as.ucsd.edu" },
       ],
     },
@@ -41,23 +45,25 @@ const SponsorsSection = () => {
       color: "text-accent/70",
       cardSize: "w-44 h-28",
       sponsors: [
-        { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
         { name: "Data Science Alliance", logo: "/sponsors/dsa.png", url: "https://www.datasciencealliance.org" },
         { name: "cng", logo: "/sponsors/CNG.png", url: "https://cloudnativegeo.org/" },
         { name: "Atlassian", logo: "/sponsors/atlassian.png", url: "https://www.atlassian.com" },
         { name: "IEEE SD", logo: "/sponsors/IEEE_SD.png", url: "https://sdieee.org/sdieee/" },
         { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
+        { name: "Career Center", logo: "/sponsors/career_center.png", url: "https://career.ucsd.edu/" },
+        { name: "UCSD IEM", logo: "/sponsors/ucsd_iem.png", url: "https://iem.ucsd.edu/" },
+        { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
       ],
     },
   ];
 
   // Partners (separate + smaller)
   const partners = [
-    { name: "MongoDB", logo: "/partners/mongo.png", url: "https://www.mongodb.com" },
-    { name: "JetBrains", logo: "/partners/jetbrains.png", url: "https://www.jetbrains.com" },
     { name: "GitHub", logo: "/partners/github.png", url: "https://github.com" },
     { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
     { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
+    { name: "Perplexity", logo: "/partners/perplexity.webp", url: "https://www.perplexity.ai" },
+    { name: "Claude", logo: "/club-logos/cbc.png", url: "https://www.anthropic.com" },
   ];
 
   return (

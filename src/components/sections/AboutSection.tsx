@@ -61,6 +61,11 @@ const AboutSection = () => {
         logo: "/club-logos/Sdx.png",
         url: "https://sdxucsd.com/",
       },
+      {
+        name: "ASME",
+        logo: "/club-logos/asme.png",
+        url: "https://asme.org/",
+      },
     ],
     partners: [
       {
