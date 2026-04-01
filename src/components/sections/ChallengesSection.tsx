@@ -1,7 +1,7 @@
  import { motion } from "framer-motion";
  import { useInView } from "framer-motion";
  import { useRef } from "react";
- import { Building2, Lightbulb, Target, Cloud, NotebookIcon } from "lucide-react";
+ import { Building2, Lightbulb, Target, Cloud, NotebookIcon, Mic, Cpu, Database } from "lucide-react";
  import Bubbles from "../animations/Bubbles";
  
  const ChallengesSection = () => {
@@ -27,14 +27,14 @@
       icon: Cloud,
     },
   
-    {
-      sponsor: "Cloud Platform Challenge",
-      title: "Google Cloud Platform Challenge",
-      description:
-        "Build and deploy your project using Google Cloud Platform or Google AI tools. Submissions will be judged on effective integration and system design.",
-      prize: "$TBD",
-      icon: Target,
-    },
+    // {
+    //   sponsor: "Cloud Platform Challenge",
+    //   title: "Google Cloud Platform Challenge",
+    //   description:
+    //     "Build and deploy your project using Google Cloud Platform or Google AI tools. Submissions will be judged on effective integration and system design.",
+    //   prize: "$TBD",
+    //   icon: Target,
+    // },
   
     {
       sponsor: "ML & AI Tooling Challenge",
@@ -62,30 +62,47 @@
       prize: "$TBD",
       icon: Building2,
     },
-    // {
-    //   sponsor: "AI Systems Challenge",
-    //   title: "Claude Challenge",
-    //   description:
-    //     "Incorporate Claude into your project for reasoning, analysis, or intelligent system behavior. Projects will be evaluated on effective and responsible use of large language models.",
-    //   prize: "$500",
-    //   icon: Building2,
-    // },
-    // {
-    //   sponsor: "Biotechnology Challenge",
-    //   title: "Biotech Systems Challenge I",
-    //   description:
-    //     "Build a project that interfaces with biological data, signals, or bio-inspired systems. Details and evaluation criteria will be revealed at kickoff.",
-    //   prize: "$1,000",
-    //   icon: Building2,
-    // },
-    // {
-    //   sponsor: "Biotechnology Challenge",
-    //   title: "Biotech Systems Challenge II",
-    //   description:
-    //     "Design and prototype a system or device informed by biological processes or data. Specific challenge details will be announced at the event.",
-    //   prize: "$500",
-    //   icon: Building2,
-    // },
+    {
+    sponsor: "MLH Challenge",
+    title: "Best Use of Gemini API with GCP",
+    description:
+      "Build an AI-powered application using the Gemini API and Google Cloud. Projects should showcase meaningful use of language understanding, generation, or reasoning to solve real-world problems.",
+    prize: "Swag Kits",
+    icon: Cloud,
+  },
+  {
+    sponsor: "MLH Challenge",
+    title: "Best Use of ElevenLabs",
+    description:
+      "Create an application using ElevenLabs to generate realistic, expressive AI audio. Projects can include voice agents, narration systems, or interactive audio experiences.",
+    prize: "Wireless Earbuds",
+    icon: Mic,
+  },
+  {
+    sponsor: "MLH Challenge",
+    title: "Best Use of Solana",
+    description:
+      "Build a fast, scalable application using the Solana blockchain. Projects may include decentralized apps, payments, trading systems, or high-throughput consumer products.",
+    prize: "Ledger Nano S Plus",
+    icon: Cpu,
+  },
+  {
+    sponsor: "MLH Challenge",
+    title: "Best Use of DigitalOcean",
+    description:
+      "Deploy or scale your project using DigitalOcean infrastructure such as Droplets, Managed Databases, or App Platform. Judged on effective cloud architecture and usage.",
+    prize: "Retro Wireless Mouse",
+    icon: Cloud,
+  },
+  {
+    sponsor: "MLH Challenge",
+    title: "Best Use of Snowflake API",
+    description:
+      "Build an application using Snowflake's APIs for data processing or AI-powered workflows. Projects should demonstrate efficient data handling and integration of AI capabilities.",
+    prize: "Raspberry Pi 4",
+    icon: Database,
+  }
+
   ];
   
    return (
