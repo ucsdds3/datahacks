@@ -50,6 +50,7 @@ const SponsorsSection = () => {
         { name: "cng", logo: "/sponsors/CNG.png", url: "https://cloudnativegeo.org/" },
         { name: "Atlassian", logo: "/sponsors/atlassian.png", url: "https://www.atlassian.com" },
         { name: "IEEE SD", logo: "/sponsors/IEEE_SD.png", url: "https://sdieee.org/sdieee/" },
+        { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
         { name: "Career Center", logo: "/sponsors/career_center.png", url: "https://career.ucsd.edu/" },
         { name: "UCSD IEM", logo: "/sponsors/ucsd_iem.png", url: "https://iem.ucsd.edu/" },
         { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
@@ -66,9 +67,18 @@ const SponsorsSection = () => {
     { name: "Eleven Labs", logo: "/partners/eleven_labs.png", url: "https://www.elevenlabs.io" },
     { name: "Solana", logo: "/partners/solana.png", url: "https://solana.com" },
     { name: "Snowflake", logo: "/partners/snowflake.png", url: "https://www.snowflake.com" },
-    { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
     { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
     { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
+  ];
+
+  // Food Sponsors
+  const foodSponsors = [
+    { name: "Monster", logo: "/food/monster.png", url: "https://www.monsterenergy.com" },
+    { name: "Celsius", logo: "/food/celsius.png", url: "https://www.celsius.com" },
+    { name: "pibb", logo: "/food/pibb.png", url: "https://www.coca-cola.com/us/en/brands/mr-pibb" },
+    { name: "Margarita Dawgz", logo: "/food/margarita_dawgz.png", url: "https://www.margaritadawgz.com" },
+
+
   ];
 
   return (
@@ -156,6 +166,9 @@ const SponsorsSection = () => {
           transition={{ duration: 0.4, delay: 0.4 }}
           className="mt-16"
         >
+          <h3 className="text-center text-white/60 text-sm font-semibold uppercase tracking-widest mb-4">
+            Partners
+          </h3>
           <div className="flex flex-wrap justify-center gap-4">
             {partners.map((partner) => {
               const card = (
@@ -189,6 +202,57 @@ const SponsorsSection = () => {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={partner.name}
+                >
+                  {card}
+                </a>
+              ) : card;
+            })}
+          </div>
+        </motion.div>
+
+        {/* Powered By */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.4, delay: 0.5 }}
+          className="mt-10"
+        >
+          <h3 className="text-center text-white/60 text-sm font-semibold uppercase tracking-widest mb-4">
+            Powered By
+          </h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            {foodSponsors.map((sponsor) => {
+              const card = (
+                <motion.div
+                  key={sponsor.name}
+                  whileHover={{ scale: 1.05 }}
+                  className={`
+                    w-32 h-16
+                    p-2
+                    bg-white/80
+                    backdrop-blur-sm
+                    rounded-lg
+                    flex items-center justify-center
+                    border border-white/10
+                    transition-all duration-300
+                    ${sponsor.url ? "cursor-pointer" : ""}
+                  `}
+                >
+                  <img
+                    src={sponsor.logo}
+                    alt={sponsor.name}
+                    className="max-h-10 object-contain"
+                  />
+                </motion.div>
+              );
+
+              return sponsor.url ? (
+                <a
+                  key={sponsor.name}
+                  href={sponsor.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={sponsor.name}
                 >
                   {card}
                 </a>
