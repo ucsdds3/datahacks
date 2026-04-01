@@ -10,7 +10,7 @@ const SponsorsSection = () => {
     {
       name: "Platinum",
       color: "text-white",
-      cardSize: "w-72 h-44",
+      cardSize: "w-56 h-32",
       sponsors: [
         { name: "Qualcomm", logo: "/sponsors/qualcomm.png", url: "https://www.qualcomm.com" },
         { name: "SCIDS", logo: "/sponsors/scids.png", url: "https://scids.ucsd.edu/" },
@@ -19,20 +19,21 @@ const SponsorsSection = () => {
     {
       name: "Gold",
       color: "text-accent",
-      cardSize: "w-60 h-36",
+      cardSize: "w-48 h-28",
       sponsors: [
         { name: "Marimo", logo: "/sponsors/marimo.png", url: "https://marimo.io" },
         { name: "Sphinx", logo: "/sponsors/sphinx.png", url: "https://www.sphinx.ai/" },
+        { name: "Orthogonal", logo: "/sponsors/orthogonal.png", url: "https://www.orthogonal.com/" },
         { name: "COGS", logo: "/sponsors/cogs.png", url: "https://cogsci.ucsd.edu/" },
       ],
     },
     {
       name: "Silver",
       color: "text-white/70",
-      cardSize: "w-52 h-32",
+      cardSize: "w-40 h-24",
       sponsors: [
         { name: "Google", logo: "/sponsors/google.png", url: "https://www.google.com" },
-        // { name: "Amazon", logo: "/sponsors/amazon.png", url: "https://www.amazon.com" },
+        { name: "Amazon", logo: "/sponsors/amazon.png", url: "https://www.amazon.com" },
         { name: "Databricks", logo: "/sponsors/databricks.png", url: "https://www.databricks.com" },
         { name: "Vercel", logo: "/sponsors/vercel.png", url: "https://vercel.com" },
         { name: "Scripps", logo: "/sponsors/scripps.png", url: "https://scripps.ucsd.edu" },
@@ -43,13 +44,12 @@ const SponsorsSection = () => {
     {
       name: "Bronze",
       color: "text-accent/70",
-      cardSize: "w-44 h-28",
+      cardSize: "w-36 h-20",
       sponsors: [
         { name: "Data Science Alliance", logo: "/sponsors/dsa.png", url: "https://www.datasciencealliance.org" },
         { name: "cng", logo: "/sponsors/CNG.png", url: "https://cloudnativegeo.org/" },
         { name: "Atlassian", logo: "/sponsors/atlassian.png", url: "https://www.atlassian.com" },
         { name: "IEEE SD", logo: "/sponsors/IEEE_SD.png", url: "https://sdieee.org/sdieee/" },
-        { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
         { name: "Career Center", logo: "/sponsors/career_center.png", url: "https://career.ucsd.edu/" },
         { name: "UCSD IEM", logo: "/sponsors/ucsd_iem.png", url: "https://iem.ucsd.edu/" },
         { name: "The Basement", logo: "/sponsors/basement.png", url: "https://thebasement.ucsd.edu" },
@@ -60,10 +60,15 @@ const SponsorsSection = () => {
   // Partners (separate + smaller)
   const partners = [
     { name: "GitHub", logo: "/partners/github.png", url: "https://github.com" },
-    { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
-    { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
     { name: "Perplexity", logo: "/partners/perplexity.webp", url: "https://www.perplexity.ai" },
     { name: "Claude", logo: "/club-logos/cbc.png", url: "https://www.anthropic.com" },
+    { name: "Digital Ocean", logo: "/partners/digital_ocean.png", url: "https://www.digitalocean.com" },
+    { name: "Eleven Labs", logo: "/partners/eleven_labs.png", url: "https://www.elevenlabs.io" },
+    { name: "Solana", logo: "/partners/solana.png", url: "https://solana.com" },
+    { name: "Snowflake", logo: "/partners/snowflake.png", url: "https://www.snowflake.com" },
+    { name: "IEEE vts", logo: "/sponsors/IEEE_VTS.png", url: "https://vtsociety.org/" },
+    { name: "MLH", logo: "/partners/mlh.png", url: "https://mlh.io" },
+    { name: "Pure Buttons", logo: "/partners/pure-buttons.png", url: "https://purebuttons.com" },
   ];
 
   return (
@@ -110,7 +115,7 @@ const SponsorsSection = () => {
                     whileHover={{ scale: 1.05 }}
                     className={`
                       ${tier.cardSize}
-                      p-4
+                      p-3
                       bg-white/80
                       backdrop-blur-md
                       rounded-xl
@@ -123,7 +128,7 @@ const SponsorsSection = () => {
                     <img
                       src={sponsor.logo}
                       alt={sponsor.name}
-                      className="max-h-20 object-contain"
+                      className="max-h-14 object-contain"
                     />
                   </motion.div>
                 );
@@ -158,8 +163,8 @@ const SponsorsSection = () => {
                   key={partner.name}
                   whileHover={{ scale: 1.05 }}
                   className={`
-                    w-32 h-16
-                    p-3
+                    w-24 h-12
+                    p-2
                     bg-white/80
                     backdrop-blur-sm
                     rounded-lg
@@ -172,7 +177,7 @@ const SponsorsSection = () => {
                   <img
                     src={partner.logo}
                     alt={partner.name}
-                    className="max-h-10 object-contain"
+                    className="max-h-8 object-contain"
                   />
                 </motion.div>
               );
