@@ -38,6 +38,7 @@ const SponsorsSection = () => {
         { name: "Vercel", logo: "/sponsors/vercel.png", url: "https://vercel.com" },
         { name: "Scripps", logo: "/sponsors/scripps.png", url: "https://scripps.ucsd.edu" },
         { name: "CSE", logo: "/sponsors/CSE.png", url: "https://cse.ucsd.edu" },
+        { name: "SDSC", logo: "/sponsors/SDSC.png", url: "https://sdsc.ucsd.edu" },
         { name: "AS", logo: "/sponsors/AS.png", url: "https://as.ucsd.edu" },
       ],
     },
