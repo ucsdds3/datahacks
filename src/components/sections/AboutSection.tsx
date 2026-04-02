@@ -88,6 +88,11 @@ const AboutSection = () => {
         logo: "/club-logos/tesc.png",
         url: "https://tescatucsd.org/",
       },
+      {
+        name: "KEEBS",
+        logo: "/club-logos/keebs.png",
+        url: "https://keebsatucsd.com/",
+      },
     ],
   };
 
