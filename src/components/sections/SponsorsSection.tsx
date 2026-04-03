@@ -25,6 +25,8 @@ const SponsorsSection = () => {
         { name: "Sphinx", logo: "/sponsors/sphinx.png", url: "https://www.sphinx.ai/" },
         { name: "Orthogonal", logo: "/sponsors/orthogonal.png", url: "https://www.orthogonal.com/" },
         { name: "COGS", logo: "/sponsors/cogs.png", url: "https://cogsci.ucsd.edu/" },
+        { name: "Jacobs", logo: "/sponsors/jsoe.png", url: "https://jacobs.ucsd.edu/" },
+        { name: "Ideas", logo: "/sponsors/ideas.png", url: "https://jacobsschool.ucsd.edu/idea" },
       ],
     },
     {
