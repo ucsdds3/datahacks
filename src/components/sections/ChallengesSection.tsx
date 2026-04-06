@@ -11,7 +11,7 @@
    const challenges = [
     {
       sponsor: "General Challenge",
-      title: "Best Use of Data",
+      title: "Best Use of [X] Data",
       description:
         "Awarded to the project that demonstrates the most thoughtful, impactful, and effective use of data, whether through analysis, modeling, visualization, or decision-making.",
       prize: "$TBD",
@@ -19,52 +19,58 @@
     },
   
     {
-      sponsor: "Cloud Platform Challenge",
-      title: "AWS Challenge",
-      description:
-        "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
-      prize: "$TBD",
-      icon: Cloud,
-    },
-  
-    // {
-    //   sponsor: "Cloud Platform Challenge",
-    //   title: "Google Cloud Platform Challenge",
-    //   description:
-    //     "Build and deploy your project using Google Cloud Platform or Google AI tools. Submissions will be judged on effective integration and system design.",
-    //   prize: "$TBD",
-    //   icon: Target,
-    // },
-  
-    {
       sponsor: "ML & AI Tooling Challenge",
-      title: "Marimo & Sphinx Challenge",
+      title: "Best Use of Marimo/Sphinx",
       description:
         "Develop your machine learning or data science project using Marimo notebooks and Sphinx for modeling, analysis, and documentation. Judged on clarity, reproducibility, and workflow design.",
       prize: "$TBD",
       icon: NotebookIcon,
     },
-  
     {
       sponsor: "Data Platform Challenge",
-      title: "Databricks Challenge",
+      title: "Best Use of Databricks",
       description:
         "Leverage the Databricks platform for data processing, analytics, or machine learning workflows. Evaluated on effective use of the Databricks ecosystem.",
+      prize: "$TBD",
+      icon: Building2,
+    },
+    {
+      sponsor: "Data Platform Challenge",
+      title: "Best Use of Impulse Labs",
+      description:
+        "Build a project that utilizes Impulse Labs' AI infrastructure for training or inference. Projects will be judged on effective integration and performance of AI workloads.",
       prize: "$TBD",
       icon: Building2,
     },
   
     {
       sponsor: "Edge Computing Challenge",
-      title: "Qualcomm Edge-AI Challenge",
+      title: "Best Use of Edge-AI",
       description:
         "Build a project that runs intelligence at the edge using embedded devices. Projects will be judged on system design, efficiency, and real-world applicability.",
       prize: "$TBD",
       icon: Building2,
     },
     {
+      sponsor: "Cloud Platform Challenge",
+      title: "Best Use of AWS Services",
+      description:
+        "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
+      prize: "$TBD",
+      icon: Cloud,
+    },
+  
+    {
+      sponsor: "Cloud Platform Challenge",
+      title: "Best Use of Google Cloud Platform",
+      description:
+        "Build and deploy your project using Google Cloud Platform. Submissions will be judged on effective integration and system design.",
+      prize: "$TBD",
+      icon: Target,
+    },
+    {
     sponsor: "MLH Challenge",
-    title: "Best Use of Gemini API with GCP",
+    title: "Best Use of Gemini API",
     description:
       "Build an AI-powered application using the Gemini API and Google Cloud. Projects should showcase meaningful use of language understanding, generation, or reasoning to solve real-world problems.",
     prize: "Swag Kits",
