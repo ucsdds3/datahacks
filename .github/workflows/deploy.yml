@@ -32,9 +32,6 @@ jobs:
       
       - name: Build with Vite
         run: npm run build
-
-      - name: Add CNAME file
-        run: echo 'datahacks.ds3atucsd.com' > ./dist/CNAME
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
