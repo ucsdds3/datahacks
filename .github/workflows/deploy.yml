@@ -45,9 +45,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - name: Add CNAME file
+        run: echo 'datahacks.ds3atucsd.com' > ./dist/CNAME
+        
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Add CNAME file
-        run: echo 'datahacks.ds3atucsd.com' > ./dist/CNAME
