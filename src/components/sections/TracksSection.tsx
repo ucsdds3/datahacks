@@ -21,7 +21,7 @@
    const tracks = [
     {
       icon: Bot,
-      title: "Bio-AI & Machine Learning",
+      title: "AI & Machine Learning",
       description:
         "Develop intelligent systems using data-driven techniques such as modeling, prediction, and classification.",
       color: "from-deep-water to-mid-water",

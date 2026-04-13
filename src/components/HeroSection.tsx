@@ -94,7 +94,7 @@
          >
            <div className="flex items-center gap-2">
              <MapPin className="w-5 h-5 text-coral" />
-             <span className="font-medium">UC San Diego</span>
+             <span className="font-medium">Rec Gym, UC San Diego</span>
            </div>
            <div className="flex items-center gap-2">
              <Calendar className="w-5 h-5 text-secondary" />
