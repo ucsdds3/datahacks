@@ -75,7 +75,7 @@ const TRACK_PRIZES = [
   },
   {
     track: "UI/UX Design + Web Development",
-    totalValue: "$1,500",
+    totalValue: "$2,000",
     accent: "from-violet-300 via-fuchsia-200 to-pink-100",
     prizes: [
       { place: "1st", reward: 'Acer Nitro 32" 1080p Monitor + Drawing Tablet' },
