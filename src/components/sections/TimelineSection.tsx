@@ -48,7 +48,17 @@ const preHackathonTimeline = [
   },
   {
     date: "April 15, 2026",
-    time: "5:00 PM - 7:00 PM",
+    time: "5:00 PM - 6:00 PM",
+    title: "Sphinx Workshop (Virtual)",
+    description:
+      "",
+    location: "Zoom",
+    deadline: false,
+    tracks: [],
+  },
+  {
+    date: "April 15, 2026",
+    time: "6:00 PM - 7:30 PM",
     title: "AWS SageMaker Workshop",
     description:
       "",
@@ -58,8 +68,8 @@ const preHackathonTimeline = [
   },
   {
     date: "April 15, 2026",
-    time: "5:00 PM - 6:00 PM",
-    title: "Sphinx Workshop (Virtual)",
+    time: "8:00 PM - 9:00 PM",
+    title: "Claude Builders Club Workshop",
     description:
       "",
     location: "Zoom",
