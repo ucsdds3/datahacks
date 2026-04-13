@@ -69,7 +69,7 @@ const preHackathonTimeline = [
   {
     date: "April 15, 2026",
     time: "8:00 PM - 9:00 PM",
-    title: "Claude Builders Club Workshop",
+    title: "Claude Builders Club Workshop (Virtual)",
     description:
       "",
     location: "Zoom",
