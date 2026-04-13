@@ -40,7 +40,7 @@ const TRACK_PRIZES = [
     prizes: [
       { place: "1st", reward: "Arduino Kit + 3D Printer with Filament" },
       { place: "2nd", reward: "Arduino Kit + Tool Kit" },
-      { place: "3rd", reward: "Swag Bundle" },
+      { place: "3rd", reward: "Arduino Kit + Swag Bundle" },
     ],
   },
   {
@@ -70,7 +70,7 @@ const TRACK_PRIZES = [
     prizes: [
       { place: "1st", reward: "Arduino Kit + AirPods Pro 3" },
       { place: "2nd", reward: "Arduino Kit + Aqara Presence Sensor + Apple HomePod mini" },
-      { place: "3rd", reward: "Swag Bundle" },
+      { place: "3rd", reward: "Arduino Kit + Swag Bundle" },
     ],
   },
   {
@@ -79,7 +79,7 @@ const TRACK_PRIZES = [
     accent: "from-violet-300 via-fuchsia-200 to-pink-100",
     prizes: [
       { place: "1st", reward: 'Acer Nitro 32" 1080p Monitor + Drawing Tablet' },
-      { place: "2nd", reward: "Arduino Kit + Coffee Maker" },
+      { place: "2nd", reward: "Coffee Machine + Fair-Trade Coffee" },
       { place: "3rd", reward: "Swag Bundle" },
     ],
   },
