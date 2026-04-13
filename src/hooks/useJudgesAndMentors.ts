@@ -14,6 +14,7 @@ export interface TeamMember {
   name: string;
   title: string;
   affiliation: string;
+  imageSrc?: string;
   logoSrc?: string;
 }
 
@@ -25,12 +26,35 @@ interface JudgesAndMentorsData {
 const normalizeCell = (value: string | undefined) => value?.trim() ?? "";
 
 const logoMatchers: Array<{ terms: string[]; logoSrc: string }> = [
+  { terms: ["albertsons"], logoSrc: "/judges/albertsons.png" },
+  { terms: ["amplitude"], logoSrc: "/judges/amplitude.png" },
+  { terms: ["apexon"], logoSrc: "/judges/apexon.jpg" },
+  { terms: ["approxima"], logoSrc: "/judges/approxima.png" },
+  { terms: ["arm"], logoSrc: "/judges/arm.svg" },
   { terms: ["netflix"], logoSrc: "/judges/netflix.png" },
   { terms: ["apple"], logoSrc: "/judges/apple.png" },
   { terms: ["amazon"], logoSrc: "/judges/amazon.png" },
+  { terms: ["aws", "amazon web services"], logoSrc: "/judges/aws.svg" },
+  { terms: ["coderabbit"], logoSrc: "/judges/coderabbit.svg" },
+  { terms: ["databricks"], logoSrc: "/judges/databricks.png" },
   { terms: ["doordash", "door dash"], logoSrc: "/judges/doordash.png" },
+  { terms: ["ibm"], logoSrc: "/judges/ibm.svg" },
+  { terms: ["credit karma", "intuit"], logoSrc: "/judges/intuit.svg" },
+  { terms: ["linkedin"], logoSrc: "/judges/linkedin.svg" },
+  { terms: ["marimo"], logoSrc: "/sponsors/marimo.png" },
+  { terms: ["marvell"], logoSrc: "/judges/marvell.svg" },
+  { terms: ["meta/whatsapp", "whatsapp"], logoSrc: "/judges/whatsapp.svg" },
+  { terms: ["meta"], logoSrc: "/judges/meta.svg" },
   { terms: ["oracle"], logoSrc: "/judges/oracle.png" },
+  { terms: ["openai"], logoSrc: "/judges/openai.svg" },
+  { terms: ["paypal"], logoSrc: "/judges/paypal.svg" },
+  { terms: ["salesforce"], logoSrc: "/judges/salesforce.svg" },
   { terms: ["sonos"], logoSrc: "/judges/sonos.png" },
+  { terms: ["stripe"], logoSrc: "/judges/stripe.svg" },
+  { terms: ["tesla"], logoSrc: "/judges/tesla.svg" },
+  { terms: ["uber"], logoSrc: "/judges/uber.svg" },
+  { terms: ["visa"], logoSrc: "/judges/visa.svg" },
+  { terms: ["yahoo"], logoSrc: "/judges/yahoo.svg" },
   { terms: ["microsoft"], logoSrc: "/judges/microsoft.png" },
   { terms: ["hyundai"], logoSrc: "/judges/hyundai.png" },
   { terms: ["bill"], logoSrc: "/judges/bill.png" },
@@ -38,9 +62,8 @@ const logoMatchers: Array<{ terms: string[]; logoSrc: string }> = [
   { terms: ["lyft"], logoSrc: "/judges/lyft.png" },
   { terms: ["nvidia"], logoSrc: "/judges/nvidia.png" },
   { terms: ["qualcomm"], logoSrc: "/judges/qualcomm.png" },
-  { terms: ["capital"], logoSrc: "/judges/capital-one.png" },
+  { terms: ["capital"], logoSrc: "/judges/capital_one.png" },
   { terms: ["walmart"], logoSrc: "/judges/walmart.png" },
-
 ];
 
 const resolveLogoSrc = (affiliation: string) => {

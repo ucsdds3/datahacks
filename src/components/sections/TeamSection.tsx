@@ -8,6 +8,30 @@ import {
 } from "@/hooks/useJudgesAndMentors";
 import { JellyfishGroup } from "../animations/Jellyfish";
 
+const keynoteSpeakers: TeamMember[] = [
+  {
+    id: "sharad-agarwal",
+    name: "Sharad Agarwal",
+    title: "Head of Global Partnerships",
+    affiliation: "Google",
+    imageSrc: "/keynotes/sharad.png",
+  },
+  {
+    id: "ali-arsanjani",
+    name: "Ali Arsanjani",
+    title: "Director of Applied AI",
+    affiliation: "Google",
+    imageSrc: "/keynotes/ali.png",
+  },
+  // {
+  //   id: "ian-kerman",
+  //   name: "Ian Kerman",
+  //   title: "Senior Developer Relations Manager",
+  //   affiliation: "NVIDIA",
+  //   logoSrc: "/judges/nvidia.png",
+  // },
+];
+
 const getInitials = (name: string) =>
   name
     .split(/\s+/)
@@ -19,20 +43,40 @@ const getInitials = (name: string) =>
 const TeamSection = () => {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [showAllKeynotes, setShowAllKeynotes] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [showAllMentors, setShowAllMentors] = useState(false);
   const { data, isLoading, isError } = useJudgesAndMentors();
 
-  const PersonCard = ({ person }: { person: TeamMember }) => {
+  const PersonCard = ({
+    person,
+    featured = false,
+  }: {
+    person: TeamMember;
+    featured?: boolean;
+  }) => {
     const [showLogo, setShowLogo] = useState(Boolean(person.logoSrc));
+    const hasHeadshot = Boolean(person.imageSrc);
 
     return (
       <motion.div
         whileHover={{ y: -5 }}
-        className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-bioluminescent/20 text-center group"
+        className={`bg-white/5 backdrop-blur-md rounded-2xl border border-bioluminescent/20 text-center group ${
+          featured ? "p-8 md:p-10" : "p-6"
+        }`}
       >
-        <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4 overflow-hidden bg-white/80 border border-white/15 group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow">
-          {showLogo && person.logoSrc ? (
+        <div
+          className={`mx-auto rounded-full flex items-center justify-center overflow-hidden bg-white/80 border border-white/15 group-hover:shadow-lg group-hover:shadow-bioluminescent/30 transition-shadow ${
+            featured ? "w-40 h-40 mb-6" : "w-20 h-20 mb-4"
+          }`}
+        >
+          {person.imageSrc ? (
+            <img
+              src={person.imageSrc}
+              alt={person.name}
+              className="w-full h-full object-cover"
+            />
+          ) : !hasHeadshot && showLogo && person.logoSrc ? (
             <img
               src={person.logoSrc}
               alt={person.affiliation}
@@ -46,13 +90,21 @@ const TeamSection = () => {
           )}
         </div>
 
-        <h4 className="font-display text-lg font-bold text-white mb-1">
+        <h4
+          className={`font-display font-bold text-white mb-1 ${
+            featured ? "text-2xl" : "text-lg"
+          }`}
+        >
           {person.name}
         </h4>
 
-        <p className="text-bioluminescent text-sm mb-1">{person.title}</p>
+        <p className={featured ? "text-bioluminescent text-base mb-2" : "text-bioluminescent text-sm mb-1"}>
+          {person.title}
+        </p>
 
-        <p className="text-white/50 text-sm">{person.affiliation}</p>
+        <p className={featured ? "text-white/60 text-base" : "text-white/50 text-sm"}>
+          {person.affiliation}
+        </p>
       </motion.div>
     );
   };
@@ -90,17 +142,23 @@ const TeamSection = () => {
     label,
     showAllPeople,
     setShowAllPeople,
+    deferToRosterState = true,
+    centered = false,
+    featuredCards = false,
   }: {
     people: TeamMember[];
     label: string;
     showAllPeople: boolean;
     setShowAllPeople: (value: boolean) => void;
+    deferToRosterState?: boolean;
+    centered?: boolean;
+    featuredCards?: boolean;
   }) => {
-    if (isLoading) {
+    if (deferToRosterState && isLoading) {
       return <LoadingGrid />;
     }
 
-    if (isError) {
+    if (deferToRosterState && isError) {
       return <ErrorState />;
     }
 
@@ -115,7 +173,11 @@ const TeamSection = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="grid sm:grid-cols-2 md:grid-cols-4 gap-6"
+          className={
+            centered
+              ? "flex flex-wrap justify-center gap-6"
+              : "grid gap-6 sm:grid-cols-2 md:grid-cols-4"
+          }
         >
           {visiblePeople.map((person, index) => (
             <motion.div
@@ -123,8 +185,15 @@ const TeamSection = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={isInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.4, delay: index * 0.1 }}
+              className={
+                centered
+                  ? featuredCards
+                    ? "w-full max-w-md lg:w-[min(30rem,calc(50%-0.75rem))]"
+                    : "w-full sm:max-w-sm lg:w-[calc(25%-1.125rem)]"
+                  : undefined
+              }
             >
-              <PersonCard person={person} />
+              <PersonCard person={person} featured={featuredCards} />
             </motion.div>
           ))}
         </motion.div>
@@ -162,15 +231,18 @@ const TeamSection = () => {
            className="text-center mb-12"
          >
            <h2 className="font-display text-4xl md:text-5xl font-bold text-white mb-6">
-             Judges & Mentors
+             Speakers, Judges, & Mentors
            </h2>
            <p className="text-xl text-white/80 max-w-2xl mx-auto">
-             Learn from alumni, faculty, & industry experts to get guidance throughout the hackathon.
+             Hear from industry leaders, then connect with alumni, faculty, and experts throughout the hackathon.
            </p>
          </motion.div>
  
-         <Tabs defaultValue="judges" className="w-full">
-           <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 bg-white/10 mb-12">
+         <Tabs defaultValue="keynote-speakers" className="w-full">
+           <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3 bg-white/10 mb-12">
+             <TabsTrigger value="keynote-speakers" className="data-[state=active]:bg-bioluminescent data-[state=active]:text-deep-water">
+               Keynote Speakers ({keynoteSpeakers.length})
+             </TabsTrigger>
              <TabsTrigger value="judges" className="data-[state=active]:bg-bioluminescent data-[state=active]:text-deep-water">
                Judges{data ? ` (${data.judges.length})` : ""}
              </TabsTrigger>
@@ -178,6 +250,18 @@ const TeamSection = () => {
                Mentors{data ? ` (${data.mentors.length})` : ""}
              </TabsTrigger>
            </TabsList>
+
+           <TabsContent value="keynote-speakers">
+             <PersonGrid
+               people={keynoteSpeakers}
+               label="Keynote Speakers"
+               showAllPeople={showAllKeynotes}
+               setShowAllPeople={setShowAllKeynotes}
+               deferToRosterState={false}
+               centered
+               featuredCards
+             />
+           </TabsContent>
  
            <TabsContent value="judges">
              <PersonGrid
