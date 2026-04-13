@@ -139,34 +139,6 @@ const PrizesSection = () => {
           </p>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-10 grid gap-4 md:grid-cols-3"
-        >
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md">
-            <div className="mb-2 text-sm uppercase tracking-[0.18em] text-white/50">Structure</div>
-            <div className="font-display text-2xl text-white">8 Tracks</div>
-            <p className="mt-2 text-sm leading-relaxed text-white/70">
-              Every track crowns its own top three teams.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md">
-            <div className="mb-2 text-sm uppercase tracking-[0.18em] text-white/50">Placements</div>
-            <div className="font-display text-2xl text-white">24 Awards</div>
-            <p className="mt-2 text-sm leading-relaxed text-white/70">
-              1st, 2nd, and 3rd place prizes in every track.
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-md">
-            <div className="mb-2 text-sm uppercase tracking-[0.18em] text-white/50">Teams</div>
-            <div className="font-display text-2xl text-white">Built for 4</div>
-            <p className="mt-2 text-sm leading-relaxed text-white/70">
-              Most prize bundles are listed as four matching rewards, with a maximum of one prize bundle per teammate. 
-            </p>
-          </div>
-        </motion.div>
 
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {TRACK_PRIZES.map((track, index) => (
