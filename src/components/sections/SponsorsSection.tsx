@@ -21,6 +21,7 @@ const SponsorsSection = () => {
       color: "text-accent",
       cardSize: "w-48 h-28",
       sponsors: [
+        { name: "NVIDIA", logo: "/sponsors/Nvidia.png", url: "https://www.nvidia.com" },
         { name: "Marimo", logo: "/sponsors/marimo.png", url: "https://marimo.io" },
         { name: "Sphinx", logo: "/sponsors/sphinx.png", url: "https://www.sphinx.ai/" },
         { name: "Orthogonal", logo: "/sponsors/orthogonal.png", url: "https://www.orthogonal.com/" },
