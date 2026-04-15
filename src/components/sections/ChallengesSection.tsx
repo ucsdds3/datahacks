@@ -1,13 +1,17 @@
 import { motion, useInView } from "framer-motion";
 import {
-  Building2,
+  Bot,
+  Braces,
   Cloud,
+  Coins,
   Cpu,
   Database,
+  Leaf,
   Lightbulb,
+  Megaphone,
   Mic,
   NotebookIcon,
-  Target,
+  Snowflake,
   Trophy,
   Award,
   Medal,
@@ -50,17 +54,17 @@ const challenges: Challenge[] = [
     title: "Best Use of [X] Data",
     description:
       "Awarded to the project that demonstrates the most thoughtful, impactful, and effective use of data, whether through analysis, modeling, visualization, or decision-making.",
-    totalValue: "$1,500",
+    totalValue: "Up to $1,500",
     placements: [{ place: "1st", reward: "DJI Neo Drone" }, { place: "2nd", reward: "Otter LEGO Set" }, { place: "3rd", reward: "Swag Bundle" }],
-    icon: Lightbulb,
+    icon: Database,
   },
   {
     sponsor: "ML & AI Tooling Challenge",
     title: "Best Use of Marimo/Sphinx",
     description:
       "Develop your machine learning or data science project using Marimo notebooks and Sphinx for modeling, analysis, and documentation. Judged on clarity, reproducibility, and workflow design.",
-    totalValue: "$1,500",
-    placements: [{ place: "1st", reward: "$800 Gift Card + Swag" }, { place: "2nd", reward: "$400 Gift Card + Swag" }, { place: "3rd", reward: "$300 Gift Card + Swag" }],
+    totalValue: "Up to $1,500",
+    placements: [{ place: "1st", reward: "$200 Gift Card + Swag" }, { place: "2nd", reward: "$100 Gift Card + Swag" }, { place: "3rd", reward: "$75 Gift Card + Swag" }],
     icon: NotebookIcon,
   },
   {
@@ -68,72 +72,81 @@ const challenges: Challenge[] = [
     title: "Best Use of Databricks",
     description:
       "Leverage the Databricks platform for data processing, analytics, or machine learning workflows. Evaluated on effective use of the Databricks ecosystem.",
-    totalValue: "$1000",
+    totalValue: "Up to $1000",
     placements: [{ place: "1st", reward: "JBL Speaker, Air Tag + Holder, & Swag" }],
-    icon: Building2,
+    icon: Database,
   },
   {
     sponsor: "Edge Computing Challenge",
     title: "Best Use of Edge-AI",
     description:
       "Build a project that runs intelligence at the edge using embedded devices. Projects will be judged on system design, efficiency, and real-world applicability.",
-    totalValue: "$1000",
+    totalValue: "Up to $1000",
     placements: [{ place: "1st", reward: "Arduino Kit, Projector, Screen, &  4K Fire Stick" }],
-    icon: Building2,
+    icon: Cpu,
   },
   {
     sponsor: "Cloud Platform Challenge",
     title: "Best Use of AWS Services",
     description:
       "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
-    totalValue: "$500",
+    totalValue: "Up to $500",
     placements: [{ place: "1st", reward: "Sennheiser Headphones & Charging Dock" }],
     icon: Cloud,
+  },
+  {
+    sponsor: "API Platform Challenge",
+    title: "Best Use of Orthogonal",
+    description:
+      "Use Orthogonal's API platform to build your project. Projects will be evaluated on meaningful and well-architected use of the Orthogonal ecosystem.",
+    totalValue: "TBD",
+    placements: [{ place: "1st", reward: "TBD" }],
+    icon: Braces,
   },
   {
     sponsor: "Data Platform Challenge",
     title: "Best Use of Impulse Labs",
     description:
       "Build a project that utilizes Impulse Labs' AI infrastructure for training or inference. Projects will be judged on effective integration and performance of AI workloads.",
-    totalValue: "TBD",
-    placements: [{ place: "1st", reward: "TBD" }],
-    icon: Building2,
+    totalValue: "Up to $500",
+    placements: [{ place: "1st", reward: "Impulse Annual Plan, Powerbank, Sweatshirt, $25 Gift Card" }, { place: "2nd", reward: "80% off Impulse Annual Plan, Powerbank, Sweatshirt" }, { place: "3rd", reward: "80% off Impulse Annual Plan, Powerbank" }],
+    icon: Bot,
   },
   {
     sponsor: "Cloud Platform Challenge",
     title: "Best Innovation with Google Build With AI",
     description:
       "Build and deploy your project using Google AI & GCP. Submissions will be judged on effective integration and system design.",
-    totalValue: "$1,000",
+    totalValue: "Up to $1,000",
     placements: [{ place: "1st", reward: "Google Swag Duffle Bag" }],
-    icon: Target,
+    icon: Bot,
   },
   {
     sponsor: "Entrepreneurship Challenge",
     title: "Most Innovative Idea",
     description:
       "Awarded to the project that demonstrates the most innovative and creative idea, regardless of technical complexity. Judges will look for originality, potential impact, and visionary thinking.",
-    totalValue: "$200",
+    totalValue: "Up to $200",
     placements: [{ place: "1st", reward: "$25 Gift Card + Swag" }, { place: "2nd", reward: "$25 Gift Card" }, { place: "3rd", reward: "Swag" }],
-    icon: Target,
+    icon: Lightbulb,
   },
     {
     sponsor: "Entrepreneurship Challenge",
     title: "Most Viral Idea",
     description:
       "Awarded to the project that generates the most buzz and excitement among attendees, as measured by social media engagement, peer voting, or other forms of recognition. Judges will look for projects that capture attention and inspire others.",
-    totalValue: "$200",
-    placements: [{ place: "1st", reward: "TBD" }],
-    icon: Target,
+    totalValue: "Up to $300",
+    placements: [{ place: "1st", reward: "TBD + Escape Game Tickets!" }],
+    icon: Megaphone,
   },
   {
     sponsor: "Analytics Challenge",
     title: "Best Solution for ZenPower",
     description:
       "Build a project that provides the best solution for ZenPower, a company focused on energy management and sustainability. Projects should demonstrate innovative approaches to solar customer acquisition, optimizing energy usage, reducing waste, or promoting renewable energy solutions.",
-    totalValue: "$500",
-    placements: [{ place: "1st", reward: "TBD" }],
-    icon: Target,
+    totalValue: "Up to $500",
+    placements: [{ place: "1st", reward: "$125 Gift Cards" }],
+    icon: Leaf,
   },
   {
     sponsor: "MLH Challenge",
@@ -142,7 +155,7 @@ const challenges: Challenge[] = [
       "Build an AI-powered application using the Gemini API and Google Cloud. Projects should showcase meaningful use of language understanding, generation, or reasoning to solve real-world problems.",
     totalValue: "Swag",
     placements: [{ place: "1st", reward: "Swag Kits" }],
-    icon: Cloud,
+    icon: Bot,
   },
   {
     sponsor: "MLH Challenge",
@@ -160,7 +173,7 @@ const challenges: Challenge[] = [
       "Build a fast, scalable application using the Solana blockchain. Projects may include decentralized apps, payments, trading systems, or high-throughput consumer products.",
     totalValue: "Prize",
     placements: [{ place: "1st", reward: "Ledger Nano S Plus" }],
-    icon: Cpu,
+    icon: Coins,
   },
   {
     sponsor: "MLH Challenge",
@@ -178,7 +191,7 @@ const challenges: Challenge[] = [
       "Build an application using Snowflake's APIs for data processing or AI-powered workflows. Projects should demonstrate efficient data handling and integration of AI capabilities.",
     totalValue: "Prize",
     placements: [{ place: "1st", reward: "Raspberry Pi 4" }],
-    icon: Database,
+    icon: Snowflake,
   },
 ];
 
