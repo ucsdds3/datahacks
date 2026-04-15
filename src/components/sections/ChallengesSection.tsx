@@ -90,8 +90,8 @@ const challenges: Challenge[] = [
     title: "Best Use of AWS Services",
     description:
       "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
-    totalValue: "Up to $500",
-    placements: [{ place: "1st", reward: "Sennheiser Headphones & Charging Dock" }],
+    totalValue: "Up to $1000",
+    placements: [{ place: "1st", reward: "Record Player, Sennheiser Headphones, & Charging Dock" }],
     icon: Cloud,
   },
   {
