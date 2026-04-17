@@ -23,13 +23,13 @@ const keynoteSpeakers: TeamMember[] = [
     affiliation: "Google",
     imageSrc: "/keynotes/ali.png",
   },
-  // {
-  //   id: "ian-kerman",
-  //   name: "Ian Kerman",
-  //   title: "Senior Developer Relations Manager",
-  //   affiliation: "NVIDIA",
-  //   logoSrc: "/judges/nvidia.png",
-  // },
+  {
+    id: "ian-kerman",
+    name: "Ian Kerman",
+    title: "Senior Developer Relations Manager",
+    affiliation: "NVIDIA",
+    imageSrc: "/keynotes/Ian.png",
+  },
 ];
 
 const getInitials = (name: string) =>

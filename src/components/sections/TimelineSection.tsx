@@ -87,12 +87,12 @@ const preHackathonTimeline = [
     tracks: [],
   },
   {
-    date: "April 17, 2026",
+    date: "April 16, 2026",
     time: "5:30 PM - 7:30 PM",
     title: "Team Formation Mixer",
     description:
       "",
-    location: "TBD",
+    location: "Dirty Birds",
     deadline: false,
     tracks: [],
   }
@@ -267,18 +267,18 @@ const sideEventTimeline = [
   {
     date: "Apr 18",
     time: "12:00 PM - 1:00 PM",
-    title: "Intro to CAD",
-    description: "Workshop/Activity 1-2",
+    title: "Impulse Labs: Data → Deployment",
+    description: "Workshop/Activity 2-2",
     location: "Auxiliary Room",
-    tracks: ["hardware"],
+    tracks: ["ml"],
   },
   {
     date: "Apr 18",
     time: "12:00 PM - 1:00 PM",
-    title: "Impulse Labs: Data → Deployment",
-    description: "Workshop/Activity 2-2",
+    title: "Intro to CAD",
+    description: "Workshop/Activity 1-2",
     location: "Price Theater",
-    tracks: ["ml"],
+    tracks: ["hardware"],
   },
   {
     date: "Apr 18",

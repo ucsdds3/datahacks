@@ -91,7 +91,7 @@ const challenges: Challenge[] = [
     description:
       "Use AWS services as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the AWS ecosystem.",
     totalValue: "Up to $1000",
-    placements: [{ place: "1st", reward: "Record Player, Sennheiser Headphones, & Charging Dock" }],
+    placements: [{ place: "1st", reward: "Record Player" }],
     icon: Cloud,
   },
   {
@@ -99,9 +99,18 @@ const challenges: Challenge[] = [
     title: "Best Use of Orthogonal",
     description:
       "Use Orthogonal's API platform to build your project. Projects will be evaluated on meaningful and well-architected use of the Orthogonal ecosystem.",
-    totalValue: "TBD",
-    placements: [{ place: "1st", reward: "TBD" }],
+    totalValue: "Up to $1000",
+    placements: [{ place: "1st", reward: "Meta Ray Bans" }],
     icon: Braces,
+  },
+  {
+    sponsor: "Cloud Platform Challenge",
+    title: "Best Innovation with Google Build With AI",
+    description:
+      "Build and deploy your project using Google AI & GCP. Submissions will be judged on effective integration and system design.",
+    totalValue: "Up to $1,000",
+    placements: [{ place: "1st", reward: "Google Swag Duffle Bag" }],
+    icon: Bot,
   },
   {
     sponsor: "Data Platform Challenge",
@@ -114,12 +123,12 @@ const challenges: Challenge[] = [
   },
   {
     sponsor: "Cloud Platform Challenge",
-    title: "Best Innovation with Google Build With AI",
+    title: "Best Use of NVIDIA Brev.dev",
     description:
-      "Build and deploy your project using Google AI & GCP. Submissions will be judged on effective integration and system design.",
-    totalValue: "Up to $1,000",
-    placements: [{ place: "1st", reward: "Google Swag Duffle Bag" }],
-    icon: Bot,
+      "Use NVIDIA Brev.dev as part of your project's infrastructure, data pipeline, or deployment. Projects will be evaluated on meaningful and well-architected use of the NVIDIA Brev.dev ecosystem.",
+    totalValue: "Up to $500",
+    placements: [{ place: "1st", reward: "Sennheiser Headphones, & Charging Dock" }],
+    icon: Cloud,
   },
   {
     sponsor: "Entrepreneurship Challenge",
@@ -130,7 +139,7 @@ const challenges: Challenge[] = [
     placements: [{ place: "1st", reward: "$25 Gift Card + Swag" }, { place: "2nd", reward: "$25 Gift Card" }, { place: "3rd", reward: "Swag" }],
     icon: Lightbulb,
   },
-    {
+  {
     sponsor: "Entrepreneurship Challenge",
     title: "Most Viral Idea",
     description:
