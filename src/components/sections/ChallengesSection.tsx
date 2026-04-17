@@ -131,6 +131,15 @@ const challenges: Challenge[] = [
     icon: Cloud,
   },
   {
+    sponsor: "Analytics Challenge",
+    title: "Best Solution for ZenPower",
+    description:
+      "Build a project that provides the best solution for ZenPower, a company focused on energy management and sustainability. Projects should demonstrate innovative approaches to solar customer acquisition, optimizing energy usage, reducing waste, or promoting renewable energy solutions.",
+    totalValue: "Up to $500",
+    placements: [{ place: "1st", reward: "$125 Gift Cards" }],
+    icon: Leaf,
+  },
+  {
     sponsor: "Entrepreneurship Challenge",
     title: "Most Innovative Idea",
     description:
@@ -145,17 +154,8 @@ const challenges: Challenge[] = [
     description:
       "Awarded to the project that generates the most buzz and excitement among attendees, as measured by social media engagement, peer voting, or other forms of recognition. Judges will look for projects that capture attention and inspire others.",
     totalValue: "Up to $300",
-    placements: [{ place: "1st", reward: "TBD + Escape Game Tickets!" }],
+    placements: [{ place: "1st", reward: "JBL Speaker + Escape Game Tickets!" }],
     icon: Megaphone,
-  },
-  {
-    sponsor: "Analytics Challenge",
-    title: "Best Solution for ZenPower",
-    description:
-      "Build a project that provides the best solution for ZenPower, a company focused on energy management and sustainability. Projects should demonstrate innovative approaches to solar customer acquisition, optimizing energy usage, reducing waste, or promoting renewable energy solutions.",
-    totalValue: "Up to $500",
-    placements: [{ place: "1st", reward: "$125 Gift Cards" }],
-    icon: Leaf,
   },
   {
     sponsor: "MLH Challenge",
