@@ -114,10 +114,10 @@ const challenges: Challenge[] = [
   },
   {
     sponsor: "Data Platform Challenge",
-    title: "Best Use of Impulse Labs",
+    title: "Best Models Trained on Impulse AI Platform",
     description:
-      "Build a project that utilizes Impulse Labs' AI infrastructure for training or inference. Projects will be judged on effective integration and performance of AI workloads.",
-    totalValue: "Up to $500",
+      "Train and deploy ML models using Impulse's MLE agent. Projects will be judged for most creative use of Impulse AI, best models, and real world use cases.",
+    totalValue: "Up to $800",
     placements: [{ place: "1st", reward: "Impulse Annual Plan, Powerbank, Sweatshirt, $25 Gift Card" }, { place: "2nd", reward: "80% off Impulse Annual Plan, Powerbank, Sweatshirt" }, { place: "3rd", reward: "80% off Impulse Annual Plan, Powerbank" }],
     icon: Bot,
   },
