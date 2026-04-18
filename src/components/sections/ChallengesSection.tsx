@@ -15,6 +15,8 @@ import {
   Trophy,
   Award,
   Medal,
+  MicrochipIcon,
+  SignalIcon,
 } from "lucide-react";
 import { useRef } from "react";
 import Bubbles from "../animations/Bubbles";
@@ -51,7 +53,7 @@ const PLACE_STYLES = {
 const challenges: Challenge[] = [
   {
     sponsor: "General Challenge",
-    title: "Best Use of [X] Data",
+    title: "Best Use of Scripps Data",
     description:
       "Awarded to the project that demonstrates the most thoughtful, impactful, and effective use of data, whether through analysis, modeling, visualization, or decision-making.",
     totalValue: "Up to $1,500",
@@ -138,6 +140,28 @@ const challenges: Challenge[] = [
     totalValue: "Up to $500",
     placements: [{ place: "1st", reward: "$125 Gift Cards" }],
     icon: Leaf,
+  },
+  {
+    sponsor: "IEEE Consumer Technology Society",
+    title: "Best Alignment with Mission of IEEE Consumer Technology",
+    description:
+      "Build a project that enhances the user experience through innovative consumer electronics or smart home integration. Projects will be judged on human-centric design, usability, and the ability to bring sophisticated technology into everyday life to solve modern challenges.",
+    totalValue: "$500",
+    placements: [
+      { place: "1st", reward: "$125 Amazon Gift Card" },
+    ],
+    icon: MicrochipIcon,
+  },
+  {
+    sponsor: "IEEE Information Theory Society",
+    title: "Best Alignment with Mission of IEEE Information Theory",
+    description:
+      "Awarded to the project that demonstrates mastery over data transmission, compression, or processing. Whether optimizing network efficiency, implementing advanced error correction, or extracting signal from noise, judges will evaluate how effectively information is quantified and communicated within the system.",
+    totalValue: "$500",
+    placements: [
+      { place: "1st", reward: "$125 Amazon Gift Card" },
+    ],
+    icon: SignalIcon,
   },
   {
     sponsor: "Entrepreneurship Challenge",
