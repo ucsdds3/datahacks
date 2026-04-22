@@ -1,92 +1,63 @@
 
+# DataHacks 2027 — Hackathon Website
 
-# DataHacks 2026 Website Plan
+A minimalist, atmospheric one-page site with a parallax castle scene quietly hinting at the defense-tech theme. Stone & moss palette throughout, with elegant TBA placeholders so the structure feels intentional even before final content lands.
 
-## 🎨 Design Concept: "Dive Into Data"
-An immersive ocean-themed experience that starts at a sunny beach and transitions deeper underwater as visitors scroll. The color palette will feature vibrant summer vibes with **sandy yellows, ocean blues, seafoam greens**, and tech-inspired accents like subtle neon glows for that data science feel.
+## Visual direction
+- **Palette**: warm stone greys, parchment off-white background, deep moss-green accent, charcoal text
+- **Typography**: a refined serif for headings (evoking heraldry without being literal), clean sans-serif for body
+- **Background**: layered SVG parallax — distant mountains, a low castle/fortress silhouette on a hill, and faint foreground grass/mist that shift subtly as the user scrolls
+- **Texture**: very subtle paper/stone grain overlay for warmth
+- **Motion**: gentle fade-in-on-scroll for sections, soft hover states on cards
 
----
+## Page structure (single scrolling page)
 
-## 🌊 Scroll Journey & Sections
+**1. Hero / Landing**
+- DataHacks 2027 wordmark, with "Presented with Major League Hacking" tagline
+- Live countdown timer (days · hours · minutes · seconds) — placeholder target date you can edit
+- Event location: UC San Diego
+- Dates line (TBD placeholder)
+- Primary "Register" button → external link (placeholder URL)
+- Parallax castle silhouette behind everything
 
-### 1. **Hero Section - Beach/Surface Level**
-- Bright sunny sky with animated waves at the bottom
-- DataHacks 2026 logo/event name prominently displayed
-- Countdown timer to the hackathon date
-- "Register Now" button (links to external registration)
-- Location: UC San Diego + MLH partner badge
-- Animated sun rays and gentle wave motion
+**2. About / Theme tease**
+- Short evocative paragraph framing the hackathon — uses words like "build", "defend", "strategy", "frontier" without saying "defense" outright
+- A few key stats (hackers, hours, prize pool — all editable)
 
-### 2. **About Section - Shallow Water**
-- Brief intro to the hackathon and the energy/climate/environmental theme
-- Floating bubbles and light rays filtering through water
-- Transition from light blue to deeper blue background
+**3. Tracks**
+- Grid of 3–4 track cards with TBA labels and short evocative names you can rename (e.g., "Sentinel", "Signal", "Stronghold", "Scout")
 
-### 3. **Tracks Section - Mid-Water**
-- Display hackathon tracks as floating "islands" or coral formations
-- Each track with icon, title, and description
-- Animated fish swimming by in the background
+**4. Prizes**
+- Tiered layout (1st / 2nd / 3rd + category prizes) as TBA cards with prize-tier styling
 
-### 4. **Challenges Section**
-- Present sponsor/partner challenges
-- Card-based layout with subtle floating animation
-- Deeper blue tones, bioluminescent accents beginning
+**5. Challenges**
+- Card grid for sponsor/company challenges — all TBA
 
-### 5. **Prizes Section**
-- Showcase prizes for each track/overall winners
-- Glowing treasure chest or pearl imagery
-- Prize tiers clearly displayed
+**6. Sponsors**
+- Tiered logo wall (Platinum / Gold / Silver) with elegant empty placeholder slots
+- "Become a sponsor" CTA → mailto link
 
-### 6. **Sponsors Section**
-- Sponsor logos in tiers (Gold, Silver, Bronze or similar)
-- Subtle animations on hover
-- Clean grid layout against deep water backdrop
+**7. Judges**
+- Card grid with silhouette avatars + "To Be Announced"
 
-### 7. **Judges & Mentors Section - Deep Water**
-- Photo cards with name, title, and affiliation
-- Tabs or toggle between Judges and Mentors
-- Bioluminescent/jellyfish-inspired glow effects
+**8. Mentors**
+- Same treatment as judges, separate grid
 
-### 8. **FAQ Section**
-- Accordion-style expandable questions
-- Common hackathon questions (eligibility, team size, what to bring, etc.)
-- Deep ocean ambiance with subtle particle effects
+**9. FAQ**
+- Accordion with ~8 standard hackathon questions (who can attend, cost, travel, what to bring, team size, beginner-friendly, code of conduct, MLH involvement)
 
-### 9. **Contact Section - Ocean Floor**
-- Contact form or email link
-- Social media links
-- Footer with MLH code of conduct link, UC San Diego branding
-- Ocean floor aesthetic with coral and sea life silhouettes
+**10. Contact**
+- Email, social links (placeholders), UCSD location line
+- Footer with MLH credit and copyright
 
----
+## Navigation
+- Sticky minimal top nav with smooth-scroll anchor links to each section, plus persistent "Register" button
+- Mobile: collapses to hamburger sheet
 
-## ✨ Immersive Features
+## Technical notes
+- Single route (`/`) — anchor scrolling is appropriate here since it's a marketing one-pager
+- Countdown timer runs client-side from a configurable target date constant
+- All content (dates, links, names, stats) lives in clearly-marked constants at the top of the page so you can edit easily
+- Fully responsive
 
-- **Parallax scrolling** with multiple depth layers
-- **Animated elements**: Bubbles, fish, jellyfish, floating particles
-- **Color gradient transitions** from warm beach tones to deep ocean blues/greens
-- **Bioluminescent accents** in deeper sections
-- **Wave animations** at section transitions
-- **Smooth scroll-triggered animations** for content reveals
-
----
-
-## 🧭 Navigation
-- **Sticky header** that adapts its styling as you scroll deeper (lighter at top, darker/translucent deeper)
-- Links to all major sections
-- Mobile-responsive hamburger menu
-
----
-
-## 📱 Responsive Design
-- Fully mobile-friendly with adjusted animations for performance
-- Touch-friendly interactive elements
-- Optimized for all screen sizes
-
----
-
-## 🔗 No Backend Required
-- External registration link (no database needed)
-- Static content website
-- Easy to update content as you finalize details
-
+After approval I'll build the layered parallax castle SVG, wire up the countdown, and lay out all sections with the stone & moss system.
