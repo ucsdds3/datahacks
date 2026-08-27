@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>DataHacks 2026 | DS3 UCSD</title>
+    <meta name="description" content="DataHacks 2026 has concluded. Thank you to everyone who joined us at UC San Diego on April 18–19, 2026." />
+    <meta name="author" content="Data Science Student Society (DS3)" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://datahacks.ds3ucsd.com/" />
+    <meta property="og:title" content="DataHacks 2026 | UCSD" />
+    <meta property="og:description" content="DataHacks 2026 has concluded. Thank you to everyone who joined us." />
+    <meta property="og:image" content="https://datahacks.ds3ucsd.com/emblem.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="DataHacks 2026 | UCSD" />
+    <meta name="twitter:description" content="DataHacks 2026 has concluded. Thank you to everyone who joined us." />
+    <meta name="twitter:image" content="https://datahacks.ds3ucsd.com/emblem.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+
+    <style>
+      :root {
+        --deep-water: hsl(210 90% 25%);
+        --abyss: hsl(220 95% 12%);
+        --mid-water: hsl(200 85% 45%);
+        --bioluminescent: hsl(180 100% 70%);
+        --sand: hsl(40 60% 75%);
+        --foam: hsl(195 100% 95%);
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+      }
+
+      body {
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 2rem 1.5rem;
+        font-family: "Inter", system-ui, -apple-system, sans-serif;
+        color: var(--foam);
+        background: linear-gradient(180deg, var(--mid-water) 0%, var(--deep-water) 45%, var(--abyss) 100%);
+        background-attachment: fixed;
+        overflow-x: hidden;
+      }
+
+      /* Drifting bubbles, echoing the site's ocean theme */
+      .bubbles {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 0;
+      }
+
+      .bubbles span {
+        position: absolute;
+        bottom: -12vh;
+        border-radius: 50%;
+        background: radial-gradient(circle at 30% 30%, hsl(180 100% 90% / 0.5), hsl(180 100% 70% / 0.08));
+        animation: rise linear infinite;
+      }
+
+      @keyframes rise {
+        0%   { transform: translateY(0) scale(0.4); opacity: 0; }
+        12%  { opacity: 0.55; }
+        100% { transform: translateY(-118vh) scale(1); opacity: 0; }
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+        max-width: 40rem;
+        text-align: center;
+      }
+
+      .emblem {
+        width: clamp(6rem, 18vw, 8.5rem);
+        height: auto;
+        margin: 0 auto 2rem;
+        display: block;
+        filter: drop-shadow(0 0 28px hsl(180 100% 70% / 0.45));
+        animation: float 6s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50%      { transform: translateY(-14px); }
+      }
+
+      .eyebrow {
+        font-size: 0.8125rem;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--bioluminescent);
+        margin: 0 0 1rem;
+      }
+
+      h1 {
+        font-family: "Fredoka", system-ui, sans-serif;
+        font-weight: 600;
+        font-size: clamp(2rem, 6vw, 3.25rem);
+        line-height: 1.1;
+        margin: 0 0 1.25rem;
+        text-shadow: 0 0 24px hsl(180 100% 70% / 0.35);
+      }
+
+      p {
+        font-size: clamp(1rem, 2.2vw, 1.125rem);
+        line-height: 1.7;
+        color: hsl(195 100% 95% / 0.82);
+        margin: 0 auto 1rem;
+        max-width: 34rem;
+      }
+
+      .dates {
+        font-family: "Fredoka", system-ui, sans-serif;
+        color: var(--sand);
+        font-size: 1rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 2.5rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.875rem;
+        justify-content: center;
+        margin-bottom: 3rem;
+      }
+
+      a.btn {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      a.primary {
+        background: var(--bioluminescent);
+        color: hsl(220 95% 12%);
+        box-shadow: 0 0 24px hsl(180 100% 70% / 0.35);
+      }
+
+      a.primary:hover, a.primary:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 0 34px hsl(180 100% 70% / 0.55);
+      }
+
+      a.ghost {
+        border: 1px solid hsl(195 100% 95% / 0.28);
+        color: var(--foam);
+      }
+
+      a.ghost:hover, a.ghost:focus-visible {
+        transform: translateY(-2px);
+        background: hsl(195 100% 95% / 0.08);
+      }
+
+      footer {
+        font-size: 0.8125rem;
+        color: hsl(195 100% 95% / 0.5);
+      }
+
+      footer a {
+        color: hsl(195 100% 95% / 0.75);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .emblem, .bubbles span { animation: none; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="bubbles" aria-hidden="true">
+      <span style="left: 8%;  width: 14px; height: 14px; animation-duration: 15s; animation-delay: 0s;"></span>
+      <span style="left: 21%; width: 8px;  height: 8px;  animation-duration: 19s; animation-delay: 3s;"></span>
+      <span style="left: 34%; width: 20px; height: 20px; animation-duration: 13s; animation-delay: 6s;"></span>
+      <span style="left: 48%; width: 10px; height: 10px; animation-duration: 21s; animation-delay: 1.5s;"></span>
+      <span style="left: 61%; width: 16px; height: 16px; animation-duration: 16s; animation-delay: 8s;"></span>
+      <span style="left: 74%; width: 7px;  height: 7px;  animation-duration: 23s; animation-delay: 4s;"></span>
+      <span style="left: 88%; width: 18px; height: 18px; animation-duration: 14s; animation-delay: 10s;"></span>
+    </div>
+
+    <main>
+      <img class="emblem" src="/datahacks-logo.png" alt="DataHacks logo" width="512" height="512" />
+
+      <p class="eyebrow">That's a wrap</p>
+      <h1>DataHacks 2026 has concluded</h1>
+
+      <p>
+        Thank you to the 350+ students, mentors, judges, and sponsors who made
+        UC San Diego's AI, Data Science &amp; Climate hackathon happen. We hope you
+        left your Jupyter notebooks behind and built something you're proud of.
+      </p>
+
+      <p class="dates">April 18–19, 2026 &middot; UC San Diego</p>
+
+      <div class="actions">
+        <a class="btn primary" href="https://ds3ucsd.com/">Visit DS3</a>
+        <a class="btn ghost" href="mailto:ds3@ucsd.edu">Contact us</a>
+      </div>
+
+      <footer>
+        Hosted by the
+        <a href="https://ds3ucsd.com/">Data Science Student Society</a>
+        at UC San Diego. See you next year.
+      </footer>
+    </main>
+  </body>
+</html>
