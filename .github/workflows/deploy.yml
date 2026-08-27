@@ -21,22 +21,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'     
-      
-      - name: Install dependencies
-        run: npm install
-      
-      - name: Build with Vite
-        run: npm run build
-      
+      # DataHacks 2026 is over, so we publish the static holding page in
+      # ./placeholder instead of building the full Vite site. The 2026 site is
+      # untouched on main -- revert this commit to bring it back (restore the
+      # Setup Node / npm install / npm run build steps and upload ./dist).
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dist
+          path: ./placeholder
 
   deploy:
     environment:
