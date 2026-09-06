@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { PixelSprite } from "./PixelWorld";
+import { PixelBackdrop, PixelSprite } from "./PixelWorld";
 
 const initial = { name: "", email: "", school: "", experience: "First hackathon", team: "Looking for teammates", motivation: "" };
 const steps = ["Your player", "Your adventure", "Review"];
@@ -20,7 +20,7 @@ export default function ApplicationPage() {
   const set = (key: keyof typeof initial, value: string) => setDetails(previous => ({ ...previous, [key]: value }));
   const next = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setStep(value => Math.min(value + 1, 2)); };
 
-  return <div className="mc-application-page"><div className="mc-container mc-application-layout">
+  return <div className="mc-application-page"><PixelBackdrop kind="surface" className="mc-application-backdrop" /><div className="mc-application-vignette" /><div className="mc-container mc-application-layout">
     <aside className="mc-application-intro"><Link to="/minecraft" className="mc-dimension-back">← Return to the overworld</Link><p className="mc-eyebrow">A NEW PLAYER HAS ENTERED</p><h1 tabIndex={-1}>Make a little<br /><em>creative chaos.</em></h1><p>Bring your curiosity.<br />We’ll help you find the rest.</p><div className="mc-application-creeper"><PixelSprite kind="creeper" /><span>Don’t worry.<br />The entrance was the hard part.</span></div><dl><div><dt>WHEN</dt><dd>January 16–17, 2027</dd></div><div><dt>PARTY SIZE</dt><dd>Up to 4 hackers</dd></div><div><dt>ENTRY FEE</dt><dd>Free. Always.</dd></div></dl></aside>
     <div className="mc-application-form"><div className="mc-application-preview-label"><span /> APPLICATION PREVIEW</div><p className="mc-form-disclaimer">Try the application flow. Entries aren’t submitted or saved. Registration opens closer to the event.</p>
       {complete ? <div className="mc-preview-complete"><CheckCheck size={44} /><h2 ref={heading} tabIndex={-1}>Ready for your<br />next adventure.</h2><p>You’ve reached the end of the preview.<br /><strong>No application has been submitted.</strong></p><button className="mc-button" onClick={() => { setDetails(initial); setStep(0); setComplete(false); }}>Try again <ArrowRight size={17} /></button><Link to="/minecraft">Back to the world</Link></div> : <>

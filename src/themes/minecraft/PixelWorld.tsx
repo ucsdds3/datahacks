@@ -153,13 +153,6 @@ function drawCave(ctx: Context, w: number, h: number, layerStops: number[]) {
       }
     }
   }
-  // A small deep-red netherrack inset gives the bottom edge the same visual surprise
-  // as the reference without turning the page into a rendered landscape.
-  const insetY = Math.floor(h * .77 / 16) * 16;
-  const insetX = Math.floor(cols * .61) * 16;
-  for (let row = Math.floor(insetY / 16); row < rows; row++) {
-    for (let col = Math.floor(insetX / 16); col < cols; col++) tile(ctx, col * 16, row * 16, "nether", (col + row) % 5);
-  }
 }
 
 function drawNether(ctx: Context, w: number, h: number) {
