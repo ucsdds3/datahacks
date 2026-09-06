@@ -114,23 +114,35 @@ function drawSurface(ctx: Context, w: number, h: number) {
 function drawCave(ctx: Context, w: number, h: number, layerStops: number[]) {
   const cols = Math.ceil(w / 16);
   const rows = Math.ceil(h / 16);
-  const backgrounds = ["#30383b", "#34343b", "#343039", "#252934"];
-  const pairs: Mineral[][] = [["stone", "emerald"], ["iron", "coal"], ["gold", "redstone"], ["deepslate", "diamond"]];
+  // A wall texture, rather than a perspective cavern: broad strata keep the same
+  // readable silhouette at every breakpoint while the ore families change with depth.
+  const bases: Mineral[] = ["stone", "stone", "stone", "deepslate"];
+  const pairs: Mineral[][] = [["emerald", "emerald"], ["iron", "coal"], ["gold", "redstone"], ["diamond", "diamond"]];
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < cols; col++) {
-      const boundaryWiggle = Math.floor(Math.sin(col * .7) * 1.5 + noise(col, 0) * 2) * 16;
-      const layer = Math.min(3, layerStops.filter(stop => row * 16 > stop + boundaryWiggle).length);
-      const edge = Math.max(1, Math.floor(cols * .11)) + Math.floor(noise(Math.floor(row / 3), 0) * 2);
-      const wall = col < edge || col >= cols - edge;
-      if (wall) {
-        const ore = noise(Math.floor(col / 2), Math.floor(row / 2), 3) > .72;
-        const material: Mineral = ore ? pairs[layer][Math.floor(noise(col, row) * 2)] : layer === 3 ? "deepslate" : "stone";
-        tile(ctx, col * 16, row * 16, material, (col + row * 3) % 7);
-      } else {
-        rect(ctx, backgrounds[layer], col * 16, row * 16, 16, 16);
-        if (noise(col, row, 6) > .73) rect(ctx, ["#384043", "#3b3b42", "#3b3640", "#2d313e"][layer], col * 16 + 3, row * 16 + 4, 5, 1);
+      const rowPx = row * 16;
+      const layer = Math.min(3, layerStops.filter(stop => rowPx > stop).length);
+      const base = bases[layer];
+      // Keep clusters grouped into little two-by-three pockets, like a hand-placed
+      // texture atlas, instead of scattering isolated dots randomly.
+      const pocket = noise(Math.floor(col / 2), Math.floor(row / 2), 8);
+      const ore = pocket > (layer === 0 ? .82 : .78);
+      const material: Mineral = ore ? pairs[layer][Math.floor(noise(col, row, 9) * 2)] : base;
+      tile(ctx, col * 16, rowPx, material, (col + row * 3) % 7);
+      if (row > 0 && (row % 3 === 0 || noise(col, row, 12) > .94)) {
+        rect(ctx, layer === 3 ? "#1e212b" : "#3e424b", col * 16, rowPx, 16, 2);
+      }
+      if (row === Math.floor(rows * .56) || row === Math.floor(rows * .78)) {
+        rect(ctx, layer === 3 ? "#1b1d25" : "#373b43", col * 16, rowPx, 16, 3);
       }
     }
+  }
+  // A small deep-red netherrack inset gives the bottom edge the same visual surprise
+  // as the reference without turning the page into a rendered landscape.
+  const insetY = Math.floor(h * .77 / 16) * 16;
+  const insetX = Math.floor(cols * .61) * 16;
+  for (let row = Math.floor(insetY / 16); row < rows; row++) {
+    for (let col = Math.floor(insetX / 16); col < cols; col++) tile(ctx, col * 16, row * 16, "nether", (col + row) % 5);
   }
 }
 
