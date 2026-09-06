@@ -68,6 +68,17 @@ function cherryTree(ctx: Context, x: number, ground: number, scale = 1) {
 
 function drawSurface(ctx: Context, w: number, h: number) {
   rect(ctx, "#bed6ed", 0, 0, w, h);
+  // Make the cherry grove read immediately: pink sky bands, blossom canopy
+  // fragments at the edges, and drifting petals around the clear title space.
+  rect(ctx, "#e8c1d2", 0, 0, w, Math.max(5, h * .055));
+  rect(ctx, "#d9b4cb", 0, Math.max(5, h * .055), w, Math.max(4, h * .035));
+  for (let x = 0; x < w; x += 13) {
+    if (x < w * .27 || x > w * .73) {
+      const y = Math.floor(noise(x, 41) * 30);
+      rect(ctx, noise(x, 42) > .5 ? "#e8aaca" : "#c97fa8", x, y, 7 + (x % 3), 4);
+      rect(ctx, "#f4c8da", x + 4, y + 4, 4, 3);
+    }
+  }
   // Pixel cloud silhouettes leave the middle of the sky clear for the heading.
   for (const [cx, cy, cw] of [[w * .06, h * .15, 43], [w * .79, h * .22, 56], [w * .42, h * .6, 25]]) {
     rect(ctx, "#e8e8f2", cx, cy, cw, 5);
@@ -100,6 +111,11 @@ function drawSurface(ctx: Context, w: number, h: number) {
   for (let i = 0; i < 30; i++) {
     const side = i % 2 ? .02 + noise(i, 1) * .2 : .8 + noise(i, 1) * .18;
     rect(ctx, "#e8b0cb", w * side, h * (.94 + noise(i, 2) * .045), 2, 1);
+  }
+  for (const x of [w * .16, w * .84]) {
+    rect(ctx, "#76576a", x, h * .24, 2, h * .26);
+    rect(ctx, "#f2d28d", x - 3, h * .48, 8, 10);
+    rect(ctx, "#73566b", x - 4, h * .46, 10, 3);
   }
   // A grass-and-soil cutaway meets the underground tilemap at the bottom edge.
   for (let x = 0; x < w; x += 16) {

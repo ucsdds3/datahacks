@@ -16,6 +16,19 @@
 .minecraft-root .mc-layer-iron { --ore:#d0b09c; }
 .minecraft-root .mc-layer-gold { --ore:#ddbd72; }
 .minecraft-root .mc-layer-diamond { --ore:#91d1d5; padding-bottom:90px; }
+.minecraft-root .mc-biome-scene { position:relative; z-index:1; width:min(1040px,72%); margin:0 auto; border:2px solid #69717d; box-shadow:0 5px #1f242e; background:#2d333a; overflow:hidden; }
+.minecraft-root .mc-biome-scene svg { display:block; width:100%; height:auto; min-height:145px; image-rendering:pixelated; }
+.minecraft-root .mc-grove-scene { border-color:#a87591; background:#b5a2bf; box-shadow:0 5px #34323d; }
+.minecraft-root .mc-mineshaft-scene { border-color:#806958; background:#37373e; box-shadow:0 5px #22252c; }
+.minecraft-root .mc-sulfur-scene { border-color:#9a6942; background:#5b3e38; box-shadow:0 5px #2d2425; }
+.minecraft-root .mc-ancient-scene { border-color:#4a787b; background:#162631; box-shadow:0 5px #101820; }
+.minecraft-root .mc-biome-scene + .mc-section { padding-top:55px; }
+.minecraft-root .mc-layer-emerald .mc-layer-label { color:#f0bfd3; }.minecraft-root .mc-layer-emerald { --ore:#d993b5; }
+.minecraft-root .mc-layer-emerald .mc-layer-label>i { box-shadow:0 0 0 2px #6d4d64; }
+.minecraft-root .mc-layer-iron .mc-layer-label>i { box-shadow:0 0 0 2px #69584d; }
+.minecraft-root .mc-layer-gold .mc-layer-label>i { box-shadow:0 0 0 2px #6e4c37; }
+.minecraft-root .mc-layer-diamond .mc-layer-label>i { box-shadow:0 0 0 2px #315c62; }
+.minecraft-root .mc-layer-diamond .mc-biome-scene + .mc-section { padding-top:55px; }
 .minecraft-root .mc-underground .mc-container { width:72%; max-width:1070px; }
 .minecraft-root .mc-underground .mc-section { background:none; border:0; padding:65px 0; }
 .minecraft-root .mc-underground .mc-eyebrow { color:var(--ore); }
@@ -183,11 +196,13 @@
   .minecraft-root .mc-underground .mc-container { width:70%; }.minecraft-root .mc-underground .mc-about-grid { grid-template-columns:1fr; gap:45px; }.minecraft-root .mc-crafting-wrap { width:min(440px,96%); margin:0 auto; }
   .minecraft-root .mc-crossroads-grid { grid-template-columns:1fr; }.minecraft-root .mc-world-door { gap:30px; padding:28px 35px; }
   .minecraft-root .mc-application-layout { gap:45px; }.minecraft-root .mc-application-form { padding:25px; }
+  .minecraft-root .mc-biome-scene { width:70%; }
 }
 @media(max-width:760px) {
   .minecraft-root .mc-depth-meter { display:none; }.minecraft-root .mc-cherry-hero { min-height:770px; max-height:940px; }.minecraft-root .mc-cherry-hero .mc-hero-content { padding-top:45px; }
   .minecraft-root .mc-cherry-hero .mc-hero-bottom { bottom:48px; font-size:12px; }.minecraft-root .mc-cherry-hero .mc-hero-bottom>a { max-width:150px; font-size:11px; padding:5px 7px; }
   .minecraft-root .mc-underground .mc-container { width:78%; }.minecraft-root .mc-depth-layer { padding-top:45px; }.minecraft-root .mc-layer-label { gap:7px; font-size:13px; letter-spacing:.1px; }.minecraft-root .mc-layer-label>span:first-child { font-size:13px; padding:3px 5px; }.minecraft-root .mc-layer-number { display:none; }
+  .minecraft-root .mc-biome-scene { width:78%; }.minecraft-root .mc-biome-scene svg { min-height:104px; }
   .minecraft-root .mc-underground .mc-section { padding:45px 0; }.minecraft-root .mc-underground h2 { font-size:26px; letter-spacing:-1.5px; }.minecraft-root .mc-underground .mc-body { font-size:16px; }
   .minecraft-root .mc-underground .mc-about-grid { gap:40px; }.minecraft-root .mc-underground .mc-panel { padding:15px; }.minecraft-root .mc-crafting-wrap { width:97%; }.minecraft-root .mc-recipe { gap:9px; }.minecraft-root .mc-result { width:54px; }.minecraft-root .mc-result>span { font-size:35px; }
   .minecraft-root .mc-pixel-item { width:37px; height:37px; }.minecraft-root .mc-track-symbol .mc-pixel-item { width:42px; height:42px; }.minecraft-root .mc-prize-icon .mc-pixel-item { width:47px; height:47px; }

@@ -10,7 +10,7 @@ const THEMES = [
     bg: "#385729",
   },
   {
-    path: "/",
+    path: "/groove",
     name: "Cosmic Groove",
     blurb: "70s psychedelic. Rainbow ribbons, doodle field, expressive display type.",
     swatch: ["#16110E", "#F3E7D3", "#E8523F", "#F5C13D", "#7FBF8A", "#6FA8DC"],

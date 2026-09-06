@@ -3,6 +3,7 @@ import { ArrowDown, ArrowRight, ArrowUpRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { About, Tracks, Prizes, Schedule, Sponsors, Faq } from "./WorldSections";
 import { PixelBackdrop, PixelSprite } from "./PixelWorld";
+import { BiomeScene } from "./BiomeScenes";
 import { PickaxeCursor } from "./WorldMotion";
 import { WorldLink, WorldTravel } from "./WorldTravel";
 import ApplicationPage from "./ApplicationPage";
@@ -90,19 +91,19 @@ function HomePage() {
     <div className="mc-underground">
       <PixelBackdrop kind="cave" />
       <div className="mc-depth-layer mc-layer-emerald" id="emerald-layer" data-layer>
-        <LayerLabel index={0} /><About />
+        <LayerLabel index={0} /><BiomeScene kind="grove" /><About />
         <div className="mc-descent-pause" aria-hidden="true"><span>THERE’S MORE BENEATH THE SURFACE</span><ArrowDown size={20} /></div>
       </div>
       <div className="mc-depth-layer mc-layer-iron" id="iron-layer" data-layer>
-        <LayerLabel index={1} /><Tracks />
+        <LayerLabel index={1} /><BiomeScene kind="mineshaft" /><Tracks />
         <div className="mc-descent-pause" aria-hidden="true"><span>A LITTLE CURIOSITY GOES A LONG WAY DOWN</span><ArrowDown size={20} /></div>
       </div>
       <div className="mc-depth-layer mc-layer-gold" id="gold-layer" data-layer>
-        <LayerLabel index={2} /><Sponsors />
+        <LayerLabel index={2} /><BiomeScene kind="sulfur" /><Sponsors />
         <div className="mc-descent-pause" aria-hidden="true"><span>THE BEST DISCOVERIES TAKE A LITTLE DIGGING</span><ArrowDown size={20} /></div>
       </div>
       <div className="mc-depth-layer mc-layer-diamond" id="diamond-layer" data-layer>
-        <LayerLabel index={3} /><Prizes /><Faq />
+        <LayerLabel index={3} /><BiomeScene kind="ancient" /><Prizes /><Faq />
         <div className="mc-world-crossroads mc-container">
           <p className="mc-eyebrow">YOU’VE REACHED DEEPSLATE</p><h2>One world explored.<br /><em>Two adventures ahead.</em></h2>
           <div className="mc-crossroads-grid">
