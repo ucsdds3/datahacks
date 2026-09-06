@@ -137,7 +137,7 @@ Additional themed illustration is encouraged and expected — go past just the m
 
 ## 4. Theme specs
 
-### 4.1 · GROOVE — "Cosmic Groove" · route `/groove`
+### 4.1 · GROOVE — "Cosmic Groove" · route `/`
 
 **Direction:** Deep Dark Mode → cut to warm cream. Expressive display typography. Editorial offset composition.
 

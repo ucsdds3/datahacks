@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 const THEMES = [
   {
-    slug: "groove",
+    path: "/",
     name: "Cosmic Groove",
     blurb: "70s psychedelic. Rainbow ribbons, doodle field, expressive display type.",
     swatch: ["#16110E", "#F3E7D3", "#E8523F", "#F5C13D", "#7FBF8A", "#6FA8DC"],
@@ -10,7 +10,7 @@ const THEMES = [
     bg: "#16110E",
   },
   {
-    slug: "pop",
+    path: "/pop",
     name: "Pop Machine",
     blurb: "Hard colour bands. Isometric toy machines, tiny humans, flat bordered cards.",
     swatch: ["#EFA0DE", "#F0BE3D", "#F26522", "#000000", "#FFF8EC", "#4FB3A5"],
@@ -18,7 +18,7 @@ const THEMES = [
     bg: "#EFA0DE",
   },
   {
-    slug: "press",
+    path: "/press",
     name: "Field Guide",
     blurb: "Retro editorial. Magazine grid, serif + condensed caps, engraved plates.",
     swatch: ["#F5E9C8", "#C8342B", "#F2C230", "#3E7A45", "#141210", "#B08D5F"],
@@ -45,8 +45,8 @@ export default function ThemeIndex() {
         <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {THEMES.map((t) => (
             <Link
-              key={t.slug}
-              to={`/${t.slug}`}
+              key={t.path}
+              to={t.path}
               className="group block rounded-lg overflow-hidden border border-neutral-800 transition hover:border-neutral-500 hover:-translate-y-1 duration-300"
             >
               <div
@@ -67,7 +67,7 @@ export default function ThemeIndex() {
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-neutral-400">{t.blurb}</p>
                 <p className="mt-4 text-sm font-medium text-neutral-200 group-hover:underline">
-                  View /{t.slug} →
+                  View {t.name} →
                 </p>
               </div>
             </Link>
