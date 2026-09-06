@@ -1,0 +1,1169 @@
+/* ==========================================================================
+   POP — "Pop Machine"
+   Bold studio solid. Hard full-bleed colour bands, compressed statement type,
+   isometric toy illustration. Every selector scoped under .pop-root.
+   No shadows. No gradients. Borders are 2px solid #000.
+   ========================================================================== */
+
+.pop-root {
+  --pink: #efa0de;
+  --marigold: #f0be3d;
+  --orange: #f26522;
+  --orange-dark: #d9541a;
+  --ink: #000000;
+  --cream: #fff8ec;
+  --teal: #4fb3a5;
+  --grey: #b9b3a9;
+
+  --pad: clamp(5rem, 10vw, 9rem);
+  --gutter: clamp(1.25rem, 5vw, 4.5rem);
+  --maxw: 1440px;
+
+  background: var(--cream);
+  color: var(--ink);
+  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
+  overflow-x: hidden;
+  isolation: isolate;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* reset shadcn / preflight bleed inside the theme ------------------------- */
+.pop-root *,
+.pop-root *::before,
+.pop-root *::after {
+  box-sizing: border-box;
+  border-color: #000;
+}
+.pop-root h1,
+.pop-root h2,
+.pop-root h3,
+.pop-root p,
+.pop-root ul,
+.pop-root ol,
+.pop-root dl,
+.pop-root dd,
+.pop-root figure {
+  margin: 0;
+  padding: 0;
+}
+.pop-root ul {
+  list-style: none;
+}
+.pop-root a {
+  color: inherit;
+  text-decoration: none;
+}
+.pop-root button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.pop-root svg {
+  display: block;
+}
+.pop-root a:focus-visible,
+.pop-root button:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
+}
+
+.pop-root .pop-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- layout primitives ------------------------------------------- */
+.pop-root .pop-wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.pop-root .pop-band {
+  position: relative;
+  padding-block: var(--pad);
+}
+.pop-root .pop-band--pink {
+  background: var(--pink);
+}
+.pop-root .pop-band--marigold {
+  background: var(--marigold);
+}
+.pop-root .pop-band--cream {
+  background: var(--cream);
+}
+
+/* ---------- shared type ------------------------------------------------- */
+.pop-root .pop-h2 {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 4.5vw, 3.5rem);
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  max-width: 20ch;
+}
+.pop-root .pop-eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.pop-root .pop-body {
+  font-size: 1rem;
+  line-height: 1.6;
+  max-width: 48ch;
+}
+.pop-root .pop-body + .pop-body {
+  margin-top: 0.9rem;
+}
+.pop-root .pop-note {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  max-width: 40ch;
+  color: rgba(0, 0, 0, 0.66);
+}
+.pop-root .pop-note a {
+  color: #000;
+  border-bottom: 2px solid var(--orange);
+}
+
+/* ---------- buttons ----------------------------------------------------- */
+.pop-root .pop-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  line-height: 1;
+  padding: 0.78rem 1.15rem;
+  border: 2px solid var(--orange);
+  border-radius: 4px;
+  transition: background-color 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+}
+.pop-root .pop-btn:hover {
+  background: var(--orange-dark);
+  border-color: var(--orange-dark);
+}
+.pop-root .pop-btn--ghost {
+  background: transparent;
+  color: #000;
+  border-color: #000;
+}
+.pop-root .pop-btn--ghost:hover {
+  background: #000;
+  color: var(--cream);
+}
+
+/* ==========================================================================
+   1 · TOP BAR — solid black strip, low and dense
+   ========================================================================== */
+.pop-root .pop-bar {
+  background: #000;
+  color: #fff;
+  position: relative;
+  z-index: 6;
+}
+.pop-root .pop-bar-in {
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+  min-height: 52px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+.pop-root .pop-bar-mark {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 0.8125rem;
+  letter-spacing: 0.16em;
+}
+.pop-root .pop-bar-mark span {
+  color: var(--marigold);
+}
+.pop-root .pop-bar-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 1.35rem;
+}
+.pop-root .pop-bar-nav a {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.72);
+  transition: color 0.16s ease;
+}
+.pop-root .pop-bar-nav a:hover {
+  color: #fff;
+}
+.pop-root .pop-bar-cta {
+  margin-left: 0.35rem;
+  background: #fff;
+  color: #000;
+  border-radius: 999px;
+  padding: 0.38rem 1.05rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+.pop-root .pop-bar-cta:hover {
+  background: var(--marigold);
+}
+.pop-root .pop-bar a:focus-visible {
+  outline-color: var(--marigold);
+}
+
+/* ==========================================================================
+   2 · HERO — pink band, giant lowercase display, left aligned
+   ========================================================================== */
+.pop-root .pop-hero {
+  padding-block: clamp(3rem, 6vw, 5.5rem) clamp(3.5rem, 7vw, 6.5rem);
+}
+.pop-root .pop-hero-type {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.78;
+  color: #fff;
+  display: block;
+  margin-block: 0.55rem 0;
+  text-transform: lowercase;
+}
+.pop-root .pop-hero-sm {
+  display: block;
+  font-size: clamp(1.1rem, 5.32vw, 5.05rem); /* ~38% of the display word at every width */
+  margin-left: 0.06em;
+}
+.pop-root .pop-hero-lg {
+  /* calibrated so "datahacks 2.0" fills ~95% of the content box and never overflows */
+  display: block;
+  font-size: clamp(2.9rem, 14vw, 13.3rem);
+  white-space: nowrap;
+}
+.pop-root .pop-hero-lg em {
+  font-style: normal;
+  font-size: 0.17em;
+  vertical-align: 3.1em;
+  letter-spacing: -0.01em;
+  margin-left: 0.18em;
+  color: var(--marigold);
+}
+.pop-root .pop-hero-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.88fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+  margin-top: clamp(1.75rem, 3.5vw, 2.75rem);
+}
+.pop-root .pop-hero-lead {
+  font-size: clamp(1.0625rem, 1.7vw, 1.375rem);
+  font-weight: 500;
+  line-height: 1.35;
+  max-width: 24ch;
+}
+.pop-root .pop-hero-sub {
+  margin-top: 0.9rem;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 40ch;
+  color: rgba(0, 0, 0, 0.72);
+}
+.pop-root .pop-hero-cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 1.6rem;
+}
+.pop-root .pop-hero-art {
+  align-self: end;
+  margin-top: clamp(-5rem, -3vw, 0rem);
+}
+.pop-root .pop-saur {
+  width: 100%;
+  height: auto;
+  max-width: 560px;
+  max-height: min(52vh, 520px);
+  margin-left: auto;
+  margin-right: -2%;
+}
+
+/* ==========================================================================
+   3 · MARQUEE — black band
+   ========================================================================== */
+.pop-root .pop-marquee {
+  background: #000;
+  color: var(--cream);
+  overflow: hidden;
+  padding-block: clamp(0.85rem, 1.6vw, 1.15rem);
+}
+.pop-root .pop-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: pop-scroll 36s linear infinite;
+}
+.pop-root .pop-marquee-seq {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.75rem);
+  padding-right: clamp(1rem, 2vw, 1.75rem);
+}
+.pop-root .pop-marquee-item {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 2vw, 1.5rem);
+  letter-spacing: 0.005em;
+  white-space: nowrap;
+}
+.pop-root .pop-marquee-star {
+  width: 0.8em;
+  height: 0.8em;
+  flex: none;
+  color: var(--orange);
+}
+@keyframes pop-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ==========================================================================
+   4 · ABOUT — marigold band, machine left / narrow text right
+   ========================================================================== */
+.pop-root .pop-about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.28fr) minmax(0, 0.72fr);
+  gap: clamp(1.5rem, 4vw, 4rem);
+  align-items: center;
+}
+.pop-root .pop-machine {
+  width: 100%;
+  max-width: 700px;
+  height: auto;
+  margin-inline: auto;
+}
+.pop-root .pop-about-copy .pop-h2 {
+  margin: 0.55rem 0 1.15rem;
+}
+.pop-root .pop-meta {
+  margin-top: 2rem;
+  border-top: 2px solid #000;
+}
+.pop-root .pop-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 2px solid #000;
+}
+.pop-root .pop-meta dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.pop-root .pop-meta dd {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* ==========================================================================
+   5 · STATS — cream band, full-bleed rules, crowd standing on the baseline
+   ========================================================================== */
+.pop-root .pop-stats-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+}
+.pop-root .pop-stats-rail {
+  border-block: 2px solid #000;
+}
+.pop-root .pop-stats-inner {
+  position: relative;
+}
+.pop-root .pop-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.pop-root .pop-stat {
+  padding: clamp(1.5rem, 3vw, 2.5rem) clamp(0.6rem, 1.5vw, 1.25rem)
+    clamp(3.25rem, 5.5vw, 4.5rem) clamp(0.9rem, 2vw, 1.75rem);
+  border-left: 2px solid #000;
+}
+.pop-root .pop-stat:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+.pop-root .pop-stat-num {
+  display: flex;
+  align-items: flex-end;
+  height: calc(clamp(2.4rem, 5.6vw, 4.75rem) * 0.88);
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.4rem, 5.6vw, 4.75rem);
+  letter-spacing: -0.05em;
+  line-height: 0.88;
+}
+.pop-root .pop-stat-num--long {
+  font-size: clamp(1.7rem, 3.9vw, 3.3rem);
+}
+.pop-root .pop-stat-label {
+  display: block;
+  margin-top: 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.6);
+}
+.pop-root .pop-crowd {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 0;
+  pointer-events: none;
+}
+.pop-root .pop-crowd-fig {
+  position: absolute;
+  bottom: 0;
+  display: block;
+  height: clamp(30px, 3.6vw, 44px);
+}
+.pop-root .pop-crowd-fig svg {
+  height: 100%;
+  width: auto;
+}
+
+/* ==========================================================================
+   6 · TRACKS — pink band, four flat bordered cards, floating black badge
+   ========================================================================== */
+.pop-root .pop-tracks-head {
+  margin-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+}
+.pop-root .pop-tracks-head .pop-h2 {
+  margin-top: 0.55rem;
+  max-width: 24ch;
+}
+.pop-root .pop-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(0.85rem, 1.5vw, 1.35rem);
+}
+.pop-root .pop-card-grid > * {
+  height: 100%;
+}
+.pop-root .pop-card {
+  height: 100%;
+  background: var(--cream);
+  border: 2px solid #000;
+  border-radius: 6px;
+  padding: clamp(1.1rem, 1.8vw, 1.5rem);
+}
+.pop-root .pop-card-tile {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border: 2px solid #000;
+  border-radius: 4px;
+  margin-bottom: clamp(1.5rem, 3vw, 2.25rem);
+}
+.pop-root .pop-card-icon {
+  width: 22px;
+  height: 22px;
+}
+.pop-root .pop-tile--marigold {
+  background: var(--marigold);
+}
+.pop-root .pop-tile--teal {
+  background: var(--teal);
+}
+.pop-root .pop-tile--orange {
+  background: var(--orange);
+}
+.pop-root .pop-tile--pink {
+  background: var(--pink);
+}
+.pop-root .pop-card-title {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+}
+.pop-root .pop-card-tbd {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.1rem, 3.4vw, 2.75rem);
+  letter-spacing: -0.045em;
+  line-height: 1;
+  margin: 0.35rem 0 0.6rem;
+}
+@supports (-webkit-text-stroke: 2px #000) {
+  .pop-root .pop-card-tbd {
+    color: transparent;
+    -webkit-text-stroke: 2px #000;
+  }
+}
+.pop-root .pop-card-note {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: rgba(0, 0, 0, 0.62);
+}
+.pop-root .pop-badge {
+  position: absolute;
+  bottom: clamp(-3rem, -4vw, -2.25rem);
+  right: clamp(1.25rem, 7vw, 7%);
+  width: clamp(92px, 9.5vw, 124px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #000;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  z-index: 4;
+}
+.pop-root .pop-badge-star {
+  width: clamp(20px, 2.2vw, 26px);
+  height: clamp(20px, 2.2vw, 26px);
+  color: var(--marigold);
+}
+.pop-root .pop-badge span {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 0.6875rem;
+  line-height: 1.15;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ==========================================================================
+   7 · PRIZES — marigold band, big pool figure + a hard-edged prize ladder
+   ========================================================================== */
+.pop-root .pop-prize-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.72fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: end;
+  margin-bottom: clamp(3rem, 6vw, 5rem);
+}
+.pop-root .pop-pool {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 10vw, 8.5rem);
+  letter-spacing: -0.055em;
+  line-height: 0.85;
+  margin-top: 0.5rem;
+}
+.pop-root .pop-prize-note {
+  max-width: 34ch;
+  color: rgba(0, 0, 0, 0.72);
+}
+.pop-root .pop-ladder {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+}
+.pop-root .pop-step {
+  position: relative;
+  border: 2px solid #000;
+  padding: clamp(0.9rem, 1.6vw, 1.35rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.pop-root .pop-step + .pop-step {
+  margin-left: -2px;
+}
+.pop-root .pop-step--3 {
+  height: clamp(132px, 19vw, 205px);
+  background: var(--cream);
+}
+.pop-root .pop-step--2 {
+  height: clamp(168px, 24vw, 265px);
+  background: var(--teal);
+}
+.pop-root .pop-step--1 {
+  height: clamp(204px, 30vw, 325px);
+  background: var(--orange);
+  color: #fff;
+}
+.pop-root .pop-step-fig {
+  position: absolute;
+  bottom: 100%;
+  left: clamp(0.9rem, 1.6vw, 1.35rem);
+  display: block;
+  height: clamp(46px, 5.4vw, 70px);
+}
+.pop-root .pop-step-fig svg {
+  height: 100%;
+  width: auto;
+}
+.pop-root .pop-step-trophy {
+  height: clamp(58px, 7vw, 92px) !important;
+}
+.pop-root .pop-step-place {
+  display: block;
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 2.4rem);
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+.pop-root .pop-step-amt {
+  display: block;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+  letter-spacing: -0.02em;
+  margin-top: 0.25rem;
+}
+.pop-root .pop-step-tbd {
+  display: inline-block;
+  margin-top: 0.7rem;
+  border: 2px solid #000;
+  border-radius: 3px;
+  padding: 0.1rem 0.4rem;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #000;
+}
+.pop-root .pop-track-prizes {
+  margin-top: clamp(2.25rem, 4vw, 3.25rem);
+  padding-top: 1.35rem;
+  border-top: 2px solid #000;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.5rem;
+}
+.pop-root .pop-track-prizes ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.pop-root .pop-chip {
+  border: 2px solid #000;
+  border-radius: 4px;
+  padding: 0.38rem 0.7rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+.pop-root .pop-chip b {
+  font-family: "Archivo", sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  margin-left: 0.3rem;
+}
+
+/* ==========================================================================
+   8 · SCHEDULE — cream band, two ruled day columns, iso props in the gutters
+   ========================================================================== */
+.pop-root .pop-sched .pop-wrap {
+  position: relative;
+}
+.pop-root .pop-sched-head {
+  margin-bottom: clamp(2.25rem, 4.5vw, 3.5rem);
+}
+.pop-root .pop-sched-head .pop-h2 {
+  margin-top: 0.55rem;
+}
+.pop-root .pop-sched-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 4rem);
+}
+.pop-root .pop-day-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid #000;
+}
+.pop-root .pop-day-label {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  letter-spacing: -0.04em;
+  text-transform: lowercase;
+}
+.pop-root .pop-day-date {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.pop-root .pop-row {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 2px solid #000;
+}
+.pop-root .pop-row-time {
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+  padding-top: 0.12rem;
+}
+.pop-root .pop-row-title {
+  display: block;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  line-height: 1.35;
+}
+.pop-root .pop-row-note {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.875rem;
+  color: rgba(0, 0, 0, 0.6);
+}
+.pop-root .pop-day-foot {
+  margin-top: 1rem;
+  font-size: 0.8125rem;
+  color: rgba(0, 0, 0, 0.55);
+}
+.pop-root .pop-sched-props {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pop-root .pop-prop {
+  position: absolute;
+}
+.pop-root .pop-prop svg {
+  width: 100%;
+  height: auto;
+}
+.pop-root .pop-prop--laptop {
+  width: 104px;
+  right: -5.5rem;
+  top: 14%;
+}
+.pop-root .pop-prop--coffee {
+  width: 76px;
+  left: -4.5rem;
+  top: 52%;
+}
+.pop-root .pop-prop--server {
+  width: 104px;
+  right: -5rem;
+  bottom: 4%;
+}
+
+/* ==========================================================================
+   9 · SPONSORS — pink band, tiered empty frames
+   ========================================================================== */
+.pop-root .pop-spon-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.5fr);
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: center;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
+}
+.pop-root .pop-spon-head .pop-h2 {
+  margin: 0.55rem 0 1rem;
+  max-width: 17ch;
+}
+.pop-root .pop-spon-lead {
+  color: rgba(0, 0, 0, 0.78);
+}
+.pop-root .pop-spon-mail {
+  margin-top: 1.15rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+.pop-root .pop-spon-mail a {
+  border-bottom: 2px solid #000;
+}
+.pop-root .pop-spon-mail a:hover {
+  color: var(--orange);
+  border-color: var(--orange);
+}
+.pop-root .pop-spon-art svg {
+  width: 100%;
+  max-width: 300px;
+  margin-left: auto;
+  height: auto;
+}
+.pop-root .pop-tiers {
+  display: grid;
+  gap: clamp(1.25rem, 2.5vw, 2rem);
+}
+.pop-root .pop-tier {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: clamp(1rem, 2vw, 1.75rem);
+  align-items: start;
+  padding-top: 1.1rem;
+  border-top: 2px solid #000;
+}
+.pop-root .pop-tier-label span:first-child {
+  display: block;
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  letter-spacing: -0.03em;
+}
+.pop-root .pop-tier-count {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.55);
+}
+.pop-root .pop-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.85rem;
+}
+.pop-root .pop-slot {
+  background: var(--cream);
+  border: 2px solid #000;
+  border-radius: 6px;
+  height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+}
+.pop-root .pop-slot--xl {
+  height: 128px;
+}
+.pop-root .pop-slot--lg {
+  height: 102px;
+}
+.pop-root .pop-slot-glyph {
+  width: 18px;
+  height: 18px;
+  color: rgba(0, 0, 0, 0.4);
+}
+.pop-root .pop-slot span {
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   10 · FAQ — cream band, one bordered stack of ruled rows
+   ========================================================================== */
+.pop-root .pop-faq-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+}
+.pop-root .pop-faq-side .pop-h2 {
+  margin: 0.55rem 0 1rem;
+}
+.pop-root .pop-faq-side .pop-btn {
+  margin-top: 1.5rem;
+}
+.pop-root .pop-faq-list {
+  border-top: 2px solid #000;
+}
+.pop-root .pop-faq-row {
+  border-bottom: 2px solid #000;
+}
+.pop-root .pop-faq-q {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.15rem 0;
+  text-align: left;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.0625rem, 1.7vw, 1.3rem);
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.pop-root .pop-faq-icon {
+  width: 15px;
+  height: 15px;
+  flex: none;
+  color: #000;
+}
+.pop-root .pop-faq-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pop-root .pop-faq-a.is-open {
+  grid-template-rows: 1fr;
+}
+.pop-root .pop-faq-a > p {
+  overflow: hidden;
+  min-height: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 58ch;
+  color: rgba(0, 0, 0, 0.75);
+  padding-bottom: 1.2rem;
+}
+
+/* ==========================================================================
+   11 · FOOTER — black band
+   ========================================================================== */
+.pop-root .pop-foot {
+  background: #000;
+  color: var(--cream);
+  padding-block: clamp(3.5rem, 7vw, 6rem) 2.25rem;
+}
+.pop-root .pop-foot-top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.pop-root .pop-foot-mark {
+  font-family: "Archivo", "Archivo Black", sans-serif;
+  font-weight: 900;
+  font-size: clamp(2.4rem, 7.5vw, 6rem);
+  letter-spacing: -0.045em;
+  line-height: 0.85;
+  color: #fff;
+  text-transform: lowercase;
+}
+.pop-root .pop-foot-mark em {
+  font-style: normal;
+  font-size: 0.28em;
+  vertical-align: 2.1em;
+  margin-left: 0.22em;
+  color: var(--marigold);
+}
+.pop-root .pop-foot-dates {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding-bottom: 0.4rem;
+}
+.pop-root .pop-foot-star {
+  width: 11px;
+  height: 11px;
+  color: var(--orange);
+}
+.pop-root .pop-foot-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+  margin-top: clamp(2.5rem, 5vw, 3.75rem);
+  padding-top: clamp(1.75rem, 3vw, 2.5rem);
+  border-top: 2px solid var(--cream);
+}
+.pop-root .pop-foot-col h3 {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--marigold);
+  margin-bottom: 0.9rem;
+}
+.pop-root .pop-foot-col li + li {
+  margin-top: 0.4rem;
+}
+.pop-root .pop-foot-col a {
+  font-size: 0.9375rem;
+  color: rgba(255, 248, 236, 0.72);
+  transition: color 0.16s ease;
+}
+.pop-root .pop-foot-col a:hover {
+  color: #fff;
+}
+.pop-root .pop-foot-col--org p {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: rgba(255, 248, 236, 0.6);
+}
+.pop-root .pop-foot-mail {
+  display: inline-block;
+  margin-top: 0.7rem;
+  font-weight: 700;
+  color: #fff !important;
+  border-bottom: 2px solid var(--orange);
+}
+.pop-root .pop-foot-fine {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem 2rem;
+  margin-top: clamp(2.5rem, 4vw, 3.5rem);
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: rgba(255, 248, 236, 0.45);
+  max-width: 70ch;
+}
+.pop-root .pop-foot a:focus-visible {
+  outline-color: var(--marigold);
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+@media (max-width: 1200px) {
+  .pop-root .pop-sched-props {
+    display: none;
+  }
+}
+
+@media (max-width: 1024px) {
+  .pop-root .pop-about-grid,
+  .pop-root .pop-faq-grid,
+  .pop-root .pop-spon-head {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pop-root .pop-about-art {
+    order: 2;
+  }
+  .pop-root .pop-machine {
+    max-width: 560px;
+  }
+  .pop-root .pop-spon-art {
+    display: none;
+  }
+  .pop-root .pop-card-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pop-root .pop-foot-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .pop-root .pop-bar-nav {
+    display: none;
+  }
+  .pop-root .pop-bar-cta {
+    margin-left: auto;
+  }
+  .pop-root .pop-hero-lower {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pop-root .pop-hero-art {
+    margin-top: 0.5rem;
+  }
+  .pop-root .pop-saur {
+    max-width: 460px;
+    margin-inline: 0 auto;
+  }
+  .pop-root .pop-sched-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pop-root .pop-prize-top {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+  .pop-root .pop-tier {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+  .pop-root .pop-tier-label {
+    display: flex;
+    align-items: baseline;
+    gap: 0.7rem;
+  }
+  .pop-root .pop-tier-count {
+    margin-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .pop-root .pop-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pop-root .pop-stat {
+    padding-bottom: clamp(2rem, 8vw, 3rem);
+  }
+  .pop-root .pop-stat:nth-child(3) {
+    border-left: 0;
+    padding-left: 0;
+    border-top: 2px solid #000;
+  }
+  .pop-root .pop-stat:nth-child(4) {
+    border-top: 2px solid #000;
+  }
+  .pop-root .pop-crowd-fig:nth-child(2),
+  .pop-root .pop-crowd-fig:nth-child(4) {
+    display: none;
+  }
+  .pop-root .pop-card-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pop-root .pop-card-tile {
+    margin-bottom: 1rem;
+  }
+  .pop-root .pop-foot-cols,
+  .pop-root .pop-foot-fine {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pop-root .pop-slots {
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+}
+
+@media (max-width: 460px) {
+  .pop-root .pop-row {
+    grid-template-columns: 3.9rem minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+  .pop-root .pop-step {
+    padding: 0.75rem;
+  }
+  .pop-root .pop-step-fig {
+    left: 0.75rem;
+  }
+}
+
+/* ==========================================================================
+   REDUCED MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  .pop-root .pop-marquee-track {
+    animation: none;
+    transform: none;
+  }
+  .pop-root .pop-faq-a {
+    transition: none;
+  }
+  .pop-root .pop-btn,
+  .pop-root .pop-bar-nav a,
+  .pop-root .pop-foot-col a {
+    transition: none;
+  }
+}
