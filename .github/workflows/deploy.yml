@@ -33,6 +33,16 @@ jobs:
       - name: Build website
         run: npm run build
 
+      # GitHub Pages serves static files and does not fall back to index.html
+      # for client-side routes. Give the private alternate themes their own
+      # entry documents so direct links and browser refreshes work.
+      - name: Create direct-route entries
+        run: |
+          mkdir -p dist/themes dist/pop dist/press
+          cp dist/index.html dist/themes/index.html
+          cp dist/index.html dist/pop/index.html
+          cp dist/index.html dist/press/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
