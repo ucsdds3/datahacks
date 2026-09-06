@@ -7,7 +7,7 @@
 .minecraft-root .mc-track-symbol .mc-pixel-item { width:52px; height:52px; }
 .minecraft-root .mc-prize-icon .mc-pixel-item { width:60px; height:60px; }
 .minecraft-root .mc-cherry-hero { background:#bed6ed; min-height:760px; max-height:1050px; }
-.minecraft-root .mc-cherry-hero .mc-hero-cherry-image { background-image:url('/images/minecraft/cherry-blossom.png'); background-position:center center; background-size:cover; }
+.minecraft-root .mc-cherry-hero .mc-hero-cherry-image { background-image:url('/images/minecraft/cherry-sunset.png'); background-position:center center; background-size:cover; }
 .minecraft-root .mc-cherry-hero .mc-hero-shade { background:none; }
 .minecraft-root .mc-cherry-hero .mc-hero-content { padding-top:65px; }
 .minecraft-root .mc-cherry-hero .mc-hero-bottom { bottom:45px; color:#263b40; text-shadow:none; }
