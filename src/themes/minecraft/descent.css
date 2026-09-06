@@ -1,4 +1,4 @@
-.minecraft-root { --mc-light:#eeeae8; --mc-muted:#bec0c8; background:#252934; }
+.minecraft-root { --mc-light:#eeeae8; --mc-muted:#bec0c8; background:#252934; isolation:isolate; }
 .minecraft-root .mc-nav { background:#252b2c; border-bottom-color:#171e22; }
 .minecraft-root .mc-nav-portal { color:#c8a5e1; }
 .minecraft-root .mc-pixel-backdrop { position:absolute; inset:0; width:100%; height:100%; image-rendering:pixelated; pointer-events:none; z-index:0; }
@@ -57,8 +57,8 @@
 .minecraft-root .mc-inventory-caption { display:flex; justify-content:space-between; align-items:baseline; }.minecraft-root .mc-inventory-caption>span { color:#6c7b65; font-size:13px; letter-spacing:1px; }
 .minecraft-root .mc-inventory button.mc-slot { border:0; cursor:pointer; }.minecraft-root .mc-inventory .mc-slot.is-selected { outline:3px solid #7da966; outline-offset:1px; background:#a9ad9e; }
 .minecraft-root .mc-inventory-description { min-height:60px; border-top:1px solid #9da697; margin-top:17px; padding-top:13px; color:#516049; }.minecraft-root .mc-inventory-description strong { font:19px 'VT323',monospace; }.minecraft-root .mc-inventory-description p { margin:3px 0 0; font-size:12px; line-height:1.5; }
-.minecraft-root .mc-cursor-impact { display:none; position:fixed; left:0; top:0; width:42px; height:42px; z-index:300; pointer-events:none; transform:translate3d(-100px,-100px,0); }
-.minecraft-root.mc-has-pickaxe .mc-cursor-impact { display:block; }.minecraft-root.mc-has-pickaxe { cursor:none; }.minecraft-root.mc-has-pickaxe input,.minecraft-root.mc-has-pickaxe textarea,.minecraft-root.mc-has-pickaxe [contenteditable=true] { cursor:text; }
+.minecraft-root .mc-cursor-impact { display:none; position:fixed !important; left:0; top:0; width:42px; height:42px; z-index:2147483647 !important; pointer-events:none; transform:translate3d(-100px,-100px,0); }
+.minecraft-root.mc-has-pickaxe .mc-cursor-impact { display:block; }.minecraft-root.mc-has-pickaxe,.minecraft-root.mc-has-pickaxe * { cursor:none !important; }.minecraft-root.mc-has-pickaxe input,.minecraft-root.mc-has-pickaxe textarea,.minecraft-root.mc-has-pickaxe select,.minecraft-root.mc-has-pickaxe [contenteditable=true] { cursor:text !important; }
 .minecraft-root .mc-cursor-tool { width:42px; height:42px; transform:translate(-37px,-24px) rotate(22deg); transform-origin:37px 24px; }.minecraft-root .mc-cursor-tool .mc-pixel-item { width:42px; height:42px; }
 .minecraft-root .mc-cursor-impact.is-swinging .mc-cursor-tool { animation:mc-pickaxe-swing .26s steps(5,end) both; }.minecraft-root .mc-cursor-impact i { display:none; position:absolute; left:-2px; top:-2px; width:4px; height:4px; background:#a9d4c7; }.minecraft-root .mc-cursor-impact.is-swinging i { display:block; animation:mc-cursor-chip .26s steps(3,end) both; }.minecraft-root .mc-cursor-impact i:nth-of-type(2n) { background:#7c9ca2; }
 .minecraft-root .mc-track-grid { gap:15px; }

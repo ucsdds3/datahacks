@@ -46,15 +46,17 @@ export function PickaxeCursor() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer: ReturnType<typeof setTimeout>;
     let active = false;
-    const updateMode = () => { root.classList.toggle("mc-has-pickaxe", fine.matches); if (!fine.matches || reduced.matches) end(); };
+    const updateMode = () => { root.classList.toggle("mc-has-pickaxe", fine.matches && !reduced.matches); if (!fine.matches || reduced.matches) end(); };
     function end() { active = false; root?.classList.remove("mc-cursor-swinging"); element?.classList.remove("is-swinging"); }
     const position = (event: PointerEvent) => {
-      if (active) element.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
-      if ((event.target as Element).closest("input,textarea,[contenteditable=true]")) end();
+      const textTarget = (event.target as Element).closest("input,textarea,select,[contenteditable=true]");
+      if (textTarget) { end(); root.classList.remove("mc-has-pickaxe"); return; }
+      root.classList.add("mc-has-pickaxe");
+      element.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
     };
     const down = (event: PointerEvent) => {
       if (!fine.matches || reduced.matches || event.pointerType !== "mouse" || event.button !== 0) return;
-      const target = (event.target as Element).closest("[data-mineable]");
+      const target = (event.target as Element).closest("[data-mineable], .mc-button, .mc-world-door, .mc-sponsor-slot, .mc-faq-trigger, .mc-day-tabs button");
       if (!target || target.matches(":disabled")) return;
       clearTimeout(timer);
       end();
