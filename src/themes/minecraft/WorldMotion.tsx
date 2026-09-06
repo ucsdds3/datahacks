@@ -45,10 +45,10 @@ export function PickaxeCursor() {
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     let timer: ReturnType<typeof setTimeout>;
-    let active = false;
     const updateMode = () => { root.classList.toggle("mc-has-pickaxe", fine.matches && !reduced.matches); if (!fine.matches || reduced.matches) end(); };
-    function end() { active = false; root?.classList.remove("mc-cursor-swinging"); element?.classList.remove("is-swinging"); }
+    function end() { root?.classList.remove("mc-cursor-swinging"); element?.classList.remove("is-swinging"); }
     const position = (event: PointerEvent) => {
+      if (!fine.matches || reduced.matches || event.pointerType !== "mouse") { root.classList.remove("mc-has-pickaxe"); end(); return; }
       const textTarget = (event.target as Element).closest("input,textarea,select,[contenteditable=true]");
       if (textTarget) { end(); root.classList.remove("mc-has-pickaxe"); return; }
       root.classList.add("mc-has-pickaxe");
@@ -63,10 +63,9 @@ export function PickaxeCursor() {
       element.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
       // Retrigger the short impact without routing pointer position through React or a spring.
       void element.offsetWidth;
-      active = true;
       root.classList.add("mc-cursor-swinging");
       element.classList.add("is-swinging");
-      timer = setTimeout(end, 260);
+      timer = setTimeout(end, 300);
     };
     updateMode();
     root.addEventListener("pointerdown", down);

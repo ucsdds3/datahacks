@@ -57,11 +57,11 @@ export function WorldTravel({ children }: { children: ReactNode }) {
 
   return <TravelContext.Provider value={depart}>
     <div ref={content}>{children}</div>
-    {trip && <div className={`mc-travel mc-travel-${trip.kind}`} role="dialog" aria-modal="true" aria-label={trip.kind === "portal" ? "Traveling to the Nether schedule" : "Opening the application preview"}>
+    {trip && <div className={`mc-travel mc-travel-${trip.kind}`} role="dialog" aria-modal="true" aria-label={trip.kind === "portal" ? (trip.to.endsWith("apply") ? "Opening the application preview" : "Traveling to the Nether schedule") : "Opening the application preview"}>
       <div className="mc-travel-scene" aria-hidden="true"><PixelSprite kind={trip.kind} animated={trip.kind === "portal"} className="mc-travel-sprite" />
         {trip.kind === "creeper" && <div className="mc-explosion">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ "--dx": `${Math.cos(i * 2.4) * (140 + i * 14)}px`, "--dy": `${Math.sin(i * 2.4) * (140 + i * 14)}px`, "--turn": `${i * 53}deg`, "--size": `${15 + i % 5 * 9}px` } as CSSProperties} />)}</div>}
       </div>
-      <div className="mc-travel-copy" role="status"><p>{trip.kind === "portal" ? "Entering the Nether…" : "Ssssss…"}</p><span>{trip.kind === "portal" ? "Loading your next adventure" : "Making a little room for big ideas"}</span><div className="mc-travel-progress"><i /></div></div>
+      <div className="mc-travel-copy" role="status"><p>{trip.kind === "portal" ? (trip.to.endsWith("apply") ? "Entering your next adventure…" : "Entering the Nether…") : "Ssssss…"}</p><span>{trip.kind === "portal" ? "Loading your next adventure" : "Making a little room for big ideas"}</span><div className="mc-travel-progress"><i /></div></div>
       <button ref={skip} onClick={arrive} className="mc-travel-skip">Skip animation →</button>
     </div>}
   </TravelContext.Provider>;

@@ -2,7 +2,6 @@ import { ArrowRight, ArrowUpRight, Braces, Compass, Gem, Lightbulb, LockKeyhole,
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { WorldLink } from "./WorldTravel";
-import { CraftingPanel } from "./WorldMotion";
 import { PixelItem } from "./PixelItem";
 
 const days = [
@@ -33,15 +32,7 @@ const questions = [
 ];
 
 export function About() {
-  return <>
-    <section className="mc-section mc-about" id="about">
-      <div className="mc-container mc-about-grid">
-        <div><p className="mc-eyebrow">BENEATH THE SURFACE</p><h2>A fresh world.<br />A blank canvas.<br /><em>Your next big idea.</em></h2><p className="mc-body">Welcome to DataHacks 2.0. A student-run data science and machine learning hackathon where curiosity is your most valuable resource.</p><p className="mc-body">Team up, try something new, and turn raw data into something worth sharing. You bring the ideas. We’ll bring the workshops, mentors, and midnight snacks.</p><WorldLink to="/minecraft/schedule" kind="portal" className="mc-text-link">See what’s on the horizon <ArrowRight size={18} /></WorldLink></div>
-        <CraftingPanel />
-      </div>
-    </section>
-    <section className="mc-stats" aria-label="Event at a glance"><div className="mc-container">{[["36", "HOURS TO BUILD"], ["4", "HACKERS PER TEAM"], ["$0", "COST TO ATTEND"], ["∞", "POSSIBILITIES"]].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></section>
-  </>;
+  return <section className="mc-section mc-about mc-about-numbers" id="about" aria-label="Event at a glance"><div className="mc-container"><dl className="mc-number-grid">{[["XX", "HOURS"], ["$XX", "IN PRIZES"], ["XX", "ATTENDEES"], ["XX", "SCHOOLS"]].map(([value,label])=><div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl></div></section>;
 }
 
 export function Tracks() {
@@ -51,7 +42,7 @@ export function Tracks() {
 
 export function Prizes() {
   const prizes = [{ rank: "2nd", material: "IRON", amount: "$X,XXX", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", amount: "$XX,XXX", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", amount: "$X,XXX", cls: "gold", item: "gold" as const }];
-  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">03 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$XX,XXX</strong><small>Final prizes to be announced</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong><span className="mc-prize-amount">{item.amount}</span><small>TO BE ANNOUNCED</small></div></div>)}</div><p className="mc-section-note">Plus awards across all four tracks. Prize amounts are placeholders until confirmed.</p></div></section>;
+  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$XX,XXX</strong><small>Final prizes to be announced</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong><span className="mc-prize-amount">{item.amount}</span><small>TO BE ANNOUNCED</small></div></div>)}</div><p className="mc-section-note">Plus awards across all four tracks. Prize amounts are placeholders until confirmed.</p></div></section>;
 }
 
 export function Schedule() {
@@ -59,7 +50,7 @@ export function Schedule() {
 }
 
 export function Sponsors() {
-  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:sponsorship@ds3ucsd.com">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:sponsorship@ds3ucsd.com" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
+  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">03 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:sponsorship@ds3ucsd.com">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:sponsorship@ds3ucsd.com" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
 }
 
 export function Faq() {
