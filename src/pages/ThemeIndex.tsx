@@ -2,6 +2,14 @@ import { Link } from "react-router-dom";
 
 const THEMES = [
   {
+    path: "/minecraft",
+    name: "Crafted Together",
+    blurb: "Minecraft adventure. Voxel landscapes, pixel type, inventory panels, and a world to build.",
+    swatch: ["#192115", "#91c64b", "#a9d4de", "#c5c3b6", "#91724b", "#fce875"],
+    fg: "#e8eedb",
+    bg: "#385729",
+  },
+  {
     path: "/",
     name: "Cosmic Groove",
     blurb: "70s psychedelic. Rainbow ribbons, doodle field, expressive display type.",
@@ -38,11 +46,11 @@ export default function ThemeIndex() {
           DataHacks 2.0 — theme mockups
         </h1>
         <p className="mt-4 max-w-xl text-neutral-400 leading-relaxed">
-          Three complete directions for the January 16–17, 2027 site. Same content model, same
-          Datasaur, three different design systems. Pick one.
+          Four directions for the January 16–17, 2027 site. Same event,
+          four different worlds. Pick one.
         </p>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-14 grid gap-5 sm:grid-cols-2">
           {THEMES.map((t) => (
             <Link
               key={t.path}

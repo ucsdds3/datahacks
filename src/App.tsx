@@ -9,6 +9,7 @@ import ThemeIndex from "./pages/ThemeIndex";
 import Groove from "./themes/groove";
 import Pop from "./themes/pop";
 import Press from "./themes/press";
+import Minecraft from "./themes/minecraft";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/themes" element={<ThemeIndex />} />
           <Route path="/pop" element={<Pop />} />
           <Route path="/press" element={<Press />} />
+          <Route path="/minecraft" element={<Minecraft />} />
           <Route path="/legacy" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
