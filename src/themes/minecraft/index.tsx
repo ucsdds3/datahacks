@@ -77,7 +77,7 @@ function HomePage() {
   return <>
     <DepthMeter />
     <section className="mc-hero mc-cherry-hero" aria-labelledby="mc-title">
-      <PixelBackdrop kind="surface" />
+      <div className="mc-hero-image mc-hero-cherry-image" aria-hidden="true" /><div className="mc-hero-shade" aria-hidden="true" />
       <div className="mc-hero-content">
         <p className="mc-eyebrow mc-hero-eyebrow">DS3 PRESENTS · A NEW WORLD OF POSSIBILITIES</p>
         <div className="mc-title-wrap"><h1 id="mc-title" tabIndex={-1}>DATA<span>HACKS</span></h1><span className="mc-edition">THE 2.0 UPDATE</span><span className="mc-splash">Dig a little deeper!</span></div>
