@@ -1,7 +1,7 @@
-/* Original vanilla texture artwork, separate per section so biomes cannot bleed. */
+/* Front-facing relief artwork; each biome stays isolated behind readable panels. */
 .minecraft-root .mc-textured-descent { background:#222427; }
 .minecraft-root .mc-texture-layer { isolation:isolate; background:#26282a; padding:40px 0 105px; min-height:600px; border-top:8px solid #171b20; }
-.minecraft-root .mc-layer-art { position:absolute; inset:0; z-index:-1; width:100%; height:100%; object-fit:cover; object-position:center; image-rendering:pixelated; pointer-events:none; }
+.minecraft-root .mc-layer-art { position:absolute; inset:0; z-index:-1; width:100%; height:100%; object-fit:cover; object-position:center; pointer-events:none; }
 .minecraft-root .mc-texture-layer .mc-layer-label { width:min(1120px,90%); color:#f5f0e4; font-size:16px; margin-bottom:55px; text-shadow:1px 2px #111; }
 .minecraft-root .mc-texture-layer .mc-layer-label>span { background:#111820ed; padding:5px 10px; border:1px solid #899198; }
 .minecraft-root .mc-texture-layer .mc-layer-label .mc-layer-number { color:#d0d7da; }
@@ -17,8 +17,6 @@
 .minecraft-root .mc-texture-layer .mc-section-head { gap:30px; }
 .minecraft-root .mc-texture-layer .mc-text-link { color:#e2d3b8; }
 .minecraft-root .mc-texture-about { min-height:370px; padding-bottom:75px; }
-.minecraft-root .mc-texture-tracks { background:#636461 url('/images/minecraft/layers/02-tracks.webp') center top/100% auto repeat-y; image-rendering:pixelated; }
-.minecraft-root .mc-texture-tracks>.mc-layer-art { display:none; }
 .minecraft-root .mc-texture-about .mc-layer-label { margin-bottom:35px; }
 .minecraft-root .mc-texture-about .mc-about-numbers { background:#171d24f5; padding:38px 20px; }
 .minecraft-root .mc-number-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:0; }
@@ -109,3 +107,24 @@
  .minecraft-root .mc-world-footer>.mc-container { padding:20px; }
 }
 @media(prefers-reduced-motion:reduce) { .minecraft-root .mc-sculk-rings { display:none; } .minecraft-root .mc-travel-end .mc-travel-sprite { animation:none; } }
+
+/* Expose the contour artwork without introducing perspective or moving scenery. */
+.minecraft-root .mc-texture-layer { padding-top:32px; padding-bottom:130px; }
+.minecraft-root .mc-texture-layer .mc-layer-label { margin-bottom:clamp(60px,7vw,110px); }
+.minecraft-root .mc-texture-layer .mc-section { width:min(1120px,74%); }
+.minecraft-root .mc-texture-about { min-height:540px; }
+.minecraft-root .mc-texture-speakers { min-height:760px; padding-bottom:160px; }
+.minecraft-root .mc-texture-sponsors .mc-section { background:#23271df5; border-color:#a8ad78; }
+.minecraft-root .mc-texture-sponsors h2 em,.minecraft-root .mc-texture-sponsors .mc-eyebrow { color:#e0e4a1; }
+.minecraft-root .mc-texture-sponsors .mc-sponsor-slot { background:#32372a; border-color:#9e9d6e; }
+@media(max-width:900px) {
+ .minecraft-root .mc-texture-layer .mc-section { width:84%; }
+}
+@media(max-width:600px) {
+ .minecraft-root .mc-texture-layer { padding-top:28px; padding-bottom:90px; }
+ .minecraft-root .mc-texture-layer .mc-section { width:90%; }
+ .minecraft-root .mc-texture-layer .mc-layer-label { margin-bottom:65px; }
+ .minecraft-root .mc-texture-about { min-height:480px; }
+ .minecraft-root .mc-layer-art { object-position:25% center; }
+ .minecraft-root .mc-texture-apply .mc-layer-art { object-position:center bottom; }
+}

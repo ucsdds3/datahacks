@@ -102,7 +102,7 @@ function HomePage() {
         {asset:'06-faq', cls:'faq', content:<SculkFaq />},
         {asset:'07-apply', cls:'apply', content:<LavaApply />},
       ].map((layer,i)=><div className={`mc-depth-layer mc-texture-layer mc-texture-${layer.cls}`} id={layers[i].id} data-layer key={layer.asset}>
-        <img className="mc-layer-art" src={`/images/minecraft/layers/${layer.asset}.webp`} width="1920" height="1024" alt="" loading="lazy" decoding="async" />
+        <img className="mc-layer-art" src={`/images/minecraft/relief/${layer.asset}.webp`} width="1536" height="1024" alt="" loading="lazy" decoding="async" />
         <LayerLabel index={i} />{layer.content}
       </div>)}
     </div>
