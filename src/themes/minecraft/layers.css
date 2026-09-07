@@ -17,6 +17,8 @@
 .minecraft-root .mc-texture-layer .mc-section-head { gap:30px; }
 .minecraft-root .mc-texture-layer .mc-text-link { color:#e2d3b8; }
 .minecraft-root .mc-texture-about { min-height:370px; padding-bottom:75px; }
+.minecraft-root .mc-texture-tracks { background:#636461 url('/images/minecraft/layers/02-tracks.webp') center top/100% auto repeat-y; image-rendering:pixelated; }
+.minecraft-root .mc-texture-tracks>.mc-layer-art { display:none; }
 .minecraft-root .mc-texture-about .mc-layer-label { margin-bottom:35px; }
 .minecraft-root .mc-texture-about .mc-about-numbers { background:#171d24f5; padding:38px 20px; }
 .minecraft-root .mc-number-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:0; }
@@ -62,13 +64,18 @@
 .minecraft-root .mc-lava-apply h2 em { color:#f4d5aa; }
 .minecraft-root .mc-lava-apply p { font-size:16px; margin:16px auto; text-shadow:0 2px #101214; }
 .minecraft-root .mc-application-portal { display:flex; align-items:center; flex-direction:column; width:fit-content; margin:30px auto 0; gap:20px; }
-.minecraft-root .mc-application-portal img { width:160px; height:240px; image-rendering:pixelated; transition:filter .2s; }
+.minecraft-root .mc-application-portal img { width:240px; height:240px; image-rendering:pixelated; transition:filter .2s; }
 .minecraft-root .mc-application-portal:hover img { filter:brightness(1.15); }
-.minecraft-root .mc-application-portal .mc-button { background:#ac91c8; box-shadow:inset 3px 3px #dcc4f0,inset -3px -3px #6c507f,0 5px #15131b; border-color:#201b29; color:#24182e; }
+.minecraft-root .mc-application-portal .mc-button { background:#b9ccb0; box-shadow:inset 3px 3px #e3ecd4,inset -3px -3px #5f8074,0 5px #101d1b; border-color:#182e28; color:#142e28; }
+.minecraft-root .mc-run-of-show-link { display:inline-block; margin:30px 0 8px; padding:12px 18px; color:#e4cef6; background:#231e30; border:1px solid #9e83b5; font-size:16px; text-decoration:underline; text-underline-offset:5px; }
+.minecraft-root .mc-run-of-show-link:hover { background:#342941; }
 .minecraft-root .mc-lava-apply p.mc-lava-note { background:#131920f2; padding:8px 14px; width:fit-content; max-width:100%; font-size:14px; }
-.minecraft-root .mc-bedrock-footer { position:relative; background:url('/images/minecraft/layers/08-footer.webp') center/960px auto; border-top:16px solid #101215; padding:50px 0; }
-.minecraft-root .mc-bedrock-footer>.mc-container { background:#11171af5; border:2px solid #666e72; padding:24px; color:#dce1df; }
-.minecraft-root .mc-bedrock-footer .mc-footer-fine,.minecraft-root .mc-bedrock-footer .mc-footer-top p,.minecraft-root .mc-bedrock-footer .mc-footer-links p span { color:#bdc6c6; }
+.minecraft-root .mc-world-footer { position:relative; background:#141e20; border-top:2px solid #4e6660; padding:50px 0; }
+.minecraft-root .mc-world-footer>.mc-container { padding:24px; color:#dce1df; }
+.minecraft-root .mc-world-footer .mc-footer-fine,.minecraft-root .mc-world-footer .mc-footer-top p,.minecraft-root .mc-world-footer .mc-footer-links p span { color:#bdc6c6; }
+.minecraft-root .mc-travel-end { background:#071514; }
+.minecraft-root .mc-travel-end .mc-travel-sprite { width:min(65vw,320px); height:auto; image-rendering:pixelated; animation:mc-end-enter 1.85s cubic-bezier(.55,0,.8,.4) both; }
+@keyframes mc-end-enter { 0% { transform:scale(.8); opacity:0; } 20% { transform:scale(1); opacity:1; } 55% { transform:scale(1.1); } 100% { transform:scale(12); } }
 @media(max-width:900px) {
  .minecraft-root .mc-texture-layer .mc-section { width:88%; padding:28px; }
  .minecraft-root .mc-texture-speakers .mc-section { width:80%; }
@@ -98,7 +105,7 @@
  .minecraft-root .mc-texture-apply { padding-bottom:95px; }
  .minecraft-root .mc-lava-apply>div>p { max-width:300px; }
  .minecraft-root .mc-lava-apply h2 { font-size:27px; }
- .minecraft-root .mc-application-portal img { width:128px; height:192px; }
- .minecraft-root .mc-bedrock-footer>.mc-container { padding:20px; }
+ .minecraft-root .mc-application-portal img { width:192px; height:192px; }
+ .minecraft-root .mc-world-footer>.mc-container { padding:20px; }
 }
-@media(prefers-reduced-motion:reduce) { .minecraft-root .mc-sculk-rings { display:none; } }
+@media(prefers-reduced-motion:reduce) { .minecraft-root .mc-sculk-rings { display:none; } .minecraft-root .mc-travel-end .mc-travel-sprite { animation:none; } }

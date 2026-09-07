@@ -41,16 +41,18 @@
     "lava_still": "9d28ac5d4ac1a9965552e5c8b5e1229a38a5f7216c0250b35d2400dee1f1b8be",
     "bedrock": "a71e7dce773df8c797506296f58eca840e53ceb3319bc405af7e15e5c25551da",
     "sulfur_spike_up_tip": "e3f0094b20f4c9aca355282b822674d1d1560047a03368c8763848e55640781a",
-    "sulfur_spike_up_middle": "78ed231b170751bc01498baec6d0a94610eedbab561e1eb1515a8dda07aed2bf"
+    "sulfur_spike_up_middle": "78ed231b170751bc01498baec6d0a94610eedbab561e1eb1515a8dda07aed2bf",
+    "end_portal_frame_top": "9f2b9eeee9b8b6d4cf01e3c8ab60f52ccd492886e6832cd8ff5628703f31b134",
+    "end_portal_frame_eye": "0dd58da09b154ba6d1e0d6e953f3064ed941f927a8e2544e3ae29744f9b3416b",
+    "end_portal_surface": "af82f34eea41a02dbb2824425fe9606f6cc629a94a5434395ed2a7cbd608d143"
   },
   "layers": {
-    "01-about": "Stone, coal and copper; occasional andesite, diorite and gravel. No other ore.",
+    "01-about": "Stone with connected granite, andesite, diorite and gravel deposits, coal seams and sparse copper. Original texture colors preserved.",
     "02-tracks": "Stone mixed with andesite, granite, diorite and gravel; exactly one iron and one copper ore block; two redstone blocks.",
     "03-sponsors": "Sulfur cavern, stone deposits, original glow lichen and sulfur spikes, small cinnabar pockets. No lava or netherrack.",
     "04-speakers": "Oak mineshaft, fence supports, plank beams, cobwebs, rails, minecart, torches and stone/deepslate variety. Ore tiles are original, unlike the AI layout reference.",
     "05-prizes": "Full deepslate with original diamond, redstone and lapis ore textures. No color tint, glow, iron, or cyan lighting overlay.",
     "06-faq": "Ancient city, reinforced arch, ruined deepslate pillars and original sculk floor/veins. Four sensors are separate interactive sprites, not painted into the background.",
-    "07-apply": "2D lava cavern with flat recessed stone wall, overlapping ledges and an isolated central platform for the live clickable Nether portal.",
-    "08-footer": "Original bedrock texture across the full footer."
+    "07-apply": "2D lava cavern with flat recessed stone wall, overlapping ledges and an isolated central platform for the live clickable End portal. No bedrock footer."
   }
 }

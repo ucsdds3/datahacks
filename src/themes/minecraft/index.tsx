@@ -34,7 +34,7 @@ function Navigation() {
       <WorldLink to={`${home}/schedule`} kind="portal" onClick={() => setMenuOpen(false)} aria-current={location.pathname.endsWith("schedule") ? "page" : undefined}>Run of show <span className="mc-nav-portal" aria-hidden="true">↗</span></WorldLink>
       <Link to={`${home}#faq`} onClick={() => setMenuOpen(false)}>FAQ</Link>
     </nav>
-    <WorldLink to={`${home}/apply`} kind="portal" className="mc-button mc-button-small" onClick={() => setMenuOpen(false)}>Join the adventure <ArrowUpRight size={16} /></WorldLink>
+    <WorldLink to={`${home}/apply`} kind="end" className="mc-button mc-button-small" onClick={() => setMenuOpen(false)}>Join the adventure <ArrowUpRight size={16} /></WorldLink>
     <button className="mc-menu" aria-label={menuOpen ? "Close menu" : "Open menu"} aria-expanded={menuOpen} aria-controls="mc-navigation" onClick={() => setMenuOpen(!menuOpen)} onKeyDown={event => { if (event.key === "Escape") setMenuOpen(false); }}>{menuOpen ? <X /> : <Menu />}</button>
   </header>;
 }
@@ -87,7 +87,7 @@ function HomePage() {
         <div className="mc-title-wrap"><h1 id="mc-title" tabIndex={-1}>DATA<span>HACKS</span></h1><span className="mc-edition">THE 2.0 UPDATE</span><span className="mc-splash">Dig a little deeper!</span></div>
         <p className="mc-hero-tagline">Big ideas. Infinite possibilities. One world to build.</p>
         <p className="mc-hero-date">JANUARY 16–17, 2027 <span>✦</span> 36 HOURS <span>✦</span> IN PERSON</p>
-        <div className="mc-hero-actions"><WorldLink to={`${home}/apply`} kind="portal" className="mc-button">Start your adventure <ArrowUpRight size={19} /></WorldLink><a href="#emerald-layer" className="mc-button mc-button-stone">Dig a little deeper <ArrowDown size={17} /></a></div>
+        <div className="mc-hero-actions"><WorldLink to={`${home}/apply`} kind="end" className="mc-button">Start your adventure <ArrowUpRight size={19} /></WorldLink><a href="#emerald-layer" className="mc-button mc-button-stone">Dig a little deeper <ArrowDown size={17} /></a></div>
         <p className="mc-hero-note">All experience levels. No diamonds required.</p>
       </div>
       <div className="mc-hero-bottom"><span>BIOME: CHERRY GROVE<br />Y: +80 · THE SURFACE</span><a href="#emerald-layer">YOUR ADVENTURE CONTINUES BELOW <ArrowDown size={16} /></a><span>SEED: 01162027<br />GAME MODE: COLLABORATIVE</span></div>
@@ -114,12 +114,12 @@ function NetherPage() {
     <PixelBackdrop kind="nether" />
     <div className="mc-container mc-nether-heading"><div><Link to={home} className="mc-dimension-back">← Return to the overworld</Link><p className="mc-eyebrow">DIMENSION 02 / THE NETHER</p><h1 tabIndex={-1}>Things are<br />heating <em>up.</em></h1><p>Your run of show. Two days of building, learning,<br className="mc-desktop-break" /> and making something worth staying up for.</p><span className="mc-nether-date">JANUARY 16–17, 2027 · PACIFIC TIME</span></div><PixelSprite kind="portal" animated className="mc-nether-portal" /></div>
     <Schedule />
-    <div className="mc-container mc-nether-foot"><span>Keep your inventory close. Adventure awaits.</span><WorldLink to={`${home}/apply`} kind="portal" className="mc-button">Join the adventure <ArrowUpRight size={17} /></WorldLink></div>
+    <div className="mc-container mc-nether-foot"><span>Keep your inventory close. Adventure awaits.</span><WorldLink to={`${home}/apply`} kind="end" className="mc-button">Join the adventure <ArrowUpRight size={17} /></WorldLink></div>
   </div>;
 }
 
 function Footer() {
-  return <footer className="mc-footer mc-bedrock-footer"><div className="mc-container"><div className="mc-footer-top"><Link to={home} className="mc-brand">DATAHACKS 2.0</Link><p>A world of ideas, crafted together.</p><Link to={`${home}#top`} className="mc-back-top">Back to spawn ↑</Link></div><div className="mc-footer-links"><p>Organized by DS3<br /><span>Data Science Student Society</span></p><nav aria-label="Footer navigation"><Link to={`${home}#about`}>About</Link><Link to={`${home}#tracks`}>Tracks</Link><Link to={`${home}#speakers`}>Speakers</Link><Link to={`${home}#prizes`}>Prizes</Link><WorldLink to={`${home}/schedule`} kind="portal">Run of show</WorldLink><WorldLink to={`${home}/apply`} kind="portal">Apply</WorldLink><Link to={`${home}#faq`}>FAQ</Link></nav><a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a></div><div className="mc-footer-fine"><p>© 2027 DS3 · Concept preview · Not a live registration page.<br />Unofficial Minecraft-inspired design. Not affiliated with Mojang or Microsoft.</p><Link to="/themes">← All theme mockups</Link></div></div></footer>;
+  return <footer className="mc-footer mc-world-footer"><div className="mc-container"><div className="mc-footer-top"><Link to={home} className="mc-brand">DATAHACKS 2.0</Link><p>A world of ideas, crafted together.</p><Link to={`${home}#top`} className="mc-back-top">Back to spawn ↑</Link></div><div className="mc-footer-links"><p>Organized by DS3<br /><span>Data Science Student Society</span></p><nav aria-label="Footer navigation"><Link to={`${home}#about`}>About</Link><Link to={`${home}#tracks`}>Tracks</Link><Link to={`${home}#speakers`}>Speakers</Link><Link to={`${home}#prizes`}>Prizes</Link><WorldLink to={`${home}/schedule`} kind="portal">Run of show</WorldLink><WorldLink to={`${home}/apply`} kind="end">Apply</WorldLink><Link to={`${home}#faq`}>FAQ</Link></nav><a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a></div><div className="mc-footer-fine"><p>© 2027 DS3 · Concept preview · Not a live registration page.<br />Unofficial Minecraft-inspired design. Not affiliated with Mojang or Microsoft.</p><Link to="/themes">← All theme mockups</Link></div></div></footer>;
 }
 
 export default function Minecraft() {

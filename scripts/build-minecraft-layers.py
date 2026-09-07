@@ -14,11 +14,15 @@ TEX.mkdir(parents=True, exist_ok=True)
 JAR = Path.home() / 'Library/Application Support/minecraft/versions/26.2/26.2.jar'
 names = '''stone coal_ore copper_ore iron_ore redstone_ore andesite granite diorite gravel sulfur cinnabar glow_lichen cobbled_deepslate deepslate deepslate_diamond_ore deepslate_redstone_ore deepslate_lapis_ore deepslate_iron_ore deepslate_bricks cracked_deepslate_bricks deepslate_tiles reinforced_deepslate_side oak_planks oak_log cobweb rail torch sculk sculk_vein sculk_sensor_top sculk_sensor_side sculk_sensor_tendril_inactive sculk_shrieker_side sculk_shrieker_top obsidian nether_portal lava_still bedrock sulfur_spike_up_tip sulfur_spike_up_middle'''.split()
 manifest = {'source': 'Minecraft Java Edition 26.2 client block textures (Mojang)', 'pixel_scale': 8, 'textures': {}, 'layers': {}}
+names += ['end_portal_frame_top', 'end_portal_frame_eye']
 with zipfile.ZipFile(JAR) as archive:
     for name in names:
         raw = archive.read(f'assets/minecraft/textures/block/{name}.png')
         (TEX / f'{name}.png').write_bytes(raw)
         manifest['textures'][name] = hashlib.sha256(raw).hexdigest()
+    end_surface = archive.read('assets/minecraft/textures/entity/end_portal/end_portal.png')
+    (TEX / 'end_portal_surface.png').write_bytes(end_surface)
+    manifest['textures']['end_portal_surface'] = hashlib.sha256(end_surface).hexdigest()
 textures = {n: Image.open(TEX / f'{n}.png').convert('RGBA').crop((0,0,16,16)).resize((32,32), Image.Resampling.NEAREST) for n in names}
 W, H = 480, 256
 
@@ -55,8 +59,21 @@ def save(im, slug, info):
     return im
 
 about = rock(12,'stone',{'coal_ore':[(2,3),(3,3),(25,10)],'copper_ore':[(27,4),(27,5),(4,12)],'andesite':[(1,8)],'diorite':[(28,11)],'gravel':[(2,14),(3,14)]})
-save(about,'01-about','Stone, coal and copper; occasional andesite, diorite and gravel. No other ore.')
+def enrich_stone(im):
+    # Connected deposits across the wall, including areas visible around the panels.
+    deposits = {
+        'granite': [(0,0),(1,0),(1,1),(2,1),(10,6),(11,6),(11,7),(12,7)],
+        'andesite': [(5,0),(6,0),(6,1),(0,4),(0,5),(1,5),(13,2),(14,2),(14,3)],
+        'diorite': [(11,0),(12,0),(12,1),(0,6),(1,6),(2,7),(3,7),(14,5),(14,6)],
+        'gravel': [(7,7),(8,7),(14,0)],
+    }
+    for material, cells in deposits.items():
+        for x,y in cells: tile(im,material,x*32,y*32)
+enrich_stone(about)
+for x,y in [(3,0),(3,1),(4,1),(9,7),(10,7),(14,4)]: tile(about,'coal_ore',x*32,y*32)
+save(about,'01-about','Stone with connected granite, andesite, diorite and gravel deposits, coal seams and sparse copper. Original texture colors preserved.')
 tracks = rock(7,'stone',{'iron_ore':[(3,5)],'copper_ore':[(26,9)],'redstone_ore':[(27,3),(28,3)],'andesite':[(1,2),(2,2),(2,3),(27,12)],'granite':[(28,6),(28,7),(29,7)],'diorite':[(2,10),(3,10)],'gravel':[(0,13),(1,13),(1,14),(28,14)]})
+enrich_stone(tracks)
 save(tracks,'02-tracks','Stone mixed with andesite, granite, diorite and gravel; exactly one iron and one copper ore block; two redstone blocks.')
 sulfur = rock(2,'sulfur',{'stone':[(1,2),(2,2),(2,3),(3,3),(26,2),(27,2),(27,3),(28,11),(27,12)],'cinnabar':[(0,13),(1,13),(28,13),(29,14)]},True)
 for x,y in [(2,2),(3,3),(27,2),(28,11)]: tile(sulfur,'glow_lichen',int(x/2)*32,int(y/2)*32)
@@ -105,15 +122,25 @@ fill(apply,'lava_still',(0,192,W,64))
 for x,y,w,h in [(0,160,64,64),(48,192,32,48),(400,176,80,64),(384,208,32,32),(144,176,192,32)]:
     fill(apply,'cobbled_deepslate',(x,y,w,h))
     fill(apply,'deepslate_tiles',(x,y,w,8))
-save(apply,'07-apply','2D lava cavern with flat recessed stone wall, overlapping ledges and an isolated central platform for the live clickable Nether portal.')
-bedrock=rock(1,'bedrock',{})
-save(bedrock,'08-footer','Original bedrock texture across the full footer.')
+save(apply,'07-apply','2D lava cavern with flat recessed stone wall, overlapping ledges and an isolated central platform for the live clickable End portal. No bedrock footer.')
 # A reusable portal and four sensor/shrieker sprites preserve alpha and first-frame vanilla texels.
 textures = {n: Image.open(TEX / f'{n}.png').convert('RGBA').crop((0,0,16,16)) for n in names}
 portal=Image.new('RGBA',(64,96))
 fill(portal,'obsidian',(0,0,64,96))
 fill(portal,'nether_portal',(16,16,32,64))
 portal.resize((192,288),Image.Resampling.NEAREST).save(OUT/'portal.png')
+# Orthographic overhead End portal: twelve original eye frames around a 3x3 void.
+end_portal=Image.new('RGBA',(80,80))
+sky=Image.open(TEX/'end_portal_surface.png').convert('RGBA').resize((48,48),Image.Resampling.NEAREST)
+end_portal.alpha_composite(sky,(16,16))
+for turn in range(4):
+    for i in range(1,4):
+        frame=textures['end_portal_frame_top'].copy()
+        frame.alpha_composite(textures['end_portal_frame_eye'])
+        frame=frame.rotate(90*turn)
+        x,y=[(i*16,0),(0,i*16),(i*16,64),(64,i*16)][turn]
+        end_portal.alpha_composite(frame,(x,y))
+end_portal.resize((400,400),Image.Resampling.NEAREST).save(OUT/'end-portal.png')
 for kind in ['sensor','shrieker']:
     sprite=Image.new('RGBA',(32,32))
     tile(sprite,f'sculk_{kind}_side',8,16)
@@ -124,11 +151,11 @@ for kind in ['sensor','shrieker']:
     sprite.resize((128,128),Image.Resampling.NEAREST).save(OUT/f'{kind}.png')
 (OUT/'manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 # Overview for artwork review only; not a production image.
-preview=Image.new('RGB',(960,8*292),'#111820')
+preview=Image.new('RGB',(960,len(manifest['layers'])*292),'#111820')
 d=ImageDraw.Draw(preview)
 for i,(slug,info) in enumerate(manifest['layers'].items()):
     d.text((16,i*292+8),slug.upper(),fill='#eef3ef')
     thumb=Image.open(OUT/f'{slug}.png').resize((960,256),Image.Resampling.NEAREST)
     preview.paste(thumb,(0,i*292+28))
 preview.save(ROOT/'output/imagegen/layer-overview.jpg',quality=92)
-print('Built 8 backgrounds, portal and sculk sprites; source hashes recorded in manifest.json')
+print('Built 7 backgrounds, Nether/End portals and sculk sprites; source hashes recorded in manifest.json')
