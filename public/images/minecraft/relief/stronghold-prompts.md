@@ -1,5 +1,9 @@
 # Stronghold application artwork
 
+## Latest revision: shallow lava sliver
+
+Precise object edit of supplied stronghold background. Preserve architecture, textures, moss, cracks, iron bars, shallow depth, center space, and small floating orange bubbles. Make one tiny addition ONLY at bottom: a narrow lava channel whose TOP SURFACE is barely visible at a very low grazing angle, like the thin rail bed in a nearly-front-facing Minecraft side-scroller. At image height1024, lava's visible surface should be only8-14 pixels tall, a very long slim horizontal foreshortened orange pixel-textured ribbon close to bottom edge. A thin grey stone lip immediately in FRONT occludes ALL vertical/side lava faces; you can only glimpse the top of the liquid behind that lip. Subtle shallow angled short end caps on stone lip, not a front-on orange rectangle. Place this in the bottommost floor strip, under the stone platform; don't replace any wall or platform with lava. Leave bottommost8-12 pixels as stone foreground lip. Faint red-orange reflection restricted to adjacent lower stone edge. No broad orange band, no lava waterfall, no tall orange face, no large pool, no glowing wall. No other changes. Same1536x1024, no text, no portal baked in.
+
 Current asset: `07-stronghold.webp`. Built-in image generation, encoded as WebP without resizing. Displayed at brightness(1.16), per user request. The End portal remains a separate clickable component. Rejected lava-panel variants were not published.
 
 ## Base prompt
