@@ -1,0 +1,20 @@
+# Stronghold application artwork
+
+Current asset: `07-stronghold.webp`. Built-in image generation, encoded as WebP without resizing. Displayed at brightness(1.16), per user request. The End portal remains a separate clickable component. Rejected lava-panel variants were not published.
+
+## Base prompt
+
+Use case: style-transfer. Asset: website application-section background only, 1536x1024 landscape.
+Image 1 is the edit target: keep its straight-on, broad calm central panel composition and shallow stepped perimeter. Image 2 is MATERIAL REFERENCE ONLY, never its camera, room geometry, logo or portal.
+Replace the entire dark deepslate cave with a Minecraft stronghold wall/tile field: regular grey stone bricks, clear cracked stone-brick and cobblestone tiles, patches of mossy green stone bricks and mossy cobblestone. Large legible block texture scale. Include iron-bar grilles in shallow dark rectangular recesses along left and right perimeter, with some upper-corner bars. Central 65% remains quiet medium-dark grey stone for separately overlaid webpage text and a live End portal. No text or portal baked into artwork.
+Critical lava correction: make two contained FLAT rectangular orange-red lava surface insets near bottom left and bottom right, plus a narrow bottom strip if needed. Viewed square-on as a flat 2D surface in the same picture plane as the tiles. Absolutely NO visible vertical lava face, no side profile, no waterfall, no volumetric lava block, no lava beneath a raised platform. Lava has only a faint restrained red glow along adjacent stone edges. Surfaces have crisp square pixel texture.
+Strict front orthographic elevation, parallel horizontal/vertical lines. A little shallow relief via small edge shadows on STONE only. No perspective room, no receding floor, no isometric geometry, no horizon, no fisheye. Quiet stronghold atmosphere; clear moss, cracks and iron bars. No ores, no sculk, no bedrock, no characters, no spawner, no watermark. Preserve the useful center negative space and consistent Minecraft pixel artwork.
+
+## Stone relief and bubbles, no lava surfaces
+
+Precise-object-edit. Edit this Minecraft stronghold website background. KEEP the original stronghold architecture exactly: raised central bottom stone platform, stepped stone ledges, short depth shadows and visible shallow stone top edges, cracked/mossy stone bricks, iron bars and broad quiet central wall. The stonework depth is specifically approved.
+CHANGE ONLY LAVA: remove ALL orange lava surfaces, strips and panels from lower portion. Replace those lava-colored areas with dark charcoal recessed stone / shadow gaps consistent with the stronghold. There must be NO visible lava pool, NO lava surface, NO side profile of lava, no orange rectangle anywhere. Instead, add just 5-7 small sparse pixel-art lava bubbles/embers floating immediately above the lowest dark gaps, about 5-12 pixels each, orange-red outer pixels with tiny warm centers. These are discrete tiny bubbles, not a flowing stream or large glow. A very faint warm glow close to a few lower stone edges is okay. Do not flatten the stone geometry. No portal, no text, no characters. Preserve1536x1024 composition.
+
+## Final correction
+
+Change only the seven tiny orange lights at bottom of this image. They were incorrectly rendered as torches. REMOVE their brown sticks, bases and attachment points completely. Replace each with a tiny FREE-FLOATING circular pixel lava bubble, orange-red rim, tiny yellow center, roughly 6-10 pixels diameter, suspended at varied heights 10-35 pixels above the lower ledges. No flame shape, no torch, no stems, no objects resting on floor. Keep ALL architecture, grey stone, moss, cracks, iron bars, shadows and composition exactly unchanged. No lava surface or lava pool anywhere.

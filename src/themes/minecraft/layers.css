@@ -126,5 +126,12 @@
  .minecraft-root .mc-texture-layer .mc-layer-label { margin-bottom:65px; }
  .minecraft-root .mc-texture-about { min-height:480px; }
  .minecraft-root .mc-layer-art { object-position:25% center; }
- .minecraft-root .mc-texture-apply .mc-layer-art { object-position:center bottom; }
+ .minecraft-root .mc-texture-apply .mc-layer-art { object-position:20% bottom; }
+}
+.minecraft-root .mc-texture-apply { padding-bottom:190px; }
+.minecraft-root .mc-texture-apply .mc-layer-art { object-position:center bottom; filter:brightness(1.16); }
+.minecraft-root .mc-lava-apply h2 { text-shadow:0 3px 0 #101214,0 0 8px #101214; }
+.minecraft-root .mc-lava-apply p:not(.mc-lava-note) { text-shadow:0 2px 2px #101214,0 0 5px #101214; }
+@media(max-width:600px) {
+ .minecraft-root .mc-texture-apply .mc-layer-art { object-position:20% bottom; }
 }

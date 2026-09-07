@@ -19,7 +19,7 @@ const layers = [
   { id: "mineshaft-layer", name: "The mineshaft", y: "−08", color: "#cfa873" },
   { id: "diamond-layer", name: "Deepslate ores", y: "−28", color: "#98d4d8" },
   { id: "sculk-layer", name: "Ancient city", y: "−44", color: "#8acbc4" },
-  { id: "lava-layer", name: "Lava cavern", y: "−56", color: "#f0b175" },
+  { id: "lava-layer", name: "The stronghold", y: "−56", color: "#f0b175" },
 ];
 
 function Navigation() {
@@ -100,7 +100,7 @@ function HomePage() {
         {asset:'04-speakers', cls:'speakers', content:<Speakers />},
         {asset:'05-prizes', cls:'prizes', content:<Prizes />},
         {asset:'06-faq', cls:'faq', content:<SculkFaq />},
-        {asset:'07-apply', cls:'apply', content:<LavaApply />},
+        {asset:'07-stronghold', cls:'apply', content:<LavaApply />},
       ].map((layer,i)=><div className={`mc-depth-layer mc-texture-layer mc-texture-${layer.cls}`} id={layers[i].id} data-layer key={layer.asset}>
         <img className="mc-layer-art" src={`/images/minecraft/relief/${layer.asset}.webp`} width="1536" height="1024" alt="" loading="lazy" decoding="async" />
         <LayerLabel index={i} />{layer.content}
@@ -125,5 +125,5 @@ function Footer() {
 export default function Minecraft() {
   const location = useLocation();
   const page = location.pathname.endsWith("schedule") ? "nether" : location.pathname.endsWith("apply") ? "application" : "overworld";
-  return <div className={`minecraft-root mc-world-${page}`} id="top"><WorldTravel><a className="mc-skip" href="#mc-main">Skip to content</a><Navigation /><main id="mc-main"><Routes><Route index element={<HomePage />} /><Route path="schedule" element={<NetherPage />} /><Route path="apply" element={<ApplicationPage />} /><Route path="*" element={<Navigate to={home} replace />} /></Routes></main><Footer /><PickaxeCursor /></WorldTravel></div>;
+  return <div className={`minecraft-root mc-world-${page}`} id="top"><WorldTravel><a className="mc-skip" href="#mc-main">Skip to content</a><Navigation /><main id="mc-main"><Routes><Route index element={<HomePage />} /><Route path="schedule" element={<NetherPage />} /><Route path="apply" element={<ApplicationPage />} /><Route path="*" element={<Navigate to={home} replace />} /></Routes></main>{page !== "overworld" && <Footer />}<PickaxeCursor /></WorldTravel></div>;
 }
