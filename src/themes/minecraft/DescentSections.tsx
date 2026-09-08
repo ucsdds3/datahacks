@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { WorldLink } from './WorldTravel';
+import { PortalFrame } from './PortalFrame';
 
 export function Speakers() {
   return <section className="mc-section mc-speakers" id="speakers"><div className="mc-container">
@@ -28,7 +29,7 @@ export function SculkFaq() {
   const [pulse,setPulse] = useState(0);
   const reduce = useReducedMotion();
   return <section className="mc-section mc-sculk-faq" id="faq"><div className="mc-container">
-    <p className="mc-eyebrow">06 / THE DEEP DARK</p><h2>A little signal.<br /><em>A few answers.</em></h2>
+    <p className="mc-eyebrow">07 / THE DEEP DARK</p><h2>A little signal.<br /><em>A few answers.</em></h2>
     <p className="mc-body">Choose a sensor to explore the survival guide.</p>
     <div className="mc-sculk-controls" role="group" aria-label="FAQ topics">{groups.map((group,i) => <button type="button" key={group.title} id={`sculk-topic-${i}`} className={`mc-sculk-control ${selected===i?'is-selected':''}`} aria-expanded={selected===i} aria-controls={`sculk-answer-${i}`} onClick={()=>{setSelected(selected===i ? null : i);setPulse(v=>v+1);}} data-mineable>
       <span className="mc-sculk-object"><img src={`/images/minecraft/layers/${group.sprite}.png`} alt="" width="128" height="128" loading="lazy" />
@@ -42,10 +43,10 @@ export function SculkFaq() {
 
 export function LavaApply() {
   return <section className="mc-lava-apply" id="apply" aria-labelledby="mc-lava-title"><div className="mc-container">
-    <p className="mc-eyebrow">07 / YOUR NEXT CHAPTER</p><h2 id="mc-lava-title">One more step.<br /><em>A whole new adventure.</em></h2>
+    <p className="mc-eyebrow">08 / YOUR NEXT CHAPTER</p><h2 id="mc-lava-title">One more step.<br /><em>A whole new adventure.</em></h2>
     <p>January 16–17, 2027. Bring your curiosity. Find your people.</p>
-    <WorldLink to="/minecraft/apply" kind="end" className="mc-application-portal" aria-label="Enter the End portal to the application preview" data-mineable><img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" loading="lazy" /><span className="mc-button">Enter the End portal →</span></WorldLink>
-    <WorldLink to="/minecraft/schedule" kind="portal" className="mc-run-of-show-link">Explore the Nether · Run of show ↗</WorldLink>
-    <p className="mc-lava-note">Application preview · Registration opens closer to the event</p>
+    <WorldLink to="/minecraft/apply" kind="end" className="mc-application-portal" aria-label="Enter the End portal to the application" data-mineable><img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" loading="lazy" /><span className="mc-button">Enter the End portal →</span></WorldLink>
+    <WorldLink to="/minecraft/schedule" kind="portal" className="mc-run-of-show-link mc-nether-gateway"><PortalFrame /><span>Explore the Nether<br /><strong>Run of show ↗</strong></span></WorldLink>
+    <p className="mc-lava-note">Registration opens closer to the event</p>
   </div></section>;
 }
