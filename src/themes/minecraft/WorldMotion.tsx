@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { createPortal } from "react-dom";
 import { PixelItem, type Item } from "./PixelItem";
 
 export function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
@@ -40,41 +41,46 @@ export function PickaxeCursor() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const element = ref.current;
-    const root = element?.closest<HTMLElement>(".minecraft-root");
-    if (!element || !root) return;
+    if (!element) return;
     const fine = window.matchMedia("(hover: hover) and (pointer: fine)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let timer: ReturnType<typeof setTimeout>;
-    const updateMode = () => { root.classList.toggle("mc-has-pickaxe", fine.matches && !reduced.matches); if (!fine.matches || reduced.matches) end(); };
-    function end() { root?.classList.remove("mc-cursor-swinging"); element?.classList.remove("is-swinging"); }
+    const tool = element.querySelector<HTMLElement>(".mc-cursor-tool");
+    const sprite = element.querySelector<HTMLImageElement>("img");
+    let swings: Animation[] = [];
+    const end = () => { document.documentElement.classList.remove("mc-custom-cursor"); element.classList.remove("is-visible"); swings.forEach(animation => animation.cancel()); };
+    const updateMode = () => { if (!fine.matches || reduced.matches) end(); };
     const position = (event: PointerEvent) => {
-      if (!fine.matches || reduced.matches || event.pointerType !== "mouse") { root.classList.remove("mc-has-pickaxe"); end(); return; }
-      const textTarget = (event.target as Element).closest("input,textarea,select,[contenteditable=true]");
-      if (textTarget) { end(); root.classList.remove("mc-has-pickaxe"); return; }
-      root.classList.add("mc-has-pickaxe");
+      const target = event.target instanceof Element ? event.target : null;
+      if (!fine.matches || reduced.matches || event.pointerType !== "mouse" || !sprite?.complete || !sprite.naturalWidth || !target?.closest(".minecraft-root") || target.closest("input,textarea,select,[contenteditable]")) { end(); return; }
+      document.documentElement.classList.add("mc-custom-cursor");
+      element.classList.add("is-visible");
       element.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
     };
     const down = (event: PointerEvent) => {
-      if (!fine.matches || reduced.matches || event.pointerType !== "mouse" || event.button !== 0) return;
-      const target = (event.target as Element).closest("[data-mineable], .mc-button, .mc-world-door, .mc-sponsor-slot, .mc-faq-trigger, .mc-day-tabs button");
-      if (!target || target.matches(":disabled")) return;
-      clearTimeout(timer);
-      end();
-      element.style.transform = `translate3d(${event.clientX}px,${event.clientY}px,0)`;
-      // Retrigger the short impact without routing pointer position through React or a spring.
-      void element.offsetWidth;
-      root.classList.add("mc-cursor-swinging");
-      element.classList.add("is-swinging");
-      timer = setTimeout(end, 300);
+      position(event);
+      if (!element.classList.contains("is-visible") || event.button !== 0 || !tool) return;
+      const target = event.target instanceof Element ? event.target.closest("[data-mineable], .mc-button, .mc-sponsor-slot, .mc-day-tabs button") : null;
+      if (!target || target.matches(":disabled,[aria-disabled=true]")) return;
+      swings.forEach(animation => animation.cancel());
+      swings = [tool.animate([
+        { transform:"translate(-28px,-14px) rotate(0deg)" },
+        { transform:"translate(-28px,-14px) rotate(18deg)", offset:.25 },
+        { transform:"translate(-28px,-14px) rotate(-32deg)", offset:.55 },
+        { transform:"translate(-28px,-14px) rotate(0deg)" },
+      ], { duration:240, easing:"cubic-bezier(.2,.65,.35,1)" })];
+      element.querySelectorAll<HTMLElement>("i").forEach((chip, i) => swings.push(chip.animate([
+        { transform:"translate(0,0)", opacity:0 },
+        { transform:"translate(0,0)", opacity:.8, offset:.4 },
+        { transform:`translate(${(i-1)*10}px,${-10-i*5}px)`, opacity:0 },
+      ], { duration:300, easing:"ease-out" })));
     };
-    updateMode();
-    root.addEventListener("pointerdown", down);
-    root.addEventListener("pointermove", position);
-    root.addEventListener("pointerleave", end);
+    document.addEventListener("pointerdown", down);
+    document.addEventListener("pointermove", position, { passive:true });
+    document.addEventListener("pointerleave", end);
     window.addEventListener("blur", end);
     fine.addEventListener("change", updateMode);
     reduced.addEventListener("change", updateMode);
-    return () => { clearTimeout(timer); end(); root.classList.remove("mc-has-pickaxe"); root.removeEventListener("pointerdown", down); root.removeEventListener("pointermove", position); root.removeEventListener("pointerleave", end); window.removeEventListener("blur", end); fine.removeEventListener("change", updateMode); reduced.removeEventListener("change", updateMode); };
+    return () => { end(); document.removeEventListener("pointerdown", down); document.removeEventListener("pointermove", position); document.removeEventListener("pointerleave", end); window.removeEventListener("blur", end); fine.removeEventListener("change", updateMode); reduced.removeEventListener("change", updateMode); };
   }, []);
-  return <div ref={ref} className="mc-cursor-impact" aria-hidden="true"><div className="mc-cursor-tool"><PixelItem item="pickaxe" /></div>{Array.from({ length:5 },(_, i) => <i key={i} style={{ "--dx":`${(i - 2) * 11}px`, "--dy":`${-12 - (i % 3) * 11}px` } as CSSProperties} />)}</div>;
+  return createPortal(<div ref={ref} className="mc-cursor-impact mc-vanilla-cursor" aria-hidden="true"><div className="mc-cursor-tool"><img src="/images/minecraft/exploration/diamond-pickaxe.png" alt="" width="32" height="32" /></div>{[0,1,2].map(i=><i key={i} />)}</div>, document.body);
 }

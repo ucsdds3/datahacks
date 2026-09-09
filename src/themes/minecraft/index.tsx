@@ -8,10 +8,12 @@ import { Speakers, SculkFaq, LavaApply } from "./DescentSections";
 import { PickaxeCursor } from "./WorldMotion";
 import { WorldLink, WorldTravel } from "./WorldTravel";
 import ApplicationPage from "./ApplicationPage";
+import { EncounterLink, ExplorationJourney, NetherEntrance } from "./Exploration";
 import "./minecraft.css";
 import "./descent.css";
 import "./layers.css";
 import "./dimensions.css";
+import "./exploration.css";
 
 const home = "/minecraft";
 const layers = [
@@ -82,7 +84,7 @@ function LayerLabel({ index }: { index: number }) {
 }
 
 function HomePage() {
-  return <>
+  return <ExplorationJourney>
     <DepthMeter />
     <section className="mc-hero mc-cherry-hero" aria-labelledby="mc-title">
       <div className="mc-hero-image mc-hero-cherry-image" aria-hidden="true" /><div className="mc-hero-shade" aria-hidden="true" />
@@ -98,27 +100,28 @@ function HomePage() {
     </section>
     <div className="mc-underground mc-textured-descent">
       {[
-        {asset:'01-about', cls:'about', content:<About />},
-        {asset:'02-tracks', cls:'tracks', content:<Tracks />},
-        {asset:'03-sponsors', cls:'sponsors', content:<Sponsors />},
-        {asset:'04-speakers', cls:'speakers', content:<Speakers />},
+        {asset:'01-about', cls:'about', content:<><About /><EncounterLink target="iron-layer" kind="skeleton" label="Clear the path" destination="Tracks · Iron & redstone" /></>},
+        {asset:'02-tracks', cls:'tracks', content:<><Tracks /><NetherEntrance /></>},
+        {asset:'03-sponsors', cls:'sponsors', content:<><Sponsors /><EncounterLink target="mineshaft-layer" kind="dig" label="Dig into the mineshaft" destination="Speakers · The mineshaft" /></>},
+        {asset:'04-speakers', cls:'speakers', content:<><Speakers /><EncounterLink target="diamond-layer" kind="chest" label="Open the minecart chest" destination="Prizes · Deepslate ores" /></>},
         {asset:'05-prizes', cls:'prizes', content:<Prizes />},
         {asset:'trial-chamber-entrance', cls:'trials', content:<TrialEntrance />},
         {asset:'06-faq', cls:'faq', content:<SculkFaq />},
         {asset:'07-stronghold', cls:'apply', content:<LavaApply />},
-      ].map((layer,i)=><div className={`mc-depth-layer mc-texture-layer mc-texture-${layer.cls}`} id={layers[i].id} data-layer key={layer.asset}>
+      ].map((layer,i)=><div className={`mc-depth-layer mc-texture-layer mc-texture-${layer.cls}`} id={layers[i].id} tabIndex={-1} aria-label={layers[i].name} data-layer key={layer.asset}>
         <img className="mc-layer-art" src={`/images/minecraft/${layer.cls === 'trials' ? 'dimensions' : 'relief'}/${layer.asset}.webp`} width="1536" height="1024" alt="" loading="lazy" decoding="async" />
         <LayerLabel index={i} />{layer.content}
       </div>)}
     </div>
-  </>;
+  </ExplorationJourney>;
 }
 
 function NetherPage() {
   return <div className="mc-nether-page">
-    <img className="mc-dimension-art" src="/images/minecraft/dimensions/nether-schedule.webp" alt="" width="1536" height="1024" fetchPriority="high" />
+    <img className="mc-dimension-art" src="/images/minecraft/dimensions/nether-schedule.webp" alt="" width="1536" height="1024" {...{ fetchpriority: "high" }} />
     <div className="mc-container mc-nether-heading"><div><Link to={home} className="mc-dimension-back">← Return to the overworld</Link><p className="mc-eyebrow">DIMENSION 02 / THE NETHER</p><h1 tabIndex={-1}>Things are<br />heating <em>up.</em></h1><p>Your run of show. Two days of building, learning,<br className="mc-desktop-break" /> and making something worth staying up for.</p><span className="mc-nether-date">JANUARY 16–17, 2027 · PACIFIC TIME</span></div><a href="#schedule" className="mc-nether-portal-link" aria-label="Step through to the run of show"><PortalFrame /><span>Explore the run of show ↓</span></a></div>
     <Schedule />
+    <div className="mc-nether-residents" aria-label="Zombified piglins guarding the Nether"><img src="/images/minecraft/exploration/zombified-piglin.png" alt="Zombified piglin with a golden sword" width="520" height="880" loading="lazy" /><p>Keep your gold close.<br /><span>You’re in their world now.</span></p><img src="/images/minecraft/exploration/zombified-piglin.png" alt="" width="520" height="880" loading="lazy" /></div>
     <div className="mc-container mc-nether-foot"><span>Keep your inventory close. Adventure awaits.</span><WorldLink to={`${home}/apply`} kind="end" className="mc-button">Join the adventure <ArrowUpRight size={17} /></WorldLink></div>
   </div>;
 }

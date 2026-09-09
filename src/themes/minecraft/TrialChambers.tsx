@@ -32,7 +32,7 @@ export default function TrialChambersPage() {
   const submit = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setReview(true); };
 
   return <div className="mc-trial-page mc-dimension-page">
-    <img className="mc-dimension-art" src="/images/minecraft/dimensions/trial-chamber-interest.webp" alt="" width="1536" height="1024" fetchPriority="high" />
+    <img className="mc-dimension-art" src="/images/minecraft/dimensions/trial-chamber-interest.webp" alt="" width="1536" height="1024" {...{ fetchpriority: "high" }} />
     <div className="mc-container mc-trial-page-layout">
       <aside className="mc-trial-page-intro">
         <Link to="/minecraft#trial-layer" className="mc-dimension-back">← Return to the overworld</Link>

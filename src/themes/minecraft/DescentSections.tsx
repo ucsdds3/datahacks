@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { WorldLink } from './WorldTravel';
-import { PortalFrame } from './PortalFrame';
 
 export function Speakers() {
   return <section className="mc-section mc-speakers" id="speakers"><div className="mc-container">
@@ -36,7 +35,10 @@ export function SculkFaq() {
       {selected===i && !reduce && <span className="mc-sculk-rings" key={pulse} aria-hidden="true">{[0,1,2].map(n=><motion.i key={n} initial={{scale:.5,opacity:.85}} animate={{scale:2.3,opacity:0}} transition={{duration:.85,delay:n*.13,ease:'easeOut'}} />)}</span>}</span>
       <span>{group.title}</span><small>{selected===i?'Close answers ↑':'Reveal answers ↓'}</small>
     </button>)}</div>
-    {groups.map((group,i)=><div key={group.title} id={`sculk-answer-${i}`} role="region" aria-labelledby={`sculk-topic-${i}`} hidden={selected!==i}><AnimatePresence initial={false}>{selected===i && <motion.div className="mc-sculk-answer" initial={reduce?false:{opacity:0,y:8}} animate={{opacity:1,y:0}} transition={{duration:.2}}>{group.items.map(([q,a])=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}</motion.div>}</AnimatePresence></div>)}
+    <div className="mc-sculk-answer-stage">
+      <p className={`mc-sculk-awaiting ${selected===null?'is-active':''}`} aria-hidden={selected!==null}>Tune into a signal above.</p>
+      {groups.map((group,i)=><div key={group.title} id={`sculk-answer-${i}`} role="region" aria-labelledby={`sculk-topic-${i}`} aria-hidden={selected!==i} className={`mc-sculk-answer-region ${selected===i?'is-active':''}`}><div className="mc-sculk-answer">{group.items.map(([q,a])=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}</div></div>)}
+    </div>
     <a href="mailto:hello@ds3ucsd.com" className="mc-text-link">Still have a question? Talk to the organizers ↗</a>
   </div></section>;
 }
@@ -46,7 +48,6 @@ export function LavaApply() {
     <p className="mc-eyebrow">08 / YOUR NEXT CHAPTER</p><h2 id="mc-lava-title">One more step.<br /><em>A whole new adventure.</em></h2>
     <p>January 16–17, 2027. Bring your curiosity. Find your people.</p>
     <WorldLink to="/minecraft/apply" kind="end" className="mc-application-portal" aria-label="Enter the End portal to the application" data-mineable><img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" loading="lazy" /><span className="mc-button">Enter the End portal →</span></WorldLink>
-    <WorldLink to="/minecraft/schedule" kind="portal" className="mc-run-of-show-link mc-nether-gateway"><PortalFrame /><span>Explore the Nether<br /><strong>Run of show ↗</strong></span></WorldLink>
     <p className="mc-lava-note">Registration opens closer to the event</p>
   </div></section>;
 }
