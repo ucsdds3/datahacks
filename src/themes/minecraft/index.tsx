@@ -45,38 +45,6 @@ function Navigation() {
   </header>;
 }
 
-function DepthMeter() {
-  const [depth, setDepth] = useState({ layer: -1, y: 80 });
-  useEffect(() => {
-    let frame = 0;
-    const update = () => {
-      const probe = window.innerHeight * .45;
-      let current = -1;
-      let y = 80;
-      layers.forEach((layer, index) => {
-        const element = document.getElementById(layer.id);
-        if (!element) return;
-        const box = element.getBoundingClientRect();
-        if (box.top <= probe) {
-          current = index;
-          y = Math.round(Number(layer.y.replace("−", "-")) - Math.max(0, Math.min(1, (probe - box.top) / box.height)) * 12);
-        }
-      });
-      setDepth(previous => previous.layer === current && previous.y === y ? previous : { layer: current, y });
-    };
-    const onScroll = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    update();
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); };
-  }, []);
-  return <nav className={`mc-depth-meter ${depth.layer >= 0 ? "is-underground" : ""}`} aria-label="World layers">
-    <span className="mc-depth-coordinate" aria-hidden="true">Y {depth.y > 0 ? "+" : ""}{depth.y}</span>
-    <a href="#top" aria-label="Cherry grove surface" aria-current={depth.layer === -1 ? "location" : undefined}><i style={{ background: "#e1aac5" }} /><span>Cherry grove</span></a>
-    {layers.map((layer, i) => <a key={layer.id} href={`#${layer.id}`} aria-label={layer.name} aria-current={depth.layer === i ? "location" : undefined}><i style={{ background: layer.color }} /><span>{layer.name}</span></a>)}
-    <span className="mc-depth-bottom" aria-hidden="true">↓</span>
-  </nav>;
-}
 
 function LayerLabel({ index }: { index: number }) {
   const layer = layers[index];
@@ -85,7 +53,6 @@ function LayerLabel({ index }: { index: number }) {
 
 function HomePage() {
   return <ExplorationJourney>
-    <DepthMeter />
     <section className="mc-hero mc-cherry-hero" aria-labelledby="mc-title">
       <div className="mc-hero-image mc-hero-cherry-image" aria-hidden="true" /><div className="mc-hero-shade" aria-hidden="true" />
       <div className="mc-hero-content">

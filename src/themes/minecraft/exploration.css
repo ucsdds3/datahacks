@@ -6,31 +6,36 @@
 .minecraft-root .mc-sculk-control:active { transform:none; box-shadow:0 5px #071117; }
 .minecraft-root .mc-depth-layer:focus { outline:none; }
 
-.minecraft-root .mc-texture-about { padding-bottom:45px; }
-.minecraft-root .mc-texture-sponsors { padding-bottom:45px; }
-.minecraft-root .mc-texture-speakers { padding-bottom:95px; }
-.minecraft-root .mc-encounter { position:relative; display:flex; align-items:flex-end; justify-content:center; gap:24px; width:fit-content; max-width:86%; margin:35px 7% 0 auto; padding:16px 20px; color:#f0ebd8; border:2px solid transparent; transition:border-color .15s,background .15s; }
-.minecraft-root .mc-encounter:hover,.minecraft-root .mc-encounter:focus-visible { border-color:#bca680; background:#10191bbb; }
-.minecraft-root .mc-encounter-object { position:relative; display:block; flex-shrink:0; width:105px; height:180px; transform-origin:bottom center; }
-.minecraft-root .mc-encounter-object>img { width:100%; height:100%; object-fit:contain; filter:drop-shadow(3px 4px 0 #080e1566); }
-.minecraft-root .mc-encounter-label { display:flex; flex-direction:column; gap:4px; padding:12px 16px; margin-bottom:5px; background:#10191bf2; border:1px solid #7e8074; box-shadow:0 4px #0b1013; text-align:left; }
-.minecraft-root .mc-encounter-label small { font:14px 'VT323',monospace; letter-spacing:2px; color:#d8c490; }
-.minecraft-root .mc-encounter-label strong { font-size:16px; font-weight:600; }
-.minecraft-root .mc-encounter-label>span { font-size:14px; color:#bccdc5; }
-.minecraft-root .mc-encounter-dig .mc-encounter-object { width:100px; height:100px; box-shadow:4px 5px #121819; }
-.minecraft-root .mc-encounter-dig .mc-encounter-object>img { image-rendering:pixelated; }
-.minecraft-root .mc-crack { position:absolute; inset:0; opacity:0; background:#10131e; clip-path:polygon(15% 0,21% 0,40% 37%,77% 20%,80% 25%,45% 43%,57% 61%,100% 69%,100% 75%,59% 67%,50% 100%,43% 100%,48% 65%,22% 75%,18% 70%,46% 59%,35% 41%); }
-.minecraft-root .mc-encounter-chest .mc-encounter-object { width:150px; height:145px; perspective:400px; }
-.minecraft-root .mc-chest-lid { position:absolute; inset:0; clip-path:polygon(20% 19%,50% 3%,79% 19%,79% 32%,50% 48%,20% 32%); transform-origin:50% 20%; }
-.minecraft-root .mc-encounter-skeleton.is-discovered .mc-encounter-object { animation:mc-skeleton-clear .42s ease-in forwards; }
-.minecraft-root .mc-encounter-dig.is-discovered .mc-crack { animation:mc-dig-crack .4s steps(3) forwards; }
-.minecraft-root .mc-encounter-dig.is-discovered .mc-encounter-object { animation:mc-dig-impact .4s ease-in forwards; }
-.minecraft-root .mc-encounter-chest.is-discovered .mc-encounter-object>img:first-child { clip-path:polygon(0 39%,21% 29%,50% 50%,79% 29%,100% 39%,100% 100%,0 100%); }
-.minecraft-root .mc-encounter-chest.is-discovered .mc-chest-lid { animation:mc-loot-open .4s ease-out forwards; }
-@keyframes mc-skeleton-clear { 0% { filter:brightness(1); } 20% { filter:sepia(1) saturate(4); transform:translateX(5px); } 100% { transform:translate(20px,15px) rotate(75deg); opacity:0; } }
-@keyframes mc-dig-crack { to { opacity:1; } }
-@keyframes mc-dig-impact { 30% { transform:translateX(3px); } 60% { transform:translateX(-3px); } 100% { transform:translateY(12px); opacity:0; } }
-@keyframes mc-loot-open { to { transform:translateY(-18px) rotateX(65deg); } }
+.minecraft-root .mc-texture-about,.minecraft-root .mc-texture-sponsors { padding-bottom:32px; }
+.minecraft-root .mc-texture-speakers { padding-bottom:80px; }
+.minecraft-root .mc-encounter { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:30px; width:min(650px,86%); min-height:250px; margin:25px 8% 0 auto; padding:0 18px; color:#f4ecd9; isolation:isolate; }
+.minecraft-root .mc-encounter::before { content:""; position:absolute; inset:15% -15% 0; z-index:-1; background:radial-gradient(ellipse,#10191bd6 0%,#10191b66 40%,transparent 70%); pointer-events:none; }
+.minecraft-root .mc-encounter:focus-visible { outline:2px solid #dfc995; outline-offset:8px; }
+.minecraft-root .mc-encounter-scene { position:relative; display:block; width:235px; height:230px; flex-shrink:0; }
+.minecraft-root .mc-scene-floor { position:absolute; bottom:9px; left:8%; width:84%; height:15px; background:#333937 url('/images/minecraft/textures/stone.png') center/64px; border-top:4px solid #72736c; box-shadow:0 8px 0 #151c1c; clip-path:polygon(0 0,90% 0,100% 30%,100% 100%,8% 100%,0 65%); }
+.minecraft-root .mc-scene-light { position:absolute; inset:8% -15% -10%; background:radial-gradient(ellipse at 50% 65%,#e9c77970,transparent 65%); pointer-events:none; }
+.minecraft-root .mc-skeleton-art { position:absolute; height:205px; width:auto; bottom:20px; left:60px; transform-origin:50% 90%; filter:drop-shadow(4px 6px 0 #080e1588); }
+.minecraft-root .mc-encounter-label { display:flex; flex-direction:column; gap:9px; min-width:0; text-align:left; text-shadow:0 2px 3px #000; }
+.minecraft-root .mc-encounter-label small { font:14px 'VT323',monospace; letter-spacing:1.6px; color:#d1bd94; }
+.minecraft-root .mc-encounter-label strong { display:flex; align-items:center; gap:16px; font:26px 'VT323',monospace; line-height:1.2; color:#fff4d9; }
+.minecraft-root .mc-encounter-label strong>span { display:inline-block; color:#dbbf83; }
+.minecraft-root .mc-encounter-label>span { font-size:14px; color:#d2d5c8; }
+.minecraft-root .mc-dig-face { position:absolute; left:46px; bottom:22px; display:grid; grid-template-columns:repeat(3,1fr); width:150px; height:150px; background:#081313; box-shadow:inset 0 0 28px #000,0 8px #121c1b; border:5px solid #303934; }
+.minecraft-root .mc-dig-block { background:#606759 url('/images/minecraft/textures/stone.png') center/100px; image-rendering:pixelated; box-shadow:inset 2px 2px #ffffff12,inset -2px -2px #0003; }
+.minecraft-root .mc-dig-block:nth-child(3n) { background-image:url('/images/minecraft/textures/andesite.png'); }
+.minecraft-root .mc-dig-cracks { position:absolute; inset:0; background:#111b19; pointer-events:none; clip-path:polygon(15% 0,19% 0,40% 37%,77% 20%,80% 25%,45% 43%,57% 61%,100% 69%,100% 74%,59% 67%,50% 100%,46% 100%,48% 65%,22% 75%,18% 70%,46% 59%,35% 41%); }
+.minecraft-root .mc-cart-wrap { position:absolute; width:200px; height:188px; bottom:17px; left:14px; transform-origin:50% 90%; }
+.minecraft-root .mc-cart-art { width:100%; height:100%; overflow:visible; filter:drop-shadow(3px 5px 0 #07121180); }
+.minecraft-root .mc-encounter-chest .mc-scene-floor { background:repeating-linear-gradient(90deg,#473522 0 12px,#857356 12px 18px,#242d2c 18px 28px); border-top:4px solid #8b9892; width:105%; left:0; }
+.minecraft-root .mc-scene-particle { position:absolute; left:50%; top:58%; width:7px; height:7px; background:#c5c9ad; pointer-events:none; }
+.minecraft-root .mc-scene-particle-chest { background:#e8c058; box-shadow:0 0 9px #edc35566; }
+.minecraft-root .mc-scene-particle-dig { background:#868578 url('/images/minecraft/textures/stone.png') center/24px; width:14px; height:14px; }
+.minecraft-root .mc-scene-crosshair { position:absolute; left:calc(50% - 10px); top:45%; width:20px; height:20px; background:linear-gradient(#fff4dc,#fff4dc) center/2px 20px no-repeat,linear-gradient(#fff4dc,#fff4dc) center/20px 2px no-repeat; filter:drop-shadow(1px 1px #101818); pointer-events:none; }
+html:has(.minecraft-root),body:has(.minecraft-root) { scrollbar-width:none; }
+html:has(.minecraft-root)::-webkit-scrollbar,body:has(.minecraft-root)::-webkit-scrollbar { display:none; }
+.minecraft-root .mc-descent-skip { position:fixed; left:50%; bottom:24px; translate:-50% 0; z-index:10000; padding:12px 20px; color:#fff4d9; background:#132025; border:1px solid #bca778; clip-path:inset(50%); width:1px; height:1px; overflow:hidden; }
+.minecraft-root .mc-descent-skip:focus-visible { clip-path:none; width:auto; height:auto; }
+@media(prefers-reduced-motion:reduce) { html:has(.minecraft-root) { scroll-behavior:auto; } }
 
 .minecraft-root .mc-track-nether { width:min(1000px,84%); margin:50px auto 0; padding:18px 38px; display:flex; align-items:center; justify-content:space-between; gap:30px; background:#211426ef; border:2px solid #866998; box-shadow:0 6px #100c16; }
 .minecraft-root .mc-track-nether h3 { font:28px 'VT323',monospace; margin:8px 0 14px; color:#eedffc; }
@@ -47,15 +52,6 @@
 .minecraft-root .mc-nether-residents img:last-child { transform:scaleX(-1); }
 .minecraft-root .mc-nether-residents p { align-self:center; padding:20px; background:#26151cdb; border:1px solid #966757; text-align:center; color:#f4d7a3; font:22px 'VT323',monospace; }
 .minecraft-root .mc-nether-residents p span { color:#e0c3c8; font:14px 'DM Sans',sans-serif; }
-
-.minecraft-root .mc-discovery-travel { position:fixed; inset:0; z-index:10000; overflow:hidden; }
-.minecraft-root .mc-discovery-cover { position:absolute; inset:-10% 0; background:#182023 url('/images/minecraft/textures/deepslate.png') 0 0/80px 80px; clip-path:polygon(0 0,100% 0,100% 94%,85% 94%,85% 100%,65% 100%,65% 96%,40% 96%,40% 100%,20% 100%,20% 93%,0 93%); transform:translateY(-110%); transition:transform .32s cubic-bezier(.65,0,.35,1); }
-.minecraft-root .mc-discovery-travel.is-covered .mc-discovery-cover { transform:translateY(0); }
-.minecraft-root .mc-discovery-travel.is-arrived .mc-discovery-cover { transform:translateY(110%); }
-.minecraft-root .mc-discovery-caption { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; text-align:center; padding:16px 25px; background:#10191bf2; border:1px solid #8eab9f; min-width:250px; opacity:0; }
-.minecraft-root .mc-discovery-travel.is-covered .mc-discovery-caption { opacity:1; }
-.minecraft-root .mc-discovery-caption small { font:16px 'VT323',monospace; color:#afc7b1; letter-spacing:2px; }
-.minecraft-root .mc-discovery-caption strong { font-size:19px; color:#fff3d9; }
 
 /* The cursor lives on document.body so panels cannot create a stacking trap. */
 .mc-vanilla-cursor { position:fixed; inset:0 auto auto 0; width:32px; height:32px; z-index:2147483647; pointer-events:none; display:none; transform:translate3d(-100px,-100px,0); }
@@ -74,12 +70,14 @@
 @keyframes mc-enter-nether { 0% { opacity:0; transform:translateY(25px) scale(.95); } 24% { opacity:1; transform:translateY(0) scale(1); } 64% { opacity:1; } 100% { opacity:0; transform:scale(6); } }
 @keyframes mc-nether-veil { 0%,45% { opacity:0; } 78% { opacity:.96; } 100% { opacity:1; } }
 @media(max-width:700px) {
- .minecraft-root .mc-encounter { gap:16px; margin:28px auto 0; padding:10px; max-width:94%; }
- .minecraft-root .mc-encounter-object { width:78px; height:145px; }
- .minecraft-root .mc-encounter-label { padding:10px; }
- .minecraft-root .mc-encounter-label small { letter-spacing:1px; }
- .minecraft-root .mc-encounter-chest .mc-encounter-object { width:110px; height:105px; }
- .minecraft-root .mc-encounter-dig .mc-encounter-object { width:70px; height:70px; }
+ .minecraft-root .mc-encounter { width:94%; min-height:240px; gap:5px; margin:20px auto 0; padding:0 10px; }
+ .minecraft-root .mc-encounter-scene { width:170px; height:210px; }
+ .minecraft-root .mc-skeleton-art { height:175px; left:40px; }
+ .minecraft-root .mc-encounter-label strong { font-size:22px; gap:6px; }
+ .minecraft-root .mc-encounter-label small { letter-spacing:.5px; }
+ .minecraft-root .mc-encounter-label>span { font-size:13px; }
+ .minecraft-root .mc-dig-face { width:120px; height:120px; left:25px; }
+ .minecraft-root .mc-cart-wrap { width:165px; height:160px; left:0; }
  .minecraft-root .mc-track-nether { width:90%; padding:24px; flex-direction:column; gap:8px; text-align:center; }
  .minecraft-root .mc-nether-residents { width:92%; gap:12px; flex-wrap:wrap; }
  .minecraft-root .mc-nether-residents img { width:100px; }
