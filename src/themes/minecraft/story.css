@@ -1,7 +1,14 @@
 /* Story mode: one chapter fills the window, nothing scrolls, and the camera
    descends between chapters. See docs/plans/2026-09-16-story-mode-navigation-design.md */
 
-.minecraft-root .mc-story { position:relative; width:100%; height:100dvh; overflow:hidden; background:#10161a; }
+/* The window is the whole stage: nav on top, one chapter filling what is left.
+   A flex column rather than a hard-coded nav height, so the shorter mobile nav
+   needs no separate rule. */
+.minecraft-root { height:100dvh; overflow:hidden; }
+.minecraft-root .mc-shell { display:flex; flex-direction:column; height:100%; }
+.minecraft-root .mc-shell>.mc-nav { flex:none; }
+.minecraft-root #mc-main { flex:1 1 auto; min-height:0; }
+.minecraft-root .mc-story { position:relative; width:100%; height:100%; overflow:hidden; background:#10161a; }
 
 .minecraft-root .mc-chapter { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; animation:mc-descend-in .7s cubic-bezier(.65,0,.2,1) both; }
 .minecraft-root .mc-chapter:focus { outline:none; }
@@ -21,6 +28,123 @@
 @keyframes mc-descend-dust { 0% { opacity:.85; } 100% { opacity:0; } }
 
 .minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:-1; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
+
+/* One unit drives every size inside a scene, so art and type shrink together on a
+   short window instead of one outgrowing the other. Sizes below are multiples of it,
+   replacing the fixed pixel values those rules carried for the scrolling page. */
+.minecraft-root .mc-chapter { --scene:clamp(9px,min(1.5vh,1.1vw),15px); }
+.minecraft-root .mc-chapter-body { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(1120px,88%); max-height:100%; min-height:0; }
+.minecraft-root .mc-chapter-body>* { width:100%; }
+.minecraft-root .mc-chapter .mc-layer-label { flex-shrink:0; width:min(1120px,88%); margin:0 0 calc(var(--scene) * .9); font-size:calc(var(--scene) * 1.1); }
+
+/* The framed panel the depth layers used to provide. */
+.minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 2.2) calc(var(--scene) * 2.4); background:#171d24f2; border:2px solid #717b82; box-shadow:inset 0 3px #ffffff13,0 6px #101318; }
+.minecraft-root .mc-chapter .mc-section .mc-container { width:100%; max-width:none; }
+/* The encounter art is a fixed 235x230 block of absolutely-positioned pixels, so it
+   cannot be re-expressed in --scene without unpicking the composition. Zoom shrinks
+   the whole thing, layout box included, in one number. */
+.minecraft-root .mc-chapter { --exit-k:1; }
+@media (max-height:900px) { .minecraft-root .mc-chapter { --exit-k:.78; } }
+@media (max-height:780px) { .minecraft-root .mc-chapter { --exit-k:.62; } }
+@media (max-height:660px) { .minecraft-root .mc-chapter { --exit-k:.5; } }
+.minecraft-root .mc-chapter .mc-encounter { flex-shrink:0; min-height:0; width:auto; margin:calc(var(--scene) * .7) 0 0 auto; padding:0; gap:calc(var(--scene) * 1.8); }
+.minecraft-root .mc-chapter .mc-encounter-scene { zoom:var(--exit-k); }
+.minecraft-root .mc-chapter .mc-encounter-label small { font-size:calc(var(--scene) * .95); }
+.minecraft-root .mc-chapter .mc-encounter-label strong { font-size:calc(var(--scene) * 1.8); gap:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-encounter-label>span { font-size:calc(var(--scene) * .95); }
+.minecraft-root .mc-chapter .mc-encounter-label { gap:calc(var(--scene) * .6); }
+
+/* Shared type and rhythm. */
+.minecraft-root .mc-chapter h2 { font-size:clamp(21px,3.5vh,38px); margin:0 0 calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-section-head { gap:calc(var(--scene) * 3); margin-bottom:calc(var(--scene) * 1.8); }
+.minecraft-root .mc-chapter .mc-body { font-size:calc(var(--scene) * 1.15); line-height:1.65; }
+.minecraft-root .mc-chapter .mc-section-note { margin:calc(var(--scene) * 1.3) 0 0; font-size:calc(var(--scene) * .95); }
+.minecraft-root .mc-chapter .mc-eyebrow { font-size:calc(var(--scene) * .95); }
+
+/* Tracks: four cards have to sit in one row without the row growing. */
+.minecraft-root .mc-chapter .mc-track-grid { gap:calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-track { padding:calc(var(--scene) * 1.3) calc(var(--scene) * 1.4) 0; }
+.minecraft-root .mc-chapter .mc-track-top { font-size:calc(var(--scene) * 1.35); }
+.minecraft-root .mc-chapter .mc-track-symbol { width:calc(var(--scene) * 3.8); height:calc(var(--scene) * 3.8); margin:calc(var(--scene) * 1.5) 0 calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-track-symbol svg { width:calc(var(--scene) * 1.9); height:calc(var(--scene) * 1.9); }
+.minecraft-root .mc-chapter .mc-track h3 { font-size:calc(var(--scene) * 1.35); margin:0 0 calc(var(--scene) * .7); }
+.minecraft-root .mc-chapter .mc-track p:not(.mc-eyebrow) { font-size:calc(var(--scene) * .95); margin:0 0 calc(var(--scene) * 1.4); }
+.minecraft-root .mc-chapter .mc-track-status { padding:calc(var(--scene) * .85) 0; font-size:calc(var(--scene) * .9); }
+
+/* FAQ: six questions, so the per-row padding is what decides whether it fits. */
+.minecraft-root .mc-chapter .mc-faq-grid { gap:calc(var(--scene) * 3.2); }
+.minecraft-root .mc-chapter .mc-faq-trigger { padding:calc(var(--scene) * 1) 0; font-size:calc(var(--scene) * 1.05); }
+.minecraft-root .mc-chapter .mc-faq-answer { font-size:calc(var(--scene) * 1); line-height:1.65; }
+
+/* Sponsors and prizes both lean on fixed min-heights. */
+.minecraft-root .mc-chapter .mc-sponsor-tiers { margin-top:calc(var(--scene) * 1.8); }
+.minecraft-root .mc-chapter .mc-sponsor-tier { gap:calc(var(--scene) * 1.6); margin-top:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-sponsor-slot { min-height:calc(var(--scene) * 5); }
+.minecraft-root .mc-chapter .mc-sponsor-tier:first-child .mc-sponsor-slot { min-height:calc(var(--scene) * 6.2); }
+.minecraft-root .mc-chapter .mc-podium-block { min-height:calc(var(--scene) * 13); padding:calc(var(--scene) * 1.6) calc(var(--scene) * .8) calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-podium-diamond .mc-podium-block { min-height:calc(var(--scene) * 16.5); }
+.minecraft-root .mc-chapter .mc-podium-gold .mc-podium-block { min-height:calc(var(--scene) * 11.5); }
+.minecraft-root .mc-chapter .mc-podium-block strong { font-size:calc(var(--scene) * 2.6); line-height:1.3; }
+.minecraft-root .mc-chapter .mc-prize-icon { height:calc(var(--scene) * 4.5); }
+.minecraft-root .mc-chapter .mc-podium-diamond .mc-prize-icon { height:calc(var(--scene) * 5.5); }
+
+/* Ancient city: four sensors and an answer stage that has to hold the tallest group. */
+.minecraft-root .mc-chapter .mc-sculk-controls { gap:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1.6) 0 calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-sculk-control { padding:calc(var(--scene) * 1) calc(var(--scene) * .4) calc(var(--scene) * 1.3); }
+.minecraft-root .mc-chapter .mc-sculk-object,
+.minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 5); height:calc(var(--scene) * 5); }
+.minecraft-root .mc-chapter .mc-sculk-object { margin-bottom:calc(var(--scene) * .9); }
+.minecraft-root .mc-chapter .mc-sculk-control>span:last-of-type { font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-sculk-control small { font-size:calc(var(--scene) * .85); margin-top:calc(var(--scene) * .3); }
+.minecraft-root .mc-chapter .mc-sculk-awaiting { min-height:calc(var(--scene) * 7); font-size:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-sculk-answer { padding:calc(var(--scene) * 1.4) calc(var(--scene) * 1.7); }
+.minecraft-root .mc-chapter .mc-sculk-answer>div+div { margin-top:calc(var(--scene) * 1); padding-top:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-sculk-answer h3 { font-size:calc(var(--scene) * 1.15); margin:0 0 calc(var(--scene) * .6); }
+.minecraft-root .mc-chapter .mc-sculk-answer p { font-size:calc(var(--scene) * 1.05); line-height:1.65; }
+
+/* Stronghold: the End portal is the largest single asset on the spine. */
+.minecraft-root .mc-chapter .mc-lava-apply p { font-size:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1) auto; }
+.minecraft-root .mc-chapter .mc-application-portal { margin-top:calc(var(--scene) * 1.4); gap:calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-application-portal img { width:calc(var(--scene) * 12); height:calc(var(--scene) * 12); }
+
+/* The End: the application page was sized to fill a scrolling route of its own. */
+.minecraft-root .mc-chapter .mc-application-page { min-height:0; padding:0; background:none; }
+.minecraft-root .mc-chapter .mc-credits { margin-top:calc(var(--scene) * 1.4); }
+
+/* Doors hang off the chapter rather than stacking under its content — they are a
+   side trip, and in the flow they push the chapter past the viewport. */
+.minecraft-root .mc-chapter .mc-track-nether { position:absolute; left:calc(var(--scene) * 2); bottom:calc(var(--scene) * 2); z-index:4; width:auto; max-width:min(38%,380px); margin:0; }
+
+/* The hero paints its own full-bleed scene rather than sitting in a panel. */
+.minecraft-root .mc-chapter-hero .mc-chapter-body { width:100%; height:100%; }
+.minecraft-root .mc-chapter-hero .mc-hero { height:100%; min-height:0; max-height:none; }
+
+/* Narrow screens: the theme's own breakpoints restack these into tall columns, which
+   a fixed viewport cannot absorb. Pull the stacks back into rows and trim the rest. */
+@media (max-width:760px) {
+  .minecraft-root .mc-chapter { --scene:clamp(7px,min(1.2vh,2.4vw),12px); }
+  .minecraft-root .mc-chapter h2 { font-size:clamp(17px,2.9vh,26px); margin-bottom:calc(var(--scene) * .8); }
+  .minecraft-root .mc-chapter-body { width:94%; }
+  .minecraft-root .mc-chapter .mc-layer-label { width:94%; }
+  .minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 1.5) calc(var(--scene) * 1.4); }
+  .minecraft-root .mc-chapter .mc-section-head { gap:calc(var(--scene) * 1); margin-bottom:calc(var(--scene) * 1.2); }
+  .minecraft-root .mc-chapter .mc-track-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--scene) * .8); }
+  .minecraft-root .mc-chapter .mc-track-symbol { width:calc(var(--scene) * 3); height:calc(var(--scene) * 3); margin:calc(var(--scene) * .9) 0; }
+  .minecraft-root .mc-chapter .mc-track p:not(.mc-eyebrow) { margin-bottom:calc(var(--scene) * .9); }
+  .minecraft-root .mc-chapter .mc-sponsor-tier { grid-template-columns:calc(var(--scene) * 7) 1fr; gap:calc(var(--scene) * .8); margin-top:calc(var(--scene) * .7); }
+  .minecraft-root .mc-chapter .mc-sponsor-slot,
+  .minecraft-root .mc-chapter .mc-sponsor-tier:first-child .mc-sponsor-slot { min-height:calc(var(--scene) * 3.6); }
+  .minecraft-root .mc-chapter .mc-sponsor-slot small { display:none; }
+  .minecraft-root .mc-chapter .mc-sculk-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--scene) * .7); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * .8); }
+  .minecraft-root .mc-chapter .mc-sculk-object,
+  .minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 3.2); height:calc(var(--scene) * 3.2); }
+  .minecraft-root .mc-chapter .mc-podium-block { min-height:calc(var(--scene) * 9); }
+  .minecraft-root .mc-chapter .mc-podium-diamond .mc-podium-block { min-height:calc(var(--scene) * 11.5); }
+  .minecraft-root .mc-chapter .mc-podium-gold .mc-podium-block { min-height:calc(var(--scene) * 8); }
+  /* The door stays out of the flow; there is no room for its pitch, only the way in. */
+  .minecraft-root .mc-chapter .mc-track-nether { left:calc(var(--scene) * 1); bottom:calc(var(--scene) * 1); max-width:48%; }
+  .minecraft-root .mc-chapter .mc-track-nether>div:first-child { display:none; }
+}
 
 @media (prefers-reduced-motion:reduce) {
   .minecraft-root .mc-chapter,
