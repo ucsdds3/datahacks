@@ -8,7 +8,7 @@
 
 .minecraft-root .mc-texture-about,.minecraft-root .mc-texture-sponsors { padding-bottom:32px; }
 .minecraft-root .mc-texture-speakers { padding-bottom:80px; }
-.minecraft-root .mc-encounter { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:30px; width:min(650px,86%); min-height:250px; margin:25px 8% 0 auto; padding:0 18px; color:#f4ecd9; isolation:isolate; }
+.minecraft-root .mc-encounter { position:relative; display:flex; align-items:center; justify-content:flex-end; gap:30px; width:min(650px,86%); min-height:250px; margin:25px 8% 0 auto; padding:0 18px; color:#f4ecd9; isolation:isolate; background:none; border:0; font:inherit; text-align:left; cursor:pointer; }
 .minecraft-root .mc-encounter::before { content:""; position:absolute; inset:15% -15% 0; z-index:-1; background:radial-gradient(ellipse,#10191bd6 0%,#10191b66 40%,transparent 70%); pointer-events:none; }
 .minecraft-root .mc-encounter:focus-visible { outline:2px solid #dfc995; outline-offset:8px; }
 .minecraft-root .mc-encounter-scene { position:relative; display:block; width:235px; height:230px; flex-shrink:0; }
@@ -27,7 +27,12 @@
 .minecraft-root .mc-cart-wrap { position:absolute; width:200px; height:188px; bottom:17px; left:14px; transform-origin:50% 90%; }
 .minecraft-root .mc-cart-art { width:100%; height:100%; overflow:visible; filter:drop-shadow(3px 5px 0 #07121180); }
 .minecraft-root .mc-encounter-chest .mc-scene-floor { background:repeating-linear-gradient(90deg,#473522 0 12px,#857356 12px 18px,#242d2c 18px 28px); border-top:4px solid #8b9892; width:105%; left:0; }
+.minecraft-root .mc-exit-portal { position:absolute; left:50%; bottom:20px; translate:-50% 0; display:block; width:160px; }
+.minecraft-root .mc-exit-portal svg { display:block; width:100%; height:auto; }
+.minecraft-root .mc-exit-end { position:absolute; left:50%; bottom:26px; translate:-50% 0; width:165px; height:auto; image-rendering:pixelated; filter:drop-shadow(0 0 22px #c9b6ff55); }
 .minecraft-root .mc-scene-particle { position:absolute; left:50%; top:58%; width:7px; height:7px; background:#c5c9ad; pointer-events:none; }
+.minecraft-root .mc-scene-particle-portal { background:#b374e0; box-shadow:0 0 9px #c07be8aa; }
+.minecraft-root .mc-scene-particle-end { background:#e4dcb0; box-shadow:0 0 9px #d8c9ff99; }
 .minecraft-root .mc-scene-particle-chest { background:#e8c058; box-shadow:0 0 9px #edc35566; }
 .minecraft-root .mc-scene-particle-dig { background:#868578 url('/images/minecraft/textures/stone.png') center/24px; width:14px; height:14px; }
 .minecraft-root .mc-scene-crosshair { position:absolute; left:calc(50% - 10px); top:45%; width:20px; height:20px; background:linear-gradient(#fff4dc,#fff4dc) center/2px 20px no-repeat,linear-gradient(#fff4dc,#fff4dc) center/20px 2px no-repeat; filter:drop-shadow(1px 1px #101818); pointer-events:none; }

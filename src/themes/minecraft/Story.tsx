@@ -4,6 +4,8 @@ import { CHAPTERS, type Chapter } from "./chapters";
 
 type StoryValue = {
   chapter: Chapter;
+  /** The chapter the exit leads to, or null at the end of the story. */
+  upcoming: Chapter | null;
   index: number;
   total: number;
   /** Jump to a chapter by index. Out-of-range values clamp to the ends. */
@@ -96,8 +98,8 @@ export function Story({ chapters = CHAPTERS, children }: {
   }, [next, previous]);
 
   const value = useMemo(
-    () => ({ chapter, index, total: chapters.length, go, next, previous }),
-    [chapter, index, chapters.length, go, next, previous],
+    () => ({ chapter, upcoming: chapters[index + 1] ?? null, index, total: chapters.length, go, next, previous }),
+    [chapter, chapters, index, go, next, previous],
   );
 
   return <StoryContext.Provider value={value}>
