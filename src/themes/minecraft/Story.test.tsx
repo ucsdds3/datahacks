@@ -99,3 +99,79 @@ describe("moving through the story", () => {
     expect(screen.getByRole("region", { name: "Chapter two" })).toBeInTheDocument();
   });
 });
+
+describe("story controls", () => {
+  it.each(["ArrowDown", "ArrowRight", "PageDown", " "])("advances on %s", key => {
+    renderStory();
+    fireEvent.keyDown(window, { key });
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+  });
+
+  it.each(["ArrowUp", "ArrowLeft", "PageUp"])("goes back on %s", key => {
+    renderStory("/minecraft/two");
+    fireEvent.keyDown(window, { key });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("returns to the first chapter on Home", () => {
+    renderStory("/minecraft/two");
+    fireEvent.keyDown(window, { key: "Home" });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("jumps to the last chapter on End", () => {
+    renderStory();
+    fireEvent.keyDown(window, { key: "End" });
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+  });
+
+  it("ignores the wheel, because a trackpad flick overshoots", () => {
+    renderStory();
+    fireEvent.wheel(window, { deltaY: 400 });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("leaves a browser shortcut alone", () => {
+    renderStory();
+    fireEvent.keyDown(window, { key: "ArrowDown", metaKey: true });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("leaves typing in a field alone", () => {
+    renderStory();
+    const field = document.createElement("input");
+    document.body.append(field);
+    field.focus();
+    fireEvent.keyDown(field, { key: " ", bubbles: true });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+    field.remove();
+  });
+
+  it("advances on an upward swipe", () => {
+    renderStory();
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 400 }] });
+    fireEvent.touchEnd(window, { changedTouches: [{ clientX: 104, clientY: 250 }] });
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+  });
+
+  it("goes back on a downward swipe", () => {
+    renderStory("/minecraft/two");
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 250 }] });
+    fireEvent.touchEnd(window, { changedTouches: [{ clientX: 104, clientY: 400 }] });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("ignores a sideways swipe", () => {
+    renderStory();
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 400 }] });
+    fireEvent.touchEnd(window, { changedTouches: [{ clientX: 400, clientY: 330 }] });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("ignores a short swipe", () => {
+    renderStory();
+    fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 400 }] });
+    fireEvent.touchEnd(window, { changedTouches: [{ clientX: 100, clientY: 370 }] });
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+});

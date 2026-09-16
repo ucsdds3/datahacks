@@ -13,6 +13,12 @@ type StoryValue = {
 };
 const StoryContext = createContext<StoryValue | null>(null);
 
+const FORWARD_KEYS = ["ArrowDown", "ArrowRight", "PageDown", " ", "Spacebar"];
+const BACK_KEYS = ["ArrowUp", "ArrowLeft", "PageUp"];
+const EDITABLE = "input, textarea, select, [contenteditable='true']";
+/** Shortest vertical travel that reads as a deliberate swipe rather than a tap wobble. */
+const SWIPE = 55;
+
 /** The chapter being told. Throws outside a Story so a mistake is loud, not silent. */
 export function useStory() {
   const value = useContext(StoryContext);
@@ -48,6 +54,46 @@ export function Story({ chapters = CHAPTERS, children }: {
   }, []);
 
   useEffect(() => { scene.current?.focus({ preventScroll: true }); }, [chapter.id]);
+
+  // There is no scrollbar, so these are the only way a keyboard reaches the next
+  // chapter. The wheel is deliberately absent: trackpad momentum overshoots.
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey || event.defaultPrevented) return;
+      if ((event.target as HTMLElement | null)?.closest?.(EDITABLE)) return;
+      if (FORWARD_KEYS.includes(event.key)) next();
+      else if (BACK_KEYS.includes(event.key)) previous();
+      else if (event.key === "Home") go(0);
+      else if (event.key === "End") go(chapters.length - 1);
+      else return;
+      event.preventDefault();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [next, previous, go, chapters.length]);
+
+  useEffect(() => {
+    let start: { x: number; y: number } | null = null;
+    const onStart = (event: TouchEvent) => {
+      const touch = event.touches[0];
+      start = touch ? { x: touch.clientX, y: touch.clientY } : null;
+    };
+    const onEnd = (event: TouchEvent) => {
+      const touch = event.changedTouches[0];
+      if (!start || !touch) return;
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      start = null;
+      if (Math.abs(dy) < SWIPE || Math.abs(dx) > Math.abs(dy)) return;
+      if (dy < 0) next(); else previous();
+    };
+    window.addEventListener("touchstart", onStart, { passive: true });
+    window.addEventListener("touchend", onEnd, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", onStart);
+      window.removeEventListener("touchend", onEnd);
+    };
+  }, [next, previous]);
 
   const value = useMemo(
     () => ({ chapter, index, total: chapters.length, go, next, previous }),
