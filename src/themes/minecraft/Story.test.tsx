@@ -1,7 +1,7 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 import { MemoryRouter } from "react-router-dom";
-import { Story } from "./Story";
+import { Story, useStory } from "./Story";
 import type { Chapter } from "./chapters";
 
 const fixture: Chapter[] = [
@@ -11,11 +11,23 @@ const fixture: Chapter[] = [
     exit: null },
 ];
 
+/** Exposes the story controls so a test can drive them without the real affordance. */
+function Controls() {
+  const { next, previous, index } = useStory();
+  return <>
+    <button onClick={next}>go next</button>
+    <button onClick={previous}>go back</button>
+    <output aria-label="Index">{index}</output>
+  </>;
+}
+
 function renderStory(path = "/minecraft") {
   return render(<MemoryRouter initialEntries={[path]}>
-    <Story chapters={fixture}>{chapter => <p>Body of {chapter.id}</p>}</Story>
+    <Story chapters={fixture}>{chapter => <><p>Body of {chapter.id}</p><Controls /></>}</Story>
   </MemoryRouter>);
 }
+const clickNext = () => fireEvent.click(screen.getByRole("button", { name: "go next" }));
+const clickBack = () => fireEvent.click(screen.getByRole("button", { name: "go back" }));
 
 afterEach(cleanup);
 
@@ -50,5 +62,40 @@ describe("Story shell", () => {
   it("releases the lock on unmount", () => {
     renderStory().unmount();
     expect(document.body.style.overflow).not.toBe("hidden");
+  });
+});
+
+describe("moving through the story", () => {
+  it("advances exactly one chapter", () => {
+    renderStory();
+    clickNext();
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+    expect(screen.queryByText("Body of one")).not.toBeInTheDocument();
+  });
+
+  it("goes back one chapter", () => {
+    renderStory("/minecraft/two");
+    clickBack();
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("stops at the first chapter", () => {
+    renderStory();
+    clickBack();
+    expect(screen.getByLabelText("Index")).toHaveTextContent("0");
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+
+  it("stops at the last chapter", () => {
+    renderStory("/minecraft/two");
+    clickNext();
+    expect(screen.getByLabelText("Index")).toHaveTextContent("1");
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+  });
+
+  it("moves the URL so browser history follows the story", () => {
+    renderStory();
+    clickNext();
+    expect(screen.getByRole("region", { name: "Chapter two" })).toBeInTheDocument();
   });
 });
