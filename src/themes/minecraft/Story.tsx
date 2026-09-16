@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CHAPTERS, type Chapter } from "./chapters";
 
@@ -20,6 +20,8 @@ const BACK_KEYS = ["ArrowUp", "ArrowLeft", "PageUp"];
 const EDITABLE = "input, textarea, select, [contenteditable='true']";
 /** Shortest vertical travel that reads as a deliberate swipe rather than a tap wobble. */
 const SWIPE = 55;
+/** Must match the mc-descend-* animations in story.css. */
+const DESCENT = 700;
 
 /** The chapter being told. Throws outside a Story so a mistake is loud, not silent. */
 export function useStory() {
@@ -41,11 +43,19 @@ export function Story({ chapters = CHAPTERS, children }: {
   const index = found === -1 ? 0 : found;
   const chapter = chapters[index];
 
+  // The chapter being left behind, held on screen for the length of the descent.
+  const [leaving, setLeaving] = useState<{ chapter: Chapter; back: boolean } | null>(null);
+  const moving = useRef(false);
+
   const go = useCallback((target: number) => {
     const clamped = Math.max(0, Math.min(chapters.length - 1, target));
-    if (chapters[clamped].path === path) return;
+    if (chapters[clamped].path === path || moving.current) return;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      moving.current = true;
+      setLeaving({ chapter: chapters[index], back: clamped < index });
+    }
     navigate(chapters[clamped].path);
-  }, [chapters, navigate, path]);
+  }, [chapters, index, navigate, path]);
   const next = useCallback(() => go(index + 1), [go, index]);
   const previous = useCallback(() => go(index - 1), [go, index]);
 
@@ -56,6 +66,12 @@ export function Story({ chapters = CHAPTERS, children }: {
   }, []);
 
   useEffect(() => { scene.current?.focus({ preventScroll: true }); }, [chapter.id]);
+
+  useEffect(() => {
+    if (!leaving) return;
+    const timer = window.setTimeout(() => { setLeaving(null); moving.current = false; }, DESCENT);
+    return () => { clearTimeout(timer); moving.current = false; };
+  }, [leaving]);
 
   // There is no scrollbar, so these are the only way a keyboard reaches the next
   // chapter. The wheel is deliberately absent: trackpad momentum overshoots.
@@ -104,7 +120,10 @@ export function Story({ chapters = CHAPTERS, children }: {
 
   return <StoryContext.Provider value={value}>
     <div className="mc-story">
-      <section ref={scene} key={chapter.id} className={`mc-chapter mc-chapter-${chapter.id}`} tabIndex={-1} aria-label={chapter.title}>
+      {leaving && <section key={leaving.chapter.id} className={`mc-chapter mc-chapter-${leaving.chapter.id}`} aria-hidden="true" data-leaving="" data-back={leaving.back ? "" : undefined} {...{ inert: "" }}>
+        {children(leaving.chapter)}
+      </section>}
+      <section ref={scene} key={chapter.id} className={`mc-chapter mc-chapter-${chapter.id}`} tabIndex={-1} aria-label={chapter.title} data-back={leaving?.back ? "" : undefined}>
         {children(chapter)}
       </section>
     </div>

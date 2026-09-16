@@ -1,5 +1,5 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it } from "vitest";
+import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import { Story, useStory } from "./Story";
 import type { Chapter } from "./chapters";
@@ -29,7 +29,11 @@ function renderStory(path = "/minecraft") {
 const clickNext = () => fireEvent.click(screen.getByRole("button", { name: "go next" }));
 const clickBack = () => fireEvent.click(screen.getByRole("button", { name: "go back" }));
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.useRealTimers(); vi.restoreAllMocks(); });
+const preferReducedMotion = () => {
+  const media = window.matchMedia;
+  vi.spyOn(window, "matchMedia").mockImplementation(query => ({ ...media(query), matches: query.includes("prefers-reduced-motion") }));
+};
 
 describe("Story shell", () => {
   it("renders only the current chapter", () => {
@@ -67,8 +71,10 @@ describe("Story shell", () => {
 
 describe("moving through the story", () => {
   it("advances exactly one chapter", () => {
+    vi.useFakeTimers();
     renderStory();
     clickNext();
+    act(() => vi.advanceTimersByTime(900));
     expect(screen.getByText("Body of two")).toBeInTheDocument();
     expect(screen.queryByText("Body of one")).not.toBeInTheDocument();
   });
@@ -173,5 +179,50 @@ describe("story controls", () => {
     fireEvent.touchStart(window, { touches: [{ clientX: 100, clientY: 400 }] });
     fireEvent.touchEnd(window, { changedTouches: [{ clientX: 100, clientY: 370 }] });
     expect(screen.getByText("Body of one")).toBeInTheDocument();
+  });
+});
+
+describe("the camera descent", () => {
+  it("holds both chapters while the camera moves, then drops the old one", () => {
+    vi.useFakeTimers();
+    renderStory();
+    clickNext();
+    expect(screen.getByText("Body of one")).toBeInTheDocument();
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(900));
+    expect(screen.queryByText("Body of one")).not.toBeInTheDocument();
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+  });
+
+  it("takes the leaving chapter out of reach while it is still on screen", () => {
+    vi.useFakeTimers();
+    renderStory();
+    clickNext();
+    expect(screen.getByText("Body of one").closest("section")).toHaveAttribute("inert");
+    expect(screen.getByText("Body of two").closest("section")).not.toHaveAttribute("inert");
+  });
+
+  it("marks the direction so the camera can rise instead of fall", () => {
+    vi.useFakeTimers();
+    renderStory("/minecraft/two");
+    clickBack();
+    expect(screen.getByText("Body of one").closest("section")).toHaveAttribute("data-back");
+  });
+
+  it("ignores a second advance while the camera is moving", () => {
+    vi.useFakeTimers();
+    renderStory();
+    clickNext();
+    fireEvent.keyDown(window, { key: "ArrowDown" });
+    act(() => vi.advanceTimersByTime(900));
+    expect(screen.getAllByLabelText("Index")[0]).toHaveTextContent("1");
+  });
+
+  it("arrives instantly when the visitor prefers reduced motion", () => {
+    preferReducedMotion();
+    renderStory();
+    clickNext();
+    expect(screen.getByText("Body of two")).toBeInTheDocument();
+    expect(screen.queryByText("Body of one")).not.toBeInTheDocument();
   });
 });

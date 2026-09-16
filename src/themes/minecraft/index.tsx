@@ -14,6 +14,7 @@ import "./descent.css";
 import "./layers.css";
 import "./dimensions.css";
 import "./exploration.css";
+import "./story.css";
 
 const home = "/minecraft";
 const layers = [
