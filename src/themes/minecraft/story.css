@@ -112,8 +112,14 @@
 .minecraft-root .mc-chapter .mc-credits { margin-top:calc(var(--scene) * 1.4); }
 
 /* Doors hang off the chapter rather than stacking under its content — they are a
-   side trip, and in the flow they push the chapter past the viewport. */
-.minecraft-root .mc-chapter .mc-track-nether { position:absolute; left:calc(var(--scene) * 2); bottom:calc(var(--scene) * 2); z-index:4; width:auto; max-width:min(38%,380px); margin:0; }
+   side trip, and in the flow they push the chapter past the viewport. Only the way
+   in survives; the pitch has nowhere to go on a fixed screen. */
+.minecraft-root .mc-chapter .mc-track-nether { position:absolute; left:calc(var(--scene) * 1.6); bottom:calc(var(--scene) * 1.4); z-index:4; display:block; width:auto; margin:0; padding:0; background:none; border:0; box-shadow:none; }
+.minecraft-root .mc-chapter .mc-track-nether>div:first-child { display:none; }
+.minecraft-root .mc-chapter .mc-track-nether-door { display:flex; flex-direction:column; align-items:center; gap:calc(var(--scene) * .5); width:calc(var(--scene) * 9); padding:calc(var(--scene) * .8) calc(var(--scene) * .7); background:#1b1226e8; border:2px solid #7b5ba3; box-shadow:0 5px #0e0817; text-align:center; }
+.minecraft-root .mc-chapter .mc-track-nether-door .mc-obsidian-portal { width:calc(var(--scene) * 5); }
+.minecraft-root .mc-chapter .mc-track-nether-door>span:not(.mc-obsidian-portal) { margin-top:0; font:calc(var(--scene) * 1.05) 'VT323',monospace; color:#e9d6ff; }
+.minecraft-root .mc-chapter .mc-track-nether-door small { font-size:calc(var(--scene) * .85); color:#b79ad2; }
 
 /* The hero paints its own full-bleed scene rather than sitting in a panel. */
 .minecraft-root .mc-chapter-hero .mc-chapter-body { width:100%; height:100%; }
@@ -141,9 +147,8 @@
   .minecraft-root .mc-chapter .mc-podium-block { min-height:calc(var(--scene) * 9); }
   .minecraft-root .mc-chapter .mc-podium-diamond .mc-podium-block { min-height:calc(var(--scene) * 11.5); }
   .minecraft-root .mc-chapter .mc-podium-gold .mc-podium-block { min-height:calc(var(--scene) * 8); }
-  /* The door stays out of the flow; there is no room for its pitch, only the way in. */
-  .minecraft-root .mc-chapter .mc-track-nether { left:calc(var(--scene) * 1); bottom:calc(var(--scene) * 1); max-width:48%; }
-  .minecraft-root .mc-chapter .mc-track-nether>div:first-child { display:none; }
+  .minecraft-root .mc-chapter .mc-track-nether { left:calc(var(--scene) * .8); bottom:calc(var(--scene) * .8); }
+  .minecraft-root .mc-chapter .mc-track-nether-door { width:calc(var(--scene) * 7.5); }
 }
 
 @media (prefers-reduced-motion:reduce) {
