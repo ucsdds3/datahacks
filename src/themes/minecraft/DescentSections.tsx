@@ -36,7 +36,7 @@ export function SculkFaq() {
         {selected===i && !reduce && <span className="mc-sculk-rings" key={pulse} aria-hidden="true">{[0,1,2].map(n=><motion.i key={n} initial={{scale:.5,opacity:.85}} animate={{scale:2.3,opacity:0}} transition={{duration:.85,delay:n*.13,ease:'easeOut'}} />)}</span>}</span>
         <span>{group.title}</span>
       </button>)}</div>
-      <a href="mailto:hello@ds3ucsd.com" className="mc-text-link">Still have a question? Talk to the organizers ↗</a>
+      <a href="mailto:info@ds3.club" className="mc-text-link">Still have a question? Talk to the organizers ↗</a>
     </div>
     <div className="mc-sculk-answer-stage">
       {groups.map((group,i)=><div key={group.title} id={`sculk-answer-${i}`} role="tabpanel" aria-labelledby={`sculk-topic-${i}`} hidden={selected!==i} className={`mc-sculk-answer-region ${selected===i?'is-active':''}`}><div className="mc-sculk-answer">{group.items.map(([q,a])=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}</div></div>)}

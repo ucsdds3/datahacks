@@ -291,7 +291,7 @@ const TeamSection = () => {
          >
            {/* Interested in mentoring or judging?{" "} */}
            We have hit our mentor & judge capacity.{" "}
-           <a href="mailto:ds3@ucsd.edu" className="text-accent hover:underline">
+           <a href="mailto:info@ds3.club" className="text-accent hover:underline">
              Contact us
            </a>
          </motion.p>

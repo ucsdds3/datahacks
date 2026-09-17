@@ -22,8 +22,8 @@ export function Sponsors() {
               Sponsorship keeps DataHacks free for every student who walks in. Three tiers, all
               open, all for the 2027 edition.
             </p>
-            <Pill href="mailto:sponsorship@ds3ucsd.com" tone="cream" size="md">
-              sponsorship@ds3ucsd.com
+            <Pill href="mailto:info@ds3.club" tone="cream" size="md">
+              info@ds3.club
             </Pill>
           </Reveal>
         </div>

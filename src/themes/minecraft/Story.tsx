@@ -8,7 +8,6 @@ type StoryValue = {
   total: number;
   /** Scroll to a chapter. Out-of-range values clamp to the ends. */
   go: (index: number) => void;
-  next: () => void;
 };
 const StoryContext = createContext<StoryValue | null>(null);
 
@@ -39,14 +38,14 @@ export function Story({ chapters = CHAPTERS, children }: {
     const target = sections.current[Math.max(0, Math.min(chapters.length - 1, index))];
     target?.scrollIntoView({ behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   }, [chapters.length]);
-  const next = useCallback(() => go(active + 1), [go, active]);
 
-  // A deep link lands on its chapter without animating there from the top.
+  // Deep links and subsequent navigation both land on the requested chapter.
   useEffect(() => {
-    if (landed.current || deepLink <= 0) { landed.current = true; return; }
+    const firstVisit = !landed.current;
     landed.current = true;
+    if (deepLink < 0 || (firstVisit && deepLink === 0)) return;
     sections.current[deepLink]?.scrollIntoView({ behavior: "auto" });
-  }, [deepLink]);
+  }, [deepLink, location.key]);
 
   // Whichever chapter owns the window owns the URL, so links and reloads stay honest.
   useEffect(() => {
@@ -58,13 +57,13 @@ export function Story({ chapters = CHAPTERS, children }: {
       setActive(index);
       const path = chapters[index]?.path;
       // replaceState rather than the router: scrolling should not stack history.
-      if (path && window.location.pathname !== path) window.history.replaceState(null, "", path);
+      if (path && window.location.pathname !== path) window.history.replaceState(window.history.state, "", path);
     }, { root: scroller.current, threshold: [.5, .75] });
     sections.current.forEach(section => section && observer.observe(section));
     return () => observer.disconnect();
   }, [chapters]);
 
-  const value = useMemo(() => ({ active, total: chapters.length, go, next }), [active, chapters.length, go, next]);
+  const value = useMemo(() => ({ active, total: chapters.length, go }), [active, chapters.length, go]);
 
   return <StoryContext.Provider value={value}>
     <div className="mc-story" ref={scroller}>

@@ -7,7 +7,7 @@ const SOCIALS = [
   ["Instagram", "https://instagram.com"],
   ["Discord", "https://discord.com"],
   ["LinkedIn", "https://linkedin.com"],
-  ["Email", "mailto:hello@ds3ucsd.com"],
+  ["Email", "mailto:info@ds3.club"],
 ];
 
 export function Footer() {
@@ -23,7 +23,7 @@ export function Footer() {
             <Pill href="#apply" tone="cream" size="lg">
               Apply to hack
             </Pill>
-            <Pill href="mailto:sponsorship@ds3ucsd.com" tone="cream" size="lg">
+            <Pill href="mailto:info@ds3.club" tone="cream" size="lg">
               Become a sponsor
             </Pill>
           </div>

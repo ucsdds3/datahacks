@@ -46,7 +46,7 @@ export default function Footer() {
               <a href="#top">Discord</a>
             </li>
             <li>
-              <a href="mailto:sponsorship@ds3ucsd.com">sponsorship@ds3ucsd.com</a>
+              <a href="mailto:info@ds3.club">info@ds3.club</a>
             </li>
           </ul>
         </div>

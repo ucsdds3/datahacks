@@ -4,10 +4,10 @@ import { Person } from "../art/Props";
 import { Rise } from "../motion";
 
 const STATS: Array<{ n: string; label: string; long?: boolean }> = [
-  { n: "XXX", label: "hackers" },
-  { n: "XXX", label: "projects shipped" },
-  { n: "$XX,XXX", label: "awarded", long: true },
-  { n: "XX", label: "schools" },
+  { n: "450", label: "attendees" },
+  { n: "36", label: "hours" },
+  { n: "$50,000", label: "in prizes", long: true },
+  { n: "100", label: "schools" },
 ];
 
 const CROWD: Array<{ left: string; shirt: Shade; variant: 0 | 1 | 2 }> = [
@@ -24,11 +24,11 @@ export default function Stats() {
       <div className="pop-wrap">
         <div className="pop-stats-head">
           <Rise>
-            <h2 className="pop-h2">last year, in numbers</h2>
+            <h2 className="pop-h2">DataHacks, in numbers</h2>
           </Rise>
           <Rise i={1}>
             <p className="pop-note">
-              Final counts land with applications. Until then, the placeholders stand in.
+              36 hours of building with students from 100 schools.
             </p>
           </Rise>
         </div>

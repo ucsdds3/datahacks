@@ -10,6 +10,7 @@ import { WorldLink, WorldTravel } from "./WorldTravel";
 import ApplicationPage from "./ApplicationPage";
 import { NetherEntrance } from "./Exploration";
 import { Story, useStory } from "./Story";
+import { SceneDepth } from "./SceneDepth";
 import { chapterIndexOf, type Chapter } from "./chapters";
 import "./minecraft.css";
 import "./descent.css";
@@ -17,6 +18,7 @@ import "./layers.css";
 import "./dimensions.css";
 import "./exploration.css";
 import "./story.css";
+import "./scene-depth.css";
 
 const home = "/minecraft";
 
@@ -50,10 +52,10 @@ function Hero() {
     <div className="mc-hero-image mc-hero-cherry-image" aria-hidden="true" /><div className="mc-hero-shade" aria-hidden="true" />
     <div className="mc-hero-content">
       <p className="mc-eyebrow mc-hero-eyebrow">DS3 PRESENTS · A NEW WORLD OF POSSIBILITIES</p>
-      <div className="mc-title-wrap"><h1 id="mc-title">DATA<span>HACKS</span></h1><span className="mc-edition">THE 2.0 UPDATE</span><span className="mc-splash">Dig a little deeper!</span></div>
+      <div className="mc-title-wrap"><h1 id="mc-title">DATA<span>HACKS</span></h1><span className="mc-edition">THE 2.0 UPDATE</span></div>
       <p className="mc-hero-tagline">Big ideas. Infinite possibilities. One world to build.</p>
       <p className="mc-hero-date">JANUARY 16–17, 2027 <span>✦</span> 36 HOURS <span>✦</span> IN PERSON</p>
-      <div className="mc-hero-actions"><WorldLink to={`${home}/apply`} kind="end" className="mc-button">Start your adventure <ArrowUpRight size={19} /></WorldLink><button type="button" className="mc-button mc-button-stone" onClick={next}>Dig a little deeper <ArrowDown size={17} /></button></div>
+      <div className="mc-hero-actions"><WorldLink to={`${home}/apply`} kind="end" className="mc-button">Start your adventure <ArrowUpRight size={19} /></WorldLink><button type="button" className="mc-button mc-button-stone" onClick={next}>About the event <ArrowDown size={17} /></button></div>
       <p className="mc-hero-note">All experience levels. No diamonds required.</p>
     </div>
     <div className="mc-hero-bottom"><span>BIOME: CHERRY GROVE<br />Y: +80 · THE SURFACE</span><span>SEED: 01162027<br />GAME MODE: COLLABORATIVE</span></div>
@@ -84,23 +86,14 @@ function HomePage() {
   return <Story>{(chapter, index) => <ChapterFrame chapter={chapter} index={index} />}</Story>;
 }
 
-/** Keep scrolling. Quiet, because the scroll itself is the instruction. */
-function ScrollCue() {
-  const { next } = useStory();
-  return <button type="button" className="mc-scroll-cue" onClick={next}>
-    <span>KEEP DIGGING</span><ArrowDown size={15} aria-hidden="true" />
-  </button>;
-}
-
 function ChapterFrame({ chapter, index }: { chapter: Chapter; index: number }) {
   const { total } = useStory();
   return <>
     {chapter.art && <img className="mc-chapter-art" src={chapter.art} width="1536" height="1024" alt="" decoding="async" loading={index > 1 ? "lazy" : undefined} />}
     {chapter.id !== "hero" && <ChapterLabel chapter={chapter} index={index} total={total} />}
     <div className="mc-chapter-body">{BODIES[chapter.id]}</div>
+    <SceneDepth chapter={chapter} />
     {DOORS[chapter.id]}
-    {/* The stronghold's End portal is its own way on; a second prompt just competes. */}
-    {index < total - 1 && chapter.id !== "stronghold" && <ScrollCue />}
     {chapter.id === "end" && <Credits />}
   </>;
 }
@@ -121,7 +114,7 @@ function Credits() {
   return <footer className="mc-credits" aria-label="DataHacks credits">
     <div><Link to={home} className="mc-brand">DATAHACKS 2.0</Link><p>January 16–17, 2027 · Organized by DS3</p></div>
     <nav aria-label="Footer navigation"><Link to={`${home}/about`}>About</Link><Link to={`${home}/tracks`}>Tracks</Link><WorldLink to={`${home}/mentors`} kind="trial">Mentors</WorldLink><WorldLink to={`${home}/schedule`} kind="portal">Run of show</WorldLink><Link to={`${home}/faq`}>FAQ</Link></nav>
-    <div className="mc-void-contact"><a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a><Link to={home}>Back to spawn ↑</Link><small>© 2027 DS3</small></div>
+    <div className="mc-void-contact"><a href="mailto:info@ds3.club">info@ds3.club</a><Link to={home}>Back to spawn ↑</Link><small>© 2027 DS3</small></div>
   </footer>;
 }
 
@@ -131,6 +124,6 @@ export default function Minecraft() {
   // Only the two doors are their own pages. Everything else is a story chapter, and
   // Story resolves which one from the pathname. The viewport lock rides on the
   // chapter routes alone — the doors are ordinary pages and scroll.
-  const locked = chapterIndexOf(location.pathname) !== -1;
+  const locked = location.pathname === "/" || chapterIndexOf(location.pathname) !== -1;
   return <div className={`minecraft-root mc-world-${page}${locked ? " mc-locked" : ""}`} id="top"><WorldTravel><a className="mc-skip" href="#mc-main">Skip to content</a><Navigation /><main id="mc-main"><Routes><Route path="schedule" element={<NetherPage />} /><Route path="mentors" element={<TrialChambersPage />} /><Route path="*" element={<HomePage />} /></Routes></main><PickaxeCursor /></WorldTravel></div>;
 }

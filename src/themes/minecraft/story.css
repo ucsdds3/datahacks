@@ -31,7 +31,7 @@
 /* A vignette so each chapter reads as its own space rather than a slab of texture.
    The hero is a composed scene already and only picks up a band from it. */
 .minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,transparent 44%,#080c1038 72%,#05080cb0 100%); }
-.minecraft-root .mc-chapter-hero { padding:0; }
+.minecraft-root .mc-chapter-hero { padding:0; height:100%; }
 .minecraft-root .mc-chapter-hero::after { content:none; }
 
 .minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
@@ -43,14 +43,6 @@
 .minecraft-root .mc-chapter-body { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(1120px,88%); min-height:0; }
 .minecraft-root .mc-chapter-body>* { width:100%; }
 
-/* Scroll cue. Sits under the content, out of the way; clicking it is a shortcut,
-   not the way through. */
-.minecraft-root .mc-scroll-cue { display:flex; flex-direction:column; align-items:center; gap:calc(var(--scene) * .4); margin-top:calc(var(--scene) * 1.6); padding:calc(var(--scene) * .6) calc(var(--scene) * 1.2); background:none; border:0; color:#cbd4c4; font:calc(var(--scene) * .85) 'Silkscreen',monospace; letter-spacing:2px; cursor:pointer; opacity:.62; transition:opacity .2s,transform .2s; }
-.minecraft-root .mc-scroll-cue:hover,
-.minecraft-root .mc-scroll-cue:focus-visible { opacity:1; transform:translateY(2px); }
-.minecraft-root .mc-scroll-cue svg { animation:mc-cue-bob 1.9s ease-in-out infinite; }
-@keyframes mc-cue-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(5px); } }
-@media (prefers-reduced-motion:reduce) { .minecraft-root .mc-scroll-cue svg { animation:none; } }
 .minecraft-root .mc-chapter .mc-layer-label { flex-shrink:0; width:min(1120px,88%); margin:0 0 calc(var(--scene) * .9); font-size:calc(var(--scene) * 1.1); }
 
 /* The framed panel the depth layers used to provide. */

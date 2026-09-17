@@ -3,10 +3,10 @@ import { Sparkle } from "../art/Doodles";
 import { DriftingDoodle, Reveal } from "../motion";
 
 const STATS = [
-  { value: "XXX", label: "hackers", note: "on the floor", colour: TOMATO },
-  { value: "XXX", label: "projects shipped", note: "in 36 hours", colour: MARIGOLD },
-  { value: "$XX,XXX", label: "awarded", note: "in prizes", colour: MINT },
-  { value: "XX", label: "schools", note: "represented", colour: PINK },
+  { value: "450", label: "attendees", note: "on the floor", colour: TOMATO },
+  { value: "36", label: "hours", note: "of building", colour: MARIGOLD },
+  { value: "$50,000", label: "in prizes", note: "across the event", colour: MINT },
+  { value: "100", label: "schools", note: "represented", colour: PINK },
 ];
 
 export function Stats() {
@@ -14,12 +14,11 @@ export function Stats() {
     <section className="g-stats" id="stats">
       <div className="g-wrap">
         <Reveal>
-          <p className="g-label g-stats__eyebrow">Last year, in numbers</p>
+          <p className="g-label g-stats__eyebrow">DataHacks, in numbers</p>
         </Reveal>
         <Reveal delay={0.06}>
           <p className="g-stats__note">
-            Final figures are still being counted. The shape of the weekend, though, is exactly
-            this.
+            36 hours of building with students from 100 schools.
           </p>
         </Reveal>
 

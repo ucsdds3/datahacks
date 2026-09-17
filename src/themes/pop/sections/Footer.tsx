@@ -49,8 +49,8 @@ export default function Footer() {
                 DS3 — Data Science Student Society. A student-run organisation. DataHacks 2.0 is
                 not affiliated with, or endorsed by, any university.
               </p>
-              <a className="pop-foot-mail" href="mailto:hello@ds3ucsd.com">
-                hello@ds3ucsd.com
+              <a className="pop-foot-mail" href="mailto:info@ds3.club">
+                info@ds3.club
               </a>
             </div>
           </Rise>

@@ -27,7 +27,7 @@
      },
      {
        question: "How much does it cost to participate?",
-       answer: "DataHacks is completely free! We provide meals, snacks, swag, and all the resources you need for 24 hours of hacking. For students traveling from outside San Diego, we also offer limited travel reimbursement. Apply for reimbursement in your registration.",
+       answer: "DataHacks is completely free! We provide meals, snacks, swag, and all the resources you need for 36 hours of hacking. For students traveling from outside San Diego, we also offer limited travel reimbursement. Apply for reimbursement in your registration.",
      },
      {
       question: "Is it overnight? Where do I sleep?",

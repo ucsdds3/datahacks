@@ -63,7 +63,7 @@ export default function TrialChambersPage() {
           </div>
           <div className="mc-form-actions"><button type="submit" className="mc-button">Review interest →</button></div>
         </form>}
-        <p className="mc-form-help">Questions? <a href="mailto:hello@ds3ucsd.com">Talk to the organizers ↗</a></p>
+        <p className="mc-form-help">Questions? <a href="mailto:info@ds3.club">Talk to the organizers ↗</a></p>
       </motion.div>
     </div>
   </div>;

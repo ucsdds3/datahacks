@@ -25,10 +25,9 @@ export function Prizes() {
         <div className="g-prizes__top">
           <Reveal className="g-prizes__intro">
             <p className="g-label">Prize pool</p>
-            <p className="g-prizes__pool">$XX,XXX</p>
+            <p className="g-prizes__pool">$50,000</p>
             <p className="g-prizes__copy">
-              The total pool is still being finalised with our sponsors. Splits below are the
-              shape it will take.
+              A $50,000 prize pool across the event. Individual award amounts will be announced soon.
             </p>
           </Reveal>
 

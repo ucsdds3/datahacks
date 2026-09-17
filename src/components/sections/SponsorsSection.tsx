@@ -275,7 +275,7 @@ const SponsorsSection = () => {
           className="text-lg text-center text-white/60 mt-12"
         >
           Interested in sponsoring?{" "}
-          <a href="mailto:ds3@ucsd.edu" className="text-accent hover:underline">
+          <a href="mailto:info@ds3.club" className="text-accent hover:underline">
             Contact us
           </a>
         </motion.p>

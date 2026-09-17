@@ -1,10 +1,10 @@
 import Reveal from "../Reveal";
 
 const STATS = [
-  { i: "01", n: "XXX", l: "Hackers" },
-  { i: "02", n: "XXX", l: "Projects shipped" },
-  { i: "03", n: "$XX,XXX", l: "Awarded" },
-  { i: "04", n: "XX", l: "Schools" },
+  { i: "01", n: "450", l: "Attendees" },
+  { i: "02", n: "36", l: "Hours" },
+  { i: "03", n: "$50,000", l: "In prizes" },
+  { i: "04", n: "100", l: "Schools" },
 ];
 
 export default function Stats() {
@@ -12,10 +12,10 @@ export default function Stats() {
     <Reveal className="press-stats">
       <div className="press-stats__head">
         <h2 className="press-serif-head press-serif-head--sm">
-          Last year, <em>in numbers.</em>
+          DataHacks, <em>in numbers.</em>
         </h2>
         <p className="press-stats__note">
-          Figures for the 2026 edition are being tallied. Set in place, awaiting the final count.
+          36 hours of building with students from 100 schools.
         </p>
       </div>
 

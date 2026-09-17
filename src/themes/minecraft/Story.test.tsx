@@ -1,23 +1,22 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { Link, MemoryRouter } from "react-router-dom";
 import { Story, useStory } from "./Story";
 import type { Chapter } from "./chapters";
 
 const fixture: Chapter[] = [
-  { id: "one", path: "/minecraft", name: "Surface", y: "+80", color: "#fff", art: null, title: "Chapter one",
-    exit: { kind: "dig", label: "Dig down", caption: "BELOW" } },
-  { id: "two", path: "/minecraft/two", name: "Stone", y: "+48", color: "#eee", art: null, title: "Chapter two",
-    exit: null },
-  { id: "three", path: "/minecraft/three", name: "Deepslate", y: "−28", color: "#ddd", art: null, title: "Chapter three",
-    exit: null },
+  { id: "one", path: "/minecraft", name: "Surface", y: "+80", color: "#fff", art: null, title: "Chapter one" },
+  { id: "two", path: "/minecraft/two", name: "Stone", y: "+48", color: "#eee", art: null, title: "Chapter two" },
+  { id: "three", path: "/minecraft/three", name: "Deepslate", y: "−28", color: "#ddd", art: null, title: "Chapter three" },
 ];
 
 function Controls() {
-  const { go, next, active, total } = useStory();
+  const { go, active, total } = useStory();
   return <>
-    <button onClick={next}>go next</button>
+    <button onClick={() => go(active + 1)}>go next</button>
     <button onClick={() => go(2)}>go last</button>
+    <Link to="/minecraft/two">Open second chapter</Link>
+    <Link to="/minecraft">Return home</Link>
     <button onClick={() => go(99)}>go past the end</button>
     <output aria-label="Active">{active}</output>
     <output aria-label="Total">{total}</output>
@@ -70,6 +69,14 @@ describe("Story scroller", () => {
     expect(scrolled).toHaveLength(1);
     expect(scrolled[0].target).toBe(sectionFor("two"));
     expect(scrolled[0].behavior).toBe("smooth");
+  });
+
+  it("follows navigation links after the initial page has loaded", () => {
+    renderStory();
+    fireEvent.click(screen.getByRole("link", { name: "Open second chapter" }));
+    expect(scrolled.at(-1)?.target).toBe(sectionFor("two"));
+    fireEvent.click(screen.getByRole("link", { name: "Return home" }));
+    expect(scrolled.at(-1)?.target).toBe(sectionFor("one"));
   });
 
   it("scrolls to an arbitrary chapter", () => {

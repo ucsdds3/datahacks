@@ -131,7 +131,7 @@ const PrizesSection = () => {
             Track Awards
           </div>
           <h2 className="mb-5 font-display text-4xl font-bold text-white md:text-5xl">
-            $25,000+ in Prizes
+            $50,000 in Prizes
           </h2>
           <p className="mx-auto max-w-3xl text-lg leading-relaxed text-white/80">
             Awards are given within each domain track, so every track has its own 1st, 2nd, and 3rd place winners.

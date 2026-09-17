@@ -26,7 +26,7 @@ export default function Sponsors() {
           <Manicule className="press-manicule" />
           <span>
             Sponsor inquiries →{" "}
-            <a href="mailto:sponsorship@ds3ucsd.com">sponsorship@ds3ucsd.com</a>
+            <a href="mailto:info@ds3.club">info@ds3.club</a>
           </span>
         </p>
       </div>

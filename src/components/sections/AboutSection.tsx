@@ -138,8 +138,8 @@ const AboutSection = () => {
             About DataHacks
           </h2>
           <p className="text-xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-            DataHacks 2026 is a hackathon bringing together 450+ students from
-            across the country for 36 hours of innovation, collaboration, and
+            DataHacks 2026 is a hackathon bringing together 450 students from
+            100 schools across the country for 36 hours of innovation, collaboration, and
             creativity. With hands-on workshops, industry & faculty mentors,
             exciting prizes, free food, and direct access to top companies and
             researchers, DataHacks is more than a competition: it's a launchpad

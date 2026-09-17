@@ -21,10 +21,9 @@ export default function Prizes() {
 
         <div className="press-prizes__pool">
           <span className="press-prizes__label">Total prize pool</span>
-          <span className="press-prizes__amount">$XX,XXX</span>
+          <span className="press-prizes__amount">$50,000</span>
           <span className="press-prizes__sub">
-            The pool is still being set. The figure above is a placeholder, held in type until
-            sponsors are confirmed.
+            A $50,000 prize pool across the event. Individual award amounts will be announced soon.
           </span>
         </div>
       </div>
