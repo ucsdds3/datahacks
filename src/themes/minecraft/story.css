@@ -1,40 +1,60 @@
-/* Story mode: one chapter fills the window, nothing scrolls, and the camera
-   descends between chapters. See docs/plans/2026-09-16-story-mode-navigation-design.md */
+/* The descent: the scroll is a camera falling down one continuous mine shaft.
+   See docs/plans/2026-09-16-story-mode-navigation-design.md */
 
-/* The window is the whole stage: nav on top, one chapter filling what is left.
+/* The window is the whole stage: nav on top, the shaft filling what is left.
    A flex column rather than a hard-coded nav height, so the shorter mobile nav
    needs no separate rule. */
 .minecraft-root.mc-locked { height:100dvh; overflow:hidden; }
 .minecraft-root.mc-locked .mc-shell { display:flex; flex-direction:column; height:100%; }
 .minecraft-root.mc-locked .mc-shell>.mc-nav { flex:none; }
-/* The story is one scroll container with mandatory snap points. A scroll or swipe
-   always lands on exactly one chapter, never between two — one page at a time, with
-   scrolling as the way through rather than a click. scroll-snap-stop:always is what
-   stops a hard flick from skipping three chapters. */
 .minecraft-root.mc-locked #mc-main { flex:1 1 auto; min-height:0; }
 .minecraft-root:not(.mc-locked) .mc-nav { position:sticky; top:0; z-index:30; }
-.minecraft-root .mc-story { position:relative; width:100%; height:100%; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory; scroll-behavior:smooth; background:#10161a; overscroll-behavior-y:contain; }
+
+/* The backdrop sits under the scroller rather than inside it, so one strip serves
+   every chapter and nothing has to be redrawn at a boundary. */
+.minecraft-root .mc-story-frame { position:relative; width:100%; height:100%; overflow:hidden; background:#05080c; --descent:0; --stage:100vh; }
+.minecraft-root .mc-story { position:relative; z-index:1; width:100%; height:100%; overflow-y:auto; overflow-x:hidden; scroll-behavior:smooth; overscroll-behavior-y:contain; }
 .minecraft-root .mc-story::-webkit-scrollbar { width:0; }
 .minecraft-root .mc-story { scrollbar-width:none; }
 
-.minecraft-root .mc-chapter { position:relative; isolation:isolate; min-height:100%; scroll-snap-align:start; scroll-snap-stop:always; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; background:#10161a; padding:calc(var(--scene) * 1.4) 0; }
+/* ---- The shaft ------------------------------------------------------------
+   Nine backdrops drawn to one brief — a flat, straight-on cave-wall cross section
+   — stacked into a single wall. The strip is shorter than the content is long, so
+   it travels slower than the text does and reads as the far side of the cavern. */
+.minecraft-root .mc-shaft { position:absolute; inset:0; z-index:0; overflow:hidden; }
+.minecraft-root .mc-shaft-strip { position:absolute; top:0; left:0; width:100%; will-change:transform; transform:translate3d(0,calc(var(--descent) * var(--stage) * var(--strip-travel) * -1),0); }
+.minecraft-root .mc-shaft-tile { display:block; width:100%; height:calc(var(--stage) * var(--tile-stages)); object-fit:cover; object-position:center; }
+/* The seam between two tiles reads as a stratum rather than a join. */
+.minecraft-root .mc-shaft-tile + .mc-shaft-tile { margin-top:-1px; }
+.minecraft-root .mc-shaft-strip::after { content:""; position:absolute; inset:0; pointer-events:none; background:repeating-linear-gradient(#05080c00 0,#05080c00 calc(var(--stage) * var(--tile-stages) - 70px),#05080ccc calc(var(--stage) * var(--tile-stages)),#05080c00 calc(var(--stage) * var(--tile-stages) + 70px)); }
+
+/* The light fails as you go down. One gradient does the whole arc: an open, lit
+   cave near the surface, then a closing pool of torchlight, then near-black. */
+.minecraft-root .mc-shaft-gloom { position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse calc(150% - var(--descent) * 92%) calc(130% - var(--descent) * 78%) at 50% 46%,#05080c00 0%,#05080c00 34%,#05080ccc 78%,#05080cf2 100%);
+  opacity:calc(.42 + var(--descent) * .58); }
+
+.minecraft-root .mc-chapter { position:relative; min-height:calc(var(--stage) * var(--chapter-stages)); view-timeline-name:--chapter; view-timeline-axis:block; }
 .minecraft-root .mc-chapter:focus { outline:none; }
-.minecraft-root .mc-chapter>* { position:relative; z-index:1; }
+/* Content is pinned while its stretch of wall goes by, so a beat holds still long
+   enough to read instead of sliding through. */
+.minecraft-root .mc-chapter-stage { position:sticky; top:0; height:var(--stage); display:flex; flex-direction:column; align-items:center; justify-content:center; padding:calc(var(--scene) * 1.4) 0; }
+.minecraft-root .mc-chapter-hero { min-height:var(--stage); }
+.minecraft-root .mc-chapter-hero .mc-chapter-stage { padding:0; }
 
-/* Each chapter's content settles as it comes into view. */
+/* The fade is timed off the chapter, not off the content, because the content is
+   sticky and barely moves — a view() timeline on it would read almost no progress.
+   Full strength lands where the chapter pins and leaves where it unpins, so no two
+   chapters are ever legible at once. */
 @media (prefers-reduced-motion:no-preference) {
-  .minecraft-root .mc-chapter-body,
-  .minecraft-root .mc-chapter>.mc-layer-label { animation:mc-chapter-settle linear both; animation-timeline:view(); animation-range:entry 12% cover 34%; }
+  .minecraft-root .mc-chapter-body { animation:mc-chapter-settle linear both; animation-timeline:--chapter; animation-range:cover; }
+  .minecraft-root .mc-chapter-hero .mc-chapter-body { animation:none; }
 }
-@keyframes mc-chapter-settle { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
-
-/* A vignette so each chapter reads as its own space rather than a slab of texture.
-   The hero is a composed scene already and only picks up a band from it. */
-.minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,transparent 44%,#080c1038 72%,#05080cb0 100%); }
-.minecraft-root .mc-chapter-hero { padding:0; height:100%; }
-.minecraft-root .mc-chapter-hero::after { content:none; }
-
-.minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
+@keyframes mc-chapter-settle {
+  0% { opacity:0; transform:translateY(34px); }
+  30%,70% { opacity:1; transform:none; }
+  100% { opacity:0; transform:translateY(-26px); }
+}
 
 /* One unit drives every size inside a scene, so art and type shrink together on a
    short window instead of one outgrowing the other. Sizes below are multiples of it,
@@ -43,7 +63,37 @@
 .minecraft-root .mc-chapter-body { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(1120px,88%); min-height:0; }
 .minecraft-root .mc-chapter-body>* { width:100%; }
 
-.minecraft-root .mc-chapter .mc-layer-label { flex-shrink:0; width:min(1120px,88%); margin:0 0 calc(var(--scene) * .9); font-size:calc(var(--scene) * 1.1); }
+/* ---- The depth meter -------------------------------------------------------
+   The game's own coordinate readout, doing the job the chapter labels used to: it
+   says how far you have come and, more to the point, what is still below you. */
+.minecraft-root .mc-depth-rail { position:absolute; z-index:2; left:0; top:0; bottom:0; width:190px; display:flex; flex-direction:column; justify-content:center; gap:14px; padding:0 0 0 26px; pointer-events:none;
+  background:linear-gradient(90deg,#05080cf0 0%,#05080cd8 52%,#05080c00 100%); }
+.minecraft-root .mc-depth-rail>* { pointer-events:auto; }
+.minecraft-root .mc-depth-read { display:flex; align-items:baseline; gap:8px; margin:0; font-family:'Silkscreen',monospace; }
+.minecraft-root .mc-depth-read span { font-size:11px; letter-spacing:2px; color:#6f7c85; }
+.minecraft-root .mc-depth-read b { font-size:23px; color:#f2dcc2; text-shadow:0 2px 0 #05080c,0 0 16px #05080c; font-variant-numeric:tabular-nums; }
+.minecraft-root .mc-depth-strata { list-style:none; margin:0; padding:0 0 0 1px; display:flex; flex-direction:column; gap:1px; border-left:2px solid #2b343b; }
+.minecraft-root .mc-depth-strata button { display:flex; align-items:center; gap:9px; width:100%; padding:5px 6px 5px 11px; background:none; border:0; cursor:pointer; text-align:left; font:12px 'VT323',monospace; letter-spacing:.6px; color:#69757d; transition:color .25s,transform .25s; }
+.minecraft-root .mc-depth-strata i { width:7px; height:7px; flex:none; opacity:.4; transition:opacity .25s,box-shadow .25s; }
+.minecraft-root .mc-depth-strata button:hover { color:#cbd4da; transform:translateX(3px); }
+.minecraft-root .mc-depth-strata button:hover i { opacity:1; }
+.minecraft-root .mc-depth-strata .is-level button { color:#f2dcc2; }
+.minecraft-root .mc-depth-strata .is-level i { opacity:1; box-shadow:0 0 9px currentColor; }
+.minecraft-root .mc-depth-floor { margin:0; padding-left:13px; font:11px 'VT323',monospace; letter-spacing:2.4px; color:#3d474e; }
+
+/* The rail owns the left edge, so chapter content centres in what is left of the
+   window. The padding rides on the stage rather than the scroller, or it would
+   inset the backdrops too and leave a strip of shaft beside the hero. */
+@media (min-width:1180px) {
+  .minecraft-root .mc-chapter-stage { padding-left:190px; }
+  .minecraft-root .mc-chapter-hero .mc-chapter-stage { padding-left:0; }
+}
+@media (max-width:1179px) {
+  .minecraft-root .mc-depth-rail { inset:auto auto 0 0; flex-direction:row; align-items:center; width:auto; padding:0 0 14px 18px; background:none; }
+  .minecraft-root .mc-depth-read b,.minecraft-root .mc-depth-read span { text-shadow:0 2px 4px #05080c,0 0 12px #05080c; }
+  .minecraft-root .mc-depth-strata,.minecraft-root .mc-depth-floor { display:none; }
+  .minecraft-root .mc-depth-read b { font-size:18px; }
+}
 
 /* The framed panel the depth layers used to provide. Chapters that compose against
    the backdrop instead of sitting on top of it opt out with .mc-scene-open. */
@@ -60,9 +110,8 @@
 /* ---- About: copy on the rock, numbers cut into the cave wall ----------------
    The backdrop carries the chapter, so it runs at full strength and the only
    darkening is a wedge under the text column. Nothing is boxed. */
-.minecraft-root .mc-chapter-about::after { background:linear-gradient(100deg,#05080cee 0%,#06090dd8 28%,#070b1075 52%,#05080c5c 76%,#05080c8c 100%); }
-.minecraft-root .mc-chapter-about .mc-chapter-body,
-.minecraft-root .mc-chapter-about .mc-layer-label { width:min(1340px,92%); }
+.minecraft-root .mc-chapter-about .mc-chapter-stage::before { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(100deg,#05080ce0 0%,#06090dc4 28%,#070b1055 52%,#05080c00 76%); }
+.minecraft-root .mc-chapter-about .mc-chapter-body { width:min(1340px,92%); }
 
 .minecraft-root .mc-about-scene { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); align-items:center; gap:calc(var(--scene) * 3); }
 
@@ -84,7 +133,7 @@
 
 @media (max-width:900px) {
   .minecraft-root .mc-about-scene { grid-template-columns:1fr; gap:calc(var(--scene) * 2.4); }
-  .minecraft-root .mc-chapter-about::after { background:linear-gradient(180deg,#05080cc4,#05080c80 52%,#05080cc4); }
+  .minecraft-root .mc-chapter-about .mc-chapter-stage::before { background:linear-gradient(180deg,#05080cc4,#05080c80 52%,#05080cc4); }
   .minecraft-root .mc-about-copy .mc-body:last-child { display:none; }
   .minecraft-root .mc-fact-scatter { grid-template-columns:1fr 1fr; gap:calc(var(--scene) * 1.3); }
   .minecraft-root .mc-fact-1,.minecraft-root .mc-fact-3 { margin-left:0; }
@@ -200,7 +249,13 @@
 /* Doors hang off the chapter rather than stacking under its content — they are a
    side trip, and in the flow they push the chapter past the viewport. Only the way
    in survives; the pitch has nowhere to go on a fixed screen. */
-.minecraft-root .mc-chapter .mc-track-nether { position:absolute; left:calc(var(--scene) * 1.6); bottom:calc(var(--scene) * 1.4); z-index:4; display:block; width:auto; margin:0; padding:0; background:none; border:0; box-shadow:none; }
+/* The trial door is absolutely placed for its own full-height page. In a chapter
+   there is no room under the copy for it to sit in, so it rejoins the flow. */
+.minecraft-root .mc-chapter .mc-trial-entrance { display:flex; flex-direction:column; align-items:center; gap:calc(var(--scene) * 1.6); }
+.minecraft-root .mc-chapter .mc-trial-door { position:static; transform:none; width:auto; height:auto; }
+
+/* Right-hand side: the depth rail owns the left edge. */
+.minecraft-root .mc-chapter .mc-track-nether { position:absolute; right:calc(var(--scene) * 1.6); bottom:calc(var(--scene) * 1.4); z-index:4; display:block; width:auto; margin:0; padding:0; background:none; border:0; box-shadow:none; }
 .minecraft-root .mc-chapter .mc-track-nether>div:first-child { display:none; }
 .minecraft-root .mc-chapter .mc-track-nether-door { display:flex; flex-direction:column; align-items:center; gap:calc(var(--scene) * .5); width:calc(var(--scene) * 9); padding:calc(var(--scene) * .8) calc(var(--scene) * .7); background:#1b1226e8; border:2px solid #7b5ba3; box-shadow:0 5px #0e0817; text-align:center; }
 .minecraft-root .mc-chapter .mc-track-nether-door .mc-obsidian-portal { width:calc(var(--scene) * 5); }

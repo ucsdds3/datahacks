@@ -41,10 +41,6 @@ function Navigation() {
 }
 
 
-function ChapterLabel({ chapter, index, total }: { chapter: Chapter; index: number; total: number }) {
-  return <div className="mc-layer-label mc-container"><span>Y {chapter.y}</span><i aria-hidden="true" style={{ background: chapter.color }} /><span>{chapter.name}</span><span className="mc-layer-number">{String(index + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}</span></div>;
-}
-
 function Hero() {
   const { go } = useStory();
   const next = () => go(1);
@@ -83,16 +79,15 @@ const DOORS: Record<string, ReactNode> = {
 };
 
 function HomePage() {
-  return <Story>{(chapter, index) => <ChapterFrame chapter={chapter} index={index} />}</Story>;
+  return <Story>{chapter => <ChapterFrame chapter={chapter} />}</Story>;
 }
 
-function ChapterFrame({ chapter, index }: { chapter: Chapter; index: number }) {
-  const { total } = useStory();
+/** The backdrop is now one continuous shaft owned by Story, and the depth rail
+ * replaces the per-chapter label, so a chapter is just its content. */
+function ChapterFrame({ chapter }: { chapter: Chapter }) {
   return <>
-    {chapter.art && <img className="mc-chapter-art" src={chapter.art} width="1536" height="1024" alt="" decoding="async" loading={index > 1 ? "lazy" : undefined} />}
-    {chapter.id !== "hero" && <ChapterLabel chapter={chapter} index={index} total={total} />}
     <div className="mc-chapter-body">{BODIES[chapter.id]}</div>
-    <SceneDepth chapter={chapter} />
+    {chapter.id === "hero" && <SceneDepth chapter={chapter} />}
     {DOORS[chapter.id]}
     {chapter.id === "end" && <Credits />}
   </>;
