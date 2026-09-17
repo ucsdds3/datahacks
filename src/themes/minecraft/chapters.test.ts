@@ -23,8 +23,11 @@ describe("chapter registry", () => {
     expect(CHAPTERS.map(c => c.path)).not.toContain("/minecraft/mentors");
   });
 
-  it("ends every chapter but the last with an exit affordance", () => {
-    CHAPTERS.slice(0, -1).forEach(c => expect(c.exit, c.id).not.toBeNull());
+  it("gives every chapter an exit affordance unless its content carries one", () => {
+    // The stronghold's End portal and the hero's own call to action are the way on.
+    const carriesItsOwn = ["hero", "stronghold", "end"];
+    CHAPTERS.filter(c => !carriesItsOwn.includes(c.id)).forEach(c => expect(c.exit, c.id).not.toBeNull());
+    expect(CHAPTERS.find(c => c.id === "stronghold")?.exit).toBeNull();
     expect(CHAPTERS.at(-1)?.exit).toBeNull();
   });
 

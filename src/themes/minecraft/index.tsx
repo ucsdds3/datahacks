@@ -10,8 +10,7 @@ import { WorldLink, WorldTravel } from "./WorldTravel";
 import ApplicationPage from "./ApplicationPage";
 import { NetherEntrance } from "./Exploration";
 import { Story, useStory } from "./Story";
-import { ChapterExit } from "./ChapterExit";
-import type { Chapter } from "./chapters";
+import { chapterIndexOf, type Chapter } from "./chapters";
 import "./minecraft.css";
 import "./descent.css";
 import "./layers.css";
@@ -45,7 +44,8 @@ function ChapterLabel({ chapter, index, total }: { chapter: Chapter; index: numb
 }
 
 function Hero() {
-  const { next } = useStory();
+  const { go } = useStory();
+  const next = () => go(1);
   return <div className="mc-hero mc-cherry-hero">
     <div className="mc-hero-image mc-hero-cherry-image" aria-hidden="true" /><div className="mc-hero-shade" aria-hidden="true" />
     <div className="mc-hero-content">
@@ -64,28 +64,43 @@ function Hero() {
 const BODIES: Record<string, ReactNode> = {
   hero: <Hero />,
   about: <About />,
-  tracks: <><Tracks /><NetherEntrance /></>,
+  tracks: <Tracks />,
   sponsors: <Sponsors />,
   speakers: <Speakers />,
   prizes: <Prizes />,
   trials: <TrialEntrance />,
   faq: <SculkFaq />,
   stronghold: <LavaApply />,
-  end: <><ApplicationPage /><Credits /></>,
+  end: <ApplicationPage />,
+};
+
+/** Side trips. They anchor to the chapter, not its content, so they never push the
+ * chapter past the viewport. */
+const DOORS: Record<string, ReactNode> = {
+  tracks: <NetherEntrance />,
 };
 
 function HomePage() {
-  return <Story>{chapter => <ChapterFrame chapter={chapter} />}</Story>;
+  return <Story>{(chapter, index) => <ChapterFrame chapter={chapter} index={index} />}</Story>;
 }
 
-function ChapterFrame({ chapter }: { chapter: Chapter }) {
-  const { index, total } = useStory();
+/** Keep scrolling. Quiet, because the scroll itself is the instruction. */
+function ScrollCue() {
+  const { next } = useStory();
+  return <button type="button" className="mc-scroll-cue" onClick={next}>
+    <span>KEEP DIGGING</span><ArrowDown size={15} aria-hidden="true" />
+  </button>;
+}
+
+function ChapterFrame({ chapter, index }: { chapter: Chapter; index: number }) {
+  const { total } = useStory();
   return <>
-    {chapter.art && <img className="mc-chapter-art" src={chapter.art} width="1536" height="1024" alt="" decoding="async" />}
+    {chapter.art && <img className="mc-chapter-art" src={chapter.art} width="1536" height="1024" alt="" decoding="async" loading={index > 1 ? "lazy" : undefined} />}
     {chapter.id !== "hero" && <ChapterLabel chapter={chapter} index={index} total={total} />}
     <div className="mc-chapter-body">{BODIES[chapter.id]}</div>
-    {/* The hero carries its own "Dig a little deeper" call to action. */}
-    {chapter.id !== "hero" && <ChapterExit />}
+    {DOORS[chapter.id]}
+    {index < total - 1 && <ScrollCue />}
+    {chapter.id === "end" && <Credits />}
   </>;
 }
 
@@ -102,17 +117,19 @@ function NetherPage() {
 /** The old footer. With no scroll there is nowhere to put it but the last chapter,
  * which suits the End-credits framing. */
 function Credits() {
-  return <div className="mc-credits" aria-label="DataHacks credits">
-    <div><Link to={home} className="mc-brand">DATAHACKS 2.0</Link><p>January 16–17, 2027 · Organized by DS3</p><p>Data Science Student Society</p></div>
-    <nav aria-label="Footer navigation"><Link to={`${home}/about`}>About</Link><Link to={`${home}/tracks`}>Tracks</Link><WorldLink to={`${home}/mentors`} kind="trial">Mentors & judges</WorldLink><WorldLink to={`${home}/schedule`} kind="portal">Run of show</WorldLink><Link to={`${home}/faq`}>FAQ</Link></nav>
+  return <footer className="mc-credits" aria-label="DataHacks credits">
+    <div><Link to={home} className="mc-brand">DATAHACKS 2.0</Link><p>January 16–17, 2027 · Organized by DS3</p></div>
+    <nav aria-label="Footer navigation"><Link to={`${home}/about`}>About</Link><Link to={`${home}/tracks`}>Tracks</Link><WorldLink to={`${home}/mentors`} kind="trial">Mentors</WorldLink><WorldLink to={`${home}/schedule`} kind="portal">Run of show</WorldLink><Link to={`${home}/faq`}>FAQ</Link></nav>
     <div className="mc-void-contact"><a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a><Link to={home}>Back to spawn ↑</Link><small>© 2027 DS3</small></div>
-  </div>;
+  </footer>;
 }
 
 export default function Minecraft() {
   const location = useLocation();
   const page = location.pathname.endsWith("schedule") ? "nether" : location.pathname.endsWith("apply") ? "application" : location.pathname.endsWith("mentors") ? "trial" : "overworld";
   // Only the two doors are their own pages. Everything else is a story chapter, and
-  // Story resolves which one from the pathname.
-  return <div className={`minecraft-root mc-world-${page}`} id="top"><WorldTravel><a className="mc-skip" href="#mc-main">Skip to content</a><Navigation /><main id="mc-main"><Routes><Route path="schedule" element={<NetherPage />} /><Route path="mentors" element={<TrialChambersPage />} /><Route path="*" element={<HomePage />} /></Routes></main><PickaxeCursor /></WorldTravel></div>;
+  // Story resolves which one from the pathname. The viewport lock rides on the
+  // chapter routes alone — the doors are ordinary pages and scroll.
+  const locked = chapterIndexOf(location.pathname) !== -1;
+  return <div className={`minecraft-root mc-world-${page}${locked ? " mc-locked" : ""}`} id="top"><WorldTravel><a className="mc-skip" href="#mc-main">Skip to content</a><Navigation /><main id="mc-main"><Routes><Route path="schedule" element={<NetherPage />} /><Route path="mentors" element={<TrialChambersPage />} /><Route path="*" element={<HomePage />} /></Routes></main><PickaxeCursor /></WorldTravel></div>;
 }

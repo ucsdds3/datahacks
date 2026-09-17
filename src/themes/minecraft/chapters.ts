@@ -56,9 +56,11 @@ export const CHAPTERS: Chapter[] = [
   { id: "faq", path: "/minecraft/faq", name: "Ancient city", y: "−44", color: "#8acbc4", art: `${relief}/06-faq.webp`,
     title: "Frequently asked questions",
     exit: { kind: "dig", label: "Tunnel toward the light", caption: "SOMETHING LIES BELOW" } },
+  // No exit affordance: the chapter's own End portal is the way through, and two
+  // portals side by side just asks which one is real.
   { id: "stronghold", path: "/minecraft/stronghold", name: "The stronghold", y: "−56", color: "#f0b175", art: `${relief}/07-stronghold.webp`,
     title: "The stronghold",
-    exit: { kind: "end", label: "Step through the portal", caption: "THE END IS RIGHT THERE" } },
+    exit: null },
   { id: "end", path: "/minecraft/apply", name: "The End", y: "—", color: "#d9d0a0", art: `${dimensions}/end-application.webp`,
     title: "Apply to DataHacks 2.0",
     exit: null },

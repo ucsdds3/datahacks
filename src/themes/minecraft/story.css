@@ -4,56 +4,55 @@
 /* The window is the whole stage: nav on top, one chapter filling what is left.
    A flex column rather than a hard-coded nav height, so the shorter mobile nav
    needs no separate rule. */
-.minecraft-root { height:100dvh; overflow:hidden; }
-.minecraft-root .mc-shell { display:flex; flex-direction:column; height:100%; }
-.minecraft-root .mc-shell>.mc-nav { flex:none; }
-.minecraft-root #mc-main { flex:1 1 auto; min-height:0; }
-.minecraft-root .mc-story { position:relative; width:100%; height:100%; overflow:hidden; background:#10161a; }
+.minecraft-root.mc-locked { height:100dvh; overflow:hidden; }
+.minecraft-root.mc-locked .mc-shell { display:flex; flex-direction:column; height:100%; }
+.minecraft-root.mc-locked .mc-shell>.mc-nav { flex:none; }
+/* The story is one scroll container with mandatory snap points. A scroll or swipe
+   always lands on exactly one chapter, never between two — one page at a time, with
+   scrolling as the way through rather than a click. scroll-snap-stop:always is what
+   stops a hard flick from skipping three chapters. */
+.minecraft-root.mc-locked #mc-main { flex:1 1 auto; min-height:0; }
+.minecraft-root:not(.mc-locked) .mc-nav { position:sticky; top:0; z-index:30; }
+.minecraft-root .mc-story { position:relative; width:100%; height:100%; overflow-y:auto; overflow-x:hidden; scroll-snap-type:y mandatory; scroll-behavior:smooth; background:#10161a; overscroll-behavior-y:contain; }
+.minecraft-root .mc-story::-webkit-scrollbar { width:0; }
+.minecraft-root .mc-story { scrollbar-width:none; }
 
-.minecraft-root .mc-chapter { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; animation:mc-descend-in .7s cubic-bezier(.65,0,.2,1) both; }
+.minecraft-root .mc-chapter { position:relative; isolation:isolate; min-height:100%; scroll-snap-align:start; scroll-snap-stop:always; display:flex; flex-direction:column; align-items:center; justify-content:center; overflow:hidden; background:#10161a; padding:calc(var(--scene) * 1.4) 0; }
 .minecraft-root .mc-chapter:focus { outline:none; }
-.minecraft-root .mc-chapter[data-leaving] { z-index:2; animation:mc-descend-out .7s cubic-bezier(.65,0,.2,1) both; }
-.minecraft-root .mc-chapter[data-back] { animation:mc-rise-in .7s cubic-bezier(.65,0,.2,1) both; }
-.minecraft-root .mc-chapter[data-leaving][data-back] { animation:mc-rise-out .7s cubic-bezier(.65,0,.2,1) both; }
+.minecraft-root .mc-chapter>* { position:relative; z-index:1; }
 
-/* Descending: the new chapter comes up from below out of the dark. */
-@keyframes mc-descend-in { from { transform:translateY(16%); filter:brightness(.2); } to { transform:none; filter:none; } }
-@keyframes mc-descend-out { from { transform:none; filter:none; } to { transform:translateY(-13%); filter:brightness(.1); } }
-/* Climbing back: the same move, mirrored. */
-@keyframes mc-rise-in { from { transform:translateY(-16%); filter:brightness(.2); } to { transform:none; filter:none; } }
-@keyframes mc-rise-out { from { transform:none; filter:none; } to { transform:translateY(13%); filter:brightness(.1); } }
+/* Each chapter's content settles as it comes into view. */
+@media (prefers-reduced-motion:no-preference) {
+  .minecraft-root .mc-chapter-body,
+  .minecraft-root .mc-chapter>.mc-layer-label { animation:mc-chapter-settle linear both; animation-timeline:view(); animation-range:entry 12% cover 34%; }
+}
+@keyframes mc-chapter-settle { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
 
-/* Rock dust kicked loose by the camera move. */
-.minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:5; pointer-events:none; background:linear-gradient(180deg,#0a0f12 0%,transparent 22%,transparent 78%,#0a0f12 100%); opacity:0; animation:mc-descend-dust .7s ease-out both; }
-@keyframes mc-descend-dust { 0% { opacity:.85; } 100% { opacity:0; } }
+/* A vignette so each chapter reads as its own space rather than a slab of texture. */
+.minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,transparent 38%,#080c1044 68%,#05080ccc 100%); }
 
-.minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:-1; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
+.minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
 
 /* One unit drives every size inside a scene, so art and type shrink together on a
    short window instead of one outgrowing the other. Sizes below are multiples of it,
    replacing the fixed pixel values those rules carried for the scrolling page. */
 .minecraft-root .mc-chapter { --scene:clamp(9px,min(1.5vh,1.1vw),15px); }
-.minecraft-root .mc-chapter-body { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(1120px,88%); max-height:100%; min-height:0; }
+.minecraft-root .mc-chapter-body { display:flex; flex-direction:column; align-items:center; justify-content:center; width:min(1120px,88%); min-height:0; }
 .minecraft-root .mc-chapter-body>* { width:100%; }
+
+/* Scroll cue. Sits under the content, out of the way; clicking it is a shortcut,
+   not the way through. */
+.minecraft-root .mc-scroll-cue { display:flex; flex-direction:column; align-items:center; gap:calc(var(--scene) * .4); margin-top:calc(var(--scene) * 1.6); padding:calc(var(--scene) * .6) calc(var(--scene) * 1.2); background:none; border:0; color:#cbd4c4; font:calc(var(--scene) * .85) 'Silkscreen',monospace; letter-spacing:2px; cursor:pointer; opacity:.62; transition:opacity .2s,transform .2s; }
+.minecraft-root .mc-scroll-cue:hover,
+.minecraft-root .mc-scroll-cue:focus-visible { opacity:1; transform:translateY(2px); }
+.minecraft-root .mc-scroll-cue svg { animation:mc-cue-bob 1.9s ease-in-out infinite; }
+@keyframes mc-cue-bob { 0%,100% { transform:translateY(0); } 50% { transform:translateY(5px); } }
+@media (prefers-reduced-motion:reduce) { .minecraft-root .mc-scroll-cue svg { animation:none; } }
 .minecraft-root .mc-chapter .mc-layer-label { flex-shrink:0; width:min(1120px,88%); margin:0 0 calc(var(--scene) * .9); font-size:calc(var(--scene) * 1.1); }
 
 /* The framed panel the depth layers used to provide. */
 .minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 2.2) calc(var(--scene) * 2.4); background:#171d24f2; border:2px solid #717b82; box-shadow:inset 0 3px #ffffff13,0 6px #101318; }
 .minecraft-root .mc-chapter .mc-section .mc-container { width:100%; max-width:none; }
-/* The encounter art is a fixed 235x230 block of absolutely-positioned pixels, so it
-   cannot be re-expressed in --scene without unpicking the composition. Zoom shrinks
-   the whole thing, layout box included, in one number. */
-.minecraft-root .mc-chapter { --exit-k:1; }
-@media (max-height:900px) { .minecraft-root .mc-chapter { --exit-k:.78; } }
-@media (max-height:780px) { .minecraft-root .mc-chapter { --exit-k:.62; } }
-@media (max-height:660px) { .minecraft-root .mc-chapter { --exit-k:.5; } }
-.minecraft-root .mc-chapter .mc-encounter { flex-shrink:0; min-height:0; width:auto; margin:calc(var(--scene) * .7) 0 0 auto; padding:0; gap:calc(var(--scene) * 1.8); }
-.minecraft-root .mc-chapter .mc-encounter-scene { zoom:var(--exit-k); }
-.minecraft-root .mc-chapter .mc-encounter-label small { font-size:calc(var(--scene) * .95); }
-.minecraft-root .mc-chapter .mc-encounter-label strong { font-size:calc(var(--scene) * 1.8); gap:calc(var(--scene) * 1.1); }
-.minecraft-root .mc-chapter .mc-encounter-label>span { font-size:calc(var(--scene) * .95); }
-.minecraft-root .mc-chapter .mc-encounter-label { gap:calc(var(--scene) * .6); }
-
 /* Shared type and rhythm. */
 .minecraft-root .mc-chapter h2 { font-size:clamp(21px,3.5vh,38px); margin:0 0 calc(var(--scene) * 1.2); }
 .minecraft-root .mc-chapter .mc-section-head { gap:calc(var(--scene) * 3); margin-bottom:calc(var(--scene) * 1.8); }
@@ -88,28 +87,84 @@
 .minecraft-root .mc-chapter .mc-prize-icon { height:calc(var(--scene) * 4.5); }
 .minecraft-root .mc-chapter .mc-podium-diamond .mc-prize-icon { height:calc(var(--scene) * 5.5); }
 
-/* Ancient city: four sensors and an answer stage that has to hold the tallest group. */
-.minecraft-root .mc-chapter .mc-sculk-controls { gap:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1.6) 0 calc(var(--scene) * 1.2); }
-.minecraft-root .mc-chapter .mc-sculk-control { padding:calc(var(--scene) * 1) calc(var(--scene) * .4) calc(var(--scene) * 1.3); }
+/* Ancient city: sensors down the left, the tuned-in answer filling the right, so the
+   panel is never mostly empty. */
+.minecraft-root .mc-sculk-grid { display:grid; grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr); gap:calc(var(--scene) * 2.4); align-items:stretch; }
+.minecraft-root .mc-sculk-side { display:flex; flex-direction:column; min-width:0; }
+.minecraft-root .mc-chapter .mc-sculk-controls { display:flex; flex-direction:column; gap:calc(var(--scene) * .6); margin:calc(var(--scene) * 1.2) 0; }
+.minecraft-root .mc-chapter .mc-sculk-control { display:flex; align-items:center; gap:calc(var(--scene) * 1); padding:calc(var(--scene) * .7) calc(var(--scene) * .9); text-align:left; }
+.minecraft-root .mc-chapter .mc-sculk-control.is-selected { box-shadow:0 5px #071117,inset 3px 0 #a3e5d7; }
 .minecraft-root .mc-chapter .mc-sculk-object,
-.minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 5); height:calc(var(--scene) * 5); }
-.minecraft-root .mc-chapter .mc-sculk-object { margin-bottom:calc(var(--scene) * .9); }
-.minecraft-root .mc-chapter .mc-sculk-control>span:last-of-type { font-size:calc(var(--scene) * 1); }
-.minecraft-root .mc-chapter .mc-sculk-control small { font-size:calc(var(--scene) * .85); margin-top:calc(var(--scene) * .3); }
-.minecraft-root .mc-chapter .mc-sculk-awaiting { min-height:calc(var(--scene) * 7); font-size:calc(var(--scene) * 1.1); }
-.minecraft-root .mc-chapter .mc-sculk-answer { padding:calc(var(--scene) * 1.4) calc(var(--scene) * 1.7); }
-.minecraft-root .mc-chapter .mc-sculk-answer>div+div { margin-top:calc(var(--scene) * 1); padding-top:calc(var(--scene) * 1); }
-.minecraft-root .mc-chapter .mc-sculk-answer h3 { font-size:calc(var(--scene) * 1.15); margin:0 0 calc(var(--scene) * .6); }
-.minecraft-root .mc-chapter .mc-sculk-answer p { font-size:calc(var(--scene) * 1.05); line-height:1.65; }
+.minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 2.9); height:calc(var(--scene) * 2.9); }
+.minecraft-root .mc-chapter .mc-sculk-object { margin:0; flex-shrink:0; }
+.minecraft-root .mc-chapter .mc-sculk-control>span:last-of-type { font-size:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-sculk-answer-stage { display:block; margin:0; }
+.minecraft-root .mc-chapter .mc-sculk-answer-region { grid-area:auto; height:100%; visibility:visible; pointer-events:auto; opacity:1; }
+.minecraft-root .mc-chapter .mc-sculk-answer { height:100%; padding:calc(var(--scene) * 1.5) calc(var(--scene) * 1.8); }
+.minecraft-root .mc-chapter .mc-sculk-answer>div+div { margin-top:calc(var(--scene) * 1.2); padding-top:calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-sculk-answer h3 { font-size:calc(var(--scene) * 1.2); margin:0 0 calc(var(--scene) * .6); }
+.minecraft-root .mc-chapter .mc-sculk-answer p { font-size:calc(var(--scene) * 1.05); line-height:1.7; }
+.minecraft-root .mc-chapter .mc-sculk-side .mc-text-link { margin-top:auto; font-size:calc(var(--scene) * 1); }
 
 /* Stronghold: the End portal is the largest single asset on the spine. */
 .minecraft-root .mc-chapter .mc-lava-apply p { font-size:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1) auto; }
 .minecraft-root .mc-chapter .mc-application-portal { margin-top:calc(var(--scene) * 1.4); gap:calc(var(--scene) * 1.2); }
 .minecraft-root .mc-chapter .mc-application-portal img { width:calc(var(--scene) * 12); height:calc(var(--scene) * 12); }
 
-/* The End: the application page was sized to fill a scrolling route of its own. */
-.minecraft-root .mc-chapter .mc-application-page { min-height:0; padding:0; background:none; }
-.minecraft-root .mc-chapter .mc-credits { margin-top:calc(var(--scene) * 1.4); }
+/* The End: the application page was sized to fill a scrolling route of its own, so
+   every fixed size in it has to come back to --scene. */
+.minecraft-root .mc-chapter-end .mc-chapter-body { width:min(1240px,94%); height:100%; justify-content:flex-start; padding-top:calc(var(--scene) * .6); }
+.minecraft-root .mc-chapter .mc-application-page { min-height:0; height:100%; padding:0; background:none; overflow:hidden; }
+.minecraft-root .mc-chapter .mc-application-page>.mc-dimension-art { display:none; }
+.minecraft-root .mc-chapter .mc-application-layout { width:100%; height:100%; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:calc(var(--scene) * 2.4); align-content:start; }
+
+.minecraft-root .mc-chapter .mc-application-intro { display:flex; flex-direction:column; padding-top:0; min-width:0; }
+.minecraft-root .mc-chapter .mc-application-intro h1 { font-size:clamp(20px,3.4vh,34px); margin:calc(var(--scene) * .5) 0; }
+.minecraft-root .mc-chapter .mc-application-intro>p:not(.mc-eyebrow) { font-size:calc(var(--scene) * 1.1); margin:0 0 calc(var(--scene) * .7); }
+/* Says the same thing as the heading directly above it. */
+.minecraft-root .mc-chapter .mc-end-caption { display:none; }
+.minecraft-root .mc-chapter .mc-application-intro dl { margin:auto 0 0; }
+.minecraft-root .mc-chapter .mc-application-intro dl>div { padding:calc(var(--scene) * .7) 0; gap:calc(var(--scene) * 1); font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-application-intro dt { font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-dimension-back { font-size:calc(var(--scene) * 1); }
+
+.minecraft-root .mc-chapter .mc-application-form { display:flex; flex-direction:column; min-height:0; padding:calc(var(--scene) * 1.5) calc(var(--scene) * 1.8); }
+.minecraft-root .mc-chapter .mc-application-preview-label { font-size:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-form-disclaimer { font-size:calc(var(--scene) * .9); line-height:1.6; margin:calc(var(--scene) * .5) 0 calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-application-steps { padding-bottom:calc(var(--scene) * 1); margin-bottom:calc(var(--scene) * 1.1); gap:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-application-steps li>span { width:calc(var(--scene) * 1.9); height:calc(var(--scene) * 1.9); font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-application-steps b { font-size:calc(var(--scene) * .88); }
+.minecraft-root .mc-chapter .mc-application-form h2 { font-size:calc(var(--scene) * 2); margin-bottom:calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter .mc-form-fields { gap:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-form-fields label,
+.minecraft-root .mc-chapter .mc-form-fields legend { font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-form-fields input,
+.minecraft-root .mc-chapter .mc-form-fields textarea { margin-top:calc(var(--scene) * .5); font-size:calc(var(--scene) * 1.05); }
+.minecraft-root .mc-chapter .mc-form-fields input { height:calc(var(--scene) * 3.1); }
+.minecraft-root .mc-chapter .mc-form-fields textarea { min-height:calc(var(--scene) * 5.5); }
+.minecraft-root .mc-chapter .mc-form-fields input::placeholder,
+.minecraft-root .mc-chapter .mc-form-fields textarea::placeholder { font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-radio-option { padding:calc(var(--scene) * .7); gap:calc(var(--scene) * .8); font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-chapter .mc-form-actions { margin-top:auto; padding-top:calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-form-actions>.mc-button { min-height:calc(var(--scene) * 3.2); font-size:calc(var(--scene) * 1); padding:calc(var(--scene) * .7) calc(var(--scene) * 1.1); }
+.minecraft-root .mc-chapter .mc-application-review>div { padding:calc(var(--scene) * .7) 0; }
+.minecraft-root .mc-chapter .mc-application-review dd { font-size:calc(var(--scene) * 1.05); }
+.minecraft-root .mc-chapter .mc-form-help { font-size:calc(var(--scene) * .9); margin:calc(var(--scene) * .8) 0 0; }
+.minecraft-root .mc-chapter .mc-preview-complete { padding:calc(var(--scene) * 1.5) 0; }
+.minecraft-root .mc-chapter .mc-preview-complete>.mc-button { margin:calc(var(--scene) * 1.4) auto; }
+
+/* Credits: one quiet strip across the foot of the last chapter, not a stacked block. */
+.minecraft-root .mc-credits { position:absolute; left:0; right:0; bottom:0; z-index:3; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--scene) * .6) calc(var(--scene) * 2); padding:calc(var(--scene) * .7) calc(var(--scene) * 2); background:#0b0f16e0; border-top:1px solid #3b4455; font-size:calc(var(--scene) * .9); color:#aab3c2; }
+.minecraft-root .mc-credits>div { display:flex; align-items:center; gap:calc(var(--scene) * 1); }
+.minecraft-root .mc-credits .mc-brand { font-size:calc(var(--scene) * 1); }
+.minecraft-root .mc-credits p,
+.minecraft-root .mc-credits small { margin:0; font-size:calc(var(--scene) * .85); }
+.minecraft-root .mc-credits nav { display:flex; flex-wrap:wrap; gap:calc(var(--scene) * 1.2); }
+.minecraft-root .mc-credits a { color:#c4cbd7; }
+.minecraft-root .mc-credits a:hover { color:#eaf0f7; }
+.minecraft-root .mc-credits .mc-void-contact { display:flex; align-items:center; gap:calc(var(--scene) * 1.2); }
+/* The strip sits over the foot of the chapter, so the form stops above it. */
+.minecraft-root .mc-chapter-end .mc-chapter-body { padding-bottom:calc(var(--scene) * 3.4); }
 
 /* Doors hang off the chapter rather than stacking under its content — they are a
    side trip, and in the flow they push the chapter past the viewport. Only the way
@@ -120,6 +175,12 @@
 .minecraft-root .mc-chapter .mc-track-nether-door .mc-obsidian-portal { width:calc(var(--scene) * 5); }
 .minecraft-root .mc-chapter .mc-track-nether-door>span:not(.mc-obsidian-portal) { margin-top:0; font:calc(var(--scene) * 1.05) 'VT323',monospace; color:#e9d6ff; }
 .minecraft-root .mc-chapter .mc-track-nether-door small { font-size:calc(var(--scene) * .85); color:#b79ad2; }
+
+/* The splash text gets an enchanted-gold glow, pulsing with the existing bob. */
+.minecraft-root .mc-splash { color:#fff3ad; text-shadow:0 0 5px #ffd75e,0 0 16px #ffc93c,0 0 34px #f9ac2ecc,0 0 60px #f0951eaa,2px 2px #4a3a12; }
+.minecraft-root .mc-splash::before { content:""; position:absolute; inset:-80% -42%; z-index:-1; background:radial-gradient(ellipse,#ffdc7acc,#ffc44d88 34%,#f9a92e3d 56%,transparent 76%); pointer-events:none; animation:mc-splash-halo 2.5s ease-in-out infinite; }
+@keyframes mc-splash-halo { 0%,100% { opacity:.85; transform:scale(1); } 50% { opacity:1; transform:scale(1.12); } }
+@media (prefers-reduced-motion:reduce) { .minecraft-root .mc-splash::before { animation:none; } }
 
 /* The hero paints its own full-bleed scene rather than sitting in a panel. */
 .minecraft-root .mc-chapter-hero .mc-chapter-body { width:100%; height:100%; }
@@ -141,9 +202,12 @@
   .minecraft-root .mc-chapter .mc-sponsor-slot,
   .minecraft-root .mc-chapter .mc-sponsor-tier:first-child .mc-sponsor-slot { min-height:calc(var(--scene) * 3.6); }
   .minecraft-root .mc-chapter .mc-sponsor-slot small { display:none; }
-  .minecraft-root .mc-chapter .mc-sculk-controls { grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--scene) * .7); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * .8); }
+  .minecraft-root .mc-sculk-grid { grid-template-columns:1fr; gap:calc(var(--scene) * 1); }
+  .minecraft-root .mc-chapter .mc-sculk-controls { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--scene) * .5); margin:calc(var(--scene) * .8) 0; }
+  .minecraft-root .mc-chapter .mc-sculk-control { padding:calc(var(--scene) * .5) calc(var(--scene) * .6); gap:calc(var(--scene) * .6); }
   .minecraft-root .mc-chapter .mc-sculk-object,
-  .minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 3.2); height:calc(var(--scene) * 3.2); }
+  .minecraft-root .mc-chapter .mc-sculk-object img { width:calc(var(--scene) * 2.2); height:calc(var(--scene) * 2.2); }
+  .minecraft-root .mc-chapter .mc-sculk-side .mc-text-link { display:none; }
   .minecraft-root .mc-chapter .mc-podium-block { min-height:calc(var(--scene) * 9); }
   .minecraft-root .mc-chapter .mc-podium-diamond .mc-podium-block { min-height:calc(var(--scene) * 11.5); }
   .minecraft-root .mc-chapter .mc-podium-gold .mc-podium-block { min-height:calc(var(--scene) * 8); }

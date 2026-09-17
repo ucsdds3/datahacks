@@ -24,22 +24,23 @@ const groups = [
 ];
 
 export function SculkFaq() {
-  const [selected,setSelected] = useState<number | null>(null);
+  // A sensor is always tuned in. Starting empty left a dead box where the answers go.
+  const [selected,setSelected] = useState(0);
   const [pulse,setPulse] = useState(0);
   const reduce = useReducedMotion();
-  return <section className="mc-section mc-sculk-faq" id="faq"><div className="mc-container">
-    <p className="mc-eyebrow">07 / THE DEEP DARK</p><h2>A little signal.<br /><em>A few answers.</em></h2>
-    <p className="mc-body">Choose a sensor to explore the survival guide.</p>
-    <div className="mc-sculk-controls" role="group" aria-label="FAQ topics">{groups.map((group,i) => <button type="button" key={group.title} id={`sculk-topic-${i}`} className={`mc-sculk-control ${selected===i?'is-selected':''}`} aria-expanded={selected===i} aria-controls={`sculk-answer-${i}`} onClick={()=>{setSelected(selected===i ? null : i);setPulse(v=>v+1);}} data-mineable>
-      <span className="mc-sculk-object"><img src={`/images/minecraft/layers/${group.sprite}.png`} alt="" width="128" height="128" loading="lazy" />
-      {selected===i && !reduce && <span className="mc-sculk-rings" key={pulse} aria-hidden="true">{[0,1,2].map(n=><motion.i key={n} initial={{scale:.5,opacity:.85}} animate={{scale:2.3,opacity:0}} transition={{duration:.85,delay:n*.13,ease:'easeOut'}} />)}</span>}</span>
-      <span>{group.title}</span><small>{selected===i?'Close answers ↑':'Reveal answers ↓'}</small>
-    </button>)}</div>
-    <div className="mc-sculk-answer-stage">
-      <p className={`mc-sculk-awaiting ${selected===null?'is-active':''}`} aria-hidden={selected!==null}>Tune into a signal above.</p>
-      {groups.map((group,i)=><div key={group.title} id={`sculk-answer-${i}`} role="region" aria-labelledby={`sculk-topic-${i}`} aria-hidden={selected!==i} className={`mc-sculk-answer-region ${selected===i?'is-active':''}`}><div className="mc-sculk-answer">{group.items.map(([q,a])=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}</div></div>)}
+  return <section className="mc-section mc-sculk-faq" id="faq"><div className="mc-container mc-sculk-grid">
+    <div className="mc-sculk-side">
+      <p className="mc-eyebrow">07 / THE DEEP DARK</p><h2>A little signal.<br /><em>A few answers.</em></h2>
+      <div className="mc-sculk-controls" role="tablist" aria-label="FAQ topics" aria-orientation="vertical">{groups.map((group,i) => <button type="button" role="tab" key={group.title} id={`sculk-topic-${i}`} className={`mc-sculk-control ${selected===i?'is-selected':''}`} aria-selected={selected===i} aria-controls={`sculk-answer-${i}`} onClick={()=>{setSelected(i);setPulse(v=>v+1);}} data-mineable>
+        <span className="mc-sculk-object"><img src={`/images/minecraft/layers/${group.sprite}.png`} alt="" width="128" height="128" loading="lazy" />
+        {selected===i && !reduce && <span className="mc-sculk-rings" key={pulse} aria-hidden="true">{[0,1,2].map(n=><motion.i key={n} initial={{scale:.5,opacity:.85}} animate={{scale:2.3,opacity:0}} transition={{duration:.85,delay:n*.13,ease:'easeOut'}} />)}</span>}</span>
+        <span>{group.title}</span>
+      </button>)}</div>
+      <a href="mailto:hello@ds3ucsd.com" className="mc-text-link">Still have a question? Talk to the organizers ↗</a>
     </div>
-    <a href="mailto:hello@ds3ucsd.com" className="mc-text-link">Still have a question? Talk to the organizers ↗</a>
+    <div className="mc-sculk-answer-stage">
+      {groups.map((group,i)=><div key={group.title} id={`sculk-answer-${i}`} role="tabpanel" aria-labelledby={`sculk-topic-${i}`} hidden={selected!==i} className={`mc-sculk-answer-region ${selected===i?'is-active':''}`}><div className="mc-sculk-answer">{group.items.map(([q,a])=><div key={q}><h3>{q}</h3><p>{a}</p></div>)}</div></div>)}
+    </div>
   </div></section>;
 }
 
