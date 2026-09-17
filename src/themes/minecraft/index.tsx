@@ -99,7 +99,8 @@ function ChapterFrame({ chapter, index }: { chapter: Chapter; index: number }) {
     {chapter.id !== "hero" && <ChapterLabel chapter={chapter} index={index} total={total} />}
     <div className="mc-chapter-body">{BODIES[chapter.id]}</div>
     {DOORS[chapter.id]}
-    {index < total - 1 && <ScrollCue />}
+    {/* The stronghold's End portal is its own way on; a second prompt just competes. */}
+    {index < total - 1 && chapter.id !== "stronghold" && <ScrollCue />}
     {chapter.id === "end" && <Credits />}
   </>;
 }

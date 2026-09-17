@@ -28,8 +28,11 @@
 }
 @keyframes mc-chapter-settle { from { opacity:0; transform:translateY(26px); } to { opacity:1; transform:none; } }
 
-/* A vignette so each chapter reads as its own space rather than a slab of texture. */
-.minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,transparent 38%,#080c1044 68%,#05080ccc 100%); }
+/* A vignette so each chapter reads as its own space rather than a slab of texture.
+   The hero is a composed scene already and only picks up a band from it. */
+.minecraft-root .mc-chapter::after { content:""; position:absolute; inset:0; z-index:0; pointer-events:none; background:radial-gradient(ellipse at 50% 45%,transparent 44%,#080c1038 72%,#05080cb0 100%); }
+.minecraft-root .mc-chapter-hero { padding:0; }
+.minecraft-root .mc-chapter-hero::after { content:none; }
 
 .minecraft-root .mc-chapter-art { position:absolute; inset:0; z-index:0; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
 
@@ -113,7 +116,7 @@
 
 /* The End: the application page was sized to fill a scrolling route of its own, so
    every fixed size in it has to come back to --scene. */
-.minecraft-root .mc-chapter-end .mc-chapter-body { width:min(1240px,94%); height:100%; justify-content:flex-start; padding-top:calc(var(--scene) * .6); }
+.minecraft-root .mc-chapter-end .mc-chapter-body { width:min(1240px,94%); flex:1 1 auto; justify-content:flex-start; padding-top:calc(var(--scene) * .6); }
 .minecraft-root .mc-chapter .mc-application-page { min-height:0; height:100%; padding:0; background:none; overflow:hidden; }
 .minecraft-root .mc-chapter .mc-application-page>.mc-dimension-art { display:none; }
 .minecraft-root .mc-chapter .mc-application-layout { width:100%; height:100%; grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr); gap:calc(var(--scene) * 2.4); align-content:start; }
@@ -153,8 +156,9 @@
 .minecraft-root .mc-chapter .mc-preview-complete { padding:calc(var(--scene) * 1.5) 0; }
 .minecraft-root .mc-chapter .mc-preview-complete>.mc-button { margin:calc(var(--scene) * 1.4) auto; }
 
-/* Credits: one quiet strip across the foot of the last chapter, not a stacked block. */
-.minecraft-root .mc-credits { position:absolute; left:0; right:0; bottom:0; z-index:3; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--scene) * .6) calc(var(--scene) * 2); padding:calc(var(--scene) * .7) calc(var(--scene) * 2); background:#0b0f16e0; border-top:1px solid #3b4455; font-size:calc(var(--scene) * .9); color:#aab3c2; }
+/* Credits: one quiet strip across the foot of the last chapter, not a stacked block.
+   In the flow rather than pinned, so it can never sit on top of the form. */
+.minecraft-root .mc-credits { width:100%; margin-top:calc(var(--scene) * 1.6); z-index:3; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--scene) * .6) calc(var(--scene) * 2); padding:calc(var(--scene) * .8) calc(var(--scene) * 2) 0; border-top:1px solid #3b4455; font-size:calc(var(--scene) * .9); color:#aab3c2; }
 .minecraft-root .mc-credits>div { display:flex; align-items:center; gap:calc(var(--scene) * 1); }
 .minecraft-root .mc-credits .mc-brand { font-size:calc(var(--scene) * 1); }
 .minecraft-root .mc-credits p,
@@ -163,8 +167,6 @@
 .minecraft-root .mc-credits a { color:#c4cbd7; }
 .minecraft-root .mc-credits a:hover { color:#eaf0f7; }
 .minecraft-root .mc-credits .mc-void-contact { display:flex; align-items:center; gap:calc(var(--scene) * 1.2); }
-/* The strip sits over the foot of the chapter, so the form stops above it. */
-.minecraft-root .mc-chapter-end .mc-chapter-body { padding-bottom:calc(var(--scene) * 3.4); }
 
 /* Doors hang off the chapter rather than stacking under its content — they are a
    side trip, and in the flow they push the chapter past the viewport. Only the way
