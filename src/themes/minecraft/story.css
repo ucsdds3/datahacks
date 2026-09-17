@@ -45,8 +45,10 @@
 
 .minecraft-root .mc-chapter .mc-layer-label { flex-shrink:0; width:min(1120px,88%); margin:0 0 calc(var(--scene) * .9); font-size:calc(var(--scene) * 1.1); }
 
-/* The framed panel the depth layers used to provide. */
-.minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 2.2) calc(var(--scene) * 2.4); background:#171d24f2; border:2px solid #717b82; box-shadow:inset 0 3px #ffffff13,0 6px #101318; }
+/* The framed panel the depth layers used to provide. Chapters that compose against
+   the backdrop instead of sitting on top of it opt out with .mc-scene-open. */
+.minecraft-root .mc-chapter .mc-section:not(.mc-scene-open) { padding:calc(var(--scene) * 2.2) calc(var(--scene) * 2.4); background:#171d24f2; border:2px solid #717b82; box-shadow:inset 0 3px #ffffff13,0 6px #101318; }
+.minecraft-root .mc-chapter .mc-section.mc-scene-open { padding:0; background:none; border:0; box-shadow:none; }
 .minecraft-root .mc-chapter .mc-section .mc-container { width:100%; max-width:none; }
 /* Shared type and rhythm. */
 .minecraft-root .mc-chapter h2 { font-size:clamp(21px,3.5vh,38px); margin:0 0 calc(var(--scene) * 1.2); }
@@ -54,6 +56,41 @@
 .minecraft-root .mc-chapter .mc-body { font-size:calc(var(--scene) * 1.15); line-height:1.65; }
 .minecraft-root .mc-chapter .mc-section-note { margin:calc(var(--scene) * 1.3) 0 0; font-size:calc(var(--scene) * .95); }
 .minecraft-root .mc-chapter .mc-eyebrow { font-size:calc(var(--scene) * .95); }
+
+/* ---- About: copy on the rock, numbers cut into the cave wall ----------------
+   The backdrop carries the chapter, so it runs at full strength and the only
+   darkening is a wedge under the text column. Nothing is boxed. */
+.minecraft-root .mc-chapter-about::after { background:linear-gradient(100deg,#05080cee 0%,#06090dd8 28%,#070b1075 52%,#05080c5c 76%,#05080c8c 100%); }
+.minecraft-root .mc-chapter-about .mc-chapter-body,
+.minecraft-root .mc-chapter-about .mc-layer-label { width:min(1340px,92%); }
+
+.minecraft-root .mc-about-scene { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); align-items:center; gap:calc(var(--scene) * 3); }
+
+.minecraft-root .mc-about-copy h2 { font-size:clamp(26px,4.6vh,50px); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * 1.5); line-height:1.22; text-shadow:0 3px 0 #05080c; }
+.minecraft-root .mc-about-copy h2 em { color:#d5aa87; font-style:normal; }
+.minecraft-root .mc-about-copy .mc-body { max-width:38ch; margin:0 0 calc(var(--scene) * 1.1); color:#d3d8dc; text-shadow:0 2px 4px #05080cc0; }
+.minecraft-root .mc-about-copy .mc-body:last-child { margin-bottom:0; color:#a7b0b6; font-size:calc(var(--scene) * 1.02); }
+.minecraft-root .mc-about-copy .mc-eyebrow { color:#d5aa87; text-shadow:0 2px 3px #05080c; }
+
+/* Staggered, not ruled: each number sits at its own depth in the wall the way a
+   vein of ore would, so the eye wanders down instead of reading a table. */
+.minecraft-root .mc-fact-scatter { display:grid; gap:calc(var(--scene) * 1.7); margin:0; }
+.minecraft-root .mc-fact-0 { margin-left:0; }
+.minecraft-root .mc-fact-1 { margin-left:13%; }
+.minecraft-root .mc-fact-2 { margin-left:5%; }
+.minecraft-root .mc-fact-3 { margin-left:21%; }
+.minecraft-root .mc-fact dd { margin:0; font:700 calc(var(--scene) * 4.1)/1 'Silkscreen',monospace; color:#f2dcc2; text-shadow:0 0 calc(var(--scene) * 2.6) #05080c,3px 4px 0 #0b1016; }
+.minecraft-root .mc-fact dt { margin-top:calc(var(--scene) * .5); font:calc(var(--scene) * 1.15) 'VT323',monospace; letter-spacing:calc(var(--scene) * .22); color:#d5aa87; text-shadow:0 2px 3px #05080c; }
+
+@media (max-width:900px) {
+  .minecraft-root .mc-about-scene { grid-template-columns:1fr; gap:calc(var(--scene) * 2.4); }
+  .minecraft-root .mc-chapter-about::after { background:linear-gradient(180deg,#05080cc4,#05080c80 52%,#05080cc4); }
+  .minecraft-root .mc-about-copy .mc-body:last-child { display:none; }
+  .minecraft-root .mc-fact-scatter { grid-template-columns:1fr 1fr; gap:calc(var(--scene) * 1.3); }
+  .minecraft-root .mc-fact-1,.minecraft-root .mc-fact-3 { margin-left:0; }
+  .minecraft-root .mc-fact-2 { margin-left:0; }
+  .minecraft-root .mc-fact dd { font-size:calc(var(--scene) * 3.2); }
+}
 
 /* Tracks: four cards have to sit in one row without the row growing. */
 .minecraft-root .mc-chapter .mc-track-grid { gap:calc(var(--scene) * 1.2); }

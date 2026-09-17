@@ -31,8 +31,20 @@ const questions = [
   ["Is travel reimbursement available?", "Travel reimbursement details are still to be confirmed. We’ll share the policy when applications open."],
 ];
 
+const facts = [["36", "HOURS"], ["$50,000", "IN PRIZES"], ["450", "ATTENDEES"], ["100", "SCHOOLS"]];
+
+/** No panel: the copy sits on the rock and the numbers are set into the cave wall,
+ * staggered rather than ruled into a grid. The backdrop is the layout. */
 export function About() {
-  return <section className="mc-section mc-about mc-about-numbers" id="about" aria-label="Event at a glance"><div className="mc-container"><dl className="mc-number-grid">{[["36", "HOURS"], ["$50K", "IN PRIZES"], ["450", "ATTENDEES"], ["100", "SCHOOLS"]].map(([value,label])=><div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl></div></section>;
+  return <section className="mc-section mc-scene-open mc-about-scene" id="about" aria-label="About DataHacks">
+    <div className="mc-about-copy">
+      <p className="mc-eyebrow">01 / THE WORLD</p>
+      <h2>Thirty-six hours.<br /><em>One world to build.</em></h2>
+      <p className="mc-body">DataHacks is DS3’s data science and machine learning hackathon. Bring a question worth answering, find your team, and spend a weekend turning it into something real.</p>
+      <p className="mc-body">Any current student, any major, any experience level. Meals, workshops and mentors included.</p>
+    </div>
+    <dl className="mc-fact-scatter">{facts.map(([value, label], i) => <div className={`mc-fact mc-fact-${i}`} key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl>
+  </section>;
 }
 
 export function Tracks() {
