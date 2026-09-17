@@ -22,9 +22,13 @@ export function useStory() {
 /** How much taller than the window each chapter is. The slack is what the camera
  * travels through while the content itself holds still, pinned. */
 const CHAPTER_STAGES = 1.9;
-/** Height of one backdrop tile, in windows. Slightly under one so the strip is
- * shorter than the content is long, which is where the parallax comes from. */
-const TILE_STAGES = 0.92;
+/** Height of one backdrop tile, in windows. */
+const TILE_STAGES = 1.16;
+/** How much of a tile the next one dissolves across. Every backdrop is a framed
+ * vignette — decorated border all the way round a quiet middle — so butting two
+ * together stacks two borders into one dense band and cuts hard from one palette
+ * to the next. Overlapping them means each wall gives way to the next instead. */
+const TILE_OVERLAP = 0.42;
 
 /**
  * The descent.
@@ -66,8 +70,13 @@ export function Story({ chapters = CHAPTERS, children }: {
     sections.current[deepLink]?.scrollIntoView({ behavior: "auto" });
   }, [deepLink, location.key]);
 
-  // The camera. One number — how far down the shaft we are — drives the backdrop,
-  // the darkness and the meter, so they can never disagree with each other.
+  // The camera.
+  //
+  // Not a constant rate: the strip is driven so that a chapter's own tile is dead
+  // centre at the moment that chapter is pinned. A linear parallax drifts, and the
+  // copy ends up straddling the join between two walls rather than sitting in the
+  // cave it belongs to. Between chapters the camera travels faster, which is where
+  // the joins go by — and they are dissolved, so there is nothing to see.
   useEffect(() => {
     const view = scroller.current;
     const stage = frame.current;
@@ -75,14 +84,34 @@ export function Story({ chapters = CHAPTERS, children }: {
     let queued = 0;
     const read = () => {
       queued = 0;
-      const travel = view.scrollHeight - view.clientHeight;
-      const progress = travel > 0 ? Math.max(0, Math.min(1, view.scrollTop / travel)) : 0;
-      stage.style.setProperty("--descent", String(progress));
-      setDepth(depthAt(progress, depths));
+      const height = view.clientHeight;
+      const tile = TILE_STAGES * height;
+      const step = tile * (1 - TILE_OVERLAP);
+      // Where each chapter is best framed: the middle of its pinned stretch.
+      const anchors = sections.current.map((section, index) =>
+        !section || index === 0 ? 0 : section.offsetTop + Math.max(0, section.offsetHeight - height) / 2);
+      // Chapter 0 has no tile of its own, so the strip sits one step above it.
+      const aim = (index: number) => height / 2 - ((index - 1) * step + tile / 2);
+
+      let index = 0;
+      while (index < anchors.length - 1 && view.scrollTop >= anchors[index + 1]) index++;
+      const next = Math.min(index + 1, anchors.length - 1);
+      const span = anchors[next] - anchors[index];
+      const ratio = span > 0 ? Math.max(0, Math.min(1, (view.scrollTop - anchors[index]) / span)) : 0;
+
+      stage.style.setProperty("--shaft-y", `${aim(index) + (aim(next) - aim(index)) * ratio}px`);
+      // Position in the story, counted in chapters, so the meter reads a chapter's
+      // own depth exactly when that chapter is pinned.
+      const place = anchors.length > 1 ? (index + ratio) / (anchors.length - 1) : 0;
+      stage.style.setProperty("--descent", String(place));
+      setDepth(depthAt(place, depths));
     };
     const onScroll = () => { queued ||= requestAnimationFrame(read); };
     const measure = () => {
-      stage.style.setProperty("--stage", `${view.clientHeight}px`);
+      const height = view.clientHeight;
+      stage.style.setProperty("--stage", `${height}px`);
+      stage.style.setProperty("--tile-h", `${TILE_STAGES * height}px`);
+      stage.style.setProperty("--tile-step", `${TILE_STAGES * height * (1 - TILE_OVERLAP)}px`);
       read();
     };
     // ResizeObserver catches the mobile URL bar growing and shrinking the window,
@@ -124,13 +153,15 @@ export function Story({ chapters = CHAPTERS, children }: {
     <div
       className="mc-story-frame"
       ref={frame}
-      style={{ "--chapter-stages": CHAPTER_STAGES, "--tile-stages": TILE_STAGES, "--strip-travel": tiles.length * TILE_STAGES - 1 } as React.CSSProperties}
+      style={{ "--chapter-stages": CHAPTER_STAGES } as React.CSSProperties}
     >
       <div className="mc-shaft" aria-hidden="true">
         <div className="mc-shaft-strip">
           {tiles.map((chapter, index) => <img
             key={chapter.id}
             className="mc-shaft-tile"
+            data-tile={chapter.id}
+            style={{ "--tile-index": index } as React.CSSProperties}
             src={chapter.art ?? ""}
             width="1536"
             height="1024"
