@@ -18,17 +18,28 @@
 .minecraft-root .mc-story { scrollbar-width:none; }
 
 /* ---- The shaft ------------------------------------------------------------
-   One wall, drawn block by block from real 16x16 textures in CaveWall.tsx. There
-   are no tiles to join and no seam to hide: the cave mouth runs unbroken from the
-   surface to bedrock and each stratum scatters into the next. */
+   Nine backdrops drawn to one brief — a flat, straight-on cave-wall cross section.
+   Each is a framed vignette though: decorated border all the way round a quiet
+   middle. Butting them together stacked two borders into one dense band and cut
+   straight from grey stone to bright sulfur, which is the line you could see. So
+   they overlap by TILE_OVERLAP and each is masked soft at top and bottom: one wall
+   gives way to the next over most of a screen instead of ending at an edge. */
 .minecraft-root .mc-shaft { position:absolute; inset:0; z-index:0; overflow:hidden; }
-.minecraft-root .mc-cave-wall { position:absolute; inset:0; display:block; width:100%; height:100%; image-rendering:pixelated; }
+.minecraft-root .mc-shaft-strip { position:absolute; top:0; left:0; width:100%; height:0; will-change:transform; transform:translate3d(0,var(--shaft-y,0px),0); }
+.minecraft-root .mc-shaft-tile { position:absolute; left:0; top:calc(var(--tile-index) * var(--tile-step)); width:100%; height:var(--tile-h); object-fit:cover; object-position:center;
+  -webkit-mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%);
+  mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%); }
+/* Sulfur is the one palette that slams into its neighbours. Pulled back toward the
+   stone on either side of it so the changeover is a shift, not a jolt. */
+.minecraft-root .mc-shaft-tile[data-tile="sponsors"] { filter:saturate(.62) brightness(.82) hue-rotate(-6deg); }
+.minecraft-root .mc-shaft-tile[data-tile="trials"],
+.minecraft-root .mc-shaft-tile[data-tile="end"] { filter:saturate(.86) brightness(.92); }
 
 /* The light fails as you go down. One gradient does the whole arc: an open, lit
    cave near the surface, then a closing pool of torchlight, then near-black. */
 .minecraft-root .mc-shaft-gloom { position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(ellipse calc(150% - var(--descent) * 92%) calc(130% - var(--descent) * 78%) at 50% 46%,#05080c00 0%,#05080c00 34%,#05080ccc 78%,#05080cf2 100%);
-  opacity:calc(.42 + var(--descent) * .58); }
+  background:radial-gradient(ellipse calc(165% - var(--descent) * 70%) calc(145% - var(--descent) * 58%) at 50% 46%,#05080c00 0%,#05080c00 42%,#05080c8f 80%,#05080cd6 100%);
+  opacity:calc(.3 + var(--descent) * .42); }
 
 .minecraft-root .mc-chapter { position:relative; min-height:calc(var(--stage) * var(--chapter-stages)); view-timeline-name:--chapter; view-timeline-axis:block; }
 .minecraft-root .mc-chapter:focus { outline:none; }
@@ -113,15 +124,17 @@
 /* ---- About: copy on the rock, numbers cut into the cave wall ----------------
    The backdrop carries the chapter, so it runs at full strength and the only
    darkening is a wedge under the text column. Nothing is boxed. */
-.minecraft-root .mc-chapter-about .mc-chapter-stage::before { content:""; position:absolute; inset:0; pointer-events:none; background:linear-gradient(100deg,#05080ce0 0%,#06090dc4 28%,#070b1055 52%,#05080c00 76%); }
+/* No second scrim here. A diagonal wedge under the copy on top of the gloom's
+   radial put two differently-shaped sheets of tinted glass over one chapter, which
+   is worse than either alone. Legibility comes from the type instead. */
 .minecraft-root .mc-chapter-about .mc-chapter-body { width:min(1340px,92%); }
 
 .minecraft-root .mc-about-scene { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); align-items:center; gap:calc(var(--scene) * 3); }
 
-.minecraft-root .mc-about-copy h2 { font-size:clamp(26px,4.6vh,50px); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * 1.5); line-height:1.22; text-shadow:0 3px 0 #05080c; }
+.minecraft-root .mc-about-copy h2 { font-size:clamp(26px,4.6vh,50px); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * 1.5); line-height:1.22; text-shadow:0 3px 0 #05080c,0 0 30px #05080c; }
 .minecraft-root .mc-about-copy h2 em { color:#d5aa87; font-style:normal; }
-.minecraft-root .mc-about-copy .mc-body { max-width:38ch; margin:0 0 calc(var(--scene) * 1.1); color:#d3d8dc; text-shadow:0 2px 4px #05080cc0; }
-.minecraft-root .mc-about-copy .mc-body:last-child { margin-bottom:0; color:#a7b0b6; font-size:calc(var(--scene) * 1.02); }
+.minecraft-root .mc-about-copy .mc-body { max-width:38ch; margin:0 0 calc(var(--scene) * 1.1); color:#e2e7ea; text-shadow:0 1px 2px #05080c,0 2px 14px #05080c,0 0 28px #05080cc0; }
+.minecraft-root .mc-about-copy .mc-body:last-child { margin-bottom:0; color:#bcc4ca; font-size:calc(var(--scene) * 1.02); }
 .minecraft-root .mc-about-copy .mc-eyebrow { color:#d5aa87; text-shadow:0 2px 3px #05080c; }
 
 /* Staggered, not ruled: each number sits at its own depth in the wall the way a
@@ -136,7 +149,6 @@
 
 @media (max-width:900px) {
   .minecraft-root .mc-about-scene { grid-template-columns:1fr; gap:calc(var(--scene) * 2.4); }
-  .minecraft-root .mc-chapter-about .mc-chapter-stage::before { background:linear-gradient(180deg,#05080cc4,#05080c80 52%,#05080cc4); }
   .minecraft-root .mc-about-copy .mc-body:last-child { display:none; }
   .minecraft-root .mc-fact-scatter { grid-template-columns:1fr 1fr; gap:calc(var(--scene) * 1.3); }
   .minecraft-root .mc-fact-1,.minecraft-root .mc-fact-3 { margin-left:0; }
