@@ -24,11 +24,11 @@ export function useStory() {
 const CHAPTER_STAGES = 1.9;
 /** Height of one backdrop tile, in windows. */
 const TILE_STAGES = 1.16;
-/** How much of a tile the next one dissolves across. Every backdrop is a framed
- * vignette — decorated border all the way round a quiet middle — so butting two
- * together stacks two borders into one dense band and cuts hard from one palette
- * to the next. Overlapping them means each wall gives way to the next instead. */
-const TILE_OVERLAP = 0.42;
+/** How much of a tile the next one dissolves across. Deliberately small: a wide
+ * dissolve washes out the edges of every frame, and the edges are where the
+ * sulfur formations and the mineshaft beams live. The artwork carries the join —
+ * this only takes the hard line off the end of it. */
+const TILE_OVERLAP = 0.16;
 
 /**
  * The descent.

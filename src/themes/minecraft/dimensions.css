@@ -41,7 +41,9 @@
 .minecraft-root .mc-trial-door { display:flex; position:absolute; bottom:6%; left:50%; transform:translateX(-50%); width:min(330px,85%); height:28%; align-items:center; justify-content:flex-end; flex-direction:column; text-decoration:none; }
 .minecraft-root .mc-trial-door-highlight { position:absolute; inset:0; border:2px solid transparent; transition:background .18s,border-color .18s; }
 .minecraft-root .mc-trial-door:hover .mc-trial-door-highlight,.minecraft-root .mc-trial-door:focus-visible .mc-trial-door-highlight { border-color:#f2c38c; background:#edac5720; box-shadow:0 0 22px #d793434d; }
-.minecraft-root .mc-trial-door .mc-button { position:relative; background:#c5865c; color:#152525; box-shadow:inset 3px 3px #f1bf8b,inset -3px -3px #825536,0 6px #162524; border-color:#202f2c; font-size:16px; padding:16px 18px; }
+/* Oxidised copper, not peach. The old cream inset ringed the button in a pale
+   halo that read as a glow against the masonry behind it. */
+.minecraft-root .mc-trial-door .mc-button { position:relative; background:#a56a43; color:#11201f; box-shadow:inset 2px 2px #c98f63,inset -2px -2px #5f3c27,0 5px #101b1a; border-color:#1b2a28; font-size:16px; padding:16px 18px; }
 .minecraft-root .mc-trial-door small { position:relative; margin-top:15px; padding:5px 10px; color:#e9ece2; background:#142224ed; }
 .minecraft-root .mc-trial-page { background:#192725; padding:100px 0 170px; }
 .minecraft-root .mc-trial-page-layout { display:grid; grid-template-columns:minmax(0,.85fr) minmax(0,1fr); align-items:start; gap:45px; width:76%; max-width:1150px; }
