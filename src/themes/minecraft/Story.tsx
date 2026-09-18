@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useLocation } from "react-router-dom";
 import { CHAPTERS, type Chapter } from "./chapters";
 import { depthAt, depthOf, formatDepth } from "./depth";
+import { CaveWall } from "./CaveWall";
 
 type StoryValue = {
   /** Index of the chapter the camera is level with. */
@@ -22,24 +23,15 @@ export function useStory() {
 /** How much taller than the window each chapter is. The slack is what the camera
  * travels through while the content itself holds still, pinned. */
 const CHAPTER_STAGES = 1.9;
-/** Height of one backdrop tile, in windows. */
-const TILE_STAGES = 1.16;
-/** How much of a tile the next one dissolves across. Every backdrop is a framed
- * vignette — decorated border all the way round a quiet middle — so butting two
- * together stacks two borders into one dense band and cuts hard from one palette
- * to the next. Overlapping them means each wall gives way to the next instead. */
-const TILE_OVERLAP = 0.42;
 
 /**
  * The descent.
  *
- * Every backdrop was drawn to one brief — a flat, straight-on cave-wall cross
- * section, "like a 2D side-scrolling game's background" — so they are tiles of a
- * single shaft rather than nine separate pictures. They are stacked into one strip
- * here and the scroll drives a camera down it: the wall passes continuously from
- * stone to deepslate to sculk with no cut, the light fails as you go, and the depth
- * meter counts you down to bedrock. Content is pinned while its stretch of wall
- * goes by, so each beat holds still long enough to read.
+ * The scroll is a camera falling down one shaft. The wall it falls past is drawn
+ * block by block from real textures (see cave.ts), so it is continuous by
+ * construction — there is no tile, no join and nothing to dissolve. Content is
+ * pinned while its stretch of wall goes by, so each beat holds still long enough
+ * to read, and the depth meter counts down to bedrock alongside it.
  */
 export function Story({ chapters = CHAPTERS, children }: {
   chapters?: Chapter[];
@@ -50,11 +42,16 @@ export function Story({ chapters = CHAPTERS, children }: {
   const scroller = useRef<HTMLDivElement>(null);
   const sections = useRef<(HTMLElement | null)[]>([]);
   const landed = useRef(false);
+  /** Shared with the wall every frame. A ref, not state, so scrolling never
+   * re-renders the story just to move the backdrop. */
+  const place = useRef(0);
+  /** The wall publishes its redraw here; see CaveWall for why Story drives it. */
+  const repaint = useRef<(() => void) | null>(null);
   const deepLink = chapters.findIndex(c => c.path === (location.pathname.replace(/\/+$/, "") || chapters[0].path));
   const [active, setActive] = useState(deepLink === -1 ? 0 : deepLink);
   const [depth, setDepth] = useState(() => depthOf(chapters[0]?.y ?? "—"));
 
-  const tiles = useMemo(() => chapters.filter(c => c.art), [chapters]);
+  // The wall is generated; chapter art is no longer used as a backdrop.
   const depths = useMemo(() => chapters.map(c => depthOf(c.y)), [chapters]);
 
   const go = useCallback((index: number) => {
@@ -70,13 +67,8 @@ export function Story({ chapters = CHAPTERS, children }: {
     sections.current[deepLink]?.scrollIntoView({ behavior: "auto" });
   }, [deepLink, location.key]);
 
-  // The camera.
-  //
-  // Not a constant rate: the strip is driven so that a chapter's own tile is dead
-  // centre at the moment that chapter is pinned. A linear parallax drifts, and the
-  // copy ends up straddling the join between two walls rather than sitting in the
-  // cave it belongs to. Between chapters the camera travels faster, which is where
-  // the joins go by — and they are dissolved, so there is nothing to see.
+  // How far down the story we are, counted in chapters rather than in pixels, so
+  // the meter reads a chapter's own depth exactly when that chapter is pinned.
   useEffect(() => {
     const view = scroller.current;
     const stage = frame.current;
@@ -85,13 +77,9 @@ export function Story({ chapters = CHAPTERS, children }: {
     const read = () => {
       queued = 0;
       const height = view.clientHeight;
-      const tile = TILE_STAGES * height;
-      const step = tile * (1 - TILE_OVERLAP);
       // Where each chapter is best framed: the middle of its pinned stretch.
       const anchors = sections.current.map((section, index) =>
         !section || index === 0 ? 0 : section.offsetTop + Math.max(0, section.offsetHeight - height) / 2);
-      // Chapter 0 has no tile of its own, so the strip sits one step above it.
-      const aim = (index: number) => height / 2 - ((index - 1) * step + tile / 2);
 
       let index = 0;
       while (index < anchors.length - 1 && view.scrollTop >= anchors[index + 1]) index++;
@@ -99,19 +87,15 @@ export function Story({ chapters = CHAPTERS, children }: {
       const span = anchors[next] - anchors[index];
       const ratio = span > 0 ? Math.max(0, Math.min(1, (view.scrollTop - anchors[index]) / span)) : 0;
 
-      stage.style.setProperty("--shaft-y", `${aim(index) + (aim(next) - aim(index)) * ratio}px`);
-      // Position in the story, counted in chapters, so the meter reads a chapter's
-      // own depth exactly when that chapter is pinned.
-      const place = anchors.length > 1 ? (index + ratio) / (anchors.length - 1) : 0;
-      stage.style.setProperty("--descent", String(place));
-      setDepth(depthAt(place, depths));
+      const here = anchors.length > 1 ? (index + ratio) / (anchors.length - 1) : 0;
+      place.current = here;
+      stage.style.setProperty("--descent", String(here));
+      repaint.current?.();
+      setDepth(depthAt(here, depths));
     };
     const onScroll = () => { queued ||= requestAnimationFrame(read); };
     const measure = () => {
-      const height = view.clientHeight;
-      stage.style.setProperty("--stage", `${height}px`);
-      stage.style.setProperty("--tile-h", `${TILE_STAGES * height}px`);
-      stage.style.setProperty("--tile-step", `${TILE_STAGES * height * (1 - TILE_OVERLAP)}px`);
+      stage.style.setProperty("--stage", `${view.clientHeight}px`);
       read();
     };
     // ResizeObserver catches the mobile URL bar growing and shrinking the window,
@@ -156,20 +140,7 @@ export function Story({ chapters = CHAPTERS, children }: {
       style={{ "--chapter-stages": CHAPTER_STAGES } as React.CSSProperties}
     >
       <div className="mc-shaft" aria-hidden="true">
-        <div className="mc-shaft-strip">
-          {tiles.map((chapter, index) => <img
-            key={chapter.id}
-            className="mc-shaft-tile"
-            data-tile={chapter.id}
-            style={{ "--tile-index": index } as React.CSSProperties}
-            src={chapter.art ?? ""}
-            width="1536"
-            height="1024"
-            alt=""
-            decoding="async"
-            loading={index > 1 ? "lazy" : undefined}
-          />)}
-        </div>
+        <CaveWall scroller={scroller} place={place} repaint={repaint} />
         <div className="mc-shaft-gloom" />
       </div>
 

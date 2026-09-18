@@ -18,22 +18,11 @@
 .minecraft-root .mc-story { scrollbar-width:none; }
 
 /* ---- The shaft ------------------------------------------------------------
-   Nine backdrops drawn to one brief — a flat, straight-on cave-wall cross section.
-   Each is a framed vignette though: decorated border all the way round a quiet
-   middle. Butting them together stacked two borders into one dense band and cut
-   straight from grey stone to bright sulfur, which is the line you could see. So
-   they overlap by TILE_OVERLAP and each is masked soft at top and bottom: one wall
-   gives way to the next over most of a screen instead of ending at an edge. */
+   One wall, drawn block by block from real 16x16 textures in CaveWall.tsx. There
+   are no tiles to join and no seam to hide: the cave mouth runs unbroken from the
+   surface to bedrock and each stratum scatters into the next. */
 .minecraft-root .mc-shaft { position:absolute; inset:0; z-index:0; overflow:hidden; }
-.minecraft-root .mc-shaft-strip { position:absolute; top:0; left:0; width:100%; height:0; will-change:transform; transform:translate3d(0,var(--shaft-y,0px),0); }
-.minecraft-root .mc-shaft-tile { position:absolute; left:0; top:calc(var(--tile-index) * var(--tile-step)); width:100%; height:var(--tile-h); object-fit:cover; object-position:center;
-  -webkit-mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%);
-  mask-image:linear-gradient(#0000 0%,#000 26%,#000 74%,#0000 100%); }
-/* Sulfur is the one palette that slams into its neighbours. Pulled back toward the
-   stone on either side of it so the changeover is a shift, not a jolt. */
-.minecraft-root .mc-shaft-tile[data-tile="sponsors"] { filter:saturate(.62) brightness(.82) hue-rotate(-6deg); }
-.minecraft-root .mc-shaft-tile[data-tile="trials"],
-.minecraft-root .mc-shaft-tile[data-tile="end"] { filter:saturate(.86) brightness(.92); }
+.minecraft-root .mc-cave-wall { position:absolute; inset:0; display:block; width:100%; height:100%; image-rendering:pixelated; }
 
 /* The light fails as you go down. One gradient does the whole arc: an open, lit
    cave near the surface, then a closing pool of torchlight, then near-black. */
