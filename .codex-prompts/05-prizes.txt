@@ -1,0 +1,55 @@
+Use your image generation tool to produce ONE image, then save it to
+public/images/minecraft/relief/_new/05-prizes.png (create the folder if needed).
+Do not write code. Do not edit any project file other than saving that image.
+
+The attached reference image is the existing website backdrop. Generate a REVISED
+VERSION OF IT that keeps its art direction exactly and changes only what I list.
+
+ART DIRECTION TO PRESERVE EXACTLY (do not reinterpret):
+- Flat two-dimensional FRONT ELEVATION of a cave wall. A 2D side-scroller cross
+  section. Every block is a square face aligned flat to the image plane.
+- The middle of the image is a calm, flat wall face.
+- The left and right edges carry chunky stepped outcrops with short, crisp,
+  hard-edged drop shadows -- shallow relief, blocks standing slightly proud of the
+  wall behind them.
+- NO perspective camera, NO vanishing point, NO receding floor or ceiling, NO
+  fisheye, NO bloom, NO glow, NO shader lighting, NO characters, NO text, NO UI.
+- LANDSCAPE, exactly 1536x1024.
+
+ONE BLOCK SCALE THROUGHOUT. Every block, at the edges and in the middle alike, is
+the same size square and matches the block size in the reference. The middle must
+still be built from those same clearly visible square blocks -- just calmer, with
+fewer ores and fewer outcrops. The middle is NEVER a smooth gradient, a noise
+field, or a blurry texture wash. If the blocks cannot be counted in the middle of
+the image, it is wrong.
+
+CRISP PIXELS. Coarse vanilla Minecraft texture resolution, hard pixel edges, no
+anti-aliasing, no painterly blending, no soft airbrushed shading.
+
+VERTICAL CONTINUITY -- the most important change. This image is a crop from a much
+taller wall that continues above and below it. Material must run straight off the
+TOP edge and the BOTTOM edge of the canvas, cut mid-block. There must be NO
+ceiling silhouette, NO floor, NO scalloped border and NO empty margin along the
+top or bottom edges. Only the LEFT and RIGHT edges carry the stepped scalloped
+contour. Someone stacking another crop of the same wall directly above or below
+this image must not be able to see the join.
+
+NO BANDS. Do not draw a horizontal stripe, band, bar or ruled line of any kind
+anywhere in the image, and especially not near the top or bottom edges. A band is
+worse than a hard cut. Instead the material THINS OUT GRADUALLY toward the top and
+bottom: over roughly the top quarter the distinctive features get smaller, sparser
+and more broken up the closer they are to the edge, scattered irregularly, until
+the wall at the very top edge is mostly charcoal deepslate with only one or two isolated
+feature blocks left, sliced mid-block by the edge of the canvas and continuing out
+of frame. The bottom quarter does the same in reverse, ending in mostly charcoal deepslate.
+The changeover must look like a ragged natural geological transition, never a
+straight line and never a uniform strip of colour.
+
+WHAT TO CHANGE:
+- Entirely charcoal-grey deepslate and cobbled deepslate.
+- Gather the diamond, lapis and redstone ores into two or three recognisable
+  CLUSTERED VEINS near the left and right edges rather than scattering them evenly
+  across the wall -- a vein reads as a find, scattered specks read as noise.
+- Keep the original muted ore colours. Absolutely no emissive glow, no cyan
+  lighting, no sparkle.
+- Deepen the stepped relief at the edges so the charcoal wall does not read flat.
