@@ -85,15 +85,15 @@
 .minecraft-root .mc-depth-rail>* { pointer-events:auto; }
 .minecraft-root .mc-depth-read { display:flex; align-items:baseline; gap:8px; margin:0; font-family:'Silkscreen',monospace; }
 .minecraft-root .mc-depth-read span { font-size:11px; letter-spacing:2px; color:#6f7c85; }
-.minecraft-root .mc-depth-read b { font-size:23px; color:#f2dcc2; text-shadow:0 2px 0 #05080c,0 0 16px #05080c; font-variant-numeric:tabular-nums; }
+.minecraft-root .mc-depth-read b { font-size:23px; color:#f2dcc2; text-shadow:2px 2px 0 #05080c; font-variant-numeric:tabular-nums; }
 .minecraft-root .mc-depth-strata { list-style:none; margin:0; padding:0 0 0 1px; display:flex; flex-direction:column; gap:1px; border-left:2px solid #2b343b; }
-.minecraft-root .mc-depth-strata button { display:flex; align-items:center; gap:9px; width:100%; padding:5px 6px 5px 11px; background:none; border:0; cursor:pointer; text-align:left; font:12px 'VT323',monospace; letter-spacing:.6px; color:#69757d; transition:color .25s,transform .25s; }
+.minecraft-root .mc-depth-strata button { display:flex; align-items:center; gap:9px; width:100%; padding:5px 6px 5px 11px; background:none; border:0; cursor:pointer; text-align:left; font:10px 'VT323',monospace; letter-spacing:.6px; color:#69757d; transition:color .25s,transform .25s; }
 .minecraft-root .mc-depth-strata i { width:7px; height:7px; flex:none; opacity:.4; transition:opacity .25s,box-shadow .25s; }
 .minecraft-root .mc-depth-strata button:hover { color:#cbd4da; transform:translateX(3px); }
 .minecraft-root .mc-depth-strata button:hover i { opacity:1; }
 .minecraft-root .mc-depth-strata .is-level button { color:#f2dcc2; }
 .minecraft-root .mc-depth-strata .is-level i { opacity:1; box-shadow:0 0 9px currentColor; }
-.minecraft-root .mc-depth-floor { margin:0; padding-left:13px; font:11px 'VT323',monospace; letter-spacing:2.4px; color:#3d474e; }
+.minecraft-root .mc-depth-floor { margin:0; padding-left:13px; font:10px 'VT323',monospace; letter-spacing:2.4px; color:#3d474e; }
 
 /* The rail owns the left edge, so chapter content centres in what is left of the
    window. The padding rides on the stage rather than the scroller, or it would
@@ -104,7 +104,7 @@
 }
 @media (max-width:1179px) {
   .minecraft-root .mc-depth-rail { inset:auto auto 0 0; flex-direction:row; align-items:center; width:auto; padding:0 0 14px 18px; background:none; }
-  .minecraft-root .mc-depth-read b,.minecraft-root .mc-depth-read span { text-shadow:0 2px 4px #05080c,0 0 12px #05080c; }
+  .minecraft-root .mc-depth-read b,.minecraft-root .mc-depth-read span { text-shadow:2px 2px 0 #05080c; }
   .minecraft-root .mc-depth-strata,.minecraft-root .mc-depth-floor { display:none; }
   .minecraft-root .mc-depth-read b { font-size:18px; }
 }
@@ -115,11 +115,11 @@
 .minecraft-root .mc-chapter .mc-section.mc-scene-open { padding:0; background:none; border:0; box-shadow:none; }
 .minecraft-root .mc-chapter .mc-section .mc-container { width:100%; max-width:none; }
 /* Shared type and rhythm. */
-.minecraft-root .mc-chapter h2 { font-size:clamp(21px,3.5vh,38px); margin:0 0 calc(var(--scene) * 1.2); }
+.minecraft-root .mc-chapter h2 { font-size:var(--px-h2); margin:0 0 calc(var(--scene) * 1.2); }
 .minecraft-root .mc-chapter .mc-section-head { gap:calc(var(--scene) * 3); margin-bottom:calc(var(--scene) * 1.8); }
-.minecraft-root .mc-chapter .mc-body { font-size:calc(var(--scene) * 1.15); line-height:1.65; }
-.minecraft-root .mc-chapter .mc-section-note { margin:calc(var(--scene) * 1.3) 0 0; font-size:calc(var(--scene) * .95); }
-.minecraft-root .mc-chapter .mc-eyebrow { font-size:calc(var(--scene) * .95); }
+.minecraft-root .mc-chapter .mc-body { font-size:clamp(15px,1.95vh,17px); line-height:1.6; }
+.minecraft-root .mc-chapter .mc-section-note { margin:calc(var(--scene) * 1.3) 0 0; font-size:var(--vt-sm); }
+.minecraft-root .mc-chapter .mc-eyebrow { font-size:var(--vt-sm); }
 
 /* ---- About: copy on the rock, numbers cut into the cave wall ----------------
    The backdrop carries the chapter, so it runs at full strength and the only
@@ -131,11 +131,11 @@
 
 .minecraft-root .mc-about-scene { display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1fr); align-items:center; gap:calc(var(--scene) * 3); }
 
-.minecraft-root .mc-about-copy h2 { font-size:clamp(26px,4.6vh,50px); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * 1.5); line-height:1.22; text-shadow:0 3px 0 #05080c,0 0 30px #05080c; }
+.minecraft-root .mc-about-copy h2 { font-size:var(--px-h1); margin:calc(var(--scene) * 1) 0 calc(var(--scene) * 1.5); line-height:1.22; text-shadow:2px 2px 0 #05080c; }
 .minecraft-root .mc-about-copy h2 em { color:#d5aa87; font-style:normal; }
-.minecraft-root .mc-about-copy .mc-body { max-width:38ch; margin:0 0 calc(var(--scene) * 1.1); color:#e2e7ea; text-shadow:0 1px 2px #05080c,0 2px 14px #05080c,0 0 28px #05080cc0; }
-.minecraft-root .mc-about-copy .mc-body:last-child { margin-bottom:0; color:#bcc4ca; font-size:calc(var(--scene) * 1.02); }
-.minecraft-root .mc-about-copy .mc-eyebrow { color:#d5aa87; text-shadow:0 2px 3px #05080c; }
+.minecraft-root .mc-about-copy .mc-body { max-width:38ch; margin:0 0 calc(var(--scene) * 1.1); color:#e2e7ea; text-shadow:1px 1px 0 #05080c; }
+.minecraft-root .mc-about-copy .mc-body:last-child { margin-bottom:0; color:#bcc4ca; font-size:clamp(14px,1.8vh,16px); }
+.minecraft-root .mc-about-copy .mc-eyebrow { color:#d5aa87; text-shadow:1px 1px 0 #05080c; }
 
 /* Staggered, not ruled: each number sits at its own depth in the wall the way a
    vein of ore would, so the eye wanders down instead of reading a table. */
@@ -144,8 +144,8 @@
 .minecraft-root .mc-fact-1 { margin-left:13%; }
 .minecraft-root .mc-fact-2 { margin-left:5%; }
 .minecraft-root .mc-fact-3 { margin-left:21%; }
-.minecraft-root .mc-fact dd { margin:0; font:700 calc(var(--scene) * 4.1)/1 'Silkscreen',monospace; color:#f2dcc2; text-shadow:0 0 calc(var(--scene) * 2.6) #05080c,3px 4px 0 #0b1016; }
-.minecraft-root .mc-fact dt { margin-top:calc(var(--scene) * .5); font:calc(var(--scene) * 1.15) 'VT323',monospace; letter-spacing:calc(var(--scene) * .22); color:#d5aa87; text-shadow:0 2px 3px #05080c; }
+.minecraft-root .mc-fact dd { margin:0; font:700 var(--px-h2)/1 'Silkscreen',monospace; color:#f2dcc2; text-shadow:2px 2px 0 #05080c,4px 4px 0 #0b1016; }
+.minecraft-root .mc-fact dt { margin-top:calc(var(--scene) * .5); font:var(--vt-sm) 'VT323',monospace; letter-spacing:.08em; color:#d5aa87; text-shadow:1px 1px 0 #05080c; }
 
 @media (max-width:900px) {
   .minecraft-root .mc-about-scene { grid-template-columns:1fr; gap:calc(var(--scene) * 2.4); }
@@ -153,7 +153,7 @@
   .minecraft-root .mc-fact-scatter { grid-template-columns:1fr 1fr; gap:calc(var(--scene) * 1.3); }
   .minecraft-root .mc-fact-1,.minecraft-root .mc-fact-3 { margin-left:0; }
   .minecraft-root .mc-fact-2 { margin-left:0; }
-  .minecraft-root .mc-fact dd { font-size:calc(var(--scene) * 3.2); }
+  .minecraft-root .mc-fact dd { font-size:var(--px-h3); }
 }
 
 /* Tracks: four cards have to sit in one row without the row growing. */
@@ -203,7 +203,7 @@
 .minecraft-root .mc-chapter .mc-sculk-side .mc-text-link { margin-top:auto; font-size:calc(var(--scene) * 1); }
 
 /* Stronghold: the End portal is the largest single asset on the spine. */
-.minecraft-root .mc-chapter .mc-lava-apply p { font-size:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1) auto; }
+.minecraft-root .mc-chapter .mc-lava-apply p:not(.mc-eyebrow) { font-size:calc(var(--scene) * 1.1); margin:calc(var(--scene) * 1) auto; }
 .minecraft-root .mc-chapter .mc-application-portal { margin-top:calc(var(--scene) * 1.4); gap:calc(var(--scene) * 1.2); }
 .minecraft-root .mc-chapter .mc-application-portal img { width:calc(var(--scene) * 12); height:calc(var(--scene) * 12); }
 
@@ -291,7 +291,7 @@
    a fixed viewport cannot absorb. Pull the stacks back into rows and trim the rest. */
 @media (max-width:760px) {
   .minecraft-root .mc-chapter { --scene:clamp(7px,min(1.2vh,2.4vw),12px); }
-  .minecraft-root .mc-chapter h2 { font-size:clamp(17px,2.9vh,26px); margin-bottom:calc(var(--scene) * .8); }
+  .minecraft-root .mc-chapter h2 { font-size:var(--px-h2); margin-bottom:calc(var(--scene) * .8); }
   .minecraft-root .mc-chapter-body { width:94%; }
   .minecraft-root .mc-chapter .mc-layer-label { width:94%; }
   .minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 1.5) calc(var(--scene) * 1.4); }
@@ -324,3 +324,34 @@
   .minecraft-root .mc-chapter::after { animation:none; }
   .minecraft-root .mc-chapter::after { opacity:0; }
 }
+
+/* ---- Ladder stragglers --------------------------------------------------------
+   These were still sized off --scene and so landed between grid steps whatever the
+   viewport. Silkscreen is crisp at any multiple of 4 (0.75em advance) and VT323 at
+   any multiple of 5 (0.4em), so the ladder has room for small labels without
+   dropping them to an unreadable size. */
+.minecraft-root .mc-eyebrow { font-size:var(--px-xs); letter-spacing:.1em; }
+.minecraft-root .mc-hero-eyebrow { font-size:var(--px-sm); }
+.minecraft-root .mc-chapter .mc-eyebrow { font-size:var(--px-xs); }
+.minecraft-root .mc-chapter .mc-podium-block strong { font-size:var(--px-h3); }
+.minecraft-root .mc-chapter .mc-application-intro h1 { font-size:var(--px-h3); }
+.minecraft-root .mc-chapter .mc-application-form h2 { font-size:var(--vt-md); }
+.minecraft-root .mc-chapter .mc-dimension-back,
+.minecraft-root .mc-chapter .mc-application-intro dt,
+.minecraft-root .mc-chapter .mc-application-steps li>span { font-size:var(--vt-xs); }
+.minecraft-root .mc-chapter .mc-application-preview-label,
+.minecraft-root .mc-chapter .mc-track-nether-door>span:not(.mc-obsidian-portal) { font-size:var(--vt-sm); }
+.minecraft-root .mc-credits .mc-brand { font-size:var(--px-sm); }
+.minecraft-root .mc-depth-read span { font-size:var(--px-xs); }
+.minecraft-root .mc-depth-read b { font-size:var(--px-h3); }
+
+/* Chapters composed against the backdrop have no panel behind them, so the type
+   carries its own legibility. A hard offset shadow, not a blur — the same way the
+   game draws text over terrain, and it keeps pixel glyphs sharp. */
+.minecraft-root .mc-scene-open .mc-body,
+.minecraft-root .mc-scene-open .mc-section-note,
+.minecraft-root .mc-scene-open h2,
+.minecraft-root .mc-scene-open .mc-eyebrow { text-shadow:1px 1px 0 #05080c, 2px 2px 6px #05080cb0; }
+.minecraft-root .mc-scene-open h2 { text-shadow:2px 2px 0 #05080c, 3px 4px 10px #05080cc0; }
+.minecraft-root .mc-scene-open .mc-body { color:#e6eaed; }
+.minecraft-root .mc-scene-open .mc-section-note { color:#c3cbd1; }

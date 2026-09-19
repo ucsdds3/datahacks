@@ -47,15 +47,24 @@ export function About() {
   </section>;
 }
 
+/** Four cards reading "Track One / Unexplored territory" were worse than nothing:
+ * a blank space says not written yet, a filled generic card says this is what we
+ * came up with. What is true today is last year's theme and this year's date. */
 export function Tracks() {
-  const items = ["code", "compass", "diamond", "torch"] as const;
-  return <section className="mc-section mc-tracks" id="tracks"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">02 / CHOOSE YOUR BIOME</p><h2>Different paths.<br /><em>Endless discoveries.</em></h2></div><p className="mc-body">Four tracks. A whole world of problems to solve.<br />Prompts, datasets, and judging criteria are coming soon.</p></div><div className="mc-track-grid">{["One", "Two", "Three", "Four"].map((name, i) => <article className={`mc-track mc-track-${i}`} key={name}><div className="mc-track-top"><span>0{i + 1}</span><LockKeyhole size={17} aria-hidden="true" /></div><div className="mc-track-symbol" aria-hidden="true"><PixelItem item={items[i]} /></div><p className="mc-eyebrow">UNEXPLORED TERRITORY</p><h3>Track {name}</h3><p>Every great adventure starts<br />with a little unknown.</p><div className="mc-track-status"><span /> REVEALING SOON</div></article>)}</div><p className="mc-section-note">Pick your path when the tracks are announced. All experience levels welcome.</p></div></section>;
+  return <section className="mc-section mc-scene-open mc-tracks" id="tracks"><div className="mc-container">
+    <div className="mc-section-head">
+      <div><p className="mc-eyebrow">02 / CHOOSE YOUR BIOME</p><h2>Different paths.<br /><em>Endless discoveries.</em></h2></div>
+      <p className="mc-body">Tracks, datasets and judging criteria are announced with applications in October. Whatever you work in — models, visualisation, systems, or something we haven’t thought of — there will be a path for it.</p>
+    </div>
+    <p className="mc-section-note">DataHacks 2026 ran on Environment, Climate &amp; Energy Sciences. You can read every project from that weekend on Devpost.</p>
+  </div></section>;
 }
 
+/** The podium stays — it is the scene. The per-place figures do not: three blocks
+ * reading "—" over "TO BE ANNOUNCED" spent the credibility a real number buys. */
 export function Prizes() {
-  // The $50,000 pool is confirmed; the split across places is not, so no figure here.
-  const prizes = [{ rank: "2nd", material: "IRON", amount: "—", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", amount: "—", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", amount: "—", cls: "gold", item: "gold" as const }];
-  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$50,000</strong><small>Award breakdown to be announced</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong><span className="mc-prize-amount">{item.amount}</span><small>TO BE ANNOUNCED</small></div></div>)}</div><p className="mc-section-note">Plus awards across all four tracks. Individual award amounts will be announced soon.</p></div></section>;
+  const prizes = [{ rank: "2nd", material: "IRON", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", cls: "gold", item: "gold" as const }];
+  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$50,000</strong><small>Split across places and tracks, announced in October</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong></div></div>)}</div><p className="mc-section-note">DataHacks 2026 awarded $31,793 in cash and prizes across the weekend.</p></div></section>;
 }
 
 export function Schedule() {

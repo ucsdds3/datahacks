@@ -1,14 +1,32 @@
+« /pop, /press, /groove, /legacy and /themes are internal design mockups carrying
+  placeholder dates and figures. Only the live site should be indexed. »
+
+User-agent: *
+Allow: /
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
+
 User-agent: Googlebot
 Allow: /
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
 
 User-agent: Bingbot
 Allow: /
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
 
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
-Allow: /
-
-User-agent: *
 Allow: /

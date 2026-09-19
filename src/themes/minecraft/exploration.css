@@ -16,8 +16,8 @@
 .minecraft-root .mc-scene-light { position:absolute; inset:8% -15% -10%; background:radial-gradient(ellipse at 50% 65%,#e9c77970,transparent 65%); pointer-events:none; }
 .minecraft-root .mc-skeleton-art { position:absolute; height:205px; width:auto; bottom:20px; left:60px; transform-origin:50% 90%; filter:drop-shadow(4px 6px 0 #080e1588); }
 .minecraft-root .mc-encounter-label { display:flex; flex-direction:column; gap:9px; min-width:0; text-align:left; text-shadow:0 2px 3px #000; }
-.minecraft-root .mc-encounter-label small { font:14px 'VT323',monospace; letter-spacing:1.6px; color:#d1bd94; }
-.minecraft-root .mc-encounter-label strong { display:flex; align-items:center; gap:16px; font:26px 'VT323',monospace; line-height:1.2; color:#fff4d9; }
+.minecraft-root .mc-encounter-label small { font:15px 'VT323',monospace; letter-spacing:1.6px; color:#d1bd94; }
+.minecraft-root .mc-encounter-label strong { display:flex; align-items:center; gap:16px; font:25px 'VT323',monospace; line-height:1.2; color:#fff4d9; }
 .minecraft-root .mc-encounter-label strong>span { display:inline-block; color:#dbbf83; }
 .minecraft-root .mc-encounter-label>span { font-size:14px; color:#d2d5c8; }
 .minecraft-root .mc-dig-face { position:absolute; left:46px; bottom:22px; display:grid; grid-template-columns:repeat(3,1fr); width:150px; height:150px; background:#081313; box-shadow:inset 0 0 28px #000,0 8px #121c1b; border:5px solid #303934; }
@@ -43,7 +43,7 @@ html:has(.minecraft-root)::-webkit-scrollbar,body:has(.minecraft-root)::-webkit-
 @media(prefers-reduced-motion:reduce) { html:has(.minecraft-root) { scroll-behavior:auto; } }
 
 .minecraft-root .mc-track-nether { width:min(1000px,84%); margin:50px auto 0; padding:18px 38px; display:flex; align-items:center; justify-content:space-between; gap:30px; background:#211426ef; border:2px solid #866998; box-shadow:0 6px #100c16; }
-.minecraft-root .mc-track-nether h3 { font:28px 'VT323',monospace; margin:8px 0 14px; color:#eedffc; }
+.minecraft-root .mc-track-nether h3 { font:30px 'VT323',monospace; margin:8px 0 14px; color:#eedffc; }
 .minecraft-root .mc-track-nether .mc-eyebrow { color:#d1a7e5; }
 .minecraft-root .mc-track-nether p:not(.mc-eyebrow) { color:#e0d7e7; font-size:16px; line-height:1.8; }
 .minecraft-root .mc-track-nether-door { display:flex; flex-direction:column; align-items:center; min-width:175px; padding:0 10px 10px; }
@@ -55,7 +55,7 @@ html:has(.minecraft-root)::-webkit-scrollbar,body:has(.minecraft-root)::-webkit-
 .minecraft-root .mc-nether-residents { display:flex; justify-content:space-between; align-items:flex-end; gap:20px; width:min(1120px,88%); margin:0 auto 45px; }
 .minecraft-root .mc-nether-residents img { width:clamp(100px,14vw,175px); height:auto; flex-shrink:0; filter:drop-shadow(0 5px 4px #080610); }
 .minecraft-root .mc-nether-residents img:last-child { transform:scaleX(-1); }
-.minecraft-root .mc-nether-residents p { align-self:center; padding:20px; background:#26151cdb; border:1px solid #966757; text-align:center; color:#f4d7a3; font:22px 'VT323',monospace; }
+.minecraft-root .mc-nether-residents p { align-self:center; padding:20px; background:#26151cdb; border:1px solid #966757; text-align:center; color:#f4d7a3; font:20px 'VT323',monospace; }
 .minecraft-root .mc-nether-residents p span { color:#e0c3c8; font:14px 'DM Sans',sans-serif; }
 
 /* The cursor lives on document.body so panels cannot create a stacking trap. */

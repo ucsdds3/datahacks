@@ -10,6 +10,7 @@ import Groove from "./themes/groove";
 import Pop from "./themes/pop";
 import Press from "./themes/press";
 import Minecraft from "./themes/minecraft";
+import { NoIndex } from "./components/NoIndex";
 
 const queryClient = new QueryClient();
 
@@ -21,12 +22,13 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Minecraft />} />
-          <Route path="/themes" element={<ThemeIndex />} />
-          <Route path="/pop" element={<Pop />} />
-          <Route path="/press" element={<Press />} />
+          {/* Design mockups: placeholder dates and figures, kept out of search. */}
+          <Route path="/themes" element={<><NoIndex /><ThemeIndex /></>} />
+          <Route path="/pop" element={<><NoIndex /><Pop /></>} />
+          <Route path="/press" element={<><NoIndex /><Press /></>} />
           <Route path="/minecraft/*" element={<Minecraft />} />
-          <Route path="/groove" element={<Groove />} />
-          <Route path="/legacy" element={<Index />} />
+          <Route path="/groove" element={<><NoIndex /><Groove /></>} />
+          <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

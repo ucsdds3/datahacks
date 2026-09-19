@@ -22,8 +22,8 @@
 .minecraft-root .mc-number-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:0; }
 .minecraft-root .mc-number-grid>div { text-align:center; border-right:1px solid #697078; padding:12px; }
 .minecraft-root .mc-number-grid>div:last-child { border:0; }
-.minecraft-root .mc-number-grid dd { font:700 clamp(34px,4vw,55px)/1.2 'Silkscreen',monospace; margin:0 0 15px; color:#f4e3cb; }
-.minecraft-root .mc-number-grid dt { font:16px 'VT323',monospace; letter-spacing:2px; color:#e5e5e0; }
+.minecraft-root .mc-number-grid dd { font:700 var(--px-h2)/1 'Silkscreen',monospace; margin:0 0 15px; color:#f4e3cb; }
+.minecraft-root .mc-number-grid dt { font:15px 'VT323',monospace; letter-spacing:2px; color:#e5e5e0; }
 .minecraft-root .mc-texture-sponsors .mc-section { background:#24251bf5; border-color:#b7ad74; }
 .minecraft-root .mc-texture-sponsors h2 em,.minecraft-root .mc-texture-sponsors .mc-eyebrow { color:#e9da8f; }
 .minecraft-root .mc-texture-sponsors .mc-sponsor-slot { background:#323328; border-color:#afac80; }
@@ -130,9 +130,9 @@
 }
 .minecraft-root .mc-texture-apply { padding-bottom:190px; }
 .minecraft-root .mc-texture-apply .mc-layer-art { object-position:center bottom; }
-.minecraft-root .mc-lava-apply h2 { text-shadow:0 3px 0 #101214,1px 0 #101214,-1px 0 #101214,0 -1px #101214,0 0 8px #101214; }
+.minecraft-root .mc-lava-apply h2 { text-shadow:2px 2px 0 #101214,0 3px 0 #101214; }
 .minecraft-root .mc-lava-apply h2+p { background:#141c22df; padding:6px 12px; width:fit-content; }
-.minecraft-root .mc-lava-apply p:not(.mc-lava-note) { text-shadow:0 2px 2px #101214,0 0 5px #101214; }
+.minecraft-root .mc-lava-apply p:not(.mc-lava-note) { text-shadow:1px 1px 0 #101214; }
 @media(max-width:600px) {
  .minecraft-root .mc-texture-apply .mc-layer-art { object-position:20% bottom; }
 }

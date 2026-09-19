@@ -9,7 +9,9 @@ export function TrialEntrance() {
       <p className="mc-eyebrow">06 / THE TRIAL CHAMBERS</p>
       <h2 id="mc-trial-title">Great builders.<br /><em>Even better guides.</em></h2>
       <p>Share what you know. Help a team find its next idea, or celebrate the work that stands out.</p>
-      <dl className="mc-trial-stats"><div><dd>XX</dd><dt>MENTORS</dt></div><div><dd>XX</dd><dt>JUDGES</dt></div></dl>
+      {/* Counters reading XX advertised that we had not recruited anyone yet. The
+          ask is the point of this panel; the numbers were never the point. */}
+      <p className="mc-trial-ask">Mentoring runs across the full 36 hours. Judging is a few hours on the Sunday.</p>
     </div>
     <WorldLink to="/minecraft/mentors" kind="trial" className="mc-trial-door" aria-label="Break into the Trial Chambers — mentor and judge interest" data-mineable>
       <span className="mc-trial-door-highlight" aria-hidden="true" />

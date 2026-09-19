@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { WorldLink } from './WorldTravel';
 
+/** Three empty tiles reading "?" told a visitor we had nothing and had thought
+ * about it no further. A dated sentence says more and claims less. */
 export function Speakers() {
-  return <section className="mc-section mc-speakers" id="speakers"><div className="mc-container">
+  return <section className="mc-section mc-scene-open mc-speakers" id="speakers"><div className="mc-container">
     <p className="mc-eyebrow">04 / MEET YOUR GUIDES</p><h2>Learn from<br /><em>fellow builders.</em></h2>
-    <p className="mc-body">Speaker announcements are coming soon.</p>
-    <div className="mc-speaker-slots">{[1,2,3].map(i => <div className="mc-speaker-slot" key={i}><span aria-hidden="true">?</span><strong>To be announced</strong><p>Speaker {String(i).padStart(2,'0')}</p></div>)}</div>
+    <p className="mc-body">Speakers and workshop leads are being confirmed now. We announce them alongside applications in October.</p>
+    <p className="mc-section-note">DataHacks 2026 ran twelve hours of mentoring across the weekend, with engineers from Databricks on the floor.</p>
   </div></section>;
 }
 
