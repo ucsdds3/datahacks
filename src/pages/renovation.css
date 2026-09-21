@@ -1,0 +1,78 @@
+/* The holding page. Self-contained: it must not pull in the themed stylesheets,
+   both so it stays light and so work on the theme can never break it.
+
+   Silkscreen is set at 48/16px and VT323 at 15px — multiples of 4 and 5, the only
+   sizes those faces render on whole pixels. */
+
+.dh-hold {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 40px 24px;
+  background: #11170f;
+  background-image:
+    radial-gradient(ellipse 120% 90% at 50% 40%, #1b2418 0%, #11170f 70%),
+    repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 4px);
+  color: #e7ece0;
+}
+
+.dh-hold-inner { width: min(560px, 100%); text-align: center; }
+
+.dh-hold-org {
+  margin: 0 0 20px;
+  font: 15px 'VT323', ui-monospace, monospace;
+  letter-spacing: .22em;
+  color: #7f9668;
+}
+
+.dh-hold h1 {
+  margin: 0 0 24px;
+  font: 700 48px/1 'Silkscreen', ui-monospace, monospace;
+  letter-spacing: -0.125em;   /* exactly one Silkscreen grid pixel at any size */
+  color: #ecefe3;
+  text-shadow: 2px 2px 0 #0c1209, 0 4px 0 #46603a;
+}
+
+.dh-hold-lead {
+  margin: 0 0 36px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: #c3ccb8;
+}
+
+.dh-hold-facts {
+  margin: 0 0 32px;
+  display: grid;
+  gap: 1px;
+  background: #2b3826;
+  border: 1px solid #2b3826;
+  text-align: left;
+}
+.dh-hold-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 16px;
+  background: #151d12;
+}
+.dh-hold-facts dt {
+  font: 15px 'VT323', ui-monospace, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #8ba173;
+}
+.dh-hold-facts dd { margin: 0; font-size: 15px; color: #dde4d3; }
+
+.dh-hold-contact { margin: 0; font-size: 14px; color: #93a186; }
+.dh-hold-contact a {
+  color: #a8d36a;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+.dh-hold-contact a:hover { color: #c2e58c; }
+.dh-hold-contact a:focus-visible { outline: 2px solid #a8d36a; outline-offset: 3px; }
+
+@media (max-width: 520px) {
+  .dh-hold h1 { font-size: 32px; }
+  .dh-hold-facts > div { flex-direction: column; gap: 3px; }
+}

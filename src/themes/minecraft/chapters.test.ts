@@ -10,8 +10,8 @@ describe("chapter registry", () => {
   });
 
   it("gives the hero the bare theme root so /minecraft opens the story", () => {
-    expect(CHAPTERS[0].path).toBe("/minecraft");
-    expect(CHAPTERS.at(-1)?.path).toBe("/minecraft/apply");
+    expect(CHAPTERS[0].path).toBe("/datacraft");
+    expect(CHAPTERS.at(-1)?.path).toBe("/datacraft/apply");
   });
 
   it("has a unique path for every chapter", () => {
@@ -19,15 +19,15 @@ describe("chapter registry", () => {
   });
 
   it("keeps the doors off the spine", () => {
-    expect(CHAPTERS.map(c => c.path)).not.toContain("/minecraft/schedule");
-    expect(CHAPTERS.map(c => c.path)).not.toContain("/minecraft/mentors");
+    expect(CHAPTERS.map(c => c.path)).not.toContain("/datacraft/schedule");
+    expect(CHAPTERS.map(c => c.path)).not.toContain("/datacraft/mentors");
   });
 
   it("resolves a pathname to its chapter", () => {
-    expect(chapterIndexOf("/minecraft/faq")).toBe(7);
-    expect(chapterIndexOf("/minecraft")).toBe(0);
-    expect(chapterIndexOf("/minecraft/")).toBe(0);
-    expect(chapterIndexOf("/minecraft/schedule")).toBe(-1);
+    expect(chapterIndexOf("/datacraft/faq")).toBe(7);
+    expect(chapterIndexOf("/datacraft")).toBe(0);
+    expect(chapterIndexOf("/datacraft/")).toBe(0);
+    expect(chapterIndexOf("/datacraft/schedule")).toBe(-1);
   });
 
   it("looks a chapter up by index", () => {
@@ -37,9 +37,9 @@ describe("chapter registry", () => {
   });
 
   it("maps the old in-page hashes onto chapter paths", () => {
-    expect(LEGACY_HASHES["#about"]).toBe("/minecraft/about");
-    expect(LEGACY_HASHES["#faq"]).toBe("/minecraft/faq");
-    expect(LEGACY_HASHES["#top"]).toBe("/minecraft");
+    expect(LEGACY_HASHES["#about"]).toBe("/datacraft/about");
+    expect(LEGACY_HASHES["#faq"]).toBe("/datacraft/faq");
+    expect(LEGACY_HASHES["#top"]).toBe("/datacraft");
   });
 
   it("points every legacy hash at a real chapter", () => {

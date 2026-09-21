@@ -5,9 +5,9 @@ import { Story, useStory } from "./Story";
 import type { Chapter } from "./chapters";
 
 const fixture: Chapter[] = [
-  { id: "one", path: "/minecraft", name: "Surface", y: "+80", color: "#fff", art: null, title: "Chapter one" },
-  { id: "two", path: "/minecraft/two", name: "Stone", y: "+48", color: "#eee", art: null, title: "Chapter two" },
-  { id: "three", path: "/minecraft/three", name: "Deepslate", y: "−28", color: "#ddd", art: null, title: "Chapter three" },
+  { id: "one", path: "/datacraft", name: "Surface", y: "+80", color: "#fff", art: null, title: "Chapter one" },
+  { id: "two", path: "/datacraft/two", name: "Stone", y: "+48", color: "#eee", art: null, title: "Chapter two" },
+  { id: "three", path: "/datacraft/three", name: "Deepslate", y: "−28", color: "#ddd", art: null, title: "Chapter three" },
 ];
 
 function Controls() {
@@ -15,15 +15,15 @@ function Controls() {
   return <>
     <button onClick={() => go(active + 1)}>go next</button>
     <button onClick={() => go(2)}>go last</button>
-    <Link to="/minecraft/two">Open second chapter</Link>
-    <Link to="/minecraft">Return home</Link>
+    <Link to="/datacraft/two">Open second chapter</Link>
+    <Link to="/datacraft">Return home</Link>
     <button onClick={() => go(99)}>go past the end</button>
     <output aria-label="Active">{active}</output>
     <output aria-label="Total">{total}</output>
   </>;
 }
 
-function renderStory(path = "/minecraft") {
+function renderStory(path = "/datacraft") {
   return render(<MemoryRouter initialEntries={[path]}>
     <Story chapters={fixture}>{(chapter, index) => <>
       <p>Body of {chapter.id} at {index}</p>
@@ -92,7 +92,7 @@ describe("Story scroller", () => {
   });
 
   it("jumps straight to a deep-linked chapter without animating from the top", () => {
-    renderStory("/minecraft/three");
+    renderStory("/datacraft/three");
     expect(scrolled[0].target).toBe(sectionFor("three"));
     expect(scrolled[0].behavior).toBe("auto");
   });

@@ -50,7 +50,7 @@ export function LavaApply() {
   return <section className="mc-lava-apply" id="apply" aria-labelledby="mc-lava-title"><div className="mc-container">
     <p className="mc-eyebrow">08 / YOUR NEXT CHAPTER</p><h2 id="mc-lava-title">One more step.<br /><em>A whole new adventure.</em></h2>
     <p>January 16–17, 2027. Bring your curiosity. Find your people.</p>
-    <WorldLink to="/minecraft/apply" kind="end" className="mc-application-portal" aria-label="Enter the End portal to the application" data-mineable><img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" loading="lazy" /><span className="mc-button">Enter the End portal →</span></WorldLink>
+    <WorldLink to="/datacraft/apply" kind="end" className="mc-application-portal" aria-label="Enter the End portal to the application" data-mineable><img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" loading="lazy" /><span className="mc-button">Enter the End portal →</span></WorldLink>
     <p className="mc-lava-note">Registration opens closer to the event</p>
   </div></section>;
 }

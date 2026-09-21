@@ -4,10 +4,10 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { WorldLink, WorldTravel } from "./WorldTravel";
 
 function renderJourney() {
-  return render(<MemoryRouter initialEntries={["/minecraft"]}>
+  return render(<MemoryRouter initialEntries={["/datacraft"]}>
     <WorldTravel><main id="mc-main"><Routes>
-      <Route path="/minecraft" element={<WorldLink to="/minecraft/mentors" kind="trial">Enter chamber</WorldLink>} />
-      <Route path="/minecraft/mentors" element={<h1 tabIndex={-1}>Mentor interest</h1>} />
+      <Route path="/datacraft" element={<WorldLink to="/datacraft/mentors" kind="trial">Enter chamber</WorldLink>} />
+      <Route path="/datacraft/mentors" element={<h1 tabIndex={-1}>Mentor interest</h1>} />
     </Routes></main></WorldTravel>
   </MemoryRouter>);
 }

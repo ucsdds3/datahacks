@@ -118,6 +118,6 @@ export function NetherEntrance() {
   const reduced = useReducedMotion();
   return <div className="mc-track-nether">
     <div><p className="mc-eyebrow">A DETOUR THROUGH THE NETHER</p><h3>Your weekend awaits.</h3><p>Workshops, building time, and the final demo.<br />Find your next quest in the run of show.</p></div>
-    <motion.div whileHover={reduced ? undefined : { y: -4 }} transition={{ type: "spring", stiffness: 180, damping: 22 }}><WorldLink to="/minecraft/schedule" kind="portal" className="mc-track-nether-door" data-mineable aria-label="Enter the Nether — run of show"><PortalFrame /><span>Enter the Nether <span aria-hidden="true">↗</span></span><small>Run of show</small></WorldLink></motion.div>
+    <motion.div whileHover={reduced ? undefined : { y: -4 }} transition={{ type: "spring", stiffness: 180, damping: 22 }}><WorldLink to="/datacraft/schedule" kind="portal" className="mc-track-nether-door" data-mineable aria-label="Enter the Nether — run of show"><PortalFrame /><span>Enter the Nether <span aria-hidden="true">↗</span></span><small>Run of show</small></WorldLink></motion.div>
   </div>;
 }

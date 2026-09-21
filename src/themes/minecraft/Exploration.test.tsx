@@ -12,7 +12,7 @@ vi.mock("framer-motion", async importOriginal => {
 });
 function Position() { return <output aria-label="Location">{useLocation().hash}</output>; }
 function renderJourney() {
-  return render(<MemoryRouter initialEntries={["/minecraft"]}><ExplorationJourney>
+  return render(<MemoryRouter initialEntries={["/datacraft"]}><ExplorationJourney>
     <EncounterLink kind="skeleton" target="iron-layer" label="Clear the path" destination="Tracks" />
     <section id="iron-layer" tabIndex={-1} aria-label="Tracks">Choose a track</section><Position />
   </ExplorationJourney></MemoryRouter>);

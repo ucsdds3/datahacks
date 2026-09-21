@@ -20,7 +20,7 @@ import "./exploration.css";
 import "./story.css";
 import "./scene-depth.css";
 
-const home = "/minecraft";
+const home = "/datacraft";
 
 function Navigation() {
   const [menuOpen, setMenuOpen] = useState(false);
