@@ -155,16 +155,9 @@
   .minecraft-root .mc-fact-2 { margin-left:0; }
   .minecraft-root .mc-fact dd { font-size:var(--px-h3); }
 }
-
-/* Tracks: four cards have to sit in one row without the row growing. */
-.minecraft-root .mc-chapter .mc-track-grid { gap:calc(var(--scene) * 1.2); }
 .minecraft-root .mc-chapter .mc-track { padding:calc(var(--scene) * 1.3) calc(var(--scene) * 1.4) 0; }
-.minecraft-root .mc-chapter .mc-track-top { font-size:calc(var(--scene) * 1.35); }
-.minecraft-root .mc-chapter .mc-track-symbol { width:calc(var(--scene) * 3.8); height:calc(var(--scene) * 3.8); margin:calc(var(--scene) * 1.5) 0 calc(var(--scene) * 1.2); }
-.minecraft-root .mc-chapter .mc-track-symbol svg { width:calc(var(--scene) * 1.9); height:calc(var(--scene) * 1.9); }
 .minecraft-root .mc-chapter .mc-track h3 { font-size:calc(var(--scene) * 1.35); margin:0 0 calc(var(--scene) * .7); }
 .minecraft-root .mc-chapter .mc-track p:not(.mc-eyebrow) { font-size:calc(var(--scene) * .95); margin:0 0 calc(var(--scene) * 1.4); }
-.minecraft-root .mc-chapter .mc-track-status { padding:calc(var(--scene) * .85) 0; font-size:calc(var(--scene) * .9); }
 
 /* FAQ: six questions, so the per-row padding is what decides whether it fits. */
 .minecraft-root .mc-chapter .mc-faq-grid { gap:calc(var(--scene) * 3.2); }
@@ -296,8 +289,6 @@
   .minecraft-root .mc-chapter .mc-layer-label { width:94%; }
   .minecraft-root .mc-chapter .mc-section { padding:calc(var(--scene) * 1.5) calc(var(--scene) * 1.4); }
   .minecraft-root .mc-chapter .mc-section-head { gap:calc(var(--scene) * 1); margin-bottom:calc(var(--scene) * 1.2); }
-  .minecraft-root .mc-chapter .mc-track-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:calc(var(--scene) * .8); }
-  .minecraft-root .mc-chapter .mc-track-symbol { width:calc(var(--scene) * 3); height:calc(var(--scene) * 3); margin:calc(var(--scene) * .9) 0; }
   .minecraft-root .mc-chapter .mc-track p:not(.mc-eyebrow) { margin-bottom:calc(var(--scene) * .9); }
   .minecraft-root .mc-chapter .mc-sponsor-tier { grid-template-columns:calc(var(--scene) * 7) 1fr; gap:calc(var(--scene) * .8); margin-top:calc(var(--scene) * .7); }
   .minecraft-root .mc-chapter .mc-sponsor-slot,

@@ -11,7 +11,6 @@
 .minecraft-root .mc-texture-layer h2 { font-size:clamp(26px,3vw,40px); }
 .minecraft-root .mc-texture-layer h2 em { color:#ddd0ba; }
 .minecraft-root .mc-texture-layer .mc-body { color:#e2e6e8; line-height:1.8; }
-.minecraft-root .mc-texture-layer .mc-track-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
 .minecraft-root .mc-texture-layer .mc-track { min-width:0; }
 .minecraft-root .mc-texture-layer .mc-track p { font-size:14px; }
 .minecraft-root .mc-texture-layer .mc-section-head { gap:30px; }
@@ -19,22 +18,12 @@
 .minecraft-root .mc-texture-about { min-height:370px; padding-bottom:75px; }
 .minecraft-root .mc-texture-about .mc-layer-label { margin-bottom:35px; }
 .minecraft-root .mc-texture-about .mc-about-numbers { background:#171d24f5; padding:38px 20px; }
-.minecraft-root .mc-number-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); margin:0; }
-.minecraft-root .mc-number-grid>div { text-align:center; border-right:1px solid #697078; padding:12px; }
-.minecraft-root .mc-number-grid>div:last-child { border:0; }
-.minecraft-root .mc-number-grid dd { font:700 var(--px-h2)/1 'Silkscreen',monospace; margin:0 0 15px; color:#f4e3cb; }
-.minecraft-root .mc-number-grid dt { font:15px 'VT323',monospace; letter-spacing:2px; color:#e5e5e0; }
 .minecraft-root .mc-texture-sponsors .mc-section { background:#24251bf5; border-color:#b7ad74; }
 .minecraft-root .mc-texture-sponsors h2 em,.minecraft-root .mc-texture-sponsors .mc-eyebrow { color:#e9da8f; }
 .minecraft-root .mc-texture-sponsors .mc-sponsor-slot { background:#323328; border-color:#afac80; }
 .minecraft-root .mc-texture-sponsors .mc-sponsor-slot small { color:#e0e0d0; font-size:14px; }
 .minecraft-root .mc-texture-speakers { min-height:760px; padding-bottom:150px; }
 .minecraft-root .mc-texture-speakers .mc-section { width:min(1000px,70%); background:#181b20e8; border-color:#a38a66; }
-.minecraft-root .mc-speaker-slots { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-top:30px; }
-.minecraft-root .mc-speaker-slot { padding:20px 14px; text-align:center; background:#303030; border:2px solid #7e7361; box-shadow:inset 0 3px #ad99702b; }
-.minecraft-root .mc-speaker-slot>span { display:grid; place-items:center; margin:0 auto 24px; width:64px; height:64px; background:#252728; color:#ceb58a; border:2px solid #716d61; font:32px 'Silkscreen',monospace; }
-.minecraft-root .mc-speaker-slot strong { font-size:15px; color:#eee5d6; }
-.minecraft-root .mc-speaker-slot p { color:#cec7b9; font-size:14px; margin-bottom:0; }
 .minecraft-root .mc-texture-prizes .mc-section { background:#171d24f5; border-color:#828c94; }
 .minecraft-root .mc-texture-prizes h2 em { color:#e4eaf0; }
 .minecraft-root .mc-texture-faq { padding-bottom:150px; min-height:880px; }
@@ -77,8 +66,6 @@
 @media(max-width:900px) {
  .minecraft-root .mc-texture-layer .mc-section { width:88%; padding:28px; }
  .minecraft-root .mc-texture-speakers .mc-section { width:80%; }
- .minecraft-root .mc-speaker-slots { gap:10px; }
- .minecraft-root .mc-speaker-slot { padding:18px 8px; }
  .minecraft-root .mc-texture-layer .mc-section-head { flex-direction:column; align-items:flex-start; }
  .minecraft-root .mc-texture-layer .mc-prize-pool { text-align:left; }
  .minecraft-root .mc-sculk-controls { grid-template-columns:repeat(2,minmax(0,1fr)); }
@@ -88,14 +75,6 @@
  .minecraft-root .mc-texture-layer .mc-layer-label { margin-bottom:30px; gap:6px; font-size:14px; }
  .minecraft-root .mc-texture-layer .mc-section { width:90%; padding:24px 18px; }
  .minecraft-root .mc-texture-layer .mc-section h2 { font-size:27px; }
- .minecraft-root .mc-number-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px 0; }
- .minecraft-root .mc-number-grid>div:nth-child(2) { border:0; }
- .minecraft-root .mc-number-grid dd { font-size:36px; }
- .minecraft-root .mc-texture-layer .mc-track-grid { grid-template-columns:1fr; }
- .minecraft-root .mc-speaker-slots { grid-template-columns:1fr; }
- .minecraft-root .mc-speaker-slot { display:grid; grid-template-columns:64px 1fr; text-align:left; column-gap:20px; align-items:center; padding:16px; }
- .minecraft-root .mc-speaker-slot>span { grid-row:span 2; margin:0; }
- .minecraft-root .mc-speaker-slot p { margin:0; }
  .minecraft-root .mc-sculk-controls { gap:12px; }
  .minecraft-root .mc-sculk-control { padding:12px 3px; }
  .minecraft-root .mc-sculk-answer { padding:18px; }

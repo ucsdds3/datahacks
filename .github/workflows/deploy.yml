@@ -38,13 +38,25 @@ jobs:
       # it is the only thing that covers nested routes like /datacraft/about --
       # enumerating directories cannot, because the chapter list changes.
       # The top-level entries stay so those URLs answer 200 rather than 404.
+      # Pages has no server-side router. 404.html is the catch-all it honours and
+      # covers anything not listed below; the explicit entries exist so the real
+      # routes answer 200 rather than 404. Chapter list is read out of
+      # chapters.ts so this cannot drift when a chapter is added or renamed.
       - name: Create direct-route entries
         run: |
           cp dist/index.html dist/404.html
-          mkdir -p dist/datacraft dist/themes dist/pop dist/press dist/groove dist/legacy
-          for route in datacraft themes pop press groove legacy; do
-            cp dist/index.html "dist/$route/index.html"
+          routes=$(node -e "
+            const src = require('fs').readFileSync('src/themes/minecraft/chapters.ts','utf8');
+            const chapters = [...src.matchAll(/path:\s*\"(\/[^\"]*)\"/g)].map(m => m[1]);
+            const extra = ['/datacraft/schedule', '/datacraft/mentors',
+                           '/themes', '/pop', '/press', '/groove', '/legacy'];
+            console.log([...new Set([...chapters, ...extra])].join(' '));
+          ")
+          for route in $routes; do
+            mkdir -p "dist${route}"
+            cp dist/index.html "dist${route}/index.html"
           done
+          echo "Wrote entry documents for: $routes"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
