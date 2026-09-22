@@ -10,29 +10,32 @@ import Groove from "./themes/groove";
 import Pop from "./themes/pop";
 import Press from "./themes/press";
 import Minecraft from "./themes/minecraft";
+import { AuthProvider } from "@/context/AuthContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Minecraft />} />
-          <Route path="/themes" element={<ThemeIndex />} />
-          <Route path="/pop" element={<Pop />} />
-          <Route path="/press" element={<Press />} />
-          <Route path="/minecraft/*" element={<Minecraft />} />
-          <Route path="/groove" element={<Groove />} />
-          <Route path="/legacy" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Minecraft />} />
+            <Route path="/themes" element={<ThemeIndex />} />
+            <Route path="/pop" element={<Pop />} />
+            <Route path="/press" element={<Press />} />
+            <Route path="/minecraft/*" element={<Minecraft />} />
+            <Route path="/groove" element={<Groove />} />
+            <Route path="/legacy" element={<Index />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </AuthProvider>
 );
 
 export default App;
