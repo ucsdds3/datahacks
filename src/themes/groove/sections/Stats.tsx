@@ -6,7 +6,7 @@ const STATS = [
   { value: "450", label: "attendees", note: "on the floor", colour: TOMATO },
   { value: "36", label: "hours", note: "of building", colour: MARIGOLD },
   { value: "$50,000", label: "in prizes", note: "across the event", colour: MINT },
-  { value: "100", label: "schools", note: "represented", colour: PINK },
+  { value: "12", label: "schools", note: "represented", colour: PINK },
 ];
 
 export function Stats() {

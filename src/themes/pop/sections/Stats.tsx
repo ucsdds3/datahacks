@@ -7,7 +7,7 @@ const STATS: Array<{ n: string; label: string; long?: boolean }> = [
   { n: "450", label: "attendees" },
   { n: "36", label: "hours" },
   { n: "$50,000", label: "in prizes", long: true },
-  { n: "100", label: "schools" },
+  { n: "12", label: "schools" },
 ];
 
 const CROWD: Array<{ left: string; shirt: Shade; variant: 0 | 1 | 2 }> = [

@@ -31,7 +31,7 @@ const questions = [
   ["Is travel reimbursement available?", "Travel reimbursement details are still to be confirmed. We’ll share the policy when applications open."],
 ];
 
-const facts = [["36", "HOURS"], ["$50,000", "IN PRIZES"], ["450", "ATTENDEES"], ["100", "SCHOOLS"]];
+const facts = [["36", "HOURS"], ["$50,000", "IN PRIZES"], ["450", "ATTENDEES"], ["12", "SCHOOLS"]];
 
 /** No panel: the copy sits on the rock and the numbers are set into the cave wall,
  * staggered rather than ruled into a grid. The backdrop is the layout. */

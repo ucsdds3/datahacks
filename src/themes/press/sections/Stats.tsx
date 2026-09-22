@@ -4,7 +4,7 @@ const STATS = [
   { i: "01", n: "450", l: "Attendees" },
   { i: "02", n: "36", l: "Hours" },
   { i: "03", n: "$50,000", l: "In prizes" },
-  { i: "04", n: "100", l: "Schools" },
+  { i: "04", n: "12", l: "Schools" },
 ];
 
 export default function Stats() {
