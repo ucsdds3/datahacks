@@ -34,14 +34,17 @@ jobs:
         run: npm run build
 
       # GitHub Pages serves static files and does not fall back to index.html
-      # for client-side routes. Give the private alternate themes their own
-      # entry documents so direct links and browser refreshes work.
+      # for client-side routes. 404.html is the catch-all Pages does honour, and
+      # it is the only thing that covers nested routes like /datacraft/about --
+      # enumerating directories cannot, because the chapter list changes.
+      # The top-level entries stay so those URLs answer 200 rather than 404.
       - name: Create direct-route entries
         run: |
-          mkdir -p dist/themes dist/pop dist/press
-          cp dist/index.html dist/themes/index.html
-          cp dist/index.html dist/pop/index.html
-          cp dist/index.html dist/press/index.html
+          cp dist/index.html dist/404.html
+          mkdir -p dist/datacraft dist/themes dist/pop dist/press dist/groove dist/legacy
+          for route in datacraft themes pop press groove legacy; do
+            cp dist/index.html "dist/$route/index.html"
+          done
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

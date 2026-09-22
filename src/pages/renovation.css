@@ -1,78 +1,117 @@
-/* The holding page. Self-contained: it must not pull in the themed stylesheets,
-   both so it stays light and so work on the theme can never break it.
+/* The holding page. Self-contained: it must not import the themed stylesheets, so
+   work on the world under /datacraft can never break the one page the public sees.
 
-   Silkscreen is set at 48/16px and VT323 at 15px — multiples of 4 and 5, the only
-   sizes those faces render on whole pixels. */
+   Palette sampled straight off public/datahacks-logo.png — #262626 ink, #12B2C8
+   cyan and #F48035 orange are the three colours the mark is actually made of.
+   Structure borrows groove's blocky 3px rules and hard offset shadows; no
+   gradients, no rounded corners, no blur. */
 
 .dh-hold {
+  --ink: #16181a;
+  --panel: #1e2124;
+  --cyan: #12B2C8;
+  --orange: #F48035;
+  --paper: #EFF1F2;
+  --muted: #9BA5AB;
+  --rule: 3px;
+
   min-height: 100dvh;
   display: grid;
   place-items: center;
   padding: 40px 24px;
-  background: #11170f;
+  background: var(--ink);
+  /* A blocky grid, not a gradient — the only texture on the page. */
   background-image:
-    radial-gradient(ellipse 120% 90% at 50% 40%, #1b2418 0%, #11170f 70%),
-    repeating-linear-gradient(0deg, #ffffff06 0 1px, transparent 1px 4px);
-  color: #e7ece0;
+    linear-gradient(90deg, #ffffff07 var(--rule), transparent var(--rule)),
+    linear-gradient(#ffffff07 var(--rule), transparent var(--rule));
+  background-size: 64px 64px;
+  color: var(--paper);
+  font-family: "Poppins", system-ui, -apple-system, sans-serif;
 }
 
-.dh-hold-inner { width: min(560px, 100%); text-align: center; }
+.dh-hold-inner { width: min(620px, 100%); }
+
+/* Two stacked bars, cyan over orange: the mark reduced to its simplest form. */
+.dh-hold-flag { display: flex; height: 14px; margin-bottom: 26px; }
+.dh-hold-flag i { display: block; height: 100%; }
+.dh-hold-flag i:nth-child(1) { width: 58%; background: var(--cyan); }
+.dh-hold-flag i:nth-child(2) { width: 42%; background: var(--orange); }
 
 .dh-hold-org {
-  margin: 0 0 20px;
-  font: 15px 'VT323', ui-monospace, monospace;
-  letter-spacing: .22em;
-  color: #7f9668;
+  margin: 0 0 14px;
+  font: 700 12px/1 ui-monospace, "Space Mono", monospace;
+  letter-spacing: .24em;
+  color: var(--cyan);
 }
 
 .dh-hold h1 {
-  margin: 0 0 24px;
-  font: 700 48px/1 'Silkscreen', ui-monospace, monospace;
-  letter-spacing: -0.125em;   /* exactly one Silkscreen grid pixel at any size */
-  color: #ecefe3;
-  text-shadow: 2px 2px 0 #0c1209, 0 4px 0 #46603a;
+  margin: 0 0 22px;
+  font: 800 clamp(40px, 8vw, 76px)/0.95 "Poppins", system-ui, sans-serif;
+  letter-spacing: -.04em;
+  color: var(--paper);
 }
+.dh-hold h1 span { color: var(--orange); }
 
 .dh-hold-lead {
-  margin: 0 0 36px;
-  font-size: 17px;
-  line-height: 1.6;
-  color: #c3ccb8;
+  margin: 0 0 34px;
+  padding-left: 18px;
+  border-left: var(--rule) solid var(--orange);
+  font-size: clamp(17px, 2.4vw, 21px);
+  line-height: 1.45;
+  font-weight: 500;
+  color: var(--paper);
+  max-width: 34ch;
 }
 
 .dh-hold-facts {
-  margin: 0 0 32px;
+  margin: 0 0 30px;
   display: grid;
-  gap: 1px;
-  background: #2b3826;
-  border: 1px solid #2b3826;
-  text-align: left;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--rule);
+  background: #2b3034;
+  border: var(--rule) solid #2b3034;
 }
-.dh-hold-facts > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 13px 16px;
-  background: #151d12;
-}
+.dh-hold-facts > div { background: var(--panel); padding: 18px 18px 16px; }
 .dh-hold-facts dt {
-  font: 15px 'VT323', ui-monospace, monospace;
-  letter-spacing: .12em;
+  margin: 0 0 8px;
+  font: 700 11px/1 ui-monospace, "Space Mono", monospace;
+  letter-spacing: .18em;
   text-transform: uppercase;
-  color: #8ba173;
+  color: var(--muted);
 }
-.dh-hold-facts dd { margin: 0; font-size: 15px; color: #dde4d3; }
+.dh-hold-facts dd {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--paper);
+  font-variant-numeric: tabular-nums;
+}
 
-.dh-hold-contact { margin: 0; font-size: 14px; color: #93a186; }
+.dh-hold-contact {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+  font-size: 15px;
+  color: var(--muted);
+}
 .dh-hold-contact a {
-  color: #a8d36a;
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
+  color: var(--ink);
+  background: var(--orange);
+  padding: 8px 14px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 #0e1012;
+  transition: transform .14s ease, box-shadow .14s ease;
 }
-.dh-hold-contact a:hover { color: #c2e58c; }
-.dh-hold-contact a:focus-visible { outline: 2px solid #a8d36a; outline-offset: 3px; }
+.dh-hold-contact a:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #0e1012; }
+.dh-hold-contact a:focus-visible { outline: var(--rule) solid var(--cyan); outline-offset: 3px; }
 
-@media (max-width: 520px) {
-  .dh-hold h1 { font-size: 32px; }
-  .dh-hold-facts > div { flex-direction: column; gap: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .dh-hold-contact a { transition: none; }
+}
+
+@media (max-width: 540px) {
+  .dh-hold-facts { grid-template-columns: 1fr; }
 }
