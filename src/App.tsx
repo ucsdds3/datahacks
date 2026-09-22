@@ -11,6 +11,10 @@ import Pop from "./themes/pop";
 import Press from "./themes/press";
 import Minecraft from "./themes/minecraft";
 import { AuthProvider } from "@/context/AuthContext";
+import LoginHacker from "./pages/LoginHacker";
+import LoginJudge from "./pages/LoginJudge";
+import LoginMentor from "./pages/LoginMentor";
+import AuthCallback from "./pages/AuthCallback";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +34,10 @@ const App = () => (
             <Route path="/groove" element={<Groove />} />
             <Route path="/legacy" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="/login/hacker" element={<LoginHacker />} />
+            <Route path="/login/judge" element={<LoginJudge />} />
+            <Route path="/login/mentor" element={<LoginMentor />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
