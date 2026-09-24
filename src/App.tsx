@@ -15,6 +15,10 @@ import LoginHacker from "./pages/LoginHacker";
 import LoginJudge from "./pages/LoginJudge";
 import LoginMentor from "./pages/LoginMentor";
 import AuthCallback from "./pages/AuthCallback";
+import DashboardHacker from "./pages/DashboardHacker";
+import DashboardJudge from "./pages/DashboardJudge";
+import DashboardMentor from "./pages/DashboardMentor";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +42,9 @@ const App = () => (
             <Route path="/login/judge" element={<LoginJudge />} />
             <Route path="/login/mentor" element={<LoginMentor />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            <Route path="/dashboard/hacker" element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
+            <Route path="/dashboard/judge" element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
+            <Route path="/dashboard/mentor" element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
