@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { Link } from 'react-router-dom'
+import MinecraftLayout from '@/components/MinecraftLayout'
 
 type Application = {
   status: string
@@ -27,28 +28,38 @@ export default function DashboardHacker() {
     fetchApplication()
   }, [session])
 
-  if (loading) return <div style={{ padding: '2rem' }}>Loading...</div>
+  if (loading) return <MinecraftLayout><div style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div></MinecraftLayout>
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Welcome, Hacker</h1>
-      <p>Signed in as {session?.user?.email}</p>
+    <MinecraftLayout>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="mc-application-form" style={{ maxWidth: '420px' }}>
+          <h2>Welcome, Hacker</h2>
+          <p className="mc-form-disclaimer">Signed in as {session?.user?.email}</p>
 
-      {!application && (
-        <>
-          <p>You haven't started an application yet.</p>
-          <Link to="/apply">Start your application</Link>
-        </>
-      )}
+          {!application && (
+            <>
+              <p className="mc-form-disclaimer">You haven't started an application yet.</p>
+              <Link to="/apply" className="mc-button" style={{ display: 'inline-flex', textDecoration: 'none' }}>Start your application</Link>
+            </>
+          )}
 
-      {application && (
-        <div>
-          <p>Application status: <strong>{application.status}</strong></p>
-          {application.submitted_at && (
-            <p>Submitted: {new Date(application.submitted_at).toLocaleString()}</p>
+          {application && (
+            <dl>
+              <div style={{ borderBottom: '1px solid #a3ae97', padding: '13px 0' }}>
+                <dt style={{ fontSize: '12px', color: '#5d6e52' }}>Status</dt>
+                <dd style={{ fontSize: '15px', margin: '4px 0 0' }}>{application.status}</dd>
+              </div>
+              {application.submitted_at && (
+                <div style={{ padding: '13px 0' }}>
+                  <dt style={{ fontSize: '12px', color: '#5d6e52' }}>Submitted</dt>
+                  <dd style={{ fontSize: '15px', margin: '4px 0 0' }}>{new Date(application.submitted_at).toLocaleString()}</dd>
+                </div>
+              )}
+            </dl>
           )}
         </div>
-      )}
-    </div>
+      </div>
+    </MinecraftLayout>
   )
 }

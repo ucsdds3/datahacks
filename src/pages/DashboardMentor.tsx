@@ -1,12 +1,17 @@
 import { useAuth } from '@/context/AuthContext'
+import MinecraftLayout from '@/components/MinecraftLayout'
 
 export default function DashboardMentor() {
   const { session } = useAuth()
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h1>Welcome, Mentor</h1>
-      <p>Signed in as {session?.user?.email}</p>
-    </div>
+    <MinecraftLayout>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="mc-application-form" style={{ maxWidth: '420px' }}>
+          <h2>Welcome, Mentor</h2>
+          <p className="mc-form-disclaimer">Signed in as {session?.user?.email}</p>
+        </div>
+      </div>
+    </MinecraftLayout>
   )
 }

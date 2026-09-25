@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
+import MinecraftLayout from '@/components/MinecraftLayout'
 
 const heardAboutOptions = ['Friend/word of mouth', 'Past DataHacks event', 'Tabling on campus', 'Social Media', 'Email newsletter', 'Other']
 
@@ -72,63 +73,167 @@ export default function ApplicationForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '2rem auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <h1>Hacker Application</h1>
+    <MinecraftLayout>
+<style>{`
+  .mc-form-fields > label,
+  .mc-form-fields > fieldset > label {
+    display: block;
+    margin-bottom: 4px;
+  }
+  .mc-form-fields input:not([type="checkbox"]),
+  .mc-form-fields textarea {
+    display: block;
+    width: 100%;
+  }
+  .mc-form-fields input[type="file"] {
+    display: flex;
+    align-items: center;
+    height: 47px;
+  }
+  .mc-radio-option input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #566d47;
+    background: #edf0e3;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .mc-radio-option input[type="checkbox"]:checked {
+    background: #cedbbd;
+    border-color: #627b52;
+  }
+`}</style>
+      <div className="mc-application-page">
+        <div className="mc-container" style={{ maxWidth: '700px' }}>
+          <form className="mc-application-form" onSubmit={handleSubmit}>
+            <div className="mc-application-preview-label">
+              <span />APPLICATION
+            </div>
+            <h2>Hacker Application</h2>
+            <p className="mc-form-disclaimer">Fields marked required must be filled out. Your resume must be a PDF.</p>
 
-      <input placeholder="First name (as on ID)" required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
-      <input placeholder="Last name (as on ID)" required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
-      <input placeholder="Gender" required value={form.gender} onChange={e => update('gender', e.target.value)} />
-      <input placeholder="Race/ethnicity" required value={form.race_ethnicity} onChange={e => update('race_ethnicity', e.target.value)} />
-      <input type="date" required value={form.birthdate} onChange={e => update('birthdate', e.target.value)} />
-      <input placeholder="Country of residence" required value={form.country_of_residence} onChange={e => update('country_of_residence', e.target.value)} />
-      <input placeholder="City of residence" required value={form.city_of_residence} onChange={e => update('city_of_residence', e.target.value)} />
-      <input placeholder="Level of study" required value={form.level_of_study} onChange={e => update('level_of_study', e.target.value)} />
-      <input placeholder="School" required value={form.school} onChange={e => update('school', e.target.value)} />
-      <input placeholder="Major" required value={form.major} onChange={e => update('major', e.target.value)} />
-      <input placeholder="Expected graduation year" required value={form.graduation_year} onChange={e => update('graduation_year', e.target.value)} />
-      <input placeholder="Previous hackathon experience" required value={form.hackathon_experience} onChange={e => update('hackathon_experience', e.target.value)} />
+            <div className="mc-form-fields">
+              <label>First name (as on ID)
+                <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
+              </label>
+              <label>Last name (as on ID)
+                <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
+              </label>
+              <label>Gender
+                <input required value={form.gender} onChange={e => update('gender', e.target.value)} />
+              </label>
+              <label>Race/ethnicity
+                <input required value={form.race_ethnicity} onChange={e => update('race_ethnicity', e.target.value)} />
+              </label>
+              <label>Birthdate
+                <input type="date" required value={form.birthdate} onChange={e => update('birthdate', e.target.value)} />
+              </label>
+              <label>Country of residence
+                <input required value={form.country_of_residence} onChange={e => update('country_of_residence', e.target.value)} />
+              </label>
+              <label>City of residence
+                <input required value={form.city_of_residence} onChange={e => update('city_of_residence', e.target.value)} />
+              </label>
+              <label>Level of study
+                <input required value={form.level_of_study} onChange={e => update('level_of_study', e.target.value)} />
+              </label>
+              <label>School
+                <input required value={form.school} onChange={e => update('school', e.target.value)} />
+              </label>
+              <label>Major
+                <input required value={form.major} onChange={e => update('major', e.target.value)} />
+              </label>
+              <label>Expected graduation year
+                <input required value={form.graduation_year} onChange={e => update('graduation_year', e.target.value)} />
+              </label>
+              <label>Previous hackathon experience
+                <input required value={form.hackathon_experience} onChange={e => update('hackathon_experience', e.target.value)} />
+              </label>
 
-      <label><input type="checkbox" checked={form.attended_before} onChange={e => update('attended_before', e.target.checked)} /> Attended DataHacks before</label>
+              <div className="mc-radio-option">
+                <input type="checkbox" id="attended_before" checked={form.attended_before} onChange={e => update('attended_before', e.target.checked)} />
+                <label htmlFor="attended_before">Attended DataHacks before</label>
+              </div>
 
-      <input placeholder="LinkedIn (optional)" value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
-      <input placeholder="Devpost (optional)" value={form.devpost_url} onChange={e => update('devpost_url', e.target.value)} />
+              <label>LinkedIn <span>(optional)</span>
+                <input value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
+              </label>
+              <label>Devpost <span>(optional)</span>
+                <input value={form.devpost_url} onChange={e => update('devpost_url', e.target.value)} />
+              </label>
 
-      <label>Resume (required)
-        <input type="file" accept=".pdf" required onChange={e => setResumeFile(e.target.files?.[0] ?? null)} />
-      </label>
+              <label>Resume (PDF, required)
+                <input type="file" accept=".pdf" required onChange={e => setResumeFile(e.target.files?.[0] ?? null)} />
+              </label>
 
-      <textarea placeholder="What's the project you're most proud of building?" required value={form.essay_proudest_project} onChange={e => update('essay_proudest_project', e.target.value)} />
-      <textarea placeholder="What's something unique you'd bring?" required value={form.essay_unique_thing} onChange={e => update('essay_unique_thing', e.target.value)} />
-      <textarea placeholder="What would you like to get out of this event?" required value={form.essay_goal} onChange={e => update('essay_goal', e.target.value)} />
+              <label>What's the project you're most proud of building?
+                <textarea required rows={4} value={form.essay_proudest_project} onChange={e => update('essay_proudest_project', e.target.value)} />
+              </label>
+              <label>What's something unique you'd bring?
+                <textarea required rows={4} value={form.essay_unique_thing} onChange={e => update('essay_unique_thing', e.target.value)} />
+              </label>
+              <label>What would you like to get out of this event?
+                <textarea required rows={4} value={form.essay_goal} onChange={e => update('essay_goal', e.target.value)} />
+              </label>
 
-      <textarea placeholder="Funniest joke (optional)" value={form.funniest_joke} onChange={e => update('funniest_joke', e.target.value)} />
-      <textarea placeholder="A lifetime goal of yours (optional)" value={form.lifetime_goal} onChange={e => update('lifetime_goal', e.target.value)} />
+              <label>Funniest joke <span>(optional)</span>
+                <textarea rows={2} value={form.funniest_joke} onChange={e => update('funniest_joke', e.target.value)} />
+              </label>
+              <label>A lifetime goal of yours <span>(optional)</span>
+                <textarea rows={2} value={form.lifetime_goal} onChange={e => update('lifetime_goal', e.target.value)} />
+              </label>
 
-      <label><input type="checkbox" checked={form.wants_travel_stipend} onChange={e => update('wants_travel_stipend', e.target.checked)} /> Apply for travel stipend</label>
-      {form.wants_travel_stipend && (
-        <>
-          <textarea placeholder="How would a travel stipend help you?" value={form.travel_stipend_reason} onChange={e => update('travel_stipend_reason', e.target.value)} />
-          <input placeholder="Region traveling from" value={form.travel_region} onChange={e => update('travel_region', e.target.value)} />
-        </>
-      )}
+              <div className="mc-radio-option">
+                <input type="checkbox" id="travel_stipend" checked={form.wants_travel_stipend} onChange={e => update('wants_travel_stipend', e.target.checked)} />
+                <label htmlFor="travel_stipend">Apply for travel stipend</label>
+              </div>
 
-      <fieldset>
-        <legend>How did you hear about this event?</legend>
-        {heardAboutOptions.map(option => (
-          <label key={option} style={{ display: 'block' }}>
-            <input type="checkbox" checked={form.heard_about.includes(option)} onChange={() => toggleHeardAbout(option)} /> {option}
-          </label>
-        ))}
-      </fieldset>
+              {form.wants_travel_stipend && (
+                <>
+                  <label>How would a travel stipend help you?
+                    <textarea rows={3} value={form.travel_stipend_reason} onChange={e => update('travel_stipend_reason', e.target.value)} />
+                  </label>
+                  <label>Region traveling from
+                    <input value={form.travel_region} onChange={e => update('travel_region', e.target.value)} />
+                  </label>
+                </>
+              )}
 
-      <label>
-        <input type="checkbox" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} />
-        I agree that all info above is correct and I'll abide by the code of conduct.
-      </label>
+              <fieldset>
+                <legend>How did you hear about this event?</legend>
+                {heardAboutOptions.map(option => (
+                  <div className="mc-radio-option" key={option} style={{ marginBottom: '8px' }}>
+                    <input
+                      type="checkbox"
+                      id={option}
+                      checked={form.heard_about.includes(option)}
+                      onChange={() => toggleHeardAbout(option)}
+                    />
+                    <label htmlFor={option}>{option}</label>
+                  </div>
+                ))}
+              </fieldset>
 
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+              <div className="mc-radio-option">
+                <input type="checkbox" id="agree" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} />
+                <label htmlFor="agree">I agree that all info above is correct and I'll abide by the code of conduct.</label>
+              </div>
+            </div>
 
-      <button type="submit" disabled={submitting}>{submitting ? 'Submitting...' : 'Submit Application'}</button>
-    </form>
+            {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
+
+            <div className="mc-form-actions">
+              <button type="submit" className="mc-button" disabled={submitting}>
+                {submitting ? 'Submitting...' : 'Submit Application'}
+              </button>
+            </div>
+
+            <p className="mc-form-help">You won't be able to change your answers after submitting. Need help? Reach out to the DataHacks team.</p>
+          </form>
+        </div>
+      </div>
+    </MinecraftLayout>
   )
 }
