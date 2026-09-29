@@ -4,9 +4,9 @@ import { Person, Trophy } from "../art/Props";
 import { Rise } from "../motion";
 
 const STEPS = [
-  { place: "3rd", mod: "pop-step--3", amount: "$X,XXX", shirt: C.pink },
-  { place: "2nd", mod: "pop-step--2", amount: "$X,XXX", shirt: C.teal },
-  { place: "1st", mod: "pop-step--1", amount: "$XX,XXX", shirt: C.cream },
+  { place: "3rd", mod: "pop-step--3", amount: "—", shirt: C.pink },
+  { place: "2nd", mod: "pop-step--2", amount: "—", shirt: C.teal },
+  { place: "1st", mod: "pop-step--1", amount: "—", shirt: C.cream },
 ];
 
 export default function Prizes() {
@@ -19,13 +19,12 @@ export default function Prizes() {
               <p className="pop-eyebrow">Prize pool</p>
             </Rise>
             <Rise i={1}>
-              <p className="pop-pool">$XX,XXX</p>
+              <p className="pop-pool">$50,000</p>
             </Rise>
           </div>
           <Rise i={2}>
             <p className="pop-note pop-prize-note">
-              Split across the podium and every track. The pool is confirmed once sponsors are
-              signed — the shape below is final, the numbers are not.
+              A $50,000 prize pool across the event. Individual award amounts will be announced soon.
             </p>
           </Rise>
         </div>

@@ -30,7 +30,7 @@ export default function Sponsors() {
             <Rise i={3}>
               <p className="pop-spon-mail">
                 Sponsor inquiries →{" "}
-                <a href="mailto:sponsorship@ds3ucsd.com">sponsorship@ds3ucsd.com</a>
+                <a href="mailto:info@ds3.club">info@ds3.club</a>
               </p>
             </Rise>
           </div>

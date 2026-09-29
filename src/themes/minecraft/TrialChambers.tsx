@@ -9,9 +9,11 @@ export function TrialEntrance() {
       <p className="mc-eyebrow">06 / THE TRIAL CHAMBERS</p>
       <h2 id="mc-trial-title">Great builders.<br /><em>Even better guides.</em></h2>
       <p>Share what you know. Help a team find its next idea, or celebrate the work that stands out.</p>
-      <dl className="mc-trial-stats"><div><dd>XX</dd><dt>MENTORS</dt></div><div><dd>XX</dd><dt>JUDGES</dt></div></dl>
+      {/* Counters reading XX advertised that we had not recruited anyone yet. The
+          ask is the point of this panel; the numbers were never the point. */}
+      <p className="mc-trial-ask">Mentoring runs across the full 36 hours. Judging is a few hours on the Sunday.</p>
     </div>
-    <WorldLink to="/minecraft/mentors" kind="trial" className="mc-trial-door" aria-label="Break into the Trial Chambers — mentor and judge interest" data-mineable>
+    <WorldLink to="/datacraft/mentors" kind="trial" className="mc-trial-door" aria-label="Break into the Trial Chambers — mentor and judge interest" data-mineable>
       <span className="mc-trial-door-highlight" aria-hidden="true" />
       <span className="mc-button">Enter the Trial Chambers ↗</span>
       <small>Mentor & judge interest</small>
@@ -35,7 +37,7 @@ export default function TrialChambersPage() {
     <img className="mc-dimension-art" src="/images/minecraft/dimensions/trial-chamber-interest.webp" alt="" width="1536" height="1024" {...{ fetchpriority: "high" }} />
     <div className="mc-container mc-trial-page-layout">
       <aside className="mc-trial-page-intro">
-        <Link to="/minecraft#trial-layer" className="mc-dimension-back">← Return to the overworld</Link>
+        <Link to="/datacraft#trial-layer" className="mc-dimension-back">← Return to the overworld</Link>
         <p className="mc-eyebrow">THE TRIAL CHAMBERS</p>
         <h1 tabIndex={-1}>Help the next<br /><em>builder level up.</em></h1>
         <p>Join DataHacks as a mentor or judge. A little guidance can open a whole new path.</p>
@@ -63,7 +65,7 @@ export default function TrialChambersPage() {
           </div>
           <div className="mc-form-actions"><button type="submit" className="mc-button">Review interest →</button></div>
         </form>}
-        <p className="mc-form-help">Questions? <a href="mailto:hello@ds3ucsd.com">Talk to the organizers ↗</a></p>
+        <p className="mc-form-help">Questions? <a href="mailto:info@ds3.club">Talk to the organizers ↗</a></p>
       </motion.div>
     </div>
   </div>;

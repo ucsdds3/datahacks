@@ -79,8 +79,8 @@
                </div>
                <div>
                  <h4 className="font-display text-lg font-bold text-white mb-1">Email Us</h4>
-                 <a href="mailto:datahacks@ucsd.edu" className="text-bioluminescent hover:underline">
-                   ds3@ucsd.edu
+                 <a href="mailto:info@ds3.club" className="text-bioluminescent hover:underline">
+                   info@ds3.club
                  </a>
                </div>
              </div>

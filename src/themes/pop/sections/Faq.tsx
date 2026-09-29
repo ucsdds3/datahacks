@@ -41,7 +41,7 @@ export default function Faq() {
           <Rise i={2}>
             <p className="pop-note">
               Applications open closer to the date. Anything still unanswered goes to{" "}
-              <a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a>.
+              <a href="mailto:info@ds3.club">info@ds3.club</a>.
             </p>
           </Rise>
           <Rise i={3}>

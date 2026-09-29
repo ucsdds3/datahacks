@@ -30,18 +30,41 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The application portal needs these at build time. Set them as repository
+      # variables (the anon key is public by design). Unset, the site still builds
+      # and the portal routes show a "not available yet" message.
       - name: Build website
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       # GitHub Pages serves static files and does not fall back to index.html
-      # for client-side routes. Give the private alternate themes their own
-      # entry documents so direct links and browser refreshes work.
+      # for client-side routes. 404.html is the catch-all Pages does honour, and
+      # it is the only thing that covers nested routes like /datacraft/about --
+      # enumerating directories cannot, because the chapter list changes.
+      # The top-level entries stay so those URLs answer 200 rather than 404.
+      # Pages has no server-side router. 404.html is the catch-all it honours and
+      # covers anything not listed below; the explicit entries exist so the real
+      # routes answer 200 rather than 404. Chapter list is read out of
+      # chapters.ts so this cannot drift when a chapter is added or renamed.
       - name: Create direct-route entries
         run: |
-          mkdir -p dist/themes dist/pop dist/press
-          cp dist/index.html dist/themes/index.html
-          cp dist/index.html dist/pop/index.html
-          cp dist/index.html dist/press/index.html
+          cp dist/index.html dist/404.html
+          routes=$(node -e "
+            const src = require('fs').readFileSync('src/themes/minecraft/chapters.ts','utf8');
+            const chapters = [...src.matchAll(/path:\s*\"(\/[^\"]*)\"/g)].map(m => m[1]);
+            const extra = ['/datacraft/schedule', '/datacraft/mentors',
+                           '/themes', '/pop', '/press', '/groove', '/legacy',
+                           '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
+                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor', '/apply'];
+            console.log([...new Set([...chapters, ...extra])].join(' '));
+          ")
+          for route in $routes; do
+            mkdir -p "dist${route}"
+            cp dist/index.html "dist${route}/index.html"
+          done
+          echo "Wrote entry documents for: $routes"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

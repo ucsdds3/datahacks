@@ -1,0 +1,7 @@
+01-about	public/images/minecraft/relief/01-about.webp
+02-tracks	public/images/minecraft/relief/02-tracks.webp
+04-speakers	public/images/minecraft/relief/04-speakers.webp
+05-prizes	public/images/minecraft/relief/05-prizes.webp
+06-faq	public/images/minecraft/relief/06-faq.webp
+07-stronghold	public/images/minecraft/relief/07-stronghold.webp
+trial-chamber-entrance	public/images/minecraft/dimensions/trial-chamber-entrance.webp

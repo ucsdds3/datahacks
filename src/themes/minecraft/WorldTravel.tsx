@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, type LinkProps } from "react-router-dom
 import { PixelSprite } from "./PixelWorld";
 import { motion } from "framer-motion";
 import { PortalFrame } from "./PortalFrame";
+import { LEGACY_HASHES } from "./chapters";
 
 type Trip = { to: string; kind: "portal" | "creeper" | "end" | "trial" };
 const TravelContext = createContext<(trip: Trip) => void>(() => {});
@@ -24,9 +25,12 @@ export function WorldTravel({ children }: { children: ReactNode }) {
   useEffect(() => {
     const heading = document.querySelector<HTMLElement>("#mc-main h1");
     document.title = location.pathname.endsWith("schedule") ? "Run of show · DataHacks 2.0" : location.pathname.endsWith("apply") ? "Application · DataHacks 2.0" : location.pathname.endsWith("mentors") ? "Mentors & judges · DataHacks 2.0" : "DataHacks 2.0 · Crafted Together";
-    if (location.hash) document.getElementById(location.hash.slice(1))?.scrollIntoView();
-    else { window.scrollTo(0, 0); heading?.focus({ preventScroll: true }); }
-  }, [location.pathname, location.hash]);
+    // Links from the old scrolling page point at in-page hashes. Send them to the
+    // chapter that content now lives in; there is nothing left to scroll to.
+    const chapter = LEGACY_HASHES[location.hash];
+    if (chapter) navigate(chapter, { replace: true });
+    else heading?.focus({ preventScroll: true });
+  }, [location.pathname, location.hash, navigate]);
 
   useEffect(() => {
     if (!trip) return;
@@ -54,7 +58,7 @@ export function WorldTravel({ children }: { children: ReactNode }) {
   };
 
   return <TravelContext.Provider value={depart}>
-    <div ref={content}>{children}</div>
+    <div ref={content} className="mc-shell">{children}</div>
     {trip && <div className={`mc-travel mc-travel-${trip.kind}`} role="dialog" aria-modal="true" aria-label={trip.kind === "trial" ? "Opening the Trial Chambers" : trip.kind === "portal" ? "Traveling to the Nether schedule" : "Opening the application"}>
       <div className="mc-travel-scene" aria-hidden="true">{trip.kind === "trial" ? <div className="mc-trial-opening">{[-1,1].map(side => <motion.div key={side} className={`mc-trial-gate mc-trial-gate-${side < 0 ? 'left' : 'right'}`} initial={{ x: 0 }} animate={{ x: `${side * 105}%` }} transition={{ delay: .35, duration: 1.2, ease: [.6, 0, .25, 1] }} />)}</div> : trip.kind === "end" ? <img src="/images/minecraft/layers/end-portal.png" alt="" width="400" height="400" className="mc-travel-sprite" /> : trip.kind === "portal" ? <PortalFrame className="mc-travel-sprite" /> : <PixelSprite kind="creeper" className="mc-travel-sprite" />}
         {trip.kind === "creeper" && <div className="mc-explosion">{Array.from({ length: 28 }, (_, i) => <i key={i} style={{ "--dx": `${Math.cos(i * 2.4) * (140 + i * 14)}px`, "--dy": `${Math.sin(i * 2.4) * (140 + i * 14)}px`, "--turn": `${i * 53}deg`, "--size": `${15 + i % 5 * 9}px` } as CSSProperties} />)}</div>}

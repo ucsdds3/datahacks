@@ -42,7 +42,7 @@ export function Faq() {
             </h2>
             <p className="g-faq__copy">
               Anything not covered here, ask us at{" "}
-              <a href="mailto:hello@ds3ucsd.com">hello@ds3ucsd.com</a>.
+              <a href="mailto:info@ds3.club">info@ds3.club</a>.
             </p>
           </Reveal>
           <DriftingDoodle className="g-doodle g-doodle--faqdaisy" speed={22} spin={-10}>

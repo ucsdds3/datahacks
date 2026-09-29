@@ -1,14 +1,39 @@
+« /datacraft is the site being built and is not ready to be found. /pop,
+  /press, /groove, /legacy and /themes are internal design mockups carrying
+  placeholder dates and figures. Only the holding page should be indexed. »
+
+User-agent: *
+Allow: /
+Disallow: /datacraft
+Disallow: /minecraft
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
+
 User-agent: Googlebot
 Allow: /
+Disallow: /datacraft
+Disallow: /minecraft
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
 
 User-agent: Bingbot
 Allow: /
+Disallow: /datacraft
+Disallow: /minecraft
+Disallow: /pop
+Disallow: /press
+Disallow: /groove
+Disallow: /legacy
+Disallow: /themes
 
 User-agent: Twitterbot
 Allow: /
 
 User-agent: facebookexternalhit
-Allow: /
-
-User-agent: *
 Allow: /

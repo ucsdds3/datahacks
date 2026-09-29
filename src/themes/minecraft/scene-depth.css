@@ -1,0 +1,44 @@
+/* A separate foreground plane gives the existing cave artwork physical depth. */
+.minecraft-root .mc-chapter > .mc-scene-depth { position:absolute; inset:0; z-index:3; pointer-events:none; overflow:hidden; }
+.minecraft-root .mc-scene-depth canvas { position:absolute; inset:0; }
+.minecraft-root .mc-chapter-art { transform:translate3d(calc(var(--camera-x, 0px) * -.4),calc(var(--camera-y, 0px) * -.45),0) scale(1.045); }
+.minecraft-root .mc-hero-cherry-image { transform:translate3d(calc(var(--camera-x, 0px) * -.55),calc(var(--camera-y, 0px) * -.55),0) scale(1.055); }
+.minecraft-root .mc-hanging-lantern { position:absolute; right:7%; top:-35px; width:76px; transform-origin:50% 0; transform:translate3d(var(--camera-x, 0px),calc(var(--camera-y, 0px) * .4),0) rotate(var(--lantern-sway, -1deg)); filter:drop-shadow(5px 9px 3px #15252655); }
+.minecraft-root .mc-lantern-chain { width:8px; height:138px; margin:auto; background:repeating-linear-gradient(0deg,#2d3a3b 0 7px,#718079 7px 10px,#253233 10px 17px); border-inline:2px solid #243234; }
+.minecraft-root .mc-hanging-lantern svg { position:relative; display:block; width:100%; margin-top:-3px; }
+.minecraft-root .mc-hanging-lantern::before { content:""; position:absolute; width:160px; height:160px; left:50%; bottom:-40px; transform:translateX(-50%); background:radial-gradient(ellipse,#ffcc7255,transparent 66%); }
+.minecraft-root .mc-rock-ledge { position:absolute; width:180px; height:195px; transform-style:preserve-3d; perspective:850px; transform:translate3d(calc(var(--camera-x, 0px) * 1.7),calc(var(--camera-y, 0px) * 1.4),0); filter:brightness(.78) drop-shadow(9px 15px 6px #03090b77); }
+.minecraft-root .mc-rock-ledge-left { left:-42px; bottom:-35px; }
+.minecraft-root .mc-rock-ledge-right { right:-52px; top:-43px; transform:translate3d(calc(var(--camera-x, 0px) * 1.2),calc(var(--camera-y, 0px) * 1.2),0) rotate(180deg); }
+.minecraft-root .mc-depth-block { --block:78px; position:absolute; width:var(--block); height:var(--block); transform-style:preserve-3d; transform:rotateX(-15deg) rotateY(24deg); }
+.minecraft-root .mc-depth-block-0 { left:6px; top:23px; }
+.minecraft-root .mc-depth-block-1 { left:77px; top:97px; transform:translateZ(18px) rotateX(-15deg) rotateY(24deg); }
+.minecraft-root .mc-depth-block-2 { left:0; top:99px; }
+.minecraft-root .mc-depth-block i { position:absolute; inset:0; display:block; background-image:var(--block-texture); background-size:100% 100%; image-rendering:pixelated; backface-visibility:hidden; }
+.minecraft-root .mc-block-front { transform:translateZ(calc(var(--block) / 2)); box-shadow:inset 0 2px #ffffff22,inset -2px -2px #00000044; }
+.minecraft-root .mc-block-top { transform:rotateX(90deg) translateZ(calc(var(--block) / 2)); filter:brightness(1.25); }
+.minecraft-root .mc-block-side { transform:rotateY(90deg) translateZ(calc(var(--block) / 2)); filter:brightness(.52); }
+/* Small screens keep the same composition with a lighter foreground. */
+@media (max-width:700px) {
+  .minecraft-root .mc-hanging-lantern { right:5%; width:43px; top:-60px; }
+  .minecraft-root .mc-lantern-chain { height:110px; width:6px; }
+  .minecraft-root .mc-rock-ledge { scale:.62; }
+  .minecraft-root .mc-rock-ledge-left { left:-78px; bottom:-62px; }
+  .minecraft-root .mc-rock-ledge-right { right:-88px; top:-78px; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .minecraft-root .mc-story { scroll-behavior:auto; }
+  .minecraft-root .mc-chapter-art,
+  .minecraft-root .mc-hero-cherry-image,
+  .minecraft-root .mc-rock-ledge,
+  .minecraft-root .mc-hanging-lantern { transform:none; }
+  .minecraft-root .mc-rock-ledge-right { transform:rotate(180deg); }
+  .minecraft-root .mc-scene-depth canvas { display:none; }
+}
+
+@media (max-width:760px) {
+  /* The schedule entrance stays in the flow, clear of the last track card. */
+  .minecraft-root .mc-chapter .mc-track-nether { position:relative; inset:auto; align-self:flex-start; margin:16px 3% 0; }
+  .minecraft-root .mc-chapter .mc-track-nether-door { flex-direction:row; width:auto; gap:12px; padding:8px 12px; }
+  .minecraft-root .mc-chapter .mc-track-nether-door .mc-obsidian-portal { width:30px; }
+}

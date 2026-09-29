@@ -31,18 +31,40 @@ const questions = [
   ["Is travel reimbursement available?", "Travel reimbursement details are still to be confirmed. We’ll share the policy when applications open."],
 ];
 
+const facts = [["36", "HOURS"], ["$50,000", "IN PRIZES"], ["450", "ATTENDEES"], ["12", "SCHOOLS"]];
+
+/** No panel: the copy sits on the rock and the numbers are set into the cave wall,
+ * staggered rather than ruled into a grid. The backdrop is the layout. */
 export function About() {
-  return <section className="mc-section mc-about mc-about-numbers" id="about" aria-label="Event at a glance"><div className="mc-container"><dl className="mc-number-grid">{[["XX", "HOURS"], ["$XX", "IN PRIZES"], ["XX", "ATTENDEES"], ["XX", "SCHOOLS"]].map(([value,label])=><div key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl></div></section>;
+  return <section className="mc-section mc-scene-open mc-about-scene" id="about" aria-label="About DataHacks">
+    <div className="mc-about-copy">
+      <p className="mc-eyebrow">01 / THE WORLD</p>
+      <h2>Thirty-six hours.<br /><em>One world to build.</em></h2>
+      <p className="mc-body">DataHacks is DS3’s data science and machine learning hackathon. Bring a question worth answering, find your team, and spend a weekend turning it into something real.</p>
+      <p className="mc-body">Any current student, any major, any experience level. Meals, workshops and mentors included.</p>
+    </div>
+    <dl className="mc-fact-scatter">{facts.map(([value, label], i) => <div className={`mc-fact mc-fact-${i}`} key={label}><dd>{value}</dd><dt>{label}</dt></div>)}</dl>
+  </section>;
 }
 
+/** Four cards reading "Track One / Unexplored territory" were worse than nothing:
+ * a blank space says not written yet, a filled generic card says this is what we
+ * came up with. What is true today is last year's theme and this year's date. */
 export function Tracks() {
-  const items = ["code", "compass", "diamond", "torch"] as const;
-  return <section className="mc-section mc-tracks" id="tracks"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">02 / CHOOSE YOUR BIOME</p><h2>Different paths.<br /><em>Endless discoveries.</em></h2></div><p className="mc-body">Four tracks. A whole world of problems to solve.<br />Prompts, datasets, and judging criteria are coming soon.</p></div><div className="mc-track-grid">{["One", "Two", "Three", "Four"].map((name, i) => <article className={`mc-track mc-track-${i}`} key={name}><div className="mc-track-top"><span>0{i + 1}</span><LockKeyhole size={17} aria-hidden="true" /></div><div className="mc-track-symbol" aria-hidden="true"><PixelItem item={items[i]} /></div><p className="mc-eyebrow">UNEXPLORED TERRITORY</p><h3>Track {name}</h3><p>Every great adventure starts<br />with a little unknown.</p><div className="mc-track-status"><span /> REVEALING SOON</div></article>)}</div><p className="mc-section-note">Pick your path when the tracks are announced. All experience levels welcome.</p></div></section>;
+  return <section className="mc-section mc-scene-open mc-tracks" id="tracks"><div className="mc-container">
+    <div className="mc-section-head">
+      <div><p className="mc-eyebrow">02 / CHOOSE YOUR BIOME</p><h2>Different paths.<br /><em>Endless discoveries.</em></h2></div>
+      <p className="mc-body">Tracks, datasets and judging criteria are announced with applications in October. Whatever you work in — models, visualisation, systems, or something we haven’t thought of — there will be a path for it.</p>
+    </div>
+    <p className="mc-section-note">DataHacks 2026 ran on Environment, Climate &amp; Energy Sciences. You can read every project from that weekend on Devpost.</p>
+  </div></section>;
 }
 
+/** The podium stays — it is the scene. The per-place figures do not: three blocks
+ * reading "—" over "TO BE ANNOUNCED" spent the credibility a real number buys. */
 export function Prizes() {
-  const prizes = [{ rank: "2nd", material: "IRON", amount: "$X,XXX", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", amount: "$XX,XXX", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", amount: "$X,XXX", cls: "gold", item: "gold" as const }];
-  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$XX,XXX</strong><small>Final prizes to be announced</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong><span className="mc-prize-amount">{item.amount}</span><small>TO BE ANNOUNCED</small></div></div>)}</div><p className="mc-section-note">Plus awards across all four tracks. Prize amounts are placeholders until confirmed.</p></div></section>;
+  const prizes = [{ rank: "2nd", material: "IRON", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", cls: "gold", item: "gold" as const }];
+  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$50,000</strong><small>Split across places and tracks, announced in October</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong></div></div>)}</div><p className="mc-section-note">DataHacks 2026 awarded $31,793 in cash and prizes across the weekend.</p></div></section>;
 }
 
 export function Schedule() {
@@ -50,13 +72,13 @@ export function Schedule() {
 }
 
 export function Sponsors() {
-  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">03 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:sponsorship@ds3ucsd.com">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:sponsorship@ds3ucsd.com" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
+  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">03 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:info@ds3.club">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:info@ds3.club" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
 }
 
 export function Faq() {
-  return <section className="mc-section mc-faq" id="faq"><div className="mc-container mc-faq-grid"><div><p className="mc-eyebrow">06 / THE SURVIVAL GUIDE</p><h2>A little help<br />before you<br /><em>spawn in.</em></h2><p className="mc-body">Still have a question?<br /><a className="mc-text-link" href="mailto:hello@ds3ucsd.com">Talk to the organizers <ArrowUpRight size={17} /></a></p></div><Accordion type="single" collapsible defaultValue="question-0" className="mc-faq-list">{questions.map(([question, answer], i) => <AccordionItem value={`question-${i}`} key={question} className="mc-faq-item"><AccordionTrigger className="mc-faq-trigger"><span><b>{String(i + 1).padStart(2, "0")}</b>{question}</span></AccordionTrigger><AccordionContent className="mc-faq-answer">{answer}</AccordionContent></AccordionItem>)}</Accordion></div></section>;
+  return <section className="mc-section mc-faq" id="faq"><div className="mc-container mc-faq-grid"><div><p className="mc-eyebrow">06 / THE SURVIVAL GUIDE</p><h2>A little help<br />before you<br /><em>spawn in.</em></h2><p className="mc-body">Still have a question?<br /><a className="mc-text-link" href="mailto:info@ds3.club">Talk to the organizers <ArrowUpRight size={17} /></a></p></div><Accordion type="single" collapsible defaultValue="question-0" className="mc-faq-list">{questions.map(([question, answer], i) => <AccordionItem value={`question-${i}`} key={question} className="mc-faq-item"><AccordionTrigger className="mc-faq-trigger"><span><b>{String(i + 1).padStart(2, "0")}</b>{question}</span></AccordionTrigger><AccordionContent className="mc-faq-answer">{answer}</AccordionContent></AccordionItem>)}</Accordion></div></section>;
 }
 
 export function Apply() {
-  return <section className="mc-apply" id="apply"><div className="mc-container"><p className="mc-eyebrow">YOUR NEXT CHAPTER</p><h2>The world is yours.<br /><em>What will you create?</em></h2><p>January 16–17, 2027. Bring your curiosity. Find your people.</p><div className="mc-application-status"><span /> APPLICATIONS OPENING SOON</div><p className="mc-application-note">Registration isn’t open yet. Check back closer to the event.</p><a href="mailto:hello@ds3ucsd.com" className="mc-button">Get in touch <ArrowUpRight size={18} /></a></div></section>;
+  return <section className="mc-apply" id="apply"><div className="mc-container"><p className="mc-eyebrow">YOUR NEXT CHAPTER</p><h2>The world is yours.<br /><em>What will you create?</em></h2><p>January 16–17, 2027. Bring your curiosity. Find your people.</p><div className="mc-application-status"><span /> APPLICATIONS OPENING SOON</div><p className="mc-application-note">Registration isn’t open yet. Check back closer to the event.</p><a href="mailto:info@ds3.club" className="mc-button">Get in touch <ArrowUpRight size={18} /></a></div></section>;
 }
