@@ -30,8 +30,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # The application portal needs these at build time. Set them as repository
+      # variables (the anon key is public by design). Unset, the site still builds
+      # and the portal routes show a "not available yet" message.
       - name: Build website
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       # GitHub Pages serves static files and does not fall back to index.html
       # for client-side routes. 404.html is the catch-all Pages does honour, and
@@ -49,7 +55,9 @@ jobs:
             const src = require('fs').readFileSync('src/themes/minecraft/chapters.ts','utf8');
             const chapters = [...src.matchAll(/path:\s*\"(\/[^\"]*)\"/g)].map(m => m[1]);
             const extra = ['/datacraft/schedule', '/datacraft/mentors',
-                           '/themes', '/pop', '/press', '/groove', '/legacy'];
+                           '/themes', '/pop', '/press', '/groove', '/legacy',
+                           '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
+                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor', '/apply'];
             console.log([...new Set([...chapters, ...extra])].join(' '));
           ")
           for route in $routes; do
