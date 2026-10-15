@@ -196,10 +196,10 @@ export default function MentorJudgeApplication() {
       <div className="mc-application-page">
         <div className="mc-container" style={{ maxWidth: '700px' }}>
           <form className="mc-application-form" onSubmit={handleSubmit} noValidate>
+            <h2 style={{ textAlign: 'center' }}>Mentor / Judge Application</h2>
             <div className="mc-application-preview-label">
               <span />APPLICATION
             </div>
-            <h2>Mentor / Judge Application</h2>
             <p className="mc-form-disclaimer" style={{ fontWeight: 'bold' }}>
               All fields are required for submission.
             </p>
