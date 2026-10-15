@@ -45,6 +45,7 @@ export default function MentorJudgeApplication() {
     judging_tracks: [] as string[],
     bio: '',
     acknowledged_in_person_judging: false,
+    acknowledged_onsite_mentoring: false,
     acknowledged_both_priority: false,
   })
 
@@ -60,6 +61,7 @@ export default function MentorJudgeApplication() {
   }
 
   const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'both'
+  const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'both'
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,6 +71,7 @@ export default function MentorJudgeApplication() {
     if (!form.ucsd_affiliation) return setError('Tell us whether you are a UCSD student, alumni, or faculty member.')
     if (isJudging && form.judging_tracks.length === 0) return setError('Pick at least one track you would like to judge.')
     if (isJudging && !form.acknowledged_in_person_judging) return setError('Judges must confirm they will be present in person.')
+    if (isMentoring && !form.acknowledged_onsite_mentoring) return setError('Mentors must confirm they can be onsite for the mentoring window.')
     if (!form.acknowledged_both_priority) return setError('Please confirm you understand the priority preference.')
 
     setSubmitting(true)
@@ -86,6 +89,7 @@ export default function MentorJudgeApplication() {
       judging_tracks: isJudging ? form.judging_tracks : [],
       bio: form.bio.trim(),
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
+      acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
       acknowledged_both_priority: form.acknowledged_both_priority,
     })
 
@@ -251,6 +255,20 @@ export default function MentorJudgeApplication() {
                   />
                   <label htmlFor="in_person">
                     I understand that online judging is not allowed: judges must be present in person.
+                  </label>
+                </div>
+              )}
+
+              {isMentoring && (
+                <div className="mc-radio-option">
+                  <input
+                    type="checkbox"
+                    id="onsite_mentoring"
+                    checked={form.acknowledged_onsite_mentoring}
+                    onChange={e => update('acknowledged_onsite_mentoring', e.target.checked)}
+                  />
+                  <label htmlFor="onsite_mentoring">
+                    I understand that mentors must be onsite from 12:30–3:30 PM on Saturday, January 16th, with check-in starting at 11:30 AM.
                   </label>
                 </div>
               )}

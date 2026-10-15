@@ -26,10 +26,12 @@ create table if not exists public.mentor_judge_applications (
   bio text not null,
 
   acknowledged_in_person_judging boolean not null default false,
+  acknowledged_onsite_mentoring boolean not null default false,
   acknowledged_both_priority boolean not null default false,
 
   constraint judges_pick_a_track check (applicant_type = 'mentor' or cardinality(judging_tracks) > 0),
-  constraint judges_acknowledge_in_person check (applicant_type = 'mentor' or acknowledged_in_person_judging)
+  constraint judges_acknowledge_in_person check (applicant_type = 'mentor' or acknowledged_in_person_judging),
+  constraint mentors_acknowledge_onsite check (applicant_type = 'judge' or acknowledged_onsite_mentoring)
 );
 
 create unique index if not exists mentor_judge_applications_email_key
