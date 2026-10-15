@@ -15,7 +15,7 @@ const ucsdOptions = [
   { value: 'student', label: 'UCSD Student' },
   { value: 'alumni', label: 'UCSD Alumni' },
   { value: 'faculty', label: 'UCSD Faculty Member' },
-  { value: 'none', label: 'Not Affiliated With UCSD' },
+  { value: 'none', label: 'Not Affiliated with UCSD' },
 ]
 
 const trackOptions = [
