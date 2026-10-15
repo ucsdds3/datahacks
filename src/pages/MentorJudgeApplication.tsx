@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
 
@@ -66,25 +67,35 @@ export default function MentorJudgeApplication() {
   const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'both'
 
   const bioLength = form.bio.trim().length
-  const isComplete =
-    form.first_name.trim() !== '' &&
-    form.last_name.trim() !== '' &&
-    isValidEmail(form.email.trim()) &&
-    form.organization.trim() !== '' &&
-    form.role_title.trim() !== '' &&
-    isValidUrl(form.resume_url.trim()) &&
-    isValidUrl(form.linkedin_url.trim()) &&
-    form.ucsd_affiliation !== '' &&
-    form.applicant_type !== '' &&
-    (!isJudging || (form.judging_track !== '' && form.acknowledged_in_person_judging)) &&
-    (!isMentoring || (bioLength >= BIO_MIN_LENGTH && bioLength <= BIO_MAX_LENGTH && form.acknowledged_onsite_mentoring)) &&
-    form.acknowledged_both_priority
+
+  const missing: string[] = []
+  if (!form.first_name.trim()) missing.push('First name')
+  if (!form.last_name.trim()) missing.push('Last name')
+  if (!isValidEmail(form.email.trim())) missing.push('A valid email')
+  if (!form.organization.trim()) missing.push('Company / lab')
+  if (!form.role_title.trim()) missing.push('Your role')
+  if (!isValidUrl(form.resume_url.trim())) missing.push('A valid resume link')
+  if (!isValidUrl(form.linkedin_url.trim())) missing.push('A valid LinkedIn link')
+  if (!form.ucsd_affiliation) missing.push('UCSD affiliation')
+  if (!form.applicant_type) missing.push('Mentor, judge, or both')
+  if (isJudging && !form.judging_track) missing.push('Judging track')
+  if (isJudging && !form.acknowledged_in_person_judging) missing.push('In-person judging checkbox')
+  if (isMentoring && (bioLength < BIO_MIN_LENGTH || bioLength > BIO_MAX_LENGTH)) missing.push(`Blurb (${BIO_MIN_LENGTH}-${BIO_MAX_LENGTH} characters)`)
+  if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('Onsite mentoring checkbox')
+  if (!form.acknowledged_both_priority) missing.push('Priority preference checkbox')
+  const isComplete = missing.length === 0
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!isComplete) return setError('All fields are required for submission.')
+    if (!isComplete) {
+      setError('All fields are required for submission.')
+      toast.error('Please complete all fields before submitting.', {
+        description: `Still needed: ${missing.join(', ')}.`,
+      })
+      return
+    }
 
     setSubmitting(true)
 
@@ -164,7 +175,7 @@ export default function MentorJudgeApplication() {
       `}</style>
       <div className="mc-application-page">
         <div className="mc-container" style={{ maxWidth: '700px' }}>
-          <form className="mc-application-form" onSubmit={handleSubmit}>
+          <form className="mc-application-form" onSubmit={handleSubmit} noValidate>
             <div className="mc-application-preview-label">
               <span />APPLICATION
             </div>
@@ -306,13 +317,10 @@ export default function MentorJudgeApplication() {
               </div>
             </div>
 
-            {!isComplete && (
-              <p className="mc-form-disclaimer">Complete every field to enable the submit button.</p>
-            )}
             {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
 
             <div className="mc-form-actions">
-              <button type="submit" className="mc-button" disabled={submitting || !isComplete}>
+              <button type="submit" className="mc-button" disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </button>
             </div>
