@@ -11,8 +11,8 @@ const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
 ]
 
 const ucsdOptions = [
-  { value: 'student', label: 'UCSD student' },
-  { value: 'alumni', label: 'UCSD alumni' },
+  { value: 'student', label: 'UCSD Student' },
+  { value: 'alumni', label: 'UCSD Alumni' },
   { value: 'faculty', label: 'UCSD Faculty Member' },
   { value: 'none', label: 'Not Affiliated With UCSD' },
 ]
