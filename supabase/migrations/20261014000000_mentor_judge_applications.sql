@@ -18,18 +18,19 @@ create table if not exists public.mentor_judge_applications (
   linkedin_url text not null,
   ucsd_affiliation text not null check (ucsd_affiliation in ('student', 'alumni', 'faculty', 'none')),
 
-  -- only filled in for judges / both
-  judging_tracks text[] not null default '{}'
-    check (judging_tracks <@ array['social_good_wellbeing', 'healthcare_health_tech', 'defense_cybersecurity', 'fintech_econ_finance', 'entertainment']),
+  -- only filled in for judges / both (one track)
+  judging_track text
+    check (judging_track in ('social_good_wellbeing', 'healthcare_health_tech', 'defense_cybersecurity', 'fintech_econ_finance', 'entertainment')),
 
-  -- shown to hackers on the mentor calendar
-  bio text not null,
+  -- only filled in for mentors / both; shown to hackers on the mentor calendar
+  bio text check (bio is null or char_length(bio) between 100 and 500),
 
   acknowledged_in_person_judging boolean not null default false,
   acknowledged_onsite_mentoring boolean not null default false,
   acknowledged_both_priority boolean not null default false,
 
-  constraint judges_pick_a_track check (applicant_type = 'mentor' or cardinality(judging_tracks) > 0),
+  constraint judges_pick_a_track check (applicant_type = 'mentor' or judging_track is not null),
+  constraint mentors_write_a_bio check (applicant_type = 'judge' or bio is not null),
   constraint judges_acknowledge_in_person check (applicant_type = 'mentor' or acknowledged_in_person_judging),
   constraint mentors_acknowledge_onsite check (applicant_type = 'judge' or acknowledged_onsite_mentoring)
 );

@@ -18,14 +18,25 @@ const ucsdOptions = [
 ]
 
 const trackOptions = [
-  { value: 'social_good_wellbeing', label: 'Social good & wellbeing' },
-  { value: 'healthcare_health_tech', label: 'Healthcare / health-tech' },
-  { value: 'defense_cybersecurity', label: 'Defense & cybersecurity' },
-  { value: 'fintech_econ_finance', label: 'Fintech / econ / finance' },
+  { value: 'social_good_wellbeing', label: 'Social Good & Wellbeing' },
+  { value: 'healthcare_health_tech', label: 'Healthcare / Health Technology' },
+  { value: 'defense_cybersecurity', label: 'Defense & Cybersecurity' },
+  { value: 'fintech_econ_finance', label: 'FinTech / Economy / Finance' },
   { value: 'entertainment', label: 'Entertainment' },
 ]
 
+const BIO_MIN_LENGTH = 100
 const BIO_MAX_LENGTH = 500
+
+const isValidUrl = (value: string) => {
+  try {
+    const { protocol } = new URL(value)
+    return protocol === 'http:' || protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
 export default function MentorJudgeApplication() {
   const [submitting, setSubmitting] = useState(false)
@@ -42,7 +53,7 @@ export default function MentorJudgeApplication() {
     linkedin_url: '',
     ucsd_affiliation: '',
     applicant_type: '' as ApplicantType | '',
-    judging_tracks: [] as string[],
+    judging_track: '',
     bio: '',
     acknowledged_in_person_judging: false,
     acknowledged_onsite_mentoring: false,
@@ -51,28 +62,29 @@ export default function MentorJudgeApplication() {
 
   const update = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }))
 
-  const toggleTrack = (track: string) => {
-    setForm(prev => ({
-      ...prev,
-      judging_tracks: prev.judging_tracks.includes(track)
-        ? prev.judging_tracks.filter(t => t !== track)
-        : [...prev.judging_tracks, track],
-    }))
-  }
-
   const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'both'
   const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'both'
+
+  const bioLength = form.bio.trim().length
+  const isComplete =
+    form.first_name.trim() !== '' &&
+    form.last_name.trim() !== '' &&
+    isValidEmail(form.email.trim()) &&
+    form.organization.trim() !== '' &&
+    form.role_title.trim() !== '' &&
+    isValidUrl(form.resume_url.trim()) &&
+    isValidUrl(form.linkedin_url.trim()) &&
+    form.ucsd_affiliation !== '' &&
+    form.applicant_type !== '' &&
+    (!isJudging || (form.judging_track !== '' && form.acknowledged_in_person_judging)) &&
+    (!isMentoring || (bioLength >= BIO_MIN_LENGTH && bioLength <= BIO_MAX_LENGTH && form.acknowledged_onsite_mentoring)) &&
+    form.acknowledged_both_priority
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
-    if (!form.applicant_type) return setError('Choose whether you want to mentor, judge, or both.')
-    if (!form.ucsd_affiliation) return setError('Tell us whether you are a UCSD student, alumni, or faculty member.')
-    if (isJudging && form.judging_tracks.length === 0) return setError('Pick at least one track you would like to judge.')
-    if (isJudging && !form.acknowledged_in_person_judging) return setError('Judges must confirm they will be present in person.')
-    if (isMentoring && !form.acknowledged_onsite_mentoring) return setError('Mentors must confirm they can be onsite for the mentoring window.')
-    if (!form.acknowledged_both_priority) return setError('Please confirm you understand the priority preference.')
+    if (!isComplete) return setError('All fields are required for submission.')
 
     setSubmitting(true)
 
@@ -86,8 +98,8 @@ export default function MentorJudgeApplication() {
       resume_url: form.resume_url.trim(),
       linkedin_url: form.linkedin_url.trim(),
       ucsd_affiliation: form.ucsd_affiliation,
-      judging_tracks: isJudging ? form.judging_tracks : [],
-      bio: form.bio.trim(),
+      judging_track: isJudging ? form.judging_track : null,
+      bio: isMentoring ? form.bio.trim() : null,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
       acknowledged_both_priority: form.acknowledged_both_priority,
@@ -157,6 +169,9 @@ export default function MentorJudgeApplication() {
               <span />APPLICATION
             </div>
             <h2>Mentor / Judge Application</h2>
+            <p className="mc-form-disclaimer" style={{ fontWeight: 'bold' }}>
+              All fields are required for submission.
+            </p>
             <p className="mc-form-disclaimer">
               Apply to mentor, judge, or both. We will be giving priority to people who sign up as both.
             </p>
@@ -219,14 +234,15 @@ export default function MentorJudgeApplication() {
 
               {isJudging && (
                 <fieldset>
-                  <legend>Which tracks would you be interested in judging? (judges only)</legend>
+                  <legend>Which track would you be interested in judging? (select one)</legend>
                   {trackOptions.map(option => (
                     <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
                       <input
-                        type="checkbox"
+                        type="radio"
+                        name="judging_track"
                         id={`track_${option.value}`}
-                        checked={form.judging_tracks.includes(option.value)}
-                        onChange={() => toggleTrack(option.value)}
+                        checked={form.judging_track === option.value}
+                        onChange={() => update('judging_track', option.value)}
                       />
                       <label htmlFor={`track_${option.value}`}>{option.label}</label>
                     </div>
@@ -234,16 +250,19 @@ export default function MentorJudgeApplication() {
                 </fieldset>
               )}
 
-              <label>A short blurb about you <span>(shown to hackers on the mentor calendar)</span>
-                <textarea
-                  required
-                  rows={4}
-                  maxLength={BIO_MAX_LENGTH}
-                  value={form.bio}
-                  onChange={e => update('bio', e.target.value)}
-                />
-                <span>{form.bio.length}/{BIO_MAX_LENGTH}</span>
-              </label>
+              {isMentoring && (
+                <label>A short blurb about you <span>(shown to hackers on the mentor calendar)</span>
+                  <textarea
+                    required
+                    rows={4}
+                    minLength={BIO_MIN_LENGTH}
+                    maxLength={BIO_MAX_LENGTH}
+                    value={form.bio}
+                    onChange={e => update('bio', e.target.value)}
+                  />
+                  <span>{bioLength}/{BIO_MAX_LENGTH} characters (minimum {BIO_MIN_LENGTH})</span>
+                </label>
+              )}
 
               {isJudging && (
                 <div className="mc-radio-option">
@@ -287,10 +306,13 @@ export default function MentorJudgeApplication() {
               </div>
             </div>
 
+            {!isComplete && (
+              <p className="mc-form-disclaimer">Complete every field to enable the submit button.</p>
+            )}
             {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
 
             <div className="mc-form-actions">
-              <button type="submit" className="mc-button" disabled={submitting}>
+              <button type="submit" className="mc-button" disabled={submitting || !isComplete}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </button>
             </div>
