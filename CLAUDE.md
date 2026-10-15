@@ -7,7 +7,3 @@ We are building an application portal for mentors/judges/mentors+judges (webpage
 ## Application Portal Requirements
 
 The application portal must record the emails of the applicants as well as whether they are mentors/judges/both, and record it in the Supabase.
-
----
-
-End of CLAUDE.md file.
