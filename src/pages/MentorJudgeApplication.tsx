@@ -196,7 +196,7 @@ export default function MentorJudgeApplication() {
       <div className="mc-application-page">
         <div className="mc-container" style={{ maxWidth: '700px' }}>
           <form className="mc-application-form" onSubmit={handleSubmit} noValidate>
-            <h2 style={{ textAlign: 'center' }}>Mentor / Judge Application</h2>
+            <h2 style={{ textAlign: 'center', fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 900, lineHeight: 1.1 }}>Mentor / Judge Application</h2>
             <div className="mc-application-preview-label">
               <span />APPLICATION
             </div>
