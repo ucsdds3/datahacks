@@ -13,8 +13,8 @@ const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
 const ucsdOptions = [
   { value: 'student', label: 'UCSD student' },
   { value: 'alumni', label: 'UCSD alumni' },
-  { value: 'faculty', label: 'UCSD faculty member' },
-  { value: 'none', label: 'Not affiliated with UCSD' },
+  { value: 'faculty', label: 'UCSD Faculty Member' },
+  { value: 'none', label: 'Not Affiliated With UCSD' },
 ]
 
 const trackOptions = [
@@ -200,7 +200,7 @@ export default function MentorJudgeApplication() {
               </label>
 
               <fieldset>
-                <legend>Are you a UCSD student, alumni, or faculty member?</legend>
+                <legend>Are You A UCSD Student, Alumni, Or Faculty Member?</legend>
                 {ucsdOptions.map(option => (
                   <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
                     <input
