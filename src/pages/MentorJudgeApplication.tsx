@@ -43,6 +43,7 @@ export default function MentorJudgeApplication() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showErrors, setShowErrors] = useState(false)
 
   const [form, setForm] = useState({
     first_name: '',
@@ -68,31 +69,38 @@ export default function MentorJudgeApplication() {
 
   const bioLength = form.bio.trim().length
 
+  // Keys of incomplete fields, in the order they appear on the page.
   const missing: string[] = []
-  if (!form.first_name.trim()) missing.push('First name')
-  if (!form.last_name.trim()) missing.push('Last name')
-  if (!isValidEmail(form.email.trim())) missing.push('A valid email')
-  if (!form.organization.trim()) missing.push('Company / lab')
-  if (!form.role_title.trim()) missing.push('Your role')
-  if (!isValidUrl(form.resume_url.trim())) missing.push('A valid resume link')
-  if (!isValidUrl(form.linkedin_url.trim())) missing.push('A valid LinkedIn link')
-  if (!form.ucsd_affiliation) missing.push('UCSD affiliation')
-  if (!form.applicant_type) missing.push('Mentor, judge, or both')
-  if (isJudging && !form.judging_track) missing.push('Judging track')
-  if (isJudging && !form.acknowledged_in_person_judging) missing.push('In-person judging checkbox')
-  if (isMentoring && (bioLength < BIO_MIN_LENGTH || bioLength > BIO_MAX_LENGTH)) missing.push(`Blurb (${BIO_MIN_LENGTH}-${BIO_MAX_LENGTH} characters)`)
-  if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('Onsite mentoring checkbox')
-  if (!form.acknowledged_both_priority) missing.push('Priority preference checkbox')
+  if (!form.first_name.trim()) missing.push('first_name')
+  if (!form.last_name.trim()) missing.push('last_name')
+  if (!isValidEmail(form.email.trim())) missing.push('email')
+  if (!form.organization.trim()) missing.push('organization')
+  if (!form.role_title.trim()) missing.push('role_title')
+  if (!isValidUrl(form.resume_url.trim())) missing.push('resume_url')
+  if (!isValidUrl(form.linkedin_url.trim())) missing.push('linkedin_url')
+  if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
+  if (!form.applicant_type) missing.push('applicant_type')
+  if (isJudging && !form.judging_track) missing.push('judging_track')
+  if (isMentoring && (bioLength < BIO_MIN_LENGTH || bioLength > BIO_MAX_LENGTH)) missing.push('bio')
+  if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
+  if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
+  if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
   const isComplete = missing.length === 0
+  const cls = (key: string, base = '') =>
+    [base, showErrors && missing.includes(key) ? 'mc-field-error' : ''].filter(Boolean).join(' ') || undefined
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
 
     if (!isComplete) {
+      setShowErrors(true)
       setError('All fields are required for submission.')
-      toast.error('Please complete all fields before submitting.', {
-        description: `Still needed: ${missing.join(', ')}.`,
+      toast.error('Please complete all fields before submitting.')
+      requestAnimationFrame(() => {
+        const target = document.getElementById(`field-${missing[0]}`)
+        target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        target?.querySelector<HTMLElement>('input, textarea')?.focus({ preventScroll: true })
       })
       return
     }
@@ -167,6 +175,18 @@ export default function MentorJudgeApplication() {
           flex-shrink: 0;
         }
         .mc-radio-option input[type="radio"] { border-radius: 50%; }
+        .mc-field-error {
+          color: #c96b6b;
+          outline: 2px solid #c96b6b;
+          outline-offset: 4px;
+        }
+        .mc-field-error label,
+        .mc-field-error legend,
+        .mc-field-error span { color: #c96b6b; }
+        .mc-field-error input:not([type="checkbox"]):not([type="radio"]),
+        .mc-field-error textarea,
+        .mc-field-error input[type="checkbox"],
+        .mc-field-error input[type="radio"] { border-color: #c96b6b; }
         .mc-radio-option input[type="checkbox"]:checked,
         .mc-radio-option input[type="radio"]:checked {
           background: #cedbbd;
@@ -188,29 +208,29 @@ export default function MentorJudgeApplication() {
             </p>
 
             <div className="mc-form-fields">
-              <label>First name
+              <label id="field-first_name" className={cls('first_name')}>First name
                 <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
               </label>
-              <label>Last name
+              <label id="field-last_name" className={cls('last_name')}>Last name
                 <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
               </label>
-              <label>Email
+              <label id="field-email" className={cls('email')}>Email
                 <input type="email" required value={form.email} onChange={e => update('email', e.target.value)} />
               </label>
-              <label>Company / lab you work for
+              <label id="field-organization" className={cls('organization')}>Company / lab you work for
                 <input required value={form.organization} onChange={e => update('organization', e.target.value)} />
               </label>
-              <label>Your role at your company or institute
+              <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute
                 <input required value={form.role_title} onChange={e => update('role_title', e.target.value)} />
               </label>
-              <label>Link to your resume
+              <label id="field-resume_url" className={cls('resume_url')}>Link to your resume
                 <input type="url" required placeholder="https://" value={form.resume_url} onChange={e => update('resume_url', e.target.value)} />
               </label>
-              <label>Link to your LinkedIn
+              <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn
                 <input type="url" required placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
               </label>
 
-              <fieldset>
+              <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
                 <legend>Are You A UCSD Student, Alumni, Or Faculty Member?</legend>
                 {ucsdOptions.map(option => (
                   <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
@@ -226,7 +246,7 @@ export default function MentorJudgeApplication() {
                 ))}
               </fieldset>
 
-              <fieldset>
+              <fieldset id="field-applicant_type" className={cls('applicant_type')}>
                 <legend>Are you willing to mentor, judge, or both?</legend>
                 <p className="mc-form-disclaimer">We will be giving priority to people who sign up as both.</p>
                 {applicantTypeOptions.map(option => (
@@ -244,7 +264,7 @@ export default function MentorJudgeApplication() {
               </fieldset>
 
               {isJudging && (
-                <fieldset>
+                <fieldset id="field-judging_track" className={cls('judging_track')}>
                   <legend>Which track would you be interested in judging? (select one)</legend>
                   {trackOptions.map(option => (
                     <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
@@ -262,7 +282,7 @@ export default function MentorJudgeApplication() {
               )}
 
               {isMentoring && (
-                <label>A short blurb about you <span>(shown to hackers on the mentor calendar)</span>
+                <label id="field-bio" className={cls('bio')}>A short blurb about you <span>(shown to hackers on the mentor calendar)</span>
                   <textarea
                     required
                     rows={4}
@@ -276,7 +296,7 @@ export default function MentorJudgeApplication() {
               )}
 
               {isJudging && (
-                <div className="mc-radio-option">
+                <div id="field-acknowledged_in_person_judging" className={cls('acknowledged_in_person_judging', 'mc-radio-option')}>
                   <input
                     type="checkbox"
                     id="in_person"
@@ -290,7 +310,7 @@ export default function MentorJudgeApplication() {
               )}
 
               {isMentoring && (
-                <div className="mc-radio-option">
+                <div id="field-acknowledged_onsite_mentoring" className={cls('acknowledged_onsite_mentoring', 'mc-radio-option')}>
                   <input
                     type="checkbox"
                     id="onsite_mentoring"
@@ -303,7 +323,7 @@ export default function MentorJudgeApplication() {
                 </div>
               )}
 
-              <div className="mc-radio-option">
+              <div id="field-acknowledged_both_priority" className={cls('acknowledged_both_priority', 'mc-radio-option')}>
                 <input
                   type="checkbox"
                   id="both_priority"
