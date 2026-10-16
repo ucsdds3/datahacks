@@ -27,6 +27,7 @@ const DashboardHacker = lazy(() => import("./pages/DashboardHacker"));
 const DashboardJudge = lazy(() => import("./pages/DashboardJudge"));
 const DashboardMentor = lazy(() => import("./pages/DashboardMentor"));
 const ApplicationForm = lazy(() => import("./pages/ApplicationForm"));
+const MentorJudgeApplication = lazy(() => import("./pages/MentorJudgeApplication"));
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
             <Route path="/dashboard/hacker" element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
             <Route path="/dashboard/judge" element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
             <Route path="/dashboard/mentor" element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
+            <Route path="/apply/mentor-judge" element={<MentorJudgeApplication />} />
             <Route path="/apply" element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
           </Route>
           <Route path="*" element={<NotFound />} />
