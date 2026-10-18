@@ -27,6 +27,10 @@ const DashboardHacker = lazy(() => import("./pages/DashboardHacker"));
 const DashboardJudge = lazy(() => import("./pages/DashboardJudge"));
 const DashboardMentor = lazy(() => import("./pages/DashboardMentor"));
 const ApplicationForm = lazy(() => import("./pages/ApplicationForm"));
+const StaffPortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
+const StaffDashboard = lazy(() => import("./staff-portal/Dashboard"));
+const StaffWaiver = lazy(() => import("./staff-portal/Waiver"));
+const StaffHandbook = lazy(() => import("./staff-portal/Handbook"));
 
 const queryClient = new QueryClient();
 
@@ -59,6 +63,13 @@ const App = () => (
             <Route path="/dashboard/judge" element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
             <Route path="/dashboard/mentor" element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
             <Route path="/apply" element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
+            {/* Mentor/judge portal. Not behind ProtectedRoute yet so it can be previewed
+                with mock data; see staff-portal/config. */}
+            <Route path="/portal" element={<StaffPortalLayout />}>
+              <Route index element={<StaffDashboard />} />
+              <Route path="waiver" element={<StaffWaiver />} />
+              <Route path="handbook" element={<StaffHandbook />} />
+            </Route>
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
