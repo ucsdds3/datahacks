@@ -4,6 +4,7 @@ import { CheckCircle2, PenLine } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useStaffPortal } from "./StaffPortalContext";
 import { DOCUSIGN } from "./config";
+import MockSigning, { type MockSessionEnd } from "./MockSigning";
 
 // DocuSign's embedding script ("focused view"), which mounts the signing session in the page.
 const BUNDLE_URL = { demo: "https://js-d.docusign.com/bundle.js", production: "https://js.docusign.com/bundle.js" };
@@ -52,35 +53,50 @@ const END_MESSAGES: Record<string, string> = {
 };
 
 export default function Waiver() {
-  const { basePath, status, waiverSubmitted, submitWaiver } = useStaffPortal();
+  const { basePath, status, waiverSubmitted, submitWaiver, preview, resetWaiver } = useStaffPortal();
   const { search } = useLocation();
   const [phase, setPhase] = useState<Phase>("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const configured = Boolean(DOCUSIGN.clientId);
+  // In dev `?preview`, a simulated DocuSign stands in for the real one.
+  const simulated = preview;
+  const configured = simulated || Boolean(DOCUSIGN.clientId);
+
+  const settle = useCallback((signed: boolean) => {
+    setPhase(signed ? "signed" : "idle");
+    // Keep a more specific message (closed, declined…) if the session end set one.
+    if (!signed) setMessage(m => m ?? "No signature detected on the waiver yet.");
+  }, []);
 
   // Asks the server, which asks DocuSign; the browser's word isn't enough.
   const verify = useCallback(async (envelopeId: string) => {
     setPhase("verifying");
     try {
       const { signed } = await callWaiverFunction<{ signed: boolean }>({ action: "status", envelopeId });
-      setPhase(signed ? "signed" : "idle");
-      if (!signed) setMessage("No signature detected on the waiver yet.");
+      settle(signed);
     } catch (e) {
       setPhase("idle");
       setMessage((e as Error).message);
     }
-  }, []);
+  }, [settle]);
 
   useEffect(() => {
     const envelopeId = storedEnvelope();
-    if (configured && envelopeId && !waiverSubmitted) verify(envelopeId);
-  }, [configured, verify, waiverSubmitted]);
+    if (!simulated && configured && envelopeId && !waiverSubmitted) verify(envelopeId);
+  }, [simulated, configured, verify, waiverSubmitted]);
 
   if (status !== "accepted") return <Navigate to={{ pathname: basePath, search }} replace />;
 
+  const endMockSession = (end: MockSessionEnd, signed: boolean) => {
+    if (end !== "signing_complete") setMessage(END_MESSAGES[end]);
+    setPhase("verifying");
+    // Pretend round trip to the server's signature check.
+    window.setTimeout(() => settle(signed), 700);
+  };
+
   const startSigning = async () => {
     setMessage(null);
+    if (simulated) { setPhase("signing"); return; }
     setPhase("loading");
     try {
       const [{ url, envelopeId }] = await Promise.all([
@@ -116,6 +132,10 @@ export default function Waiver() {
       <header className="sp-page-header">
         <h1>Liability Waiver</h1>
         <p>Every mentor and judge needs a signed waiver on file before the event.</p>
+        <p className="sp-waiver-line">
+          Waiver submission:{" "}
+          <span className={waiverSubmitted ? "sp-complete" : "sp-incomplete"}>{waiverSubmitted ? "Completed" : "Incomplete"}</span>
+        </p>
       </header>
 
       <section className="sp-card">
@@ -124,6 +144,11 @@ export default function Waiver() {
             <CheckCircle2 size={36} aria-hidden />
             <h2>Waiver submitted</h2>
             <p>Thanks — you're all set. <Link to={{ pathname: basePath, search }}>Back to dashboard</Link></p>
+            {preview && (
+              <button className="sp-link-button" onClick={() => { resetWaiver(); setPhase("idle"); setMessage(null); }}>
+                Reset waiver (preview only)
+              </button>
+            )}
           </div>
         ) : (
           <ol className="sp-steps">
@@ -146,7 +171,8 @@ export default function Waiver() {
                   {message && <p className="sp-error" role="alert">{message}</p>}
                 </>
               )}
-              <div id="sp-docusign" className={phase === "signing" ? "sp-docusign active" : "sp-docusign"} />
+              {simulated && phase === "signing" && <MockSigning onEnd={endMockSession} />}
+              <div id="sp-docusign" className={!simulated && phase === "signing" ? "sp-docusign active" : "sp-docusign"} />
             </li>
             <li>
               <h2>Submit</h2>

@@ -11,6 +11,10 @@ type StaffPortalState = {
   status: ApplicationStatus;
   waiverSubmitted: boolean;
   submitWaiver: () => Promise<void>;
+  /** Dev `?preview` mode: mock data and a simulated DocuSign. */
+  preview: boolean;
+  /** Preview only: forget the submitted waiver so the flow can be tried again. */
+  resetWaiver: () => void;
 };
 
 const StaffPortalContext = createContext<StaffPortalState | null>(null);
@@ -21,7 +25,7 @@ const readWaiver = () => {
   try { return localStorage.getItem(WAIVER_KEY) === "true"; } catch { return false; }
 };
 
-export function StaffPortalProvider({ application, children }: { application: StaffApplication; children: ReactNode }) {
+export function StaffPortalProvider({ application, preview, children }: { application: StaffApplication; preview: boolean; children: ReactNode }) {
   const { session } = useAuth();
   const [waiverSubmitted, setWaiverSubmitted] = useState(readWaiver);
 
@@ -36,9 +40,14 @@ export function StaffPortalProvider({ application, children }: { application: St
     setWaiverSubmitted(true);
   }, []);
 
+  const resetWaiver = useCallback(() => {
+    try { localStorage.removeItem(WAIVER_KEY); } catch { /* storage blocked */ }
+    setWaiverSubmitted(false);
+  }, []);
+
   const portal = application.type;
   return (
-    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, waiverSubmitted, submitWaiver }}>
+    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, waiverSubmitted, submitWaiver, preview, resetWaiver }}>
       {children}
     </StaffPortalContext.Provider>
   );

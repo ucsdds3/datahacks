@@ -100,10 +100,10 @@ describe("after sign-in, /portal opens the portal for the application's type", (
 
 describe("the status comes from the application", () => {
   it.each([
-    ["accepted", "Application accepted."],
-    ["rejected", "Application rejected."],
-    ["pending", "Application pending."],
-    ["submitted", "Application pending."],
+    ["accepted", "Application accepted"],
+    ["rejected", "Application rejected"],
+    ["pending", "Application pending"],
+    ["submitted", "Application pending"],
   ])("%s -> %s", async (status, label) => {
     signedIn("mentor", status);
     renderAt("/portal/mentor");

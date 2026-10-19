@@ -2,12 +2,13 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
-import { CONTACTS, GENERAL_CONTACT_EMAIL, SCHEDULE, hasJudgeAccess, hasMentorAccess, type ScheduleEvent } from "./config";
+import { CONTACTS, GENERAL_CONTACT_EMAIL, SCHEDULE, SCHEDULE_VENUE, hasJudgeAccess, hasMentorAccess, type ScheduleEvent } from "./config";
 
-const STATUS_LABEL = { pending: "Application pending.", accepted: "Application accepted.", rejected: "Application rejected." } as const;
+const STATUS_LABEL = { pending: "Application pending", accepted: "Application accepted", rejected: "Application rejected" } as const;
 const AUDIENCE_LABEL = { mentor: "Mentors", judge: "Judges" } as const;
 
 function EventLocation({ event }: { event: ScheduleEvent }) {
+  if (!event.location) return null;
   const content = <><MapPin size={14} aria-hidden /> {event.location}</>;
   return event.locationUrl
     ? <a className="sp-location" href={event.locationUrl} target="_blank" rel="noreferrer">{content}</a>
@@ -33,6 +34,7 @@ function Schedule() {
           ))}
         </div>
       </div>
+      <p className="sp-schedule-venue"><MapPin size={16} aria-hidden /> {SCHEDULE_VENUE}</p>
       <p className="sp-day-date">{day.date}</p>
       <ol className="sp-timeline">
         {events.map(event => (
@@ -92,10 +94,12 @@ export default function Dashboard() {
   return (
     <div className="sp-page">
       <header className="sp-greeting">
-        <h1>Hello, {fullName}!</h1>
-        <span className={`sp-status ${status}`}>
-          <span className="sp-dot" aria-hidden /> {STATUS_LABEL[status]}
-        </span>
+        <div className="sp-greeting-row">
+          <h1>Hello, {fullName}!</h1>
+          <span className={`sp-status ${status}`}>
+            <span className="sp-dot" aria-hidden /> {STATUS_LABEL[status]}
+          </span>
+        </div>
         <p className="sp-waiver-line">
           Waiver submission:{" "}
           <span className={waiverSubmitted ? "sp-complete" : "sp-incomplete"}>{waiverSubmitted ? "Completed" : "Incomplete"}</span>

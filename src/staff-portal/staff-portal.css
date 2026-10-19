@@ -59,6 +59,9 @@
 
 .sp-greeting h1, .sp-page-header h1 { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: -0.01em; }
 .sp-page-header p { margin: 6px 0 0; color: var(--sp-muted); }
+/* Status pill sits beside the greeting, and wraps under it on narrow screens. */
+.sp-greeting-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 14px; }
+.sp-greeting-row .sp-status { margin-top: 0; }
 
 .sp-status {
   display: inline-flex;
@@ -105,6 +108,8 @@
   cursor: pointer;
 }
 .sp-tabs button.active { background: var(--sp-surface); color: var(--sp-text); box-shadow: 0 1px 2px rgb(0 0 0 / 0.08); }
+.sp-schedule-venue { display: flex; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 14px; font-weight: 500; }
+.sp-schedule-venue svg { flex: none; color: var(--sp-accent); }
 .sp-day-date { margin: 4px 0 16px; color: var(--sp-muted); font-size: 14px; }
 
 .sp-timeline { margin: 0; padding: 0; list-style: none; }
@@ -166,6 +171,46 @@
 .sp-steps p { margin: 4px 0 14px; color: var(--sp-muted); font-size: 14px; }
 .sp-root .sp-signed { display: inline-flex; align-items: center; gap: 6px; color: var(--sp-green); font-weight: 600; }
 .sp-root .sp-error { margin: 12px 0 0; color: var(--sp-red); }
+.sp-root .sp-link-button {
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sp-muted);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Simulated DocuSign (dev ?preview only) */
+.sp-mock-signing { margin-top: 4px; overflow: hidden; border: 1px solid var(--sp-border); border-radius: 8px; }
+.sp-mock-bar { display: flex; flex-wrap: wrap; gap: 4px 12px; padding: 10px 14px; background: #fff8e8; color: #7a5a14; font-size: 13px; }
+.sp-mock-signing iframe { display: block; width: 100%; height: 480px; border: 0; border-top: 1px solid var(--sp-border); border-bottom: 1px solid var(--sp-border); }
+.sp-mock-sign { padding: 14px; }
+.sp-mock-sign label { display: block; font-size: 13px; font-weight: 600; }
+.sp-mock-adopt { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.sp-mock-adopt input {
+  flex: 1;
+  min-width: 180px;
+  padding: 9px 12px;
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+}
+.sp-root .sp-mock-signature {
+  display: inline-block;
+  margin: 8px 0 0;
+  padding: 4px 16px 6px;
+  border-bottom: 2px solid var(--sp-text);
+  color: #1d3f9b;
+  font-family: "Brush Script MT", "Segoe Script", cursive;
+  font-size: 28px;
+}
+.sp-mock-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 0 14px 14px; }
+.sp-mock-actions .sp-link-button { margin-top: 0; }
+
 .sp-docusign { display: none; }
 .sp-docusign.active {
   display: block;
@@ -213,7 +258,28 @@
 .sp-prose section { scroll-margin-top: 24px; }
 .sp-prose section + section { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--sp-border); }
 .sp-prose p, .sp-prose ul { margin: 10px 0 0; color: #3b4448; }
-.sp-prose ul { padding-left: 20px; }
+.sp-prose ul { padding-left: 20px; list-style: disc; }
+.sp-prose li + li { margin-top: 4px; }
+.sp-prose h3 { margin: 22px 0 0; font-size: 15px; font-weight: 650; }
+.sp-prose h2 + h3 { margin-top: 12px; }
+.sp-prose a { overflow-wrap: anywhere; }
+
+.sp-demo-note {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid #f3d9a4;
+  border-radius: 8px;
+  background: #fff8e8;
+  color: #7a5a14;
+  font-size: 13px;
+}
+
+.sp-table-wrap { margin-top: 10px; overflow-x: auto; border: 1px solid var(--sp-border); border-radius: 8px; }
+.sp-table { width: 100%; min-width: 640px; border-collapse: collapse; font-size: 13px; }
+.sp-table th, .sp-table td { padding: 8px 10px; border-bottom: 1px solid var(--sp-border); text-align: left; vertical-align: top; }
+.sp-table th { background: var(--sp-bg); font-weight: 600; white-space: nowrap; }
+.sp-table td:first-child { font-weight: 600; white-space: nowrap; }
+.sp-table tr:last-child td { border-bottom: 0; }
 
 /* Loading / no-application screens */
 .sp-root.sp-gate { align-items: center; justify-content: center; padding: 24px 16px; }

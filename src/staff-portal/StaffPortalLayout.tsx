@@ -58,7 +58,7 @@ export default function StaffPortalLayout({ portal }: { portal: PortalRole }) {
   }
 
   return (
-    <StaffPortalProvider application={access.application}>
+    <StaffPortalProvider application={access.application} preview={access.preview}>
       <div className="sp-root">
         <Sidebar />
         <main className="sp-main">

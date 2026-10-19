@@ -22,3 +22,6 @@ output/
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local-only test files for the dev ?preview mode (e.g. the fake waiver PDF)
+public/dev/
