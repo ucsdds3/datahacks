@@ -17,7 +17,7 @@ export default function LoginJudge() {
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div className="mc-application-form" style={{ maxWidth: '380px', textAlign: 'center' }}>
           <h2>Judge Sign In</h2>
-          <p className="mc-form-disclaimer">Sign in with Google to start or continue your application.</p>
+          <p className="mc-form-disclaimer">Sign in with the Google account you applied with to open your portal.</p>
           <button className="mc-button" onClick={handleLogin} style={{ width: '100%' }}>Continue with Google</button>
         </div>
       </div>

@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
-import { CONTACTS, GENERAL_CONTACT_EMAIL, SCHEDULE, type ScheduleEvent } from "./config";
+import { CONTACTS, GENERAL_CONTACT_EMAIL, SCHEDULE, hasJudgeAccess, hasMentorAccess, type ScheduleEvent } from "./config";
 
-const STATUS_LABEL = { pending: "Pending", accepted: "Accepted", rejected: "Rejected" } as const;
+const STATUS_LABEL = { pending: "Application pending.", accepted: "Application accepted.", rejected: "Application rejected." } as const;
 const AUDIENCE_LABEL = { mentor: "Mentors", judge: "Judges" } as const;
 
 function EventLocation({ event }: { event: ScheduleEvent }) {
@@ -15,8 +15,11 @@ function EventLocation({ event }: { event: ScheduleEvent }) {
 }
 
 function Schedule() {
+  const { portal } = useStaffPortal();
   const [dayIndex, setDayIndex] = useState(0);
   const day = SCHEDULE[dayIndex];
+  const events = day.events.filter(event =>
+    !event.audience || (event.audience === "mentor" ? hasMentorAccess(portal) : hasJudgeAccess(portal)));
 
   return (
     <section className="sp-card" aria-labelledby="sp-schedule-heading">
@@ -32,7 +35,7 @@ function Schedule() {
       </div>
       <p className="sp-day-date">{day.date}</p>
       <ol className="sp-timeline">
-        {day.events.map(event => (
+        {events.map(event => (
           <li key={`${event.start}-${event.title}`}>
             <div className="sp-time">
               {event.start}
@@ -41,6 +44,7 @@ function Schedule() {
             <div className="sp-event">
               <div className="sp-event-title">
                 {event.title}
+                {event.required && <span className="sp-tag required">Required</span>}
                 {event.audience && <span className={`sp-tag ${event.audience}`}>{AUDIENCE_LABEL[event.audience]}</span>}
               </div>
               {event.description && <p>{event.description}</p>}
@@ -82,20 +86,20 @@ function Contacts() {
 }
 
 export default function Dashboard() {
-  const { firstName, status, waiverSubmitted } = useStaffPortal();
+  const { basePath, fullName, status, waiverSubmitted } = useStaffPortal();
   const { search } = useLocation();
 
   return (
     <div className="sp-page">
       <header className="sp-greeting">
-        <h1>Hello, {firstName}!</h1>
+        <h1>Hello, {fullName}!</h1>
         <span className={`sp-status ${status}`}>
-          <span className="sp-dot" aria-hidden /> Application {STATUS_LABEL[status]}
+          <span className="sp-dot" aria-hidden /> {STATUS_LABEL[status]}
         </span>
         <p className="sp-waiver-line">
           Waiver submission:{" "}
           <span className={waiverSubmitted ? "sp-complete" : "sp-incomplete"}>{waiverSubmitted ? "Completed" : "Incomplete"}</span>
-          {!waiverSubmitted && status === "accepted" && <> · <Link to={{ pathname: "/portal/waiver", search }}>Sign it now</Link></>}
+          {!waiverSubmitted && status === "accepted" && <> · <Link to={{ pathname: `${basePath}/waiver`, search }}>Sign it now</Link></>}
         </p>
       </header>
       <Schedule />

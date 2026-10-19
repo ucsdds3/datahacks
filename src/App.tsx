@@ -24,13 +24,13 @@ const LoginJudge = lazy(() => import("./pages/LoginJudge"));
 const LoginMentor = lazy(() => import("./pages/LoginMentor"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const DashboardHacker = lazy(() => import("./pages/DashboardHacker"));
-const DashboardJudge = lazy(() => import("./pages/DashboardJudge"));
-const DashboardMentor = lazy(() => import("./pages/DashboardMentor"));
 const ApplicationForm = lazy(() => import("./pages/ApplicationForm"));
+const PortalHome = lazy(() => import("./staff-portal/StaffGate"));
 const StaffPortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
 const StaffDashboard = lazy(() => import("./staff-portal/Dashboard"));
 const StaffWaiver = lazy(() => import("./staff-portal/Waiver"));
 const StaffHandbook = lazy(() => import("./staff-portal/Handbook"));
+const JudgingPortal = lazy(() => import("./staff-portal/JudgingPortal"));
 
 const queryClient = new QueryClient();
 
@@ -60,15 +60,29 @@ const App = () => (
             <Route path="/login/mentor" element={<LoginMentor />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/dashboard/hacker" element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
-            <Route path="/dashboard/judge" element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
-            <Route path="/dashboard/mentor" element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
+            {/* Mentors, judges and hybrids all land on /portal, which picks their portal. */}
+            <Route path="/dashboard/judge" element={<Navigate to="/portal" replace />} />
+            <Route path="/dashboard/mentor" element={<Navigate to="/portal" replace />} />
             <Route path="/apply" element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
-            {/* Mentor/judge portal. Not behind ProtectedRoute yet so it can be previewed
-                with mock data; see staff-portal/config. */}
-            <Route path="/portal" element={<StaffPortalLayout />}>
+            {/* Mentor/judge/hybrid portal. Each layout checks sign-in and sends people to
+                the portal matching their application; see staff-portal/useStaffAccess. */}
+            <Route path="/portal" element={<PortalHome />} />
+            <Route path="/portal/mentor" element={<StaffPortalLayout portal="mentor" />}>
               <Route index element={<StaffDashboard />} />
               <Route path="waiver" element={<StaffWaiver />} />
               <Route path="handbook" element={<StaffHandbook />} />
+            </Route>
+            <Route path="/portal/judge" element={<StaffPortalLayout portal="judge" />}>
+              <Route index element={<StaffDashboard />} />
+              <Route path="waiver" element={<StaffWaiver />} />
+              <Route path="handbook" element={<StaffHandbook />} />
+              <Route path="judging" element={<JudgingPortal />} />
+            </Route>
+            <Route path="/portal/hybrid" element={<StaffPortalLayout portal="hybrid" />}>
+              <Route index element={<StaffDashboard />} />
+              <Route path="waiver" element={<StaffWaiver />} />
+              <Route path="handbook" element={<StaffHandbook />} />
+              <Route path="judging" element={<JudgingPortal />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

@@ -31,7 +31,9 @@ export default function AuthCallback() {
         return
       }
 
-      navigate(`/dashboard/${role}`)
+      // Mentors, judges and hybrids go to /portal, which opens the portal for what their
+      // application says they are, whichever sign-in button they used.
+      navigate(role === 'mentor' || role === 'judge' ? '/portal' : `/dashboard/${role}`, { replace: true })
     }
 
     finishLogin()

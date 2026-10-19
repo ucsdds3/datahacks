@@ -1,3 +1,6 @@
+import { useStaffPortal } from "./StaffPortalContext";
+import { HANDBOOK_TITLE } from "./config";
+
 // Placeholder copy until the real handbook is written.
 const LOREM =
   "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.";
@@ -14,10 +17,11 @@ const SECTIONS = [
 ];
 
 export default function Handbook() {
+  const { portal } = useStaffPortal();
   return (
     <div className="sp-page">
       <header className="sp-page-header">
-        <h1>Mentor handbook</h1>
+        <h1>{HANDBOOK_TITLE[portal]}</h1>
         <p>Everything you need to know before and during DataHacks.</p>
       </header>
       <div className="sp-handbook">

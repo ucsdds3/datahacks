@@ -116,6 +116,7 @@
 .sp-tag { padding: 1px 8px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
 .sp-tag.mentor { background: #e8f0fe; color: var(--sp-blue); }
 .sp-tag.judge { background: #fdeee4; color: #b8551b; }
+.sp-tag.required { background: #fde8e8; color: var(--sp-red); }
 .sp-location { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; color: var(--sp-muted); font-size: 13px; }
 .sp-root a.sp-location { color: var(--sp-accent); text-decoration: none; }
 .sp-root a.sp-location:hover { text-decoration: underline; }
@@ -163,8 +164,17 @@
 }
 .sp-steps h2 { font-size: 16px; }
 .sp-steps p { margin: 4px 0 14px; color: var(--sp-muted); font-size: 14px; }
-.sp-check { display: flex; align-items: center; gap: 10px; margin: 10px 0 14px; font-size: 14px; cursor: pointer; }
-.sp-check input { width: 16px; height: 16px; accent-color: var(--sp-accent); }
+.sp-root .sp-signed { display: inline-flex; align-items: center; gap: 6px; color: var(--sp-green); font-weight: 600; }
+.sp-root .sp-error { margin: 12px 0 0; color: var(--sp-red); }
+.sp-docusign { display: none; }
+.sp-docusign.active {
+  display: block;
+  height: 640px;
+  margin-top: 4px;
+  overflow: hidden;
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+}
 
 .sp-root .sp-button {
   display: inline-flex;
@@ -186,6 +196,10 @@
 .sp-root .sp-button.primary:hover:not(:disabled) { background: #0b7a8b; color: #fff; }
 .sp-root .sp-button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+.sp-coming-soon { padding: 48px 24px; text-align: center; color: var(--sp-accent); }
+.sp-coming-soon h2 { margin-top: 10px; color: var(--sp-text); }
+.sp-coming-soon p { margin: 6px auto 0; max-width: 420px; color: var(--sp-muted); }
+
 .sp-done { padding: 16px 0; text-align: center; color: var(--sp-green); }
 .sp-done h2 { margin-top: 8px; color: var(--sp-text); }
 .sp-done p { margin: 6px 0 0; color: var(--sp-muted); }
@@ -200,6 +214,14 @@
 .sp-prose section + section { margin-top: 28px; padding-top: 28px; border-top: 1px solid var(--sp-border); }
 .sp-prose p, .sp-prose ul { margin: 10px 0 0; color: #3b4448; }
 .sp-prose ul { padding-left: 20px; }
+
+/* Loading / no-application screens */
+.sp-root.sp-gate { align-items: center; justify-content: center; padding: 24px 16px; }
+.sp-gate .sp-card { width: 100%; max-width: 440px; text-align: center; }
+.sp-gate img { width: 48px; height: 48px; object-fit: contain; }
+.sp-gate h1 { margin: 12px 0 0; font-size: 20px; }
+.sp-gate p { margin: 10px 0 0; color: var(--sp-muted); font-size: 14px; }
+.sp-gate .sp-button { margin-top: 18px; }
 
 /* Narrow screens: sidebar becomes a top bar */
 @media (max-width: 860px) {
