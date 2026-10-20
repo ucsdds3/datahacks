@@ -3,12 +3,12 @@ import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
 
-type ApplicantType = 'mentor' | 'judge' | 'both'
+type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
 const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
   { value: 'mentor', label: 'Mentor' },
   { value: 'judge', label: 'Judge' },
-  { value: 'both', label: 'Both (priority preference)' },
+  { value: 'hybrid', label: 'Both (priority preference)' },
 ]
 
 const ucsdOptions = [
@@ -73,8 +73,8 @@ export default function MentorJudgeApplication() {
 
   const update = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }))
 
-  const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'both'
-  const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'both'
+  const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'hybrid'
+  const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'hybrid'
 
   const bioLength = form.bio.trim().length
 
@@ -116,7 +116,9 @@ export default function MentorJudgeApplication() {
 
     setSubmitting(true)
 
-    const { error: insertError } = await supabase.from('mentor_judge_applications').insert({
+    const { error: insertError } = await supabase.from('applications').insert({
+      status: 'submitted',
+      submitted_at: new Date().toISOString(),
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
       email: form.email.trim().toLowerCase(),
@@ -206,9 +208,6 @@ export default function MentorJudgeApplication() {
         <div className="mc-container" style={{ maxWidth: '700px' }}>
           <form className="mc-application-form" onSubmit={handleSubmit} noValidate>
             <h2 style={{ textAlign: 'center', fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 900, lineHeight: 1.1 }}>Mentor / Judge Application</h2>
-            <div className="mc-application-preview-label">
-              <span />APPLICATION
-            </div>
             <p className="mc-form-disclaimer" style={{ fontWeight: 'bold' }}>
               All fields are required for submission.
             </p>
