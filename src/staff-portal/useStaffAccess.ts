@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
+import { currentEventId } from "@/portal/event";
 import { MOCK_APPLICATION, type ApplicationStatus, type PortalRole } from "./config";
 
 export type StaffApplication = { firstName: string; lastName: string; type: PortalRole; status: ApplicationStatus };
@@ -24,10 +25,12 @@ type ApplicationRow = { first_name: string | null; last_name: string | null; app
 
 async function fetchApplication(userId: string): Promise<StaffApplication | null> {
   // Row-level security only returns the signed-in person's own applications.
+  const eventId = await currentEventId();
   const { data, error } = await supabase
     .from("applications")
     .select("first_name, last_name, applicant_type, status")
     .eq("user_id", userId)
+    .eq("event_id", eventId)
     .in("applicant_type", PORTALS)
     .order("submitted_at", { ascending: false })
     .limit(1);

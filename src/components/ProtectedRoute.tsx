@@ -5,7 +5,7 @@ import { portal, type LoginRole, type Role } from '@/portal/paths'
 
 /**
  * Signed-out visitors go to the `login` page. With a `role`, being signed in
- * is not enough: it has to match the role on the person's profile, and someone
+ * is not enough: it has to match the person's role at the event, and someone
  * in the wrong area is sent to their own.
  *
  * This keeps people out of the wrong screens. It does not protect data — the
@@ -25,9 +25,7 @@ export default function ProtectedRoute({
   if (loading) return <div>Loading...</div>
   if (!session) return <Navigate to={portal.login(login)} replace />
   if (!role) return <>{children}</>
-  // Signed in with no profile yet: the callback creates it.
-  if (!actual) return <Navigate to={portal.login(login)} replace />
-  if (actual !== role) return <Navigate to={portal.home(actual)} replace />
+  if (actual && actual !== role) return <Navigate to={portal.home(actual)} replace />
 
   return <>{children}</>
 }

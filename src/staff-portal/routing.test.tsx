@@ -17,11 +17,17 @@ vi.mock("@/lib/supabaseClient", () => ({
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
       signOut: async () => {},
     },
-    // profiles: the person's role. applications: their mentor/judge application rows.
+    // events: the current event. event_roles: none, so a hacker until accepted.
+    // applications: their mentor/judge application rows.
     from: (table: string) => {
       const result = async () =>
-        table === "profiles" ? { data: { role: "hacker" }, error: null } : { data: supabase.rows, error: supabase.queryError };
-      const query = { select: () => query, eq: () => query, in: () => query, order: () => query, limit: result, maybeSingle: result };
+        table === "events" ? { data: { id: "event-1" }, error: null }
+        : table === "event_roles" ? { data: [], error: null }
+        : { data: supabase.rows, error: supabase.queryError };
+      const query = {
+        select: () => query, eq: () => query, in: () => query, order: () => query, limit: result, maybeSingle: result,
+        then: (resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) => result().then(resolve, reject),
+      };
       return query;
     },
     functions: { invoke: async () => ({ data: null, error: null }) },

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { portal } from '@/portal/paths'
+import { currentEventId } from '@/portal/event'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -21,8 +22,8 @@ export default function AuthCallback() {
         return
       }
 
-      // No role is sent. The database sets it from the person's accepted
-      // application, and overwrites anything a request claims.
+      // No role is sent: roles are granted per event when an application is
+      // accepted (event_roles), and the database ignores any role a request claims.
       const { error: upsertError } = await supabase
         .from('profiles')
         .upsert({ id: session.user.id, email: session.user.email })
@@ -34,10 +35,19 @@ export default function AuthCallback() {
 
       // Anyone who has applied as a mentor or judge goes to the staff portal,
       // which shows their status whether or not they've been accepted yet.
+      let eventId: string
+      try {
+        eventId = await currentEventId()
+      } catch (e) {
+        setError(e instanceof Error ? e.message : String(e))
+        return
+      }
+
       const { data: staffApplication, error: readError } = await supabase
         .from('applications')
         .select('id')
         .eq('user_id', session.user.id)
+        .eq('event_id', eventId)
         .neq('applicant_type', 'hacker')
         .limit(1)
         .maybeSingle()

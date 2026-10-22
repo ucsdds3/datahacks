@@ -10,9 +10,6 @@ export type Role = "hacker" | "mentor" | "judge" | "hybrid";
 /** The sign-in pages. Hybrids sign in through either staff page. */
 export type LoginRole = "hacker" | "judge" | "mentor";
 
-export const isRole = (value: unknown): value is Role =>
-  value === "hacker" || value === "mentor" || value === "judge" || value === "hybrid";
-
 export const portal = {
   login: (role: LoginRole) => `/login/${role}`,
   callback: "/auth/callback",

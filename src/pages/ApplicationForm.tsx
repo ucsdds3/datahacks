@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import MinecraftLayout from '@/components/MinecraftLayout'
 import { portal } from '@/portal/paths'
+import { currentEventId } from '@/portal/event'
 
 const heardAboutOptions = ['Friend/word of mouth', 'Past DataHacks event', 'Tabling on campus', 'Social Media', 'Email newsletter', 'Other']
 
@@ -44,6 +45,15 @@ export default function ApplicationForm() {
 
     setSubmitting(true)
 
+    let eventId: string
+    try {
+      eventId = await currentEventId()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+      setSubmitting(false)
+      return
+    }
+
     const filePath = `${session.user.id}/${form.first_name}_${form.last_name}_resume.pdf`
     const { error: uploadError } = await supabase.storage
       .from('resumes')
@@ -57,6 +67,7 @@ export default function ApplicationForm() {
 
     const { error: insertError } = await supabase.from('applications').insert({
       applicant_type: 'hacker',
+      event_id: eventId,
       user_id: session.user.id,
       resume_path: filePath,
       status: 'submitted',

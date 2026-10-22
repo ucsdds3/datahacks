@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
 import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
+import { currentEventId } from '@/portal/event'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
@@ -124,8 +125,18 @@ export default function MentorJudgeApplication() {
 
     setSubmitting(true)
 
+    let eventId: string
+    try {
+      eventId = await currentEventId()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e))
+      setSubmitting(false)
+      return
+    }
+
     const { error: insertError } = await supabase.from('applications').insert({
       user_id: session.user.id,
+      event_id: eventId,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
       first_name: form.first_name.trim(),
@@ -147,7 +158,7 @@ export default function MentorJudgeApplication() {
     setSubmitting(false)
 
     if (insertError) {
-      // 23505 = unique violation: one mentor/judge application per account
+      // 23505 = unique violation: one application per account per event
       setError(insertError.code === '23505'
         ? "You've already applied. Open your portal to see its status."
         : insertError.message)

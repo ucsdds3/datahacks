@@ -1,16 +1,29 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
-import { isRole, type Role } from '@/portal/paths'
+import type { Role } from '@/portal/paths'
+import { currentEventId } from '@/portal/event'
 
 type AuthContextType = {
   session: Session | null
-  /** The role the database says this person has. Never taken from the URL. */
+  /** This person's role at the current event, from event_roles. Never taken from the URL. */
   role: Role | null
   loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({ session: null, role: null, loading: true })
+
+/** event_roles rows are granted when an application is accepted; a hybrid has both. */
+async function fetchRole(userId: string): Promise<Role> {
+  const eventId = await currentEventId()
+  const { data, error } = await supabase.from('event_roles').select('role').eq('user_id', userId).eq('event_id', eventId)
+  if (error) throw error
+  const roles = new Set((data ?? []).map(row => row.role as string))
+  if (roles.has('mentor') && roles.has('judge')) return 'hybrid'
+  if (roles.has('mentor')) return 'mentor'
+  if (roles.has('judge')) return 'judge'
+  return 'hacker'
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -23,8 +36,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  // The role is read back from the profile row, which only the database can set.
-  // loading stays true until it arrives, so a guarded page never renders on a guess.
+  // Roles are only ever granted by the database. loading stays true until the
+  // role arrives, so a guarded page never renders on a guess.
   const userId = session?.user.id
   useEffect(() => {
     let current = true
@@ -35,11 +48,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return () => { current = false }
     }
     setLoading(true)
-    supabase.from('profiles').select('role').eq('id', userId).maybeSingle().then(({ data }) => {
-      if (!current) return
-      setRole(isRole(data?.role) ? data.role : null)
-      setLoading(false)
-    })
+    fetchRole(userId)
+      .catch(error => {
+        // Signed in but the role can't be read: treat them as a hacker, which
+        // grants nothing. The data itself is still protected by the database.
+        console.error('Could not read role:', error)
+        return 'hacker' as const
+      })
+      .then(next => {
+        if (!current) return
+        setRole(next)
+        setLoading(false)
+      })
     return () => { current = false }
   }, [userId])
 

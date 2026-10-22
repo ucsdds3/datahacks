@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { Link } from 'react-router-dom'
 import MinecraftLayout from '@/components/MinecraftLayout'
 import { portal } from '@/portal/paths'
+import { currentEventId } from '@/portal/event'
 
 type Application = {
   status: string
@@ -18,10 +19,16 @@ export default function DashboardHacker() {
   useEffect(() => {
     const fetchApplication = async () => {
       if (!session) return
+      const eventId = await currentEventId().catch(() => null)
+      if (!eventId) {
+        setLoading(false)
+        return
+      }
       const { data } = await supabase
         .from('applications')
         .select('status, submitted_at')
         .eq('user_id', session.user.id)
+        .eq('event_id', eventId)
         .eq('applicant_type', 'hacker')
         .maybeSingle()
       setApplication(data)
