@@ -9,6 +9,7 @@
 ## Before launch
 - [ ] **Redirect URLs** (Supabase → Authentication → URL Configuration): add `https://datahacks.ds3ucsd.com/**` and `http://localhost:8080/**`. The list is empty and the Site URL is `http://localhost:3000`, so Google sign-in on the real site can't come back to `/auth/callback`.
 - [ ] **The 2027 event:** add it in Table Editor → `events` (with a code such as `DH27`), then change `EVENT_CODE` in `src/portal/event.ts`. Applications currently go to the dummy `DH26` event.
+- [ ] **Google sign-in shows "continue to yrxjhrrphhbmqejresvy.supabase.co".** Set the OAuth consent screen's app name ("DataHacks") and logo in Google Cloud Console and submit for brand verification; optionally a Supabase custom domain (e.g. `auth.ds3ucsd.com`, needs the Pro plan + add-on).
 - [ ] Accept a test mentor application in the dashboard and check that it grants the role (`event_roles`) and a check-in code (`attendees`), and that the portal shows "accepted".
 - [ ] Sign in end to end as a hacker, a mentor and a judge on the deployed site.
 
