@@ -11,6 +11,8 @@
 - [ ] Sign in end to end as a hacker, a mentor and a judge on the deployed site.
 
 ## To do
+- [ ] **One portal for everyone.** Per the architecture diagram, hackers, mentors and judges all land in the same portal after Google sign-in. Mentors/judges already do (`/portal`); hackers still get a separate dashboard. Add a hacker section with application status, run of show and the mentor sign-in list. The design is the 10/13 PDF from the group chat.
+- [ ] **One entrance.** A single "Create an account / Sign in" page for hackers, mentors and judges, linked from the main site, instead of three separate sign-in pages.
 - [ ] **Insurance / liability form for outside judges.** Sponsors will send engineers to judge, and we may invite professors. They need a separate form confirming they're insured or covered before the event.
 - [ ] Real coordinator contacts in `src/staff-portal/config.ts` (currently placeholders).
 - [ ] DocuSign: a developer account, a template made from the waiver PDF, the app's key in `src/staff-portal/config.ts`, and the secrets listed at the top of `supabase/functions/docusign-waiver/index.ts`. Until then the waiver page says the document isn't ready.
