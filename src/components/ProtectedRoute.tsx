@@ -1,29 +1,33 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import { ReactNode } from 'react'
-import { portal, type PortalRole } from '@/portal/paths'
+import { portal, type LoginRole, type Role } from '@/portal/paths'
 
 /**
- * Being signed in is not enough: the page's role has to match the role on the
- * person's profile. Someone in the wrong area is sent to their own dashboard.
+ * Signed-out visitors go to the `login` page. With a `role`, being signed in
+ * is not enough: it has to match the role on the person's profile, and someone
+ * in the wrong area is sent to their own.
  *
  * This keeps people out of the wrong screens. It does not protect data — the
  * row-level security policies in supabase/migrations do that.
  */
 export default function ProtectedRoute({
   children,
+  login,
   role,
 }: {
   children: ReactNode
-  role: PortalRole
+  login: LoginRole
+  role?: Role
 }) {
   const { session, role: actual, loading } = useAuth()
 
   if (loading) return <div>Loading...</div>
-  if (!session) return <Navigate to={portal.login(role)} replace />
+  if (!session) return <Navigate to={portal.login(login)} replace />
+  if (!role) return <>{children}</>
   // Signed in with no profile yet: the callback creates it.
-  if (!actual) return <Navigate to={portal.login(role)} replace />
-  if (actual !== role) return <Navigate to={portal.dashboard(actual)} replace />
+  if (!actual) return <Navigate to={portal.login(login)} replace />
+  if (actual !== role) return <Navigate to={portal.home(actual)} replace />
 
   return <>{children}</>
 }

@@ -1,7 +1,10 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
+import { useAuth } from '@/context/AuthContext'
+import { portal } from '@/portal/paths'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
@@ -49,6 +52,7 @@ const isGoogleDriveFileUrl = (value: string) => {
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
 export default function MentorJudgeApplication() {
+  const { session } = useAuth()
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -57,7 +61,9 @@ export default function MentorJudgeApplication() {
   const [form, setForm] = useState({
     first_name: '',
     last_name: '',
-    email: '',
+    // The Google account they signed in with. The database records this one
+    // whatever is sent, so the field is read-only.
+    email: session?.user.email ?? '',
     organization: '',
     role_title: '',
     resume_url: '',
@@ -114,9 +120,12 @@ export default function MentorJudgeApplication() {
       return
     }
 
+    if (!session) return
+
     setSubmitting(true)
 
     const { error: insertError } = await supabase.from('applications').insert({
+      user_id: session.user.id,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
       first_name: form.first_name.trim(),
@@ -138,9 +147,9 @@ export default function MentorJudgeApplication() {
     setSubmitting(false)
 
     if (insertError) {
-      // 23505 = unique violation on lower(email)
+      // 23505 = unique violation: one mentor/judge application per account
       setError(insertError.code === '23505'
-        ? 'An application with this email has already been submitted.'
+        ? "You've already applied. Open your portal to see its status."
         : insertError.message)
       return
     }
@@ -155,6 +164,7 @@ export default function MentorJudgeApplication() {
           <div className="mc-application-form" style={{ maxWidth: '420px', textAlign: 'center' }}>
             <h2>Application received</h2>
             <p className="mc-form-disclaimer">Thanks, {form.first_name}! We'll reach out at {form.email.trim()}.</p>
+            <Link to={portal.staffPortal} className="mc-button" style={{ display: 'inline-flex', textDecoration: 'none' }}>Open your portal</Link>
           </div>
         </div>
       </MinecraftLayout>
@@ -223,7 +233,7 @@ export default function MentorJudgeApplication() {
                 <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
               </label>
               <label id="field-email" className={cls('email')}>Email
-                <input type="email" required value={form.email} onChange={e => update('email', e.target.value)} />
+                <input type="email" required readOnly value={form.email} />
               </label>
               <label id="field-organization" className={cls('organization')}>Company / lab you work for
                 <input required value={form.organization} onChange={e => update('organization', e.target.value)} />

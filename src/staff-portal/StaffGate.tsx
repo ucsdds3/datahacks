@@ -1,5 +1,6 @@
-import { Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabaseClient";
+import { portal } from "@/portal/paths";
 import { GENERAL_CONTACT_EMAIL } from "./config";
 import { useStaffAccess, type StaffAccess } from "./useStaffAccess";
 import "./staff-portal.css";
@@ -21,14 +22,14 @@ export function StaffGate({ access, loginRole }: { access: Exclude<StaffAccess, 
   const navigate = useNavigate();
   const switchAccount = async () => {
     await supabase.auth.signOut();
-    navigate(`/login/${loginRole}`);
+    navigate(portal.login(loginRole));
   };
 
   switch (access.state) {
     case "loading":
       return <Screen title="Loading your portal…" />;
     case "signed-out":
-      return <Navigate to={`/login/${loginRole}`} replace />;
+      return <Navigate to={portal.login(loginRole)} replace />;
     case "error":
       return (
         <Screen title="We couldn't load your portal">
@@ -40,7 +41,8 @@ export function StaffGate({ access, loginRole }: { access: Exclude<StaffAccess, 
       return (
         <Screen title="No application found">
           <p>We couldn't find a mentor or judge application for <strong>{access.email}</strong>.</p>
-          <p>Sign in with the Google account whose email you applied with, or email <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a> for help.</p>
+          <p>Apply now, or if you applied with another Google account, sign in with that one. Questions: <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a>.</p>
+          <Link className="sp-button" to={portal.staffApplication}>Apply as a mentor or judge</Link>
           <button className="sp-button" onClick={switchAccount}>Use a different account</button>
         </Screen>
       );

@@ -10,7 +10,6 @@ vi.mock("@/lib/supabaseClient", () => ({
       getSession: async () => ({ data: { session: null } }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     },
-    rpc: async () => ({ data: [], error: null }),
     functions: { invoke: async () => ({ data: null, error: null }) },
   },
 }));

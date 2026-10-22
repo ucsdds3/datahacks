@@ -1,23 +1,20 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { supabase } from '@/lib/supabaseClient'
 import type { Session } from '@supabase/supabase-js'
-import type { PortalRole } from '@/portal/paths'
+import { isRole, type Role } from '@/portal/paths'
 
 type AuthContextType = {
   session: Session | null
   /** The role the database says this person has. Never taken from the URL. */
-  role: PortalRole | null
+  role: Role | null
   loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType>({ session: null, role: null, loading: true })
 
-const isRole = (value: unknown): value is PortalRole =>
-  value === 'hacker' || value === 'judge' || value === 'mentor'
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
-  const [role, setRole] = useState<PortalRole | null>(null)
+  const [role, setRole] = useState<Role | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

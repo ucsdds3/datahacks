@@ -57,7 +57,11 @@ jobs:
             const extra = ['/datacraft/schedule', '/datacraft/mentors',
                            '/themes', '/pop', '/press', '/groove', '/legacy',
                            '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
-                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor', '/apply'];
+                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor',
+                           '/apply', '/apply/mentor-judge', '/portal',
+                           ...['mentor', 'judge', 'hybrid'].flatMap(p => [
+                             '/portal/' + p, '/portal/' + p + '/waiver', '/portal/' + p + '/handbook']),
+                           '/portal/judge/judging', '/portal/hybrid/judging'];
             console.log([...new Set([...chapters, ...extra])].join(' '));
           ")
           for route in $routes; do

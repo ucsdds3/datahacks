@@ -22,9 +22,15 @@ const toStatus = (value: string | null): ApplicationStatus =>
 
 type ApplicationRow = { first_name: string | null; last_name: string | null; applicant_type: string; status: string | null };
 
-async function fetchApplication(): Promise<StaffApplication | null> {
-  // See supabase/migrations/20261018120000_staff_portal_application_lookup.sql
-  const { data, error } = await supabase.rpc("get_my_staff_application");
+async function fetchApplication(userId: string): Promise<StaffApplication | null> {
+  // Row-level security only returns the signed-in person's own applications.
+  const { data, error } = await supabase
+    .from("applications")
+    .select("first_name, last_name, applicant_type, status")
+    .eq("user_id", userId)
+    .in("applicant_type", PORTALS)
+    .order("submitted_at", { ascending: false })
+    .limit(1);
   if (error) throw error;
   const row = (data as ApplicationRow[] | null)?.[0];
   if (!row || !PORTALS.includes(row.applicant_type as PortalRole)) return null;
@@ -48,7 +54,7 @@ export function useStaffAccess(portal?: PortalRole): StaffAccess {
 
   const query = useQuery({
     queryKey: ["staff-application", session?.user.id],
-    queryFn: fetchApplication,
+    queryFn: () => fetchApplication(session!.user.id),
     enabled: !preview && !!session,
     staleTime: 60_000,
   });

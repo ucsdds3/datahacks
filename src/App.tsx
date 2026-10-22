@@ -57,16 +57,17 @@ const App = () => (
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={null}><PortalShell /></Suspense></PortalBoundary>}>
-            <Route path="/login/hacker" element={<LoginHacker />} />
-            <Route path="/login/judge" element={<LoginJudge />} />
-            <Route path="/login/mentor" element={<LoginMentor />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/dashboard/hacker" element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
+            <Route path={portal.login("hacker")} element={<LoginHacker />} />
+            <Route path={portal.login("judge")} element={<LoginJudge />} />
+            <Route path={portal.login("mentor")} element={<LoginMentor />} />
+            <Route path={portal.callback} element={<AuthCallback />} />
+            <Route path={portal.hackerDashboard} element={<ProtectedRoute login="hacker" role="hacker"><DashboardHacker /></ProtectedRoute>} />
             {/* Mentors, judges and hybrids all land on /portal, which picks their portal. */}
-            <Route path="/dashboard/judge" element={<Navigate to="/portal" replace />} />
-            <Route path="/dashboard/mentor" element={<Navigate to="/portal" replace />} />
-            <Route path="/apply/mentor-judge" element={<MentorJudgeApplication />} />
-            <Route path="/apply" element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
+            <Route path="/dashboard/judge" element={<Navigate to={portal.staffPortal} replace />} />
+            <Route path="/dashboard/mentor" element={<Navigate to={portal.staffPortal} replace />} />
+            {/* No role required: applicants aren't mentors or judges until accepted. */}
+            <Route path={portal.staffApplication} element={<ProtectedRoute login="mentor"><MentorJudgeApplication /></ProtectedRoute>} />
+            <Route path={portal.application} element={<ProtectedRoute login="hacker" role="hacker"><ApplicationForm /></ProtectedRoute>} />
             {/* Mentor/judge/hybrid portal. Each layout checks sign-in and sends people to
                 the portal matching their application; see staff-portal/useStaffAccess. */}
             <Route path="/portal" element={<PortalHome />} />

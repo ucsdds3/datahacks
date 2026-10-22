@@ -71,7 +71,7 @@ export default function ApplicationForm() {
       return
     }
 
-    navigate(portal.dashboard('hacker'))
+    navigate(portal.hackerDashboard)
   }
 
   return (

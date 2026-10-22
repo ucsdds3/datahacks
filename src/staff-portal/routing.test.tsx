@@ -7,7 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 const supabase = vi.hoisted(() => ({
   session: null as null | { user: { id: string; email: string } },
   rows: [] as unknown[],
-  rpcError: null as null | { message: string },
+  queryError: null as null | { message: string },
 }));
 
 vi.mock("@/lib/supabaseClient", () => ({
@@ -17,7 +17,13 @@ vi.mock("@/lib/supabaseClient", () => ({
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
       signOut: async () => {},
     },
-    rpc: async () => ({ data: supabase.rows, error: supabase.rpcError }),
+    // profiles: the person's role. applications: their mentor/judge application rows.
+    from: (table: string) => {
+      const result = async () =>
+        table === "profiles" ? { data: { role: "hacker" }, error: null } : { data: supabase.rows, error: supabase.queryError };
+      const query = { select: () => query, eq: () => query, in: () => query, order: () => query, limit: result, maybeSingle: result };
+      return query;
+    },
     functions: { invoke: async () => ({ data: null, error: null }) },
   },
 }));
@@ -64,7 +70,7 @@ const at = () => screen.getByTestId("where").textContent;
 beforeEach(() => {
   supabase.session = null;
   supabase.rows = [];
-  supabase.rpcError = null;
+  supabase.queryError = null;
   localStorage.clear();
 });
 
@@ -171,7 +177,7 @@ describe("people who can't open a portal", () => {
 
   it("Supabase error", async () => {
     signedIn("mentor");
-    supabase.rpcError = { message: "boom" };
+    supabase.queryError = { message: "boom" };
     renderAt("/portal");
     expect(await screen.findByText("We couldn't load your portal")).toBeInTheDocument();
   });

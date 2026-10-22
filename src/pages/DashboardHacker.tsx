@@ -22,6 +22,7 @@ export default function DashboardHacker() {
         .from('applications')
         .select('status, submitted_at')
         .eq('user_id', session.user.id)
+        .eq('applicant_type', 'hacker')
         .maybeSingle()
       setApplication(data)
       setLoading(false)
