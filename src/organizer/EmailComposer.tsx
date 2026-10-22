@@ -130,7 +130,7 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
       <div className="og-send-row">
         {confirming ? (
           <>
-            <span>Send this to {recipients.length} {recipients.length === 1 ? "person" : "people"} from info@ds3.club?</span>
+            <span>Send this to {recipients.length} {recipients.length === 1 ? "person" : "people"} from DataHacks Team (info@ds3.club)?</span>
             <button className="sp-button" onClick={() => setConfirming(false)} disabled={sending}>Cancel</button>
             <button className="sp-button primary" onClick={send} disabled={sending}><Send size={15} aria-hidden /> {sending ? progress || "Sending…" : "Yes, send"}</button>
           </>

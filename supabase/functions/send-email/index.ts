@@ -174,7 +174,7 @@ Deno.serve(async req => {
     const html = escapeHtml(filled).replace(/\r?\n/g, "<br>").split(QR_MARK).join(img);
     try {
       await transport.sendMail({
-        from: `DataHacks <${from}>`,
+        from: `DataHacks Team <${from}>`,
         to: r.email,
         subject: fill(subject, r).split(QR_MARK).join(""),
         text,
