@@ -56,6 +56,7 @@ export default function ApplicationForm() {
     }
 
     const { error: insertError } = await supabase.from('applications').insert({
+      applicant_type: 'hacker',
       user_id: session.user.id,
       resume_path: filePath,
       status: 'submitted',
