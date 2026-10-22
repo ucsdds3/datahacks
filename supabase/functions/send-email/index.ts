@@ -9,18 +9,14 @@
 //
 // subject and body may use {{first_name}}, {{last_name}}, {{status}}, {{type}}
 // and {{code}} (the check-in code, once accepted). {{qr}} in the body becomes
-// that code as a QR image inside the email. {{wallet}} becomes an "Add to Apple
-// Wallet / Google Wallet" button for a pass made by WalletWallet (the same
-// service the check-in side uses), with the .pkpass attached for iPhone Mail;
-// sending it marks attendees.emailed_at, so the pass isn't sent twice. People
-// without a check-in code are skipped and reported when either is used. With
-// kind "decision", each application that was emailed gets decision_emailed_at set.
+// that code as a QR image inside the email; people without a code are skipped
+// and reported. With kind "decision", each application that was emailed gets
+// decision_emailed_at set.
 //
 // Secrets (supabase secrets set ...):
 //   GMAIL_ADDRESS        the sending account, e.g. info@ds3.club
 //   GMAIL_APP_PASSWORD   a Google app password for that account (spaces are fine)
 //   SEND_DELAY_SECONDS   pause between emails, to stay under Gmail's limits (default 1)
-//   WALLETWALLET_API_KEY for {{wallet}}: a WalletWallet key (ww_live_...); free plan is 1,000 passes a month
 // SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 //
 // Deploy:
@@ -64,54 +60,10 @@ const TYPE_LABEL: Record<string, string> = { hacker: "hacker", mentor: "mentor",
 
 /** Where {{qr}} was: replaced by an image in the HTML and by the code in plain text. */
 const QR_MARK = "\u0000qr\u0000";
-/** Where {{wallet}} was: replaced by an add-to-wallet button in the HTML and a link in plain text. */
-const WALLET_MARK = "\u0000wallet\u0000";
-const uses = (name: string, text: string) => new RegExp(`\\{\\{\\s*${name}\\s*\\}\\}`).test(text);
-
-/** When each role is needed, printed on the pass. */
-const PASS_DATES: Record<string, string> = {
-  hacker: "Jan 16–17, 2027",
-  mentor: "Sat, Jan 16, 2027 · 12:30–4:30 PM",
-  judge: "Sun, Jan 17, 2027",
-  hybrid: "Jan 16–17, 2027",
-};
-
-type Pass = { shareUrl: string; applePass: string };
-
-/** One wallet pass per person, carrying their check-in code as a QR code. */
-async function createPass(r: Recipient): Promise<Pass> {
-  const name = [r.first_name, r.last_name].filter(Boolean).join(" ").trim() || "DataHacks attendee";
-  const role = TYPE_LABEL[r.applicant_type] ?? r.applicant_type;
-  const response = await fetch("https://api.walletwallet.dev/api/passes", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${env("WALLETWALLET_API_KEY")}` },
-    body: JSON.stringify({
-      barcodeValue: r.code,
-      barcodeFormat: "QR",
-      barcodeAltText: r.code,
-      logoText: "DataHacks 2027",
-      organizationName: "DS3 at UC San Diego",
-      description: "DataHacks 2027 check-in pass",
-      primaryFields: [{ label: "NAME", value: name }],
-      secondaryFields: [
-        { label: "ROLE", value: role.charAt(0).toUpperCase() + role.slice(1) },
-        { label: "WHEN", value: PASS_DATES[r.applicant_type] ?? PASS_DATES.hacker },
-      ],
-      backFields: [
-        { label: "Where", value: "Price Center Ballrooms, UC San Diego" },
-        { label: "Check-in code", value: r.code! },
-        { label: "Questions", value: "info@ds3.club" },
-      ],
-      colorPreset: "green",
-      expirationDate: "2027-01-18T23:59:00-08:00",
-    }),
-  });
-  if (!response.ok) throw new Error(`Wallet pass: ${response.status} ${(await response.text()).slice(0, 200)}`);
-  return await response.json() as Pass;
-}
+const usesQr = (text: string) => /\{\{\s*qr\s*\}\}/.test(text);
 
 const fill = (template: string, r: Recipient) =>
-  template.replace(/\{\{\s*(first_name|last_name|status|type|code|qr|wallet)\s*\}\}/g, (_, key: string) => {
+  template.replace(/\{\{\s*(first_name|last_name|status|type|code|qr)\s*\}\}/g, (_, key: string) => {
     switch (key) {
       case "first_name": return r.first_name?.trim() || "there";
       case "last_name": return r.last_name?.trim() ?? "";
@@ -119,7 +71,6 @@ const fill = (template: string, r: Recipient) =>
       case "type": return TYPE_LABEL[r.applicant_type] ?? r.applicant_type;
       case "code": return r.code ?? "";
       case "qr": return QR_MARK;
-      case "wallet": return WALLET_MARK;
       default: return "";
     }
   });
@@ -204,46 +155,36 @@ Deno.serve(async req => {
   });
   const delayMs = Math.max(0, Number(Deno.env.get("SEND_DELAY_SECONDS") ?? "1")) * 1000;
 
-  const withQr = uses("qr", body);
-  const withWallet = uses("wallet", body);
+  const withQr = usesQr(body);
   let sent = 0;
   const emailed: string[] = [];
-  const passesSent: string[] = [];
   for (const [i, r] of recipients.entries()) {
     if (!r.email) {
       failed.push({ id: r.id, error: "No email address on file." });
       continue;
     }
-    if ((withQr || withWallet) && !r.code) {
+    if (withQr && !r.code) {
       failed.push({ id: r.id, error: "No check-in code yet (only accepted people get one)." });
       continue;
     }
     if (i > 0 && delayMs) await sleep(delayMs);
     const filled = fill(body, r);
+    const text = filled.split(QR_MARK).join(`Check-in code: ${r.code ?? ""}`);
+    const img = `<img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(r.code ?? "")}" width="240" height="240" style="display:block">`;
+    const html = escapeHtml(filled).replace(/\r?\n/g, "<br>").split(QR_MARK).join(img);
     try {
-      const pass = withWallet ? await createPass(r) : null;
-      const walletText = pass ? `Add your pass to Apple Wallet or Google Wallet: ${pass.shareUrl}` : "";
-      const walletHtml = pass
-        ? `<a href="${escapeHtml(pass.shareUrl)}" style="display:inline-block;padding:12px 20px;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">Add to Apple Wallet / Google Wallet</a>`
-        : "";
-      const text = filled.split(QR_MARK).join(`Check-in code: ${r.code ?? ""}`).split(WALLET_MARK).join(walletText);
-      const img = `<img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(r.code ?? "")}" width="240" height="240" style="display:block">`;
-      const html = escapeHtml(filled).replace(/\r?\n/g, "<br>").split(QR_MARK).join(img).split(WALLET_MARK).join(walletHtml);
-      const attachments = [
-        ...(withQr ? [{ filename: `datahacks-checkin-${r.code}.png`, content: await QRCode.toBuffer(r.code!, { width: 480, margin: 2 }), cid: "checkin-qr" }] : []),
-        ...(pass ? [{ filename: "DataHacks-2027.pkpass", content: pass.applePass, encoding: "base64", contentType: "application/vnd.apple.pkpass" }] : []),
-      ];
       await transport.sendMail({
         from: `DataHacks Team <${from}>`,
         to: r.email,
-        subject: fill(subject, r).split(QR_MARK).join("").split(WALLET_MARK).join(""),
+        subject: fill(subject, r).split(QR_MARK).join(""),
         text,
         html: `<div style="font-family: sans-serif; line-height: 1.5">${html}</div>`,
-        attachments,
+        attachments: withQr
+          ? [{ filename: `datahacks-checkin-${r.code}.png`, content: await QRCode.toBuffer(r.code!, { width: 480, margin: 2 }), cid: "checkin-qr" }]
+          : [],
       });
       sent++;
       emailed.push(r.id);
-      if (pass) passesSent.push(r.id);
     } catch (error) {
       failed.push({ id: r.id, error: error instanceof Error ? error.message : String(error) });
     }
@@ -255,15 +196,6 @@ Deno.serve(async req => {
       .update({ decision_emailed_at: new Date().toISOString() })
       .in("id", emailed);
     if (error) console.error("Could not record decision_emailed_at:", error.message);
-  }
-
-  // Tells the check-in side these people already have their pass.
-  if (passesSent.length) {
-    const { error } = await admin
-      .from("attendees")
-      .update({ emailed_at: new Date().toISOString() })
-      .in("application_id", passesSent);
-    if (error) console.error("Could not record attendees.emailed_at:", error.message);
   }
 
   return json({ sent, failed });
