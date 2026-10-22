@@ -106,3 +106,18 @@ export const CONTACTS: Contact[] = [
 ];
 
 export const GENERAL_CONTACT_EMAIL = "info@ds3.club";
+
+/**
+ * Application timeline. Placeholders until confirmed: see docs/questions-for-mohak.md.
+ * Applications submitted on or before PRIORITY_DEADLINE are in the priority batch.
+ */
+export const TIMELINE = {
+  priorityDeadline: new Date("2026-11-26T23:59:59-08:00"),
+  regularDeadline: new Date("2026-12-15T23:59:59-08:00"),
+  eventDates: "January 16–17, 2027",
+  /** The hacker Mentors tab appears from this moment (the morning of the event). */
+  mentorsTabOpens: new Date("2027-01-16T08:00:00-08:00"),
+};
+
+export const applicationBatch = (submittedAt: string | null) =>
+  submittedAt && new Date(submittedAt) <= TIMELINE.priorityDeadline ? "priority" : "regular";
