@@ -73,14 +73,16 @@ export const BLASTS: Blast[] = [
   },
   {
     id: "qr",
-    label: "Check-in QR code",
+    label: "Check-in QR code & wallet pass",
     when: "2–3 days before (Wednesday, January 13 or Thursday, January 14)",
     audience: "all",
     status: "accepted",
-    subject: "Your DataHacks check-in QR code",
+    subject: "Your DataHacks check-in pass",
     body:
       "Hi {{first_name}},\n\n" +
-      "Here's your check-in QR code for DataHacks. Show it at the check-in desk at the Price Center Ballrooms.\n\n" +
+      "Here's your check-in pass for DataHacks. Add it to your phone's wallet, and show it at the check-in desk at the Price Center Ballrooms.\n\n" +
+      "{{wallet}}\n\n" +
+      "Or use this QR code:\n\n" +
       "{{qr}}\n\n" +
       "Your check-in code is {{code}}, in case the QR code won't scan.\n\n" +
       "Hackers: check-in opens Saturday, January 16 at [[12:00 PM]].\n" +

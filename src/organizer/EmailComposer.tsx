@@ -25,7 +25,7 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
   );
   const sample = recipients[0];
   const blanks = hasBlanks(subject, body);
-  const usesQr = /\{\{\s*qr\s*\}\}/.test(body);
+  const usesQr = /\{\{\s*(qr|wallet)\s*\}\}/.test(body);
   const withoutCode = usesQr ? recipients.filter(r => !r.code).length : 0;
   const ready = recipients.length > 0 && subject.trim() !== "" && body.trim() !== "" && !blanks;
   const blast = BLASTS.find(b => b.id === blastId);
@@ -98,7 +98,7 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
           <label>Subject<input value={subject} onChange={e => setSubject(e.target.value)} placeholder="e.g. DataHacks: what to bring on Saturday" /></label>
           <label>Body<textarea rows={10} value={body} onChange={e => setBody(e.target.value)} /></label>
           <p className="og-hint">
-            Placeholders, filled in per person: {PLACEHOLDERS.map(p => `{{${p}}}`).join(" ")}. {"{{qr}}"} puts the person's check-in QR code in the email.
+            Placeholders, filled in per person: {PLACEHOLDERS.map(p => `{{${p}}}`).join(" ")}. {"{{qr}}"} puts the person's check-in QR code in the email; {"{{wallet}}"} adds an Add to Apple/Google Wallet button with their pass.
           </p>
           {blanks && <p className="sp-error">Fill in everything in [[double brackets]] before sending.</p>}
           {withoutCode > 0 && (

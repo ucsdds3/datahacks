@@ -2,7 +2,7 @@ import { TYPE_LABEL, fullName, type Decision, type Kind, type Row } from "./type
 
 export type Template = { subject: string; body: string };
 
-export const PLACEHOLDERS = ["first_name", "last_name", "status", "type", "code", "qr"] as const;
+export const PLACEHOLDERS = ["first_name", "last_name", "status", "type", "code", "qr", "wallet"] as const;
 export type Placeholder = (typeof PLACEHOLDERS)[number];
 export type TemplateVars = Partial<Record<Placeholder, string>>;
 
@@ -28,6 +28,7 @@ export function varsFor(row: Row): TemplateVars {
     code: row.code ?? "",
     // The email itself gets an image; the preview shows where it goes.
     qr: row.code ? `[QR code for ${row.code}]` : "[no check-in code yet]",
+    wallet: row.code ? "[Add to Apple Wallet / Google Wallet button]" : "[no check-in code yet]",
   };
 }
 
