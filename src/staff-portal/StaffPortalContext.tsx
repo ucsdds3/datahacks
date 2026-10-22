@@ -9,6 +9,7 @@ type StaffPortalState = {
   basePath: string;
   fullName: string;
   status: ApplicationStatus;
+  submittedAt: string | null;
   waiverSubmitted: boolean;
   submitWaiver: () => Promise<void>;
   /** Dev `?preview` mode: mock data and a simulated DocuSign. */
@@ -47,7 +48,7 @@ export function StaffPortalProvider({ application, preview, children }: { applic
 
   const portal = application.type;
   return (
-    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, waiverSubmitted, submitWaiver, preview, resetWaiver }}>
+    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, submittedAt: application.submittedAt, waiverSubmitted, submitWaiver, preview, resetWaiver }}>
       {children}
     </StaffPortalContext.Provider>
   );

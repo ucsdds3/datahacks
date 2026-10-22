@@ -13,11 +13,10 @@ export type LoginRole = "hacker" | "judge" | "mentor";
 export const portal = {
   login: (role: LoginRole) => `/login/${role}`,
   callback: "/auth/callback",
-  hackerDashboard: "/dashboard/hacker",
-  application: "/apply",
-  staffApplication: "/apply/mentor-judge",
-  /** Opens the mentor, judge or hybrid portal matching the person's application. */
-  staffPortal: "/portal",
-  /** Where someone with this role lands after signing in. */
-  home: (role: Role) => (role === "hacker" ? "/dashboard/hacker" : "/portal"),
+  /** Opens the right section for the person: their application's portal, Apply, or the organizer console. */
+  home: "/portal",
+  apply: "/portal/apply",
+  applyHacker: "/portal/apply/hacker",
+  applyStaff: "/portal/apply/mentor-judge",
+  organizer: "/portal/organizer",
 };

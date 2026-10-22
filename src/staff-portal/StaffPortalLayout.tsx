@@ -1,45 +1,85 @@
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, FileSignature, Gavel, LayoutDashboard } from "lucide-react";
+import { BookOpen, CalendarClock, ClipboardList, FileSignature, Gavel, LayoutDashboard, LogOut, Mail, ShieldCheck, Users } from "lucide-react";
+import type { ReactNode } from "react";
+import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/context/AuthContext";
+import { portal as paths } from "@/portal/paths";
 import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
-import { HANDBOOK_TITLE, hasJudgeAccess, type PortalRole } from "./config";
+import { GENERAL_CONTACT_EMAIL, HANDBOOK_TITLE, TIMELINE, hasJudgeAccess, type PortalRole } from "./config";
 import "./staff-portal.css";
 
+type NavItem = { path: string; label: string; icon: ReactNode };
+
+/** Which pages someone can open. Most of the portal opens once they're accepted. */
+function navItems(portal: PortalRole, accepted: boolean, preview: boolean): NavItem[] {
+  const items: NavItem[] = [
+    { path: "", label: "Status", icon: <LayoutDashboard size={18} /> },
+    { path: "/questions", label: "Application", icon: <ClipboardList size={18} /> },
+  ];
+  if (!accepted) return items;
+  items.push(
+    { path: "/handbook", label: HANDBOOK_TITLE[portal], icon: <BookOpen size={18} /> },
+    { path: "/schedule", label: "Run of show", icon: <CalendarClock size={18} /> },
+  );
+  if (portal === "hacker" && (preview || Date.now() >= TIMELINE.mentorsTabOpens.getTime())) {
+    items.push({ path: "/mentors", label: "Mentors", icon: <Users size={18} /> });
+  }
+  if (hasJudgeAccess(portal)) items.push({ path: "/judging", label: "Judging Portal", icon: <Gavel size={18} /> });
+  items.push({ path: "/waiver", label: "Liability Waiver", icon: <FileSignature size={18} /> });
+  return items;
+}
+
+/** The sidebar's brand block and contact footer, shared with the Apply pages. */
+export function PortalFrame({ nav, children }: { nav: ReactNode; children: ReactNode }) {
+  const { isOrganizer, session } = useAuth();
+  const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
+  return (
+    <div className="sp-root">
+      <aside className="sp-sidebar">
+        <div className="sp-brand">
+          <img src="/datahacks-logo.png" alt="" />
+          <div>
+            <strong>DataHacks 2027</strong>
+            <span>Data Science Student Society</span>
+          </div>
+        </div>
+        <nav className="sp-nav" aria-label="Portal">
+          {nav}
+          {isOrganizer && (
+            <NavLink to={paths.organizer} className={linkClass}>
+              <ShieldCheck size={18} /> Organizer console
+            </NavLink>
+          )}
+        </nav>
+        <div className="sp-sidebar-footer">
+          <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}><Mail size={14} aria-hidden /> {GENERAL_CONTACT_EMAIL}</a>
+          {session && (
+            <button className="sp-signout" onClick={() => supabase.auth.signOut()}>
+              <LogOut size={14} aria-hidden /> Sign out
+            </button>
+          )}
+        </div>
+      </aside>
+      <main className="sp-main">{children}</main>
+    </div>
+  );
+}
+
 function Sidebar() {
-  const { portal, basePath, status } = useStaffPortal();
+  const { portal, basePath, status, preview } = useStaffPortal();
   // Keep a dev `?preview` while moving between pages.
   const { search } = useLocation();
   const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
-
   return (
-    <aside className="sp-sidebar">
-      <div className="sp-brand">
-        <img src="/datahacks-logo.png" alt="" />
-        <div>
-          <strong>DataHacks 2027</strong>
-          <span>Data Science Student Society</span>
-        </div>
-      </div>
-      <nav className="sp-nav" aria-label="Portal">
-        <NavLink to={{ pathname: basePath, search }} end className={linkClass}>
-          <LayoutDashboard size={18} /> Dashboard
+    <>
+      {navItems(portal, status === "accepted", preview).map(item => (
+        <NavLink key={item.path} to={{ pathname: basePath + item.path, search }} end={item.path === ""} className={linkClass}>
+          {item.icon} {item.label}
         </NavLink>
-        {status === "accepted" && (
-          <NavLink to={{ pathname: `${basePath}/waiver`, search }} className={linkClass}>
-            <FileSignature size={18} /> Liability Waiver
-          </NavLink>
-        )}
-        <NavLink to={{ pathname: `${basePath}/handbook`, search }} className={linkClass}>
-          <BookOpen size={18} /> {HANDBOOK_TITLE[portal]}
-        </NavLink>
-        {hasJudgeAccess(portal) && (
-          <NavLink to={{ pathname: `${basePath}/judging`, search }} className={linkClass}>
-            <Gavel size={18} /> Judging Portal
-          </NavLink>
-        )}
-      </nav>
-    </aside>
+      ))}
+    </>
   );
 }
 
@@ -47,24 +87,23 @@ export default function StaffPortalLayout({ portal }: { portal: PortalRole }) {
   const access = useStaffAccess(portal);
   const { pathname, search } = useLocation();
 
-  if (access.state !== "ready") return <StaffGate access={access} loginRole={portal === "judge" ? "judge" : "mentor"} />;
+  if (access.state !== "ready") {
+    return <StaffGate access={access} loginRole={portal === "judge" ? "judge" : portal === "hacker" ? "hacker" : "mentor"} />;
+  }
 
-  // Someone on another role's portal goes to their own, on the same page where it exists.
-  const { type } = access.application;
-  if (type !== portal) {
-    const page = pathname.slice(`/portal/${portal}`.length);
-    const target = page === "/judging" && !hasJudgeAccess(type) ? "" : page;
-    return <Navigate to={{ pathname: `/portal/${type}${target}`, search }} replace />;
+  // Someone on another role's portal goes to their own, on the same page if they can open it there.
+  const { type, status } = access.application;
+  const page = pathname.slice(`/portal/${portal}`.length).replace(/\/$/, "");
+  const allowed = navItems(type, status === "accepted", access.preview).some(item => item.path === page);
+  if (type !== portal || !allowed) {
+    return <Navigate to={{ pathname: `/portal/${type}${allowed ? page : ""}`, search }} replace />;
   }
 
   return (
     <StaffPortalProvider application={access.application} preview={access.preview}>
-      <div className="sp-root">
-        <Sidebar />
-        <main className="sp-main">
-          <Outlet />
-        </main>
-      </div>
+      <PortalFrame nav={<Sidebar />}>
+        <Outlet />
+      </PortalFrame>
     </StaffPortalProvider>
   );
 }

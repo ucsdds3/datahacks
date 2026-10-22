@@ -18,11 +18,12 @@ export const DOCUSIGN: { clientId: string; environment: "demo" | "production" } 
  */
 export const PREVIEW_WAIVER_PDF = "/dev/waiver-test.pdf";
 
-export type ApplicationStatus ="pending" | "accepted" | "rejected";
+export type ApplicationStatus = "pending" | "accepted" | "waitlisted" | "rejected";
 /** Which portal someone gets: their application's applicant_type. Hybrids get everything mentors and judges get. */
-export type PortalRole = "mentor" | "judge" | "hybrid";
+export type PortalRole = "hacker" | "mentor" | "judge" | "hybrid";
 
 export const HANDBOOK_TITLE: Record<PortalRole, string> = {
+  hacker: "Hacker Handbook",
   mentor: "Mentor Handbook",
   judge: "Judge Handbook",
   hybrid: "Mentor & Judge Handbook",

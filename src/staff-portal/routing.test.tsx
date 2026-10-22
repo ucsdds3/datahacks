@@ -50,14 +50,16 @@ function renderAt(path: string) {
         <MemoryRouter initialEntries={[path]}>
           <Where />
           <Routes>
+            <Route path="/login/hacker" element={<h1>hacker login</h1>} />
             <Route path="/login/mentor" element={<h1>mentor login</h1>} />
+            <Route path="/portal/apply" element={<h1>apply</h1>} />
             <Route path="/login/judge" element={<h1>judge login</h1>} />
             <Route path="/portal" element={<PortalHome />} />
-            {(["mentor", "judge", "hybrid"] as const).map(portal => (
+            {(["hacker", "mentor", "judge", "hybrid"] as const).map(portal => (
               <Route key={portal} path={`/portal/${portal}`} element={<StaffPortalLayout portal={portal} />}>
                 <Route index element={<Dashboard />} />
                 <Route path="handbook" element={<Handbook />} />
-                {portal !== "mentor" && <Route path="judging" element={<JudgingPortal />} />}
+                {(portal === "judge" || portal === "hybrid") && <Route path="judging" element={<JudgingPortal />} />}
               </Route>
             ))}
           </Routes>
@@ -112,21 +114,31 @@ describe("after sign-in, /portal opens the portal for the application's type", (
 
 describe("the status comes from the application", () => {
   it.each([
-    ["accepted", "Application accepted"],
-    ["rejected", "Application rejected"],
-    ["pending", "Application pending"],
-    ["submitted", "Application pending"],
+    ["accepted", "Accepted"],
+    ["waitlisted", "Waitlisted"],
+    ["rejected", "Not accepted"],
+    ["pending", "Under review"],
+    ["submitted", "Under review"],
   ])("%s -> %s", async (status, label) => {
     signedIn("mentor", status);
     renderAt("/portal/mentor");
-    expect(await screen.findByText(label)).toBeInTheDocument();
+    expect(await screen.findByText(label, { selector: ".sp-status" })).toBeInTheDocument();
   });
 
-  it("hides the waiver unless accepted", async () => {
+  it("before acceptance, only Status and Application are open", async () => {
     signedIn("mentor", "pending");
     renderAt("/portal/mentor");
     await screen.findByText("Hello, Jane Doe!");
-    expect(screen.queryByText("Liability Waiver")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Application/ })).toBeInTheDocument();
+    for (const page of ["Liability Waiver", "Mentor Handbook", "Run of show"]) {
+      expect(screen.queryByRole("link", { name: new RegExp(page) })).not.toBeInTheDocument();
+    }
+  });
+
+  it("an accepted-only page sends a pending applicant back to Status", async () => {
+    signedIn("mentor", "pending");
+    renderAt("/portal/mentor/handbook");
+    await waitFor(() => expect(at()).toBe("/portal/mentor"));
   });
 });
 
@@ -159,7 +171,7 @@ describe("people on the wrong portal are moved to their own", () => {
 describe("people who can't open a portal", () => {
   it("signed out -> login", async () => {
     renderAt("/portal");
-    await waitFor(() => expect(at()).toBe("/login/mentor"));
+    await waitFor(() => expect(at()).toBe("/login/hacker"));
   });
 
   it("signed out on the judge portal -> judge login", async () => {
@@ -167,18 +179,18 @@ describe("people who can't open a portal", () => {
     await waitFor(() => expect(at()).toBe("/login/judge"));
   });
 
-  it("no application for their email", async () => {
+  it("no application yet -> Apply", async () => {
     signedIn("mentor");
     supabase.rows = [];
     renderAt("/portal");
-    expect(await screen.findByText("No application found")).toBeInTheDocument();
-    expect(at()).toBe("/portal");
+    await waitFor(() => expect(at()).toBe("/portal/apply"));
   });
 
-  it("a hacker row is not a portal", async () => {
+  it("hackers get their own section", async () => {
     signedIn("hacker");
     renderAt("/portal");
-    expect(await screen.findByText("No application found")).toBeInTheDocument();
+    await waitFor(() => expect(at()).toBe("/portal/hacker"));
+    expect(await screen.findByText("Hacker Handbook")).toBeInTheDocument();
   });
 
   it("Supabase error", async () => {

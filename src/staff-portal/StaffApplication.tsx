@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
-import MinecraftLayout from '@/components/MinecraftLayout'
 import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
@@ -52,10 +52,11 @@ const isGoogleDriveFileUrl = (value: string) => {
 }
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
-export default function MentorJudgeApplication() {
+export default function StaffApplication() {
   const { session } = useAuth()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [submitting, setSubmitting] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showErrors, setShowErrors] = useState(false)
 
@@ -65,6 +66,7 @@ export default function MentorJudgeApplication() {
     // The Google account they signed in with. The database records this one
     // whatever is sent, so the field is read-only.
     email: session?.user.email ?? '',
+    phone: '',
     organization: '',
     role_title: '',
     resume_url: '',
@@ -90,6 +92,7 @@ export default function MentorJudgeApplication() {
   if (!form.first_name.trim()) missing.push('first_name')
   if (!form.last_name.trim()) missing.push('last_name')
   if (!isValidEmail(form.email.trim())) missing.push('email')
+  if (form.phone.replace(/\D/g, '').length < 10) missing.push('phone')
   if (!form.organization.trim()) missing.push('organization')
   if (!form.role_title.trim()) missing.push('role_title')
   if (!isGoogleDriveFileUrl(form.resume_url.trim())) missing.push('resume_url')
@@ -103,7 +106,7 @@ export default function MentorJudgeApplication() {
   if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
   const isComplete = missing.length === 0
   const cls = (key: string, base = '') =>
-    [base, showErrors && missing.includes(key) ? 'mc-field-error' : ''].filter(Boolean).join(' ') || undefined
+    [base, showErrors && missing.includes(key) ? 'sp-field-error' : ''].filter(Boolean).join(' ') || undefined
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -142,6 +145,7 @@ export default function MentorJudgeApplication() {
       first_name: form.first_name.trim(),
       last_name: form.last_name.trim(),
       email: form.email.trim().toLowerCase(),
+      phone: form.phone.trim(),
       applicant_type: form.applicant_type,
       organization: form.organization.trim(),
       role_title: form.role_title.trim(),
@@ -160,83 +164,25 @@ export default function MentorJudgeApplication() {
     if (insertError) {
       // 23505 = unique violation: one application per account per event
       setError(insertError.code === '23505'
-        ? "You've already applied. Open your portal to see its status."
+        ? "You've already applied. Your status is on the portal's Status page."
         : insertError.message)
       return
     }
 
-    setSubmitted(true)
+    await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
+    navigate(portal.home, { replace: true })
   }
 
-  if (submitted) {
-    return (
-      <MinecraftLayout>
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="mc-application-form" style={{ maxWidth: '420px', textAlign: 'center' }}>
-            <h2>Application received</h2>
-            <p className="mc-form-disclaimer">Thanks, {form.first_name}! We'll reach out at {form.email.trim()}.</p>
-            <Link to={portal.staffPortal} className="mc-button" style={{ display: 'inline-flex', textDecoration: 'none' }}>Open your portal</Link>
-          </div>
-        </div>
-      </MinecraftLayout>
-    )
-  }
 
   return (
-    <MinecraftLayout>
-      <style>{`
-        .mc-form-fields > label,
-        .mc-form-fields > fieldset > label {
-          display: block;
-          margin-bottom: 4px;
-        }
-        .mc-form-fields input:not([type="checkbox"]):not([type="radio"]),
-        .mc-form-fields textarea {
-          display: block;
-          width: 100%;
-        }
-        .mc-radio-option input[type="checkbox"],
-        .mc-radio-option input[type="radio"] {
-          appearance: none;
-          -webkit-appearance: none;
-          width: 20px;
-          height: 20px;
-          border: 1px solid #566d47;
-          background: #edf0e3;
-          cursor: pointer;
-          flex-shrink: 0;
-        }
-        .mc-radio-option input[type="radio"] { border-radius: 50%; }
-        .mc-field-error {
-          color: #c96b6b;
-          outline: 2px solid #c96b6b;
-          outline-offset: 4px;
-        }
-        .mc-field-error label,
-        .mc-field-error legend,
-        .mc-field-error span { color: #c96b6b; }
-        .mc-field-error input:not([type="checkbox"]):not([type="radio"]),
-        .mc-field-error textarea,
-        .mc-field-error input[type="checkbox"],
-        .mc-field-error input[type="radio"] { border-color: #c96b6b; }
-        .mc-radio-option input[type="checkbox"]:checked,
-        .mc-radio-option input[type="radio"]:checked {
-          background: #cedbbd;
-          border-color: #627b52;
-        }
-      `}</style>
-      <div className="mc-application-page">
-        <div className="mc-container" style={{ maxWidth: '700px' }}>
-          <form className="mc-application-form" onSubmit={handleSubmit} noValidate>
-            <h2 style={{ textAlign: 'center', fontSize: 'clamp(30px, 5vw, 44px)', fontWeight: 900, lineHeight: 1.1 }}>Mentor / Judge Application</h2>
-            <p className="mc-form-disclaimer" style={{ fontWeight: 'bold' }}>
-              All fields are required for submission.
-            </p>
-            <p className="mc-form-disclaimer">
-              Apply to mentor, judge, or both. We will be giving priority to people who sign up as both.
-            </p>
+    <div className="sp-page">
+      <header className="sp-page-header">
+        <h1>Mentor / judge application</h1>
+        <p>Apply to mentor, judge, or both. We will be giving priority to people who sign up as both. All fields are required.</p>
+      </header>
+          <form className="sp-card sp-form" onSubmit={handleSubmit} noValidate>
 
-            <div className="mc-form-fields">
+            <div className="sp-form-fields">
               <label id="field-first_name" className={cls('first_name')}>First name
                 <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
               </label>
@@ -245,6 +191,9 @@ export default function MentorJudgeApplication() {
               </label>
               <label id="field-email" className={cls('email')}>Email
                 <input type="email" required readOnly value={form.email} />
+              </label>
+              <label id="field-phone" className={cls('phone')}>Phone number
+                <input type="tel" required autoComplete="tel" value={form.phone} onChange={e => update('phone', e.target.value)} />
               </label>
               <label id="field-organization" className={cls('organization')}>Company / lab you work for
                 <input required value={form.organization} onChange={e => update('organization', e.target.value)} />
@@ -262,7 +211,7 @@ export default function MentorJudgeApplication() {
               <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
                 <legend>Are You A UCSD Student, Alumni, Or Faculty Member?</legend>
                 {ucsdOptions.map(option => (
-                  <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
+                  <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                     <input
                       type="radio"
                       name="ucsd_affiliation"
@@ -277,9 +226,9 @@ export default function MentorJudgeApplication() {
 
               <fieldset id="field-applicant_type" className={cls('applicant_type')}>
                 <legend>Are you willing to mentor, judge, or both?</legend>
-                <p className="mc-form-disclaimer">We will be giving priority to people who sign up as both.</p>
+                <p className="sp-form-note">We will be giving priority to people who sign up as both.</p>
                 {applicantTypeOptions.map(option => (
-                  <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
+                  <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                     <input
                       type="radio"
                       name="applicant_type"
@@ -296,7 +245,7 @@ export default function MentorJudgeApplication() {
                 <fieldset id="field-judging_track" className={cls('judging_track')}>
                   <legend>Which track would you be interested in judging? (select one)</legend>
                   {trackOptions.map(option => (
-                    <div className="mc-radio-option" key={option.value} style={{ marginBottom: '8px' }}>
+                    <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                       <input
                         type="radio"
                         name="judging_track"
@@ -325,7 +274,7 @@ export default function MentorJudgeApplication() {
               )}
 
               {isJudging && (
-                <div id="field-acknowledged_in_person_judging" className={cls('acknowledged_in_person_judging', 'mc-radio-option')}>
+                <div id="field-acknowledged_in_person_judging" className={cls('acknowledged_in_person_judging', 'sp-check')}>
                   <input
                     type="checkbox"
                     id="in_person"
@@ -339,7 +288,7 @@ export default function MentorJudgeApplication() {
               )}
 
               {isMentoring && (
-                <div id="field-acknowledged_onsite_mentoring" className={cls('acknowledged_onsite_mentoring', 'mc-radio-option')}>
+                <div id="field-acknowledged_onsite_mentoring" className={cls('acknowledged_onsite_mentoring', 'sp-check')}>
                   <input
                     type="checkbox"
                     id="onsite_mentoring"
@@ -352,7 +301,7 @@ export default function MentorJudgeApplication() {
                 </div>
               )}
 
-              <div id="field-acknowledged_both_priority" className={cls('acknowledged_both_priority', 'mc-radio-option')}>
+              <div id="field-acknowledged_both_priority" className={cls('acknowledged_both_priority', 'sp-check')}>
                 <input
                   type="checkbox"
                   id="both_priority"
@@ -366,16 +315,14 @@ export default function MentorJudgeApplication() {
               </div>
             </div>
 
-            {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
+            {error && <p className="sp-form-note" style={{ color: '#c96b6b' }}>{error}</p>}
 
-            <div className="mc-form-actions">
-              <button type="submit" className="mc-button" disabled={submitting}>
+            <div className="sp-form-actions">
+              <button type="submit" className="sp-button primary" disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </button>
             </div>
           </form>
-        </div>
-      </div>
-    </MinecraftLayout>
+    </div>
   )
 }

@@ -1,22 +1,26 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
-import MinecraftLayout from '@/components/MinecraftLayout'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
+import { TIMELINE } from './config'
+
+const PRIORITY_LABEL = TIMELINE.priorityDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
 const heardAboutOptions = ['Friend/word of mouth', 'Past DataHacks event', 'Tabling on campus', 'Social Media', 'Email newsletter', 'Other']
 
-export default function ApplicationForm() {
+export default function HackerApplication() {
   const { session } = useAuth()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const [form, setForm] = useState({
-    first_name: '', last_name: '', gender: '', race_ethnicity: '', birthdate: '',
+    first_name: '', last_name: '', phone: '', gender: '', race_ethnicity: '', birthdate: '',
     country_of_residence: '', city_of_residence: '', level_of_study: '', school: '',
     major: '', graduation_year: '', hackathon_experience: '', attended_before: false,
     linkedin_url: '', devpost_url: '', essay_proudest_project: '', essay_unique_thing: '',
@@ -24,7 +28,7 @@ export default function ApplicationForm() {
     travel_stipend_reason: '', travel_region: '', heard_about: [] as string[], agreed_to_terms: false,
   })
 
-  const update = (field: string, value: any) => setForm(prev => ({ ...prev, [field]: value }))
+  const update = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }))
 
   const toggleHeardAbout = (option: string) => {
     setForm(prev => ({
@@ -69,6 +73,7 @@ export default function ApplicationForm() {
       applicant_type: 'hacker',
       event_id: eventId,
       user_id: session.user.id,
+      email: session.user.email,
       resume_path: filePath,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
@@ -78,61 +83,33 @@ export default function ApplicationForm() {
     setSubmitting(false)
 
     if (insertError) {
-      setError(insertError.message)
+      // 23505 = unique violation: one application per account per event
+      setError(insertError.code === '23505' ? "You've already applied. Your status is on the portal's Status page." : insertError.message)
       return
     }
 
-    navigate(portal.hackerDashboard)
+    await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
+    navigate(portal.home, { replace: true })
   }
 
   return (
-    <MinecraftLayout>
-<style>{`
-  .mc-form-fields > label,
-  .mc-form-fields > fieldset > label {
-    display: block;
-    margin-bottom: 4px;
-  }
-  .mc-form-fields input:not([type="checkbox"]),
-  .mc-form-fields textarea {
-    display: block;
-    width: 100%;
-  }
-  .mc-form-fields input[type="file"] {
-    display: flex;
-    align-items: center;
-    height: 47px;
-  }
-  .mc-radio-option input[type="checkbox"] {
-    appearance: none;
-    -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #566d47;
-    background: #edf0e3;
-    cursor: pointer;
-    flex-shrink: 0;
-  }
-  .mc-radio-option input[type="checkbox"]:checked {
-    background: #cedbbd;
-    border-color: #627b52;
-  }
-`}</style>
-      <div className="mc-application-page">
-        <div className="mc-container" style={{ maxWidth: '700px' }}>
-          <form className="mc-application-form" onSubmit={handleSubmit}>
-            <div className="mc-application-preview-label">
-              <span />APPLICATION
-            </div>
-            <h2>Hacker Application</h2>
-            <p className="mc-form-disclaimer">Fields marked required must be filled out. Your resume must be a PDF.</p>
+    <div className="sp-page">
+      <header className="sp-page-header">
+        <h1>Hacker application</h1>
+        <p>Applications submitted by {PRIORITY_LABEL} are reviewed in the priority batch.</p>
+      </header>
+          <form className="sp-card sp-form" onSubmit={handleSubmit}>
+            <p className="sp-form-note">Fields marked required must be filled out. Your resume must be a PDF.</p>
 
-            <div className="mc-form-fields">
+            <div className="sp-form-fields">
               <label>First name (as on ID)
                 <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
               </label>
               <label>Last name (as on ID)
                 <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
+              </label>
+              <label>Phone number
+                <input type="tel" required autoComplete="tel" value={form.phone} onChange={e => update('phone', e.target.value)} />
               </label>
               <label>Gender
                 <input required value={form.gender} onChange={e => update('gender', e.target.value)} />
@@ -165,7 +142,7 @@ export default function ApplicationForm() {
                 <input required value={form.hackathon_experience} onChange={e => update('hackathon_experience', e.target.value)} />
               </label>
 
-              <div className="mc-radio-option">
+              <div className="sp-check">
                 <input type="checkbox" id="attended_before" checked={form.attended_before} onChange={e => update('attended_before', e.target.checked)} />
                 <label htmlFor="attended_before">Attended DataHacks before</label>
               </div>
@@ -198,7 +175,7 @@ export default function ApplicationForm() {
                 <textarea rows={2} value={form.lifetime_goal} onChange={e => update('lifetime_goal', e.target.value)} />
               </label>
 
-              <div className="mc-radio-option">
+              <div className="sp-check">
                 <input type="checkbox" id="travel_stipend" checked={form.wants_travel_stipend} onChange={e => update('wants_travel_stipend', e.target.checked)} />
                 <label htmlFor="travel_stipend">Apply for travel stipend</label>
               </div>
@@ -217,7 +194,7 @@ export default function ApplicationForm() {
               <fieldset>
                 <legend>How did you hear about this event?</legend>
                 {heardAboutOptions.map(option => (
-                  <div className="mc-radio-option" key={option} style={{ marginBottom: '8px' }}>
+                  <div className="sp-check" key={option} style={{ marginBottom: '8px' }}>
                     <input
                       type="checkbox"
                       id={option}
@@ -229,24 +206,22 @@ export default function ApplicationForm() {
                 ))}
               </fieldset>
 
-              <div className="mc-radio-option">
+              <div className="sp-check">
                 <input type="checkbox" id="agree" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} />
                 <label htmlFor="agree">I agree that all info above is correct and I'll abide by the code of conduct.</label>
               </div>
             </div>
 
-            {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
+            {error && <p className="sp-form-note" style={{ color: '#c96b6b' }}>{error}</p>}
 
-            <div className="mc-form-actions">
-              <button type="submit" className="mc-button" disabled={submitting}>
+            <div className="sp-form-actions">
+              <button type="submit" className="sp-button primary" disabled={submitting}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </button>
             </div>
 
-            <p className="mc-form-help">You won't be able to change your answers after submitting. Need help? Reach out to the DataHacks team.</p>
+            <p className="sp-form-note">You won't be able to change your answers after submitting. Need help? Reach out to the DataHacks team.</p>
           </form>
-        </div>
-      </div>
-    </MinecraftLayout>
+    </div>
   )
 }

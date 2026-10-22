@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
 import { currentEventId } from "@/portal/event";
 import { MOCK_APPLICATION, type ApplicationStatus, type PortalRole } from "./config";
 
-export type StaffApplication = { firstName: string; lastName: string; type: PortalRole; status: ApplicationStatus };
+export type StaffApplication = { firstName: string; lastName: string; type: PortalRole; status: ApplicationStatus; submittedAt: string | null };
 
 export type StaffAccess =
   | { state: "loading" }
@@ -14,21 +14,21 @@ export type StaffAccess =
   | { state: "no-application"; email: string }
   | { state: "ready"; application: StaffApplication; preview: boolean };
 
-const PORTALS: PortalRole[] = ["mentor", "judge", "hybrid"];
-const STATUSES: ApplicationStatus[] = ["pending", "accepted", "rejected"];
+const PORTALS: PortalRole[] = ["hacker", "mentor", "judge", "hybrid"];
+const STATUSES: ApplicationStatus[] = ["pending", "accepted", "waitlisted", "rejected"];
 
 // Anything that isn't a decision yet ("submitted", etc.) shows as pending.
 const toStatus = (value: string | null): ApplicationStatus =>
-  value === "accepted" || value === "rejected" ? value : "pending";
+  value === "accepted" || value === "waitlisted" || value === "rejected" ? value : "pending";
 
-type ApplicationRow = { first_name: string | null; last_name: string | null; applicant_type: string; status: string | null };
+type ApplicationRow = { first_name: string | null; last_name: string | null; applicant_type: string; status: string | null; submitted_at: string | null };
 
 async function fetchApplication(userId: string): Promise<StaffApplication | null> {
   // Row-level security only returns the signed-in person's own applications.
   const eventId = await currentEventId();
   const { data, error } = await supabase
     .from("applications")
-    .select("first_name, last_name, applicant_type, status")
+    .select("first_name, last_name, applicant_type, status, submitted_at")
     .eq("user_id", userId)
     .eq("event_id", eventId)
     .in("applicant_type", PORTALS)
@@ -42,13 +42,15 @@ async function fetchApplication(userId: string): Promise<StaffApplication | null
     lastName: row.last_name?.trim() ?? "",
     type: row.applicant_type as PortalRole,
     status: toStatus(row.status),
+    submittedAt: row.submitted_at,
   };
 }
 
 /**
- * The signed-in person's mentor/judge/hybrid application, which decides which portal
- * they see. In `npm run dev`, adding `?preview` skips sign-in and shows mock data for
- * the portal in the URL (`&status=pending|accepted|rejected` picks the status).
+ * The signed-in person's application for the current event (hacker, mentor, judge or
+ * hybrid), which decides which portal they see. In `npm run dev`, adding `?preview`
+ * skips sign-in and shows mock data for the portal in the URL
+ * (`&status=pending|accepted|waitlisted|rejected` picks the status).
  */
 export function useStaffAccess(portal?: PortalRole): StaffAccess {
   const { session, loading } = useAuth();
@@ -72,6 +74,7 @@ export function useStaffAccess(portal?: PortalRole): StaffAccess {
         lastName: MOCK_APPLICATION.lastName,
         type: portal ?? "mentor",
         status: status && STATUSES.includes(status) ? status : MOCK_APPLICATION.status,
+        submittedAt: "2026-11-02T18:00:00-08:00",
       },
     };
   }

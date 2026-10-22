@@ -19,20 +19,26 @@ import { portal } from "./portal/paths";
 // The application portal. Lazy so the Supabase client stays out of the bundle the
 // holding page loads; see portal/PortalShell.
 const PortalShell = lazy(() => import("./portal/PortalShell"));
-const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 const LoginHacker = lazy(() => import("./pages/LoginHacker"));
 const LoginJudge = lazy(() => import("./pages/LoginJudge"));
 const LoginMentor = lazy(() => import("./pages/LoginMentor"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
-const DashboardHacker = lazy(() => import("./pages/DashboardHacker"));
-const ApplicationForm = lazy(() => import("./pages/ApplicationForm"));
-const MentorJudgeApplication = lazy(() => import("./pages/MentorJudgeApplication"));
 const PortalHome = lazy(() => import("./staff-portal/StaffGate"));
-const StaffPortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
-const StaffDashboard = lazy(() => import("./staff-portal/Dashboard"));
-const StaffWaiver = lazy(() => import("./staff-portal/Waiver"));
-const StaffHandbook = lazy(() => import("./staff-portal/Handbook"));
+const PortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
+const ApplyLayout = lazy(() => import("./staff-portal/Apply").then(m => ({ default: m.ApplyLayout })));
+const ApplyChooser = lazy(() => import("./staff-portal/Apply").then(m => ({ default: m.ApplyChooser })));
+const HackerApplication = lazy(() => import("./staff-portal/HackerApplication"));
+const StaffApplication = lazy(() => import("./staff-portal/StaffApplication"));
+const PortalStatus = lazy(() => import("./staff-portal/Dashboard"));
+const PortalQuestions = lazy(() => import("./staff-portal/Questions"));
+const PortalSchedule = lazy(() => import("./staff-portal/Schedule"));
+const PortalMentors = lazy(() => import("./staff-portal/Mentors"));
+const PortalWaiver = lazy(() => import("./staff-portal/Waiver"));
+const PortalHandbook = lazy(() => import("./staff-portal/Handbook"));
 const JudgingPortal = lazy(() => import("./staff-portal/JudgingPortal"));
+const OrganizerConsole = lazy(() => import("./organizer/OrganizerConsole"));
+
+const PORTALS = ["hacker", "mentor", "judge", "hybrid"] as const;
 
 const queryClient = new QueryClient();
 
@@ -61,33 +67,31 @@ const App = () => (
             <Route path={portal.login("judge")} element={<LoginJudge />} />
             <Route path={portal.login("mentor")} element={<LoginMentor />} />
             <Route path={portal.callback} element={<AuthCallback />} />
-            <Route path={portal.hackerDashboard} element={<ProtectedRoute login="hacker" role="hacker"><DashboardHacker /></ProtectedRoute>} />
-            {/* Mentors, judges and hybrids all land on /portal, which picks their portal. */}
-            <Route path="/dashboard/judge" element={<Navigate to={portal.staffPortal} replace />} />
-            <Route path="/dashboard/mentor" element={<Navigate to={portal.staffPortal} replace />} />
-            {/* No role required: applicants aren't mentors or judges until accepted. */}
-            <Route path={portal.staffApplication} element={<ProtectedRoute login="mentor"><MentorJudgeApplication /></ProtectedRoute>} />
-            <Route path={portal.application} element={<ProtectedRoute login="hacker" role="hacker"><ApplicationForm /></ProtectedRoute>} />
-            {/* Mentor/judge/hybrid portal. Each layout checks sign-in and sends people to
-                the portal matching their application; see staff-portal/useStaffAccess. */}
-            <Route path="/portal" element={<PortalHome />} />
-            <Route path="/portal/mentor" element={<StaffPortalLayout portal="mentor" />}>
-              <Route index element={<StaffDashboard />} />
-              <Route path="waiver" element={<StaffWaiver />} />
-              <Route path="handbook" element={<StaffHandbook />} />
+            {/* One portal for everyone. /portal sends each person to their section, to
+                Apply if they haven't applied, or to the organizer console. Each section's
+                layout decides which pages are open; see staff-portal/StaffPortalLayout. */}
+            <Route path={portal.home} element={<PortalHome />} />
+            <Route path={portal.organizer} element={<OrganizerConsole />} />
+            <Route path={portal.apply} element={<ApplyLayout />}>
+              <Route index element={<ApplyChooser />} />
+              <Route path="hacker" element={<HackerApplication />} />
+              <Route path="mentor-judge" element={<StaffApplication />} />
             </Route>
-            <Route path="/portal/judge" element={<StaffPortalLayout portal="judge" />}>
-              <Route index element={<StaffDashboard />} />
-              <Route path="waiver" element={<StaffWaiver />} />
-              <Route path="handbook" element={<StaffHandbook />} />
-              <Route path="judging" element={<JudgingPortal />} />
-            </Route>
-            <Route path="/portal/hybrid" element={<StaffPortalLayout portal="hybrid" />}>
-              <Route index element={<StaffDashboard />} />
-              <Route path="waiver" element={<StaffWaiver />} />
-              <Route path="handbook" element={<StaffHandbook />} />
-              <Route path="judging" element={<JudgingPortal />} />
-            </Route>
+            {PORTALS.map(type => (
+              <Route key={type} path={`/portal/${type}`} element={<PortalLayout portal={type} />}>
+                <Route index element={<PortalStatus />} />
+                <Route path="questions" element={<PortalQuestions />} />
+                <Route path="handbook" element={<PortalHandbook />} />
+                <Route path="schedule" element={<PortalSchedule />} />
+                <Route path="waiver" element={<PortalWaiver />} />
+                {type === "hacker" && <Route path="mentors" element={<PortalMentors />} />}
+                {type !== "hacker" && type !== "mentor" && <Route path="judging" element={<JudgingPortal />} />}
+              </Route>
+            ))}
+            {/* Older links. */}
+            <Route path="/dashboard/*" element={<Navigate to={portal.home} replace />} />
+            <Route path="/apply" element={<Navigate to={portal.applyHacker} replace />} />
+            <Route path="/apply/mentor-judge" element={<Navigate to={portal.applyStaff} replace />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -33,8 +33,8 @@ export default function AuthCallback() {
         return
       }
 
-      // Anyone who has applied as a mentor or judge goes to the staff portal,
-      // which shows their status whether or not they've been accepted yet.
+      // Anyone who has applied goes to the portal, which opens on their status.
+      // Someone new who used a mentor/judge sign-in goes straight to that form.
       let eventId: string
       try {
         eventId = await currentEventId()
@@ -43,12 +43,11 @@ export default function AuthCallback() {
         return
       }
 
-      const { data: staffApplication, error: readError } = await supabase
+      const { data: application, error: readError } = await supabase
         .from('applications')
         .select('id')
         .eq('user_id', session.user.id)
         .eq('event_id', eventId)
-        .neq('applicant_type', 'hacker')
         .limit(1)
         .maybeSingle()
 
@@ -57,9 +56,7 @@ export default function AuthCallback() {
         return
       }
 
-      const next = staffApplication
-        ? portal.staffPortal
-        : fromStaffLogin ? portal.staffApplication : portal.hackerDashboard
+      const next = !application && fromStaffLogin ? portal.applyStaff : portal.home
       navigate(next, { replace: true })
     }
 

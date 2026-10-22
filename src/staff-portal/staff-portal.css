@@ -1,4 +1,4 @@
-/* Mentor & judge portal. Scoped under .sp-root so it doesn't touch the site themes. */
+/* The application portal (hackers, mentors, judges, organizers). Scoped under .sp-root so it doesn't touch the site themes. */
 
 .sp-root {
   --sp-bg: #f6f7f9;
@@ -28,6 +28,8 @@
 .sp-sidebar {
   position: sticky;
   top: 0;
+  display: flex;
+  flex-direction: column;
   flex: 0 0 248px;
   height: 100dvh;
   padding: 24px 16px;
@@ -281,6 +283,140 @@
 .sp-table td:first-child { font-weight: 600; white-space: nowrap; }
 .sp-table tr:last-child td { border-bottom: 0; }
 
+/* Sidebar footer: contact and sign out */
+.sp-sidebar-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+  padding: 16px 8px 0;
+  border-top: 1px solid var(--sp-border);
+  font-size: 13px;
+}
+.sp-root .sp-sidebar-footer a { display: inline-flex; align-items: center; gap: 6px; color: var(--sp-muted); text-decoration: none; overflow-wrap: anywhere; }
+.sp-root .sp-sidebar-footer a:hover { color: var(--sp-accent); }
+.sp-signout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sp-muted);
+  font: inherit;
+  cursor: pointer;
+}
+.sp-signout:hover { color: var(--sp-text); }
+
+.sp-status.waitlisted .sp-dot { background: var(--sp-orange); box-shadow: 0 0 0 3px rgb(232 116 44 / 0.18); }
+.sp-muted { color: var(--sp-muted); }
+
+/* Status: application timeline */
+.sp-progress { display: flex; flex-direction: column; gap: 0; margin: 4px 0 0; padding: 0; list-style: none; }
+.sp-progress li { position: relative; display: grid; grid-template-columns: 28px 1fr; gap: 14px; padding-bottom: 22px; }
+.sp-progress li:last-child { padding-bottom: 0; }
+.sp-progress li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 30px;
+  bottom: 2px;
+  left: 13px;
+  width: 2px;
+  background: var(--sp-border);
+}
+.sp-progress li.done:not(:last-child)::before { background: var(--sp-accent); }
+.sp-step-marker {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--sp-border);
+  border-radius: 50%;
+  background: var(--sp-surface);
+  color: var(--sp-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+.sp-progress li.done .sp-step-marker { border-color: var(--sp-accent); background: var(--sp-accent); color: #fff; }
+.sp-progress li.current .sp-step-marker { border-color: var(--sp-accent); color: var(--sp-accent); }
+.sp-progress strong { display: block; padding-top: 3px; }
+.sp-progress p { margin: 2px 0 0; color: var(--sp-muted); font-size: 14px; }
+
+/* Application tab after submitting */
+.sp-submitted { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; color: var(--sp-green); }
+.sp-submitted h2 { margin: 6px 0 0; color: var(--sp-text); font-size: 20px; }
+.sp-submitted p { margin: 0; color: var(--sp-text); }
+.sp-submitted p.sp-muted { color: var(--sp-muted); font-size: 14px; }
+.sp-submitted .sp-button { margin-top: 10px; }
+
+/* Apply: choose an application */
+.sp-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.sp-root a.sp-choice { display: flex; flex-direction: column; gap: 6px; color: var(--sp-accent); text-decoration: none; transition: border-color 0.15s, box-shadow 0.15s; }
+.sp-root a.sp-choice:hover { border-color: var(--sp-accent); box-shadow: 0 4px 16px rgb(14 143 163 / 0.12); }
+.sp-choice h2 { margin: 6px 0 0; color: var(--sp-text); font-size: 18px; }
+.sp-choice p { margin: 0; color: var(--sp-muted); font-size: 14px; }
+
+/* Application forms */
+.sp-form { display: flex; flex-direction: column; gap: 18px; }
+.sp-form-fields { display: flex; flex-direction: column; gap: 16px; }
+.sp-form-fields > label,
+.sp-form-fields > fieldset > label,
+.sp-form-fields label[id^="field-"] { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+.sp-form-fields label > span { color: var(--sp-muted); font-weight: 400; }
+.sp-form-fields fieldset { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; }
+.sp-form-fields legend { margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 600; }
+.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.sp-form textarea,
+.sp-form select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--sp-border);
+  border-radius: 8px;
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  font: inherit;
+  font-weight: 400;
+}
+.sp-form input:focus-visible, .sp-form textarea:focus-visible, .sp-form select:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 1px;
+  border-color: var(--sp-accent);
+}
+.sp-form input[readonly] { background: var(--sp-bg); color: var(--sp-muted); }
+.sp-form input[type="file"] { font: inherit; font-weight: 400; }
+.sp-form textarea { resize: vertical; }
+.sp-check { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; }
+.sp-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: var(--sp-accent); }
+.sp-check label { font-weight: 400; }
+.sp-form-note { margin: 0; color: var(--sp-muted); font-size: 14px; }
+.sp-form-actions { display: flex; justify-content: flex-end; }
+.sp-field-error, .sp-field-error legend, .sp-field-error label { color: var(--sp-red); }
+.sp-field-error input:not([type="checkbox"]):not([type="radio"]), .sp-field-error textarea { border-color: var(--sp-red); }
+
+/* Hacker Mentors tab */
+.sp-page-header p svg { display: inline; vertical-align: -2px; }
+.sp-mentors { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.sp-mentors li + li { border-top: 1px solid var(--sp-border); }
+.sp-mentor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 4px;
+  border: 0;
+  background: none;
+  color: var(--sp-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sp-mentor-row strong { flex: 1; }
+.sp-checkin { display: inline-flex; align-items: center; gap: 6px; color: var(--sp-muted); font-size: 13px; }
+.sp-checkin .sp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--sp-border); }
+.sp-checkin.in { color: var(--sp-green); }
+.sp-checkin.in .sp-dot { background: var(--sp-green); }
+.sp-mentor-bio { margin: 0 0 12px 52px; color: #3b4448; font-size: 14px; }
+
 /* Loading / no-application screens */
 .sp-root.sp-gate { align-items: center; justify-content: center; padding: 24px 16px; }
 .sp-gate .sp-card { width: 100%; max-width: 440px; text-align: center; }
@@ -293,6 +429,7 @@
 @media (max-width: 860px) {
   .sp-root { flex-direction: column; }
   .sp-sidebar { position: static; height: auto; padding: 16px; border-right: 0; border-bottom: 1px solid var(--sp-border); }
+  .sp-sidebar-footer { flex-direction: row; flex-wrap: wrap; justify-content: space-between; margin-top: 12px; padding-top: 12px; }
   .sp-brand { padding-bottom: 12px; }
   .sp-nav { flex-direction: row; overflow-x: auto; }
   .sp-root .sp-nav-link { white-space: nowrap; }
