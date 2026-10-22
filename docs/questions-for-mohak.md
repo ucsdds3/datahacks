@@ -12,7 +12,7 @@
 - **Jev** (TypeSafe AI) is a typed-decision classifier, used for the top/bottom-50% sort. Added to the to-do list.
 
 ## Still open
-1. **Ansh's and Tijil's exact Google emails.** What came through was "abhartnagar@ucsc.edu" and "tchha.br@ucsd.edu", which look garbled. Each of them needs to sign in to the portal once; then the organizer SQL in `docs/application-portal-todo.md` adds them. You (mprakash@ucsd.edu) are an organizer now.
+1. ~~Ansh's and Tijil's emails~~: abhatnagar@ucsd.edu and tchhabra@ucsd.edu. They become organizers once they've signed in once (see the to-do list).
 2. **Invited people** (sponsor engineers, professors): the same mentor/judge application, or a separate, shorter form? Still to decide.
 3. **Google sign-in screen:** who set up the Google OAuth client (ID starting `68033749280-`)? Its owner can rename the app in console.cloud.google.com. A custom domain needs Supabase Pro.
 4. **The check-in repo:** what's it called (GitHub link)? I'll keep the portal's database changes compatible with it.
