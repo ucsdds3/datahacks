@@ -14,6 +14,7 @@ import Minecraft from "./themes/minecraft";
 import { NoIndex } from "./components/NoIndex";
 import Renovation from "./pages/Renovation";
 import { PortalBoundary } from "./portal/PortalBoundary";
+import { portal } from "./portal/paths";
 
 // The application portal. Lazy so the Supabase client stays out of the bundle the
 // holding page loads; see portal/PortalShell.
@@ -51,14 +52,14 @@ const App = () => (
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={null}><PortalShell /></Suspense></PortalBoundary>}>
-            <Route path="/login/hacker" element={<LoginHacker />} />
-            <Route path="/login/judge" element={<LoginJudge />} />
-            <Route path="/login/mentor" element={<LoginMentor />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            <Route path="/dashboard/hacker" element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
-            <Route path="/dashboard/judge" element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
-            <Route path="/dashboard/mentor" element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
-            <Route path="/apply" element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
+            <Route path={portal.login("hacker")} element={<LoginHacker />} />
+            <Route path={portal.login("judge")} element={<LoginJudge />} />
+            <Route path={portal.login("mentor")} element={<LoginMentor />} />
+            <Route path={portal.callback} element={<AuthCallback />} />
+            <Route path={portal.dashboard("hacker")} element={<ProtectedRoute role="hacker"><DashboardHacker /></ProtectedRoute>} />
+            <Route path={portal.dashboard("judge")} element={<ProtectedRoute role="judge"><DashboardJudge /></ProtectedRoute>} />
+            <Route path={portal.dashboard("mentor")} element={<ProtectedRoute role="mentor"><DashboardMentor /></ProtectedRoute>} />
+            <Route path={portal.application} element={<ProtectedRoute role="hacker"><ApplicationForm /></ProtectedRoute>} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

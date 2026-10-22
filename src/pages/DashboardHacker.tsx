@@ -3,6 +3,7 @@ import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
 import { Link } from 'react-router-dom'
 import MinecraftLayout from '@/components/MinecraftLayout'
+import { portal } from '@/portal/paths'
 
 type Application = {
   status: string
@@ -40,7 +41,7 @@ export default function DashboardHacker() {
           {!application && (
             <>
               <p className="mc-form-disclaimer">You haven't started an application yet.</p>
-              <Link to="/apply" className="mc-button" style={{ display: 'inline-flex', textDecoration: 'none' }}>Start your application</Link>
+              <Link to={portal.application} className="mc-button" style={{ display: 'inline-flex', textDecoration: 'none' }}>Start your application</Link>
             </>
           )}
 

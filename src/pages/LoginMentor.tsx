@@ -1,12 +1,13 @@
 import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
+import { portal } from '@/portal/paths'
 
 export default function LoginMentor() {
   const handleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?role=mentor`,
+        redirectTo: `${window.location.origin}${portal.callback}`,
       },
     })
     if (error) console.error('OAuth error:', error)

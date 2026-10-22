@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import MinecraftLayout from '@/components/MinecraftLayout'
+import { portal } from '@/portal/paths'
 
 const heardAboutOptions = ['Friend/word of mouth', 'Past DataHacks event', 'Tabling on campus', 'Social Media', 'Email newsletter', 'Other']
 
@@ -69,7 +70,7 @@ export default function ApplicationForm() {
       return
     }
 
-    navigate('/dashboard/hacker')
+    navigate(portal.dashboard('hacker'))
   }
 
   return (
