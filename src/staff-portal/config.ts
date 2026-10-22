@@ -64,7 +64,7 @@ export const SCHEDULE_VENUE = "Price Center Ballrooms";
 export const SCHEDULE: ScheduleDay[] = [
   {
     label: "Day 1",
-    date: "Saturday, April 18",
+    date: "Saturday, January 16",
     events: [
       { start: "12:00 PM", title: "Doors open & check-in", description: "Participant check-in begins." },
       { start: "12:30 PM", end: "4:30 PM", title: "Mentor office hours", location: "Art of Espresso", audience: "mentor", required: true },
@@ -77,7 +77,7 @@ export const SCHEDULE: ScheduleDay[] = [
   },
   {
     label: "Day 2",
-    date: "Sunday, April 19",
+    date: "Sunday, January 17",
     events: [
       { start: "12:00 AM", title: "Midnight Snack" },
       { start: "9:00 AM", title: "Breakfast" },
@@ -109,13 +109,21 @@ export const CONTACTS: Contact[] = [
 export const GENERAL_CONTACT_EMAIL = "info@ds3.club";
 
 /**
- * Application timeline. Placeholders until confirmed: see docs/questions-for-mohak.md.
- * Applications submitted on or before PRIORITY_DEADLINE are in the priority batch.
+ * Application timeline (confirmed 2026-10-22). Applications submitted by the
+ * priority deadline (the Sunday after Thanksgiving) are in the priority batch.
  */
 export const TIMELINE = {
-  priorityDeadline: new Date("2026-11-26T23:59:59-08:00"),
+  priorityDeadline: new Date("2026-11-29T23:59:59-08:00"),
   regularDeadline: new Date("2026-12-15T23:59:59-08:00"),
-  eventDates: "January 16–17, 2027",
+  priorityDecisions: "mid-December",
+  regularDecisions: "the end of December",
+  /** When each role is needed: mentors only on Saturday, judges only on Sunday. */
+  eventDates: {
+    hacker: "Saturday–Sunday, January 16–17, 2027",
+    mentor: "Saturday, January 16, 2027 · mentoring 12:30–4:30 PM",
+    judge: "Sunday, January 17, 2027",
+    hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
+  } satisfies Record<PortalRole, string>,
   /** The hacker Mentors tab appears from this moment (the morning of the event). */
   mentorsTabOpens: new Date("2027-01-16T08:00:00-08:00"),
 };

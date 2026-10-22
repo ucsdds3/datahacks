@@ -35,13 +35,13 @@ export default function Dashboard() {
       title: "Under review",
       detail: portal === "hacker"
         ? batch === "priority"
-          ? `Priority batch: applications in by ${formatDate(TIMELINE.priorityDeadline)} hear back first.`
-          : `Regular batch: applications close ${formatDate(TIMELINE.regularDeadline)}.`
+          ? `Priority batch (applied by ${formatDate(TIMELINE.priorityDeadline)}): decisions by ${TIMELINE.priorityDecisions}.`
+          : `Regular batch: applications close ${formatDate(TIMELINE.regularDeadline)}, decisions by ${TIMELINE.regularDecisions}.`
         : "Our mentor and judge coordinators review every application.",
       done: decided,
     },
     { title: "Decision", detail: DECISION_TEXT[status], done: decided },
-    { title: "DataHacks", detail: TIMELINE.eventDates, done: false },
+    { title: "DataHacks", detail: TIMELINE.eventDates[portal], done: false },
   ];
 
   return (

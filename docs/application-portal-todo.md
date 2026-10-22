@@ -7,8 +7,9 @@
 - The portal builds on the event model already in the live Supabase project (`events`, `event_roles`, `attendees`, `checkins`, and the triggers that grant roles and check-in codes when an application is accepted). `supabase/migrations/20261021000000_application_portal.sql` holds only the portal's changes to it. Applied to the live project on 2026-10-21. Current data is dummy data.
 
 ## Before launch
-- [ ] **Organizer accounts.** Each organizer needs an `organizer` row in `event_roles`. Run in the SQL editor, once per email: `insert into public.event_roles (event_id, user_id, role) select e.id, u.id, 'organizer' from public.events e, auth.users u where e.code = 'DH26' and u.email = 'EMAIL';` (the person must have signed in once first).
-- [ ] **Deploy email sending:** `npx supabase login`, `npx supabase link --project-ref yrxjhrrphhbmqejresvy`, `npx supabase functions deploy send-email`, `npx supabase secrets set GMAIL_ADDRESS=info@ds3.club GMAIL_APP_PASSWORD="…"`. Until then the console releases decisions but says emails aren't set up, and offers to send them later.
+- [x] mprakash@ucsd.edu is an organizer (2026-10-22). evanpark.contact@gmail.com already was.
+- [ ] **Organizer accounts** for Ansh and Tijil. Each organizer needs an `organizer` row in `event_roles`. Run in the SQL editor, once per email: `insert into public.event_roles (event_id, user_id, role) select e.id, u.id, 'organizer' from public.events e, auth.users u where e.code = 'DH26' and u.email = 'EMAIL';` (the person must have signed in once first).
+- [ ] **Turn on email sending** (dashboard, no CLI needed): Edge Functions → Secrets: add `GMAIL_ADDRESS` = `info@ds3.club` and `GMAIL_APP_PASSWORD` = the 16-letter app password without spaces. Then Edge Functions → Functions → Deploy a new function → Via editor, name it `send-email`, paste `supabase/functions/send-email/index.ts`, Deploy. Until then the console releases decisions but says emails aren't set up, and offers to send them later.
 - [ ] **Redirect URLs** (Supabase → Authentication → URL Configuration): add `https://datahacks.ds3ucsd.com/**` and `http://localhost:8080/**`. The list is empty and the Site URL is `http://localhost:3000`, so Google sign-in on the real site can't come back to `/auth/callback`.
 - [ ] **The 2027 event:** add it in Table Editor → `events` (with a code such as `DH27`), then change `EVENT_CODE` in `src/portal/event.ts`. Applications currently go to the dummy `DH26` event.
 - [ ] **Google sign-in shows "continue to yrxjhrrphhbmqejresvy.supabase.co".** Set the OAuth consent screen's app name ("DataHacks") and logo in Google Cloud Console and submit for brand verification; optionally a Supabase custom domain (e.g. `auth.ds3ucsd.com`, needs the Pro plan + add-on).
@@ -25,7 +26,8 @@
 - [ ] Real coordinator contacts in `src/staff-portal/config.ts` (currently placeholders).
 - [ ] DocuSign: a developer account, a template made from the waiver PDF, the app's key in `src/staff-portal/config.ts`, and the secrets listed at the top of `supabase/functions/docusign-waiver/index.ts`. Until then the waiver page says the document isn't ready.
 - [ ] Waiver submissions are only remembered in the browser (`localStorage`), so organizers can't see who has signed. Store them in Supabase.
-- [ ] Evan to push his branch.
+- [ ] **Jev (TypeSafe AI) sort:** a server function scores each application top/bottom 50% with a confidence; shown as a column in the organizer console. Needs a Jev API key and a rubric.
+- [ ] Evan to push his branch. (He's the existing organizer in the database, and likely built the check-in system in a separate repo.)
 - [ ] **Get the live schema into the repo.** The event model was built outside this repo. Dump it (`supabase db dump --schema public`, which needs the database password) into `supabase/migrations/` as the baseline, so the database can be rebuilt from the repo.
 
 ## Open questions

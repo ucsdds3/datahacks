@@ -6,7 +6,8 @@ import { DEFAULT_TEMPLATES, PLACEHOLDERS, type Template } from "./templates";
 import { kindOf, unsentDecisionRows, type ApplicantType, type Decision, type Kind, type Row } from "./types";
 
 type GroupKey = `${Decision}:${Kind}`;
-const GROUP_ORDER: GroupKey[] = ["accepted:hacker", "accepted:staff", "waitlisted:hacker", "waitlisted:staff", "rejected:hacker", "rejected:staff"];
+// Emails go out rejections first, then the waitlist, then acceptances.
+const GROUP_ORDER: GroupKey[] = ["rejected:hacker", "rejected:staff", "waitlisted:hacker", "waitlisted:staff", "accepted:hacker", "accepted:staff"];
 const GROUP_LABEL: Record<GroupKey, string> = {
   "accepted:hacker": "Accepted hackers",
   "accepted:staff": "Accepted mentors & judges",

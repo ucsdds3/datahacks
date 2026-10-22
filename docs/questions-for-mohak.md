@@ -1,27 +1,18 @@
 # Questions for you
 
-Answer whenever. Anything unanswered uses the placeholder in brackets, and I'll swap in your answer later.
+## Answered (2026-10-22), now in the code
+- **Priority applications close** Sunday, November 29, 2026 (the Sunday after Thanksgiving). **Regular applications close** Tuesday, December 15.
+- **Decisions:** priority batch by mid-December, regular batch by the end of December.
+- **Event:** hackers Saturday–Sunday, January 16–17, 2027. Mentors are only needed Saturday the 16th, 12:30–4:30 PM, which is the one mentoring block. Judges are only needed Sunday the 17th.
+- **One application per person:** you can't be both a hacker and a mentor/judge.
+- **Hacker liability waiver:** the same DocuSign waiver.
+- **Decision emails:** drafted for accepted, waitlisted and rejected, editable in the release dialog before sending. They go out rejections first, then the waitlist, then acceptances.
+- **info@ds3.club is Google Workspace,** so the limit is 2,000 emails a day.
+- **Check-in** lives in a separate repo; Supabase is what connects the two. The one organizer who already existed in the database is evanpark.contact@gmail.com, so Evan presumably built the check-in side.
+- **Jev** (TypeSafe AI) is a typed-decision classifier, used for the top/bottom-50% sort. Added to the to-do list.
 
-## Dates
-1. **Priority applications close:** Thanksgiving, Thursday, November 26, 2026? [that date]
-2. **Regular applications close:** mid- or end of December. Which day? [December 15, 2026]
-3. **The hackathon:** the mentor form says Saturday, January 16. Is it January 16–17, 2027? [yes]
-4. **Decisions go out when?** For example, priority decisions in early December and regular in late December. [shown as "after applications close"]
-
-## People and roles
-5. **Who are the organizers?** Give me the Google emails that should open the organizer console. Each one needs an `organizer` row in `event_roles`. One exists today, and I don't know whose it is.
-6. **"Jev" and the LLM top/bottom-50% sort:** who is Jev, and is that Evan's part?
-7. You mentioned "Java for the application part". What did you mean?
-8. **Invited people** (sponsor engineers, professors): same mentor/judge application, or a separate, shorter form? [the same application]
-9. **Mentor block on the hacker Mentors tab:** 12:30–4:30 (the run of show) or 3:30–4:30? [12:30–4:30]
-10. **Can one person apply as both a hacker and a mentor?** The database allows one application per person per event. [no]
-
-## Email
-11. **Hacker liability waiver:** the same DocuSign waiver as mentors and judges? [yes]
-12. **Decision emails:** do you want to write them, or should I draft accepted, waitlisted and rejected versions for you to edit? [I draft them]
-13. **Gmail's daily limit** is 2,000 emails for a Workspace account and 500 for a personal Gmail. Is info@ds3.club a Workspace account? [assume Workspace]
-14. **Check-in passes:** the wallet-pass and Gmail settings in `.env.local` look like an existing script. Where does it live? Should the console send check-in codes too?
-
-## Google sign-in screen
-15. Google says "continue to yrxjhrrphhbmqejresvy.supabase.co". The app name is set in the **Google Cloud project that owns the OAuth client**, not in Supabase. To find it: Supabase → Authentication → Sign In / Providers → Google shows a Client ID starting `68033749280-`. Whoever set up Google sign-in has that project in console.cloud.google.com. Who set it up?
-16. What should the screen say? I'd use "DataHacks". A `datahacks.supabase.co`-style address is a paid Supabase add-on too, so it's on hold.
+## Still open
+1. **Ansh's and Tijil's exact Google emails.** What came through was "abhartnagar@ucsc.edu" and "tchha.br@ucsd.edu", which look garbled. Each of them needs to sign in to the portal once; then the organizer SQL in `docs/application-portal-todo.md` adds them. You (mprakash@ucsd.edu) are an organizer now.
+2. **Invited people** (sponsor engineers, professors): the same mentor/judge application, or a separate, shorter form? Still to decide.
+3. **Google sign-in screen:** who set up the Google OAuth client (ID starting `68033749280-`)? Its owner can rename the app in console.cloud.google.com. A custom domain needs Supabase Pro.
+4. **The check-in repo:** what's it called (GitHub link)? I'll keep the portal's database changes compatible with it.
