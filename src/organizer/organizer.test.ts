@@ -43,3 +43,19 @@ describe("templates", () => {
     expect(DEFAULT_TEMPLATES["accepted:staff"].body).toContain("{{code}}");
   });
 });
+
+describe("ready-made emails", () => {
+  it("won't send while [[blanks]] are left", async () => {
+    const { BLASTS, hasBlanks } = await import("./blasts");
+    expect(hasBlanks("Hi [[Sponsor 1]]")).toBe(true);
+    expect(hasBlanks("Hi {{first_name}}")).toBe(false);
+    expect(BLASTS.find(b => b.id === "sponsors") && hasBlanks(BLASTS.find(b => b.id === "sponsors")!.body)).toBe(true);
+  });
+
+  it("the QR email asks for the QR code and goes to accepted people", async () => {
+    const { BLASTS } = await import("./blasts");
+    const qr = BLASTS.find(b => b.id === "qr")!;
+    expect(qr.body).toContain("{{qr}}");
+    expect(qr.status).toBe("accepted");
+  });
+});

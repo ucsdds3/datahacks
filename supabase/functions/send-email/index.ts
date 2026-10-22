@@ -8,8 +8,10 @@
 // the console can't be used to email arbitrary people.
 //
 // subject and body may use {{first_name}}, {{last_name}}, {{status}}, {{type}}
-// and {{code}} (the check-in code, once accepted). With kind "decision", each
-// application that was emailed gets decision_emailed_at set.
+// and {{code}} (the check-in code, once accepted). {{qr}} in the body becomes
+// that code as a QR image inside the email; people without a code are skipped
+// and reported. With kind "decision", each application that was emailed gets
+// decision_emailed_at set.
 //
 // Secrets (supabase secrets set ...):
 //   GMAIL_ADDRESS        the sending account, e.g. info@ds3.club
@@ -25,6 +27,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import nodemailer from "npm:nodemailer@6.9.16";
+import QRCode from "npm:qrcode@1.5.4";
 
 const env = (name: string) => {
   const value = Deno.env.get(name);
@@ -55,14 +58,19 @@ type Recipient = {
 
 const TYPE_LABEL: Record<string, string> = { hacker: "hacker", mentor: "mentor", judge: "judge", hybrid: "mentor and judge" };
 
+/** Where {{qr}} was: replaced by an image in the HTML and by the code in plain text. */
+const QR_MARK = "\u0000qr\u0000";
+const usesQr = (text: string) => /\{\{\s*qr\s*\}\}/.test(text);
+
 const fill = (template: string, r: Recipient) =>
-  template.replace(/\{\{\s*(first_name|last_name|status|type|code)\s*\}\}/g, (_, key: string) => {
+  template.replace(/\{\{\s*(first_name|last_name|status|type|code|qr)\s*\}\}/g, (_, key: string) => {
     switch (key) {
       case "first_name": return r.first_name?.trim() || "there";
       case "last_name": return r.last_name?.trim() ?? "";
       case "status": return r.status;
       case "type": return TYPE_LABEL[r.applicant_type] ?? r.applicant_type;
       case "code": return r.code ?? "";
+      case "qr": return QR_MARK;
       default: return "";
     }
   });
@@ -147,6 +155,7 @@ Deno.serve(async req => {
   });
   const delayMs = Math.max(0, Number(Deno.env.get("SEND_DELAY_SECONDS") ?? "1")) * 1000;
 
+  const withQr = usesQr(body);
   let sent = 0;
   const emailed: string[] = [];
   for (const [i, r] of recipients.entries()) {
@@ -154,15 +163,25 @@ Deno.serve(async req => {
       failed.push({ id: r.id, error: "No email address on file." });
       continue;
     }
+    if (withQr && !r.code) {
+      failed.push({ id: r.id, error: "No check-in code yet (only accepted people get one)." });
+      continue;
+    }
     if (i > 0 && delayMs) await sleep(delayMs);
-    const text = fill(body, r);
+    const filled = fill(body, r);
+    const text = filled.split(QR_MARK).join(`Check-in code: ${r.code ?? ""}`);
+    const img = `<img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(r.code ?? "")}" width="240" height="240" style="display:block">`;
+    const html = escapeHtml(filled).replace(/\r?\n/g, "<br>").split(QR_MARK).join(img);
     try {
       await transport.sendMail({
         from: `DataHacks <${from}>`,
         to: r.email,
-        subject: fill(subject, r),
+        subject: fill(subject, r).split(QR_MARK).join(""),
         text,
-        html: `<div style="font-family: sans-serif; line-height: 1.5">${escapeHtml(text).replace(/\r?\n/g, "<br>")}</div>`,
+        html: `<div style="font-family: sans-serif; line-height: 1.5">${html}</div>`,
+        attachments: withQr
+          ? [{ filename: `datahacks-checkin-${r.code}.png`, content: await QRCode.toBuffer(r.code!, { width: 480, margin: 2 }), cid: "checkin-qr" }]
+          : [],
       });
       sent++;
       emailed.push(r.id);
