@@ -22,7 +22,7 @@ const hacker = (id: number, first: string, last: string, school: string, extra: 
   email: `${first.toLowerCase()}@example.edu`, school, level_of_study: "Undergraduate", major: "Data Science",
   graduation_year: "2028", essay_proudest_project: "A model that predicts campus shuttle delays from GPS pings.",
   essay_unique_thing: "I've run three workshops on data visualization.", essay_goal: "Ship something end to end in a weekend.",
-  heard_about: ["Tabling on campus"], code: null, checkedIn: false, ...extra,
+  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, ...extra,
 });
 
 const staff = (id: number, first: string, last: string, type: Application["applicant_type"], org: string, extra: Partial<Row> = {}): Row => ({
@@ -30,7 +30,7 @@ const staff = (id: number, first: string, last: string, type: Application["appli
   email: `${first.toLowerCase()}@example.com`, organization: org, role_title: "Engineer",
   resume_url: "https://drive.google.com/file/d/example/view",
   bio: type === "judge" ? null : "I build data pipelines and love helping teams get unstuck on modelling questions.",
-  judging_track: type === "mentor" ? null : "healthcare_health_tech", code: null, checkedIn: false, ...extra,
+  judging_track: type === "mentor" ? null : "healthcare_health_tech", code: null, checkedIn: false, passSentAt: null, ...extra,
 });
 
 let rows: Row[] = [

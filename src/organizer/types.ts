@@ -41,7 +41,8 @@ export type Application = {
 };
 
 /** An application with what the check-in roster knows about it. */
-export type Row = Application & { code: string | null; checkedIn: boolean };
+/** passSentAt: when the check-in pass was emailed (attendees.emailed_at). */
+export type Row = Application & { code: string | null; checkedIn: boolean; passSentAt: string | null };
 
 export const kindOf = (type: ApplicantType): Kind => (type === "hacker" ? "hacker" : "staff");
 
@@ -79,3 +80,6 @@ const DECISIONS: readonly string[] = ["accepted", "waitlisted", "rejected"];
 /** Released, but the decision email never went out (for example, sending wasn't set up yet). */
 export const unsentDecisionRows = <T extends Application>(rows: T[]) =>
   rows.filter(r => r.decision_released_at && !r.decision_emailed_at && r.status !== null && DECISIONS.includes(r.status));
+
+/** Accepted, on the check-in roster, and not sent a pass yet (by the console or the check-in repo's script). */
+export const needsPass = (r: Row) => r.status === "accepted" && !!r.code && !r.passSentAt;

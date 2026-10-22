@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Mail, Send, Users, UserCog } from "lucide-react";
+import { Mail, Send, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
@@ -8,9 +8,10 @@ import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
 import EmailComposer from "./EmailComposer";
 import ReleaseDialog from "./ReleaseDialog";
+import WalletPassDialog from "./WalletPassDialog";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
-import { isStaged, kindOf, unsentDecisionRows } from "./types";
+import { isStaged, kindOf, needsPass, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
@@ -46,7 +47,7 @@ export default function OrganizerConsole() {
   const apps = useApplications(isOrganizer ? event.data : undefined);
   const refresh = useRefreshApplications();
   const [section, setSection] = useState<Section>("hackers");
-  const [dialog, setDialog] = useState<"release" | "retry" | null>(null);
+  const [dialog, setDialog] = useState<"release" | "retry" | "passes" | null>(null);
 
   if (loading) return <Gate title="Loading…" />;
   if (!session) {
@@ -70,6 +71,7 @@ export default function OrganizerConsole() {
   const rows = apps.data ?? [];
   const staged = rows.filter(isStaged).length;
   const unsent = unsentDecisionRows(rows).length;
+  const passesDue = rows.filter(needsPass).length;
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
@@ -101,6 +103,9 @@ export default function OrganizerConsole() {
         <header className="og-topbar">
           <h1>{current.title}</h1>
           <div className="og-topbar-actions">
+            <button className="sp-button" onClick={() => setDialog("passes")} disabled={passesDue === 0}>
+              <Ticket size={15} aria-hidden /> Send wallet passes ({passesDue})
+            </button>
             {unsent > 0 && (
               <button className="sp-button" onClick={() => setDialog("retry")}><Send size={15} aria-hidden /> Send {unsent} unsent decision email{unsent === 1 ? "" : "s"}</button>
             )}
@@ -124,7 +129,10 @@ export default function OrganizerConsole() {
         )}
       </main>
 
-      {dialog && event.data && (
+      {dialog === "passes" && event.data && (
+        <WalletPassDialog eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />
+      )}
+      {(dialog === "release" || dialog === "retry") && event.data && (
         <ReleaseDialog mode={dialog} eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />
       )}
     </div>

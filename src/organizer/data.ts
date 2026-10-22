@@ -29,16 +29,16 @@ export function useApplications(eventId: string | undefined) {
       if (isPreview()) return previewRows();
       const [apps, attendees] = await Promise.all([
         supabase.from("applications").select(COLUMNS).eq("event_id", eventId!).order("submitted_at", { ascending: true }),
-        supabase.from("attendees").select("application_id, code, checked_in_at").eq("event_id", eventId!),
+        supabase.from("attendees").select("application_id, code, checked_in_at, emailed_at").eq("event_id", eventId!),
       ]);
       if (apps.error) throw apps.error;
       // The roster is a nice-to-have here: a failure leaves codes and check-ins blank.
       const roster = new Map(
-        (attendees.data ?? []).map(a => [a.application_id as string, a as { code: string | null; checked_in_at: string | null }]),
+        (attendees.data ?? []).map(a => [a.application_id as string, a as { code: string | null; checked_in_at: string | null; emailed_at: string | null }]),
       );
       return ((apps.data ?? []) as unknown as Application[]).map(app => {
         const entry = roster.get(app.id);
-        return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at };
+        return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null };
       });
     },
   });
@@ -117,6 +117,40 @@ export async function sendEmails(
     onProgress?.(Math.min(i + EMAIL_CHUNK, applicationIds.length));
   }
   return total;
+}
+
+export type WalletPassResult = { sent: number; failed: { code: string; email: string; error: string }[] };
+
+/**
+ * Emails check-in passes through the send-wallet-passes function, 40 at a
+ * time until everyone accepted has one. Stops if a round sends nothing, so a
+ * persistent failure (say, a bad address) can't loop forever.
+ */
+export async function sendWalletPasses(eventId: string, onProgress?: (sent: number) => void): Promise<WalletPassResult> {
+  if (isPreview()) throw new PreviewOnlyError();
+  const total: WalletPassResult = { sent: 0, failed: [] };
+  for (;;) {
+    const { data, error } = await supabase.functions.invoke("send-wallet-passes", { body: { eventId } });
+    if (error) {
+      const status = (error as { context?: { status?: number } }).context?.status;
+      if (error.name === "FunctionsFetchError" || error.name === "FunctionsRelayError" || status === 404) {
+        throw new Error("Wallet passes aren't set up yet. Deploy the send-wallet-passes function (see supabase/functions/send-wallet-passes) and try again.");
+      }
+      let message = error.message;
+      try {
+        const detail = await (error as { context?: Response }).context?.json();
+        if (detail?.error) message = detail.error;
+      } catch { /* not JSON */ }
+      throw new Error(message);
+    }
+    const round = data as WalletPassResult & { remaining: number };
+    total.sent += round.sent;
+    onProgress?.(total.sent);
+    if (round.remaining === 0 || round.sent === 0) {
+      total.failed = round.failed;
+      return total;
+    }
+  }
 }
 
 /** A short-lived link to a hacker's uploaded resume. */

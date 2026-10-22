@@ -204,3 +204,7 @@ td .og-badge { margin-left: 0; }
 .og-preview pre { color: #3a4535; font-family: "DM Sans", system-ui, sans-serif; }
 .og-root input[type="checkbox"] { accent-color: #59744b; }
 .og-table td:nth-child(4) { white-space: nowrap; }
+
+/* Send wallet passes: who's getting one */
+.og-pass-list { margin: 0; padding-left: 18px; font-size: 14px; }
+.og-pass-list li + li { margin-top: 2px; }
