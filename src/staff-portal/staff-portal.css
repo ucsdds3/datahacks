@@ -1,23 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Silkscreen&family=VT323&display=swap');
+
 /* The application portal (hackers, mentors, judges, organizers). Scoped under .sp-root so it doesn't touch the site themes. */
 
 .sp-root {
-  --sp-bg: #f6f7f9;
-  --sp-surface: #ffffff;
-  --sp-border: #e3e6ea;
-  --sp-text: #16181a;
-  --sp-muted: #5f6b73;
-  --sp-accent: #0e8fa3;
-  --sp-accent-soft: #e4f5f7;
-  --sp-blue: #2f6fed;
-  --sp-green: #1f9d55;
-  --sp-red: #d93f3f;
-  --sp-orange: #e8742c;
+  /* Stone panels on a mossy page, after the Minecraft site and Elisa's application
+     page. The --sp-* colours are for text and controls on the light stone panels. */
+  --sp-bg: #d6dacb;
+  --sp-surface: #e8e8dc;
+  --sp-border: #b0b9a3;
+  --sp-text: #232c1f;
+  --sp-muted: #56624d;
+  --sp-accent: #3e6a2e;
+  --sp-accent-soft: #d3e0c0;
+  --sp-blue: #2c5aa8;
+  --sp-green: #2d7438;
+  --sp-red: #a8372b;
+  --sp-orange: #9a4f16;
+  /* On the dark page and sidebar. */
+  --mc-page: #26382f;
+  --mc-sidebar: #1b2620;
+  --mc-ink: #1e2925;
+  --mc-light: #f0efe4;
+  --mc-light-muted: #b9c6af;
+  --mc-leaf: #83b83e;
+  --mc-focus: #f1db69;
 
   display: flex;
   min-height: 100dvh;
-  background: var(--sp-bg);
-  color: var(--sp-text);
-  font-family: Inter, system-ui, -apple-system, sans-serif;
+  background: var(--mc-page);
+  color: var(--mc-light);
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
   font-size: 15px;
   line-height: 1.5;
 }
@@ -440,4 +452,171 @@
 @media (max-width: 520px) {
   .sp-timeline li { grid-template-columns: 1fr; gap: 4px; }
   .sp-card { padding: 18px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Minecraft theme. Stone panels with bevelled edges on a mossy page, square
+   corners, Silkscreen for page titles, VT323 for game-style labels, and DM Sans
+   at regular weights for everything people read.
+   --------------------------------------------------------------------------- */
+
+.sp-root a { color: var(--sp-accent); text-underline-offset: 3px; }
+.sp-root :is(a, button, input, select, textarea, summary):focus-visible { outline: 3px solid var(--mc-focus); outline-offset: 2px; }
+.sp-root .sp-card :is(a, button, input, select, textarea, summary):focus-visible,
+.sp-root .og-drawer :is(a, button, input, select, textarea, summary):focus-visible,
+.sp-root .og-modal :is(a, button, input, select, textarea, summary):focus-visible { outline-color: #2f4a24; }
+
+/* Sidebar: a dark stone column */
+.sp-sidebar { background: var(--mc-sidebar); border-right: 3px solid #111a15; color: var(--mc-light); }
+.sp-brand strong { font: 400 13px/1.4 "Silkscreen", monospace; color: var(--mc-light); white-space: nowrap; }
+.sp-brand span { color: var(--mc-light-muted); }
+/* The logo's dark letters need a light tile on the dark sidebar. */
+.sp-brand img { flex: none; padding: 4px; border: 2px solid #111a15; background: var(--sp-surface); box-shadow: inset 2px 2px #f8f8ef, inset -2px -2px #a7b3a3; box-sizing: content-box; width: 30px; height: 30px; }
+.sp-root .sp-nav-link { border-radius: 0; color: var(--mc-light-muted); font-weight: 400; }
+.sp-root .sp-nav-link:hover { background: #24332a; color: var(--mc-light); }
+.sp-root .sp-nav-link.active { background: #2c3f31; color: var(--mc-light); box-shadow: inset 3px 0 var(--mc-leaf); }
+.sp-root .sp-nav-link.active svg { color: #b6df7a; }
+.sp-sidebar-footer { border-top-color: #34473b; }
+.sp-root .sp-sidebar-footer a, .sp-signout { color: var(--mc-light-muted); }
+.sp-root .sp-sidebar-footer a:hover, .sp-signout:hover { color: var(--mc-light); }
+
+/* Page titles and text on the dark page */
+.sp-greeting h1, .sp-page-header h1 {
+  font: 400 26px/1.25 "Silkscreen", monospace;
+  letter-spacing: 0;
+  color: var(--mc-light);
+}
+.sp-page-header p, .sp-waiver-line { color: var(--mc-light-muted); }
+.sp-root :is(.sp-greeting, .sp-page-header) a { color: #b6df7a; }
+.sp-complete { color: #9fd36a; font-weight: 500; }
+.sp-incomplete { color: #f0b46a; font-weight: 500; }
+
+/* Stone panels */
+.sp-card {
+  border: 3px solid var(--mc-ink);
+  border-radius: 0;
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  box-shadow: inset 3px 3px #f8f8ef, inset -3px -3px #a7b3a3, 6px 6px #15241c;
+}
+.sp-card h2 { font: 400 25px/1.2 "VT323", monospace; letter-spacing: 0.01em; color: #2a3527; }
+
+/* Status pill: a little stone tag with a pixel dot */
+.sp-status {
+  border: 2px solid var(--mc-ink);
+  border-radius: 0;
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  box-shadow: inset 2px 2px #f8f8ef, inset -2px -2px #a7b3a3;
+  font: 400 19px/1 "VT323", monospace;
+  padding: 5px 12px 4px;
+}
+.sp-dot { border-radius: 0; }
+.sp-root .sp-status .sp-dot { box-shadow: none; }
+.sp-status.pending .sp-dot { background: #4f7fd6; }
+.sp-status.accepted .sp-dot { background: #5aa83a; }
+.sp-status.waitlisted .sp-dot { background: #d98a2b; }
+.sp-status.rejected .sp-dot { background: #c8503f; }
+
+/* Buttons: bevelled game-menu blocks */
+.sp-root .sp-button {
+  border: 2px solid var(--mc-ink);
+  border-radius: 0;
+  background: #c5c3b6;
+  color: #292d22;
+  box-shadow: inset 2px 2px #f1f0e8, inset -2px -2px #828779, 0 3px #182313;
+  font-weight: 500;
+  transition: filter 0.15s, transform 0.15s;
+}
+.sp-root .sp-button:hover:not(:disabled) { border-color: var(--mc-ink); color: #292d22; filter: brightness(1.06); transform: translateY(-1px); }
+.sp-root .sp-button:active:not(:disabled) { transform: translateY(1px); }
+.sp-root .sp-button.primary { border-color: #1b2811; background: var(--mc-leaf); color: #17230e; box-shadow: inset 2px 2px #b6df7a, inset -2px -2px #507927, 0 3px #172411; }
+.sp-root .sp-button.primary:hover:not(:disabled) { background: var(--mc-leaf); color: #17230e; }
+
+/* Run of show */
+.sp-tabs { padding: 3px; border: 2px solid #9aa58e; border-radius: 0; background: var(--sp-bg); }
+.sp-tabs button { border-radius: 0; font-weight: 500; color: var(--sp-muted); }
+.sp-tabs button.active { background: var(--sp-surface); color: var(--sp-text); box-shadow: inset 2px 2px #f8f8ef, inset -2px -2px #a7b3a3; }
+.sp-schedule-venue { font-weight: 500; }
+.sp-timeline li { border-top-color: #c3cbb5; }
+.sp-time { font-weight: 500; }
+.sp-event-title { font-weight: 500; }
+.sp-tag { border-radius: 0; padding: 1px 6px 0; font: 400 15px/1.2 "VT323", monospace; letter-spacing: 0.04em; }
+.sp-tag.mentor { background: #d5e1f5; color: #24498c; }
+.sp-tag.judge { background: #f1dcc7; color: #8a4512; }
+.sp-tag.required { background: #f2d3cf; color: #932f25; }
+
+/* Avatars and the Mentors tab */
+.sp-avatar { border-radius: 0; background: var(--sp-accent-soft); color: #2f4a24; font: 400 20px/1 "VT323", monospace; box-shadow: inset 2px 2px #e7f0d9, inset -2px -2px #a9bd92; }
+.sp-mentors li + li { border-top-color: #c3cbb5; }
+.sp-mentor-row strong { font-weight: 500; }
+.sp-checkin .sp-dot { border-radius: 0; background: #a7b3a3; }
+.sp-checkin.in { color: var(--sp-green); }
+.sp-checkin.in .sp-dot { background: #5aa83a; }
+.sp-mentor-bio { color: #3a4535; }
+
+/* Status timeline: pixel markers */
+.sp-progress li:not(:last-child)::before { background: #b5bfa9; }
+.sp-progress li.done:not(:last-child)::before { background: #59744b; }
+.sp-progress strong { font-weight: 500; }
+.sp-step-marker { border-radius: 0; border-color: #9aa58e; background: #f1f2e7; color: var(--sp-muted); font: 400 18px/1 "VT323", monospace; }
+.sp-progress li.done .sp-step-marker { border-color: #3c5634; background: #59744b; color: #ecf2de; }
+.sp-progress li.current .sp-step-marker { border-color: #59744b; color: #3c5634; }
+
+/* Forms, as on Elisa's application page */
+.sp-form-fields > label, .sp-form-fields > fieldset > label, .sp-form-fields label[id^="field-"], .sp-form-fields legend { font-weight: 500; color: #394531; }
+.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+.sp-form textarea,
+.sp-form select,
+.sp-mock-adopt input {
+  border: 2px solid #6d7a64;
+  border-radius: 0;
+  background: #f1f2e7;
+  box-shadow: inset 2px 2px #c4ccb9;
+  color: #2a3527;
+}
+.sp-form input:focus-visible, .sp-form textarea:focus-visible, .sp-form select:focus-visible { outline: 3px solid #2f4a24; outline-offset: 1px; border-color: #2f4a24; }
+.sp-form input[readonly] { background: #dfe2d3; color: var(--sp-muted); }
+.sp-check { padding: 10px 12px; border: 1px solid #aab39e; background: #e6e9db; }
+.sp-check input { accent-color: #59744b; }
+.sp-field-error input:not([type="checkbox"]):not([type="radio"]), .sp-field-error textarea { border-color: var(--sp-red); }
+
+/* Application tab, Apply chooser, handbook */
+.sp-submitted { color: var(--sp-green); }
+.sp-submitted h2 { font: 400 26px/1.2 "VT323", monospace; }
+.sp-root a.sp-choice { color: #3c5634; }
+.sp-root a.sp-choice:hover { border-color: var(--mc-ink); box-shadow: inset 3px 3px #f8f8ef, inset -3px -3px #a7b3a3, 6px 6px #15241c; transform: translateY(-2px); }
+.sp-choice h2 { font: 400 25px/1.2 "VT323", monospace; }
+.sp-toc span { color: var(--mc-light-muted); font: 400 16px "VT323", monospace; letter-spacing: 0.05em; }
+.sp-root .sp-toc a { color: var(--mc-light-muted); }
+.sp-root .sp-toc a:hover { color: var(--mc-light); }
+.sp-prose h3 { font-weight: 600; }
+.sp-prose p, .sp-prose ul { color: #3a4535; }
+.sp-prose section + section { border-top-color: #c3cbb5; }
+.sp-demo-note { border-radius: 0; border: 2px solid #c9a95a; background: #f6ecc9; color: #5f4710; }
+.sp-table-wrap { border: 2px solid #9aa58e; border-radius: 0; }
+.sp-table th { background: var(--sp-bg); font-weight: 500; }
+.sp-table th, .sp-table td { border-bottom-color: #c3cbb5; }
+.sp-table td:first-child { font-weight: 500; }
+
+/* Waiver */
+.sp-steps li::before { border-radius: 0; font: 400 18px/1 "VT323", monospace; background: var(--sp-accent-soft); color: #2f4a24; }
+.sp-mock-signing, .sp-docusign.active { border-radius: 0; border: 2px solid #9aa58e; }
+
+/* Loading and sign-in screens */
+.sp-gate h1 { font: 400 20px/1.3 "Silkscreen", monospace; color: var(--sp-text); }
+.sp-gate p { color: var(--sp-muted); }
+
+@media (max-width: 860px) {
+  /* Stacked, the sidebar's 248px width would otherwise become its height. */
+  .sp-sidebar { flex: none; border-right: 0; border-bottom: 3px solid #111a15; }
+  .sp-tabs { flex-wrap: wrap; max-width: 100%; }
+  .sp-root .sp-nav-link.active { box-shadow: inset 0 -3px var(--mc-leaf); }
+  .sp-greeting h1, .sp-page-header h1 { font-size: 22px; }
+}
+@media (max-width: 520px) {
+  .sp-card { box-shadow: inset 3px 3px #f8f8ef, inset -3px -3px #a7b3a3, 4px 4px #15241c; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-root .sp-button, .sp-root a.sp-choice { transition: none; transform: none !important; }
 }
