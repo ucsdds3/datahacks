@@ -4,16 +4,16 @@ import { ChevronDown } from "lucide-react";
 /** The asterisk on a required field's label. */
 export const Req = () => <span className="sp-req" aria-hidden="true">*</span>;
 
-/** Phone numbers: exactly 10 digits, shown and saved as [858] 370-2478. */
+/** Phone numbers: exactly 10 digits, shown and saved as (858) 370-2478. */
 export const phoneDigits = (value: string) => value.replace(/\D/g, "").slice(0, 10);
-export const isValidPhone = (value: string) => /^\[\d{3}\] \d{3}-\d{4}$/.test(value);
+export const isValidPhone = (value: string) => /^\(\d{3}\) \d{3}-\d{4}$/.test(value);
 
 export function formatPhone(value: string) {
   const d = phoneDigits(value);
   if (d.length === 0) return "";
-  if (d.length <= 3) return `[${d}`;
-  if (d.length <= 6) return `[${d.slice(0, 3)}] ${d.slice(3)}`;
-  return `[${d.slice(0, 3)}] ${d.slice(3, 6)}-${d.slice(6)}`;
+  if (d.length <= 3) return `(${d}`;
+  if (d.length <= 6) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
 }
 
 export function PhoneInput({ value, onChange, id }: { value: string; onChange: (value: string) => void; id?: string }) {
@@ -23,11 +23,11 @@ export function PhoneInput({ value, onChange, id }: { value: string; onChange: (
       type="tel"
       inputMode="numeric"
       autoComplete="tel-national"
-      placeholder="[858] 555-0123"
+      placeholder="(858) 555-0123"
       required
       value={value}
       onChange={e => onChange(formatPhone(e.target.value))}
-      pattern="\[\d{3}\] \d{3}-\d{4}"
+      pattern="\(\d{3}\) \d{3}-\d{4}"
       title="10 digits, like 8585550123"
     />
   );
