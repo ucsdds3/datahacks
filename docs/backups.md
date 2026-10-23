@@ -2,7 +2,7 @@
 
 ## What gets backed up
 
-`supabase-backup` runs every night at 03:41 Pacific. It runs `pg_dump` against production (`yrxjhrrphhbmqejresvy`) for the `public` and `auth` schemas, structure and data, in custom format. It encrypts the file with the `BACKUP_PASSPHRASE` secret (gpg, AES256) and keeps it as a workflow artifact named `datahacks-prod-backup` for **7 days**. The passphrase is also in `.env.local` and should be in the team's password manager. Without it the backups can't be read.
+`supabase-backup` runs every night at 03:41 Pacific. It runs `pg_dump` against production (`yrxjhrrphhbmqejresvy`) for the `public` and `auth` schemas, structure and data, in custom format. It encrypts the file with the `BACKUP_PASSPHRASE` secret (gpg, AES256) and keeps it as a workflow artifact named `datahacks-prod-backup` for **90 days** (the most GitHub allows). The passphrase is also in `.env.local` and should be in the team's password manager. Without it the backups can't be read.
 
 **Not in the backup:**
 - **Storage files** (the uploaded resumes). Only the database is dumped. The `storage` schema isn't either, but the migrations recreate the bucket and its policies.

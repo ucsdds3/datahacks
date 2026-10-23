@@ -11,42 +11,35 @@ Owners:
 - **Evan**: the check-in repo.
 - **Team**: design, sponsorships, ops.
 
-Last updated: 2026-10-23.
+Last updated: 2026-10-23 (evening, after launch).
 
 ## Needs Mohak
 
 | ID | Item | Next step |
 |---|---|---|
-| M0 | **Merge PR #12 into `merge-final` first.** These are the event-isolation fixes (C6). | Open https://github.com/ucsdds3/datahacks/pull/12 and tap **Merge**. All checks pass. Do this before M1 so the fixes ship with the launch. |
-| M1 | **Merge PR #9 (`merge-final` → `main`)**. This puts the portal live. | Open https://github.com/ucsdds3/datahacks/pull/9 and tap **Merge**. If GitHub asks you to approve the `supabase-production` deployment afterwards, approve it. Claude then does C1–C4. |
-| M2 | Check the release emails reached real inboxes. | `prakashmohak2016@gmail.com` (hacker, accepted), `map.960.20@gmail.com` (mentor, accepted) and `info@ds3.club` (judge, rejected). Check spam too. `mohakprakash2016@gmail.com` (waitlisted) has already arrived. |
-| M3 | Evan reviews the event picker for the check-in app. | Send him https://github.com/eparkle/DS3-DataHacks-Check-in/pull/1. Once DH26 has dates (the migration in M1), the live app picks DH27BETA even without this PR. |
+| M3 | Evan reviews the event picker for the check-in app. | Optional now: the live app already picks DH27BETA. The picker matters once DH27 exists alongside DH27BETA. Send him https://github.com/eparkle/DS3-DataHacks-Check-in/pull/1. |
 | M4 | Google sign-in says "continue to yrxjhrrphhbmqejresvy.supabase.co". | Google Cloud Console → OAuth consent screen. Set the app name "DataHacks", the logo and the ds3ucsd.com domain, then submit for verification. Needs the Google Cloud account that owns the OAuth client. |
 | M5 | The questionnaire. | Decide what it's for, who fills it in, when it opens and closes, the questions, and whether it blocks anything (for example, check-in). |
 | M6 | Sponsor challenges content. | Per challenge: name, sponsor, a 1–2 sentence prompt, dataset link, judging criteria and prize. |
 | M7 | Design team art. | 9 layer backdrops (overworld, sulfur caves, lush caves, mineshaft, deep dark, stronghold, end city, the end, bedrock), about 2400px wide, WebP or PNG, plus the logo. Lush caves and end city are placeholders. |
 | M8 | Website open versus applications open. | Pick the date the site goes public and the date applications open (Oct 31?). If they differ, Claude adds an "applications open on …" gate. |
 | M9 | Supabase Pro ($25/mo) for the application window and event week. | Decide. It adds daily backups with point-in-time restore, and the project never pauses. Free projects pause after 7 days without activity. |
-| M10 | Waiver: DocuSign or something simpler. | Decide. Until then the waiver page says the document isn't ready. |
+| M10 | DocuSign waiver setup. | Embedded signing is already built (`supabase/functions/docusign-waiver`): people sign inside the portal, the envelope carries their name and email, and the portal asks DocuSign whether they finished. Needs a DocuSign developer account, a template made from the waiver PDF with one Signer role (name and email filled in automatically) and the secrets listed at the top of the function. Production use needs DocuSign's go-live review and a paid plan. |
 | M11 | Coordinator contacts in the portal sidebar. | Send the real names and emails; Claude puts them in `src/staff-portal/config.ts`. |
 | M12 | Ansh and Tijil as organizers. | Both are invited on DH27BETA. Each signs in once at https://datahacks.ds3ucsd.com/organizer after M1. |
-| M14 | The backup passphrase in a password manager. | `BACKUP_PASSPHRASE` exists only in `.env.local` on one laptop and in GitHub secrets. If it's lost, every backup is unreadable. Copy it into the team's password manager. Backups also keep only 7 days and sit in one place; Supabase Pro (M9) fixes both. |
+| M14 | The backup passphrase in a password manager. | `BACKUP_PASSPHRASE` exists only in `.env.local` on one laptop and in GitHub secrets. If it's lost, every backup is unreadable. Copy it into the team's password manager. Backups are now kept 90 days (GitHub's limit for a public repo), so Oct 31 onwards stays restorable through the event. |
+| M15 | Stricter checks on submitted applications. | Applications can't go to staging first (they're live data, not schema). Instead, decide whether the database itself should reject bad values: https-only links, phone format, required fields per role. Claude adds that as a migration. |
 | M13 | Error and uptime alerts (free tiers). | Create a Sentry project and an UptimeRobot account, or say which email to use; Claude wires them in. |
 
 ## Claude
 
 | ID | Item | Status | Next step |
 |---|---|---|---|
-| C1 | Watch the deploys triggered by M1. | Waiting on M1 | `gh run list --branch main`. Expected: GitHub Pages deploy; `supabase-deploy` applies `20261023003947_revoke_role_when_unaccepted` and `20261023212816_dh26_dates` to staging then production, and redeploys the edge functions; `ci` passes. |
-| C2 | Check the live site end to end. | Waiting on M1 | In BrowserOS: Join the adventure → Google sign-in → hacker form → Status says "Under review". Same for mentor/judge from the Trial Chambers. Check `/organizer`. |
-| C3 | Protect `main`. | Waiting on M1 (so the merge isn't blocked) | Settings: pull request required, 1 approval, admins can bypass, required checks `site`, `migrations` and `functions`, no force-push, no deletion. |
-| C4 | Check that the check-in app picks DH27BETA. | Waiting on M1 | Read `events` and confirm DH26's `starts_at` is 2026-04-18. Ask Mohak or Evan to load datahacks-check-in.vercel.app and confirm. |
-| C5 | Prove backups restore. | Partly done; real proof after M1 | Proven on a local stand-in (every row matched; `docs/backups.md`, `scripts/backup/restore-drill.sh`, weekly `supabase-restore-drill`). Production couldn't be dumped from this laptop: its network blocks database port 5432. After M1, run the `supabase-restore-drill` workflow from the Actions tab and confirm it's green. |
-| C6 | Keep DH27BETA and DH27 data from overlapping. | Done, waiting on M0 | Audit in `docs/event-isolation.md`. Fixed 4 leaks: organizers of one event could read every resume; an application could be moved between events; staging a decision wasn't limited to the current event; the waiver flag was shared across events. Also, every application must now have an event (0 of 24 lacked one). |
+| C5 | Prove backups restore. | Running on production next | Proven on a local stand-in (every row matched; `docs/backups.md`, `scripts/backup/restore-drill.sh`, weekly `supabase-restore-drill`). Production couldn't be dumped from this laptop: its network blocks database port 5432. Next: run `supabase-backup` by hand, then `supabase-restore-drill`, and record the result here. |
 | C9 | An "accepting applications" flag on events. | To do, with M8 | Right now anyone could submit to DH26 or DH27BETA by calling the API directly. Add `events.applications_open` and check it on insert. |
 | C10 | Check-in app lists by event. | To do | Its list view returns an organizer's rows from every event, so the app has to filter by the chosen event. Confirm Evan's PR #1 does this everywhere. |
+| C11 | Drop resume file uploads. | To do | Only links are collected (Google Drive, portfolio). Remove the unused upload code and the `resumes` storage bucket's policies; DH26 files stay until someone deletes them. |
 | C7 | Wallet passes to chosen people only. | To do | The console button sends to every accepted person without a pass (dummies included). Add an option to send only to selected people. |
-| C8 | Supabase settings the deploy can't change. | To do, after M1 | Check the Auth URL config still allows `https://datahacks.ds3ucsd.com/**`. Check the function secrets (Gmail, WalletWallet) are present in production. |
 
 ## Evan
 
@@ -73,6 +66,13 @@ Last updated: 2026-10-23.
 - **Checkout at the venue:** not needed, per Mohak on 2026-10-23.
 
 ## Done
+
+- 2026-10-23: **Portal live.** PR #12 (event isolation) and PR #9 merged. Pages deployed. Production got 4 database changes (role revoke, DH26 dates, event isolation, event required) and both email functions. Tested live: Trial Chambers, then Google, then the mentor/judge form; `/organizer` works.
+- 2026-10-23: `main` protected: PR plus 1 approval, `site` check required, no force-push or delete, admins can bypass. The database checks aren't required because they only run when `supabase/` changes.
+- 2026-10-23: the check-in app now picks DH27BETA (DH26 has dates).
+- 2026-10-23: event isolation audit (`docs/event-isolation.md`). Fixed: resume access across events, moving applications between events, staging decisions limited to the event, the waiver flag shared across events. Applications must now have an event.
+- 2026-10-23: sign-in redirect URLs and the email secrets confirmed in production (live sign-in returned to the site; emails sent).
+- 2026-10-23: email from the live console reached all three test inboxes. Backup retention is 90 days.
 
 - 2026-10-23: test plan (`docs/testing/portal-test-plan.md`). Two AI testers ran the forms; a pasted `+1` phone bug was fixed.
 - 2026-10-23: decisions move rows instantly in the console. Changing a released acceptance removes access (needs M1 to reach production).
