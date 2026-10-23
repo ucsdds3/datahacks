@@ -6,19 +6,22 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 /**
  * Dev only: a tab opened from /dev/test-accounts keeps its login in this tab
  * (sessionStorage) instead of the whole browser, so several dummy applicants
- * and an organizer can be signed in side by side. Never on in a build.
+ * and an organizer can be signed in side by side. Each dummy gets its own
+ * storage key: Supabase syncs logins between tabs that share one, which would
+ * hand every test tab the most recent sign-in. Never on in a build.
  */
-const testTab = import.meta.env.DEV && typeof window !== 'undefined' && (() => {
+const testAccount = import.meta.env.DEV && typeof window !== 'undefined' ? (() => {
   try {
-    if (new URLSearchParams(window.location.search).has('testAs')) window.sessionStorage.setItem('datahacks.testTab', '1')
-    return window.sessionStorage.getItem('datahacks.testTab') === '1'
+    const as = new URLSearchParams(window.location.search).get('testAs')
+    if (as) window.sessionStorage.setItem('datahacks.testTab', as)
+    return window.sessionStorage.getItem('datahacks.testTab')
   } catch {
-    return false
+    return null
   }
-})()
+})() : null
 
 export const supabase = createClient(
   supabaseUrl,
   supabaseAnonKey,
-  testTab ? { auth: { storage: window.sessionStorage, storageKey: 'sb-test-tab' } } : undefined,
+  testAccount ? { auth: { storage: window.sessionStorage, storageKey: `sb-test-${testAccount}` } } : undefined,
 )
