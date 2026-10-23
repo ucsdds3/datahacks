@@ -51,7 +51,7 @@ export default function HackerApplication() {
     if (form.race_ethnicity.length === 0) return 'Choose at least one option for race/ethnicity.'
     if (form.attended_before === null) return 'Tell us whether you have attended DataHacks before.'
     const { min, max } = birthdateBounds()
-    if (form.birthdate < min || form.birthdate > max) return 'Check your birthdate: you need to be at least 13.'
+    if (form.birthdate < min || form.birthdate > max) return 'Check your birthdate: DataHacks is for people 18 and over.'
     if (!isHttpsLink(form.linkedin_url.trim())) return 'Enter a link to your LinkedIn profile, starting with https://.'
     if (!isHttpsLink(form.github_url.trim())) return 'Enter a link to your GitHub profile, starting with https://.'
     if (form.devpost_url.trim() && !isHttpsLink(form.devpost_url.trim())) return 'Your Devpost link should start with https://.'

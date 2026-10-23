@@ -125,7 +125,7 @@ alter table public.applications
         and char_length(array_to_string(attended_events, '')) <= 5000
         and array_to_string(attended_events, ' ') !~ '[\x01-\x1f\x7f]')),
 
-  -- At least 13 on the day they apply. Only ever gets easier to satisfy, so
+  -- At least 18 on the day they apply (DataHacks is 18+, as the waiver says). Only ever gets easier to satisfy, so
   -- existing rows stay valid (and a backup restores) as time passes.
   add constraint application_birthdate_check check (birthdate is null
-    or (birthdate >= date '1900-01-01' and birthdate <= (current_date - interval '13 years')::date));
+    or (birthdate >= date '1900-01-01' and birthdate <= (current_date - interval '18 years')::date));

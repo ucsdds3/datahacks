@@ -97,12 +97,12 @@ describe("cleanLine and cleanText", () => {
 });
 
 describe("birthdateBounds", () => {
-  it("is 1900-01-01 to 13 years before today", () => {
-    expect(birthdateBounds(new Date(2026, 9, 23))).toEqual({ min: "1900-01-01", max: "2013-10-23" });
+  it("is 1900-01-01 to 18 years before today", () => {
+    expect(birthdateBounds(new Date(2026, 9, 23))).toEqual({ min: "1900-01-01", max: "2008-10-23" });
   });
 
   it("counts Feb 29 back to Feb 28, as Postgres does", () => {
-    expect(birthdateBounds(new Date(2028, 1, 29)).max).toBe("2015-02-28");
+    expect(birthdateBounds(new Date(2028, 1, 29)).max).toBe("2010-02-28");
   });
 });
 

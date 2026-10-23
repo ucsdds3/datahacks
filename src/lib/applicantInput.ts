@@ -60,11 +60,11 @@ export const safeMailto = (email: string | null | undefined) =>
 const pad = (n: number) => String(n).padStart(2, "0");
 
 /**
- * The birthdate input's range: 1900-01-01 to 13 years before today, which the
+ * The birthdate input's range: 1900-01-01 to 18 years before today (DataHacks is 18+), which the
  * database checks too. Feb 29 counts back to Feb 28, as Postgres does.
  */
 export function birthdateBounds(today = new Date()) {
-  const year = today.getFullYear() - 13;
+  const year = today.getFullYear() - 18;
   const month = today.getMonth();
   const lastDay = new Date(year, month + 1, 0).getDate();
   const day = Math.min(today.getDate(), lastDay);
