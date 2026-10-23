@@ -84,9 +84,17 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Level of study" value={row.level_of_study} />
             <Field label="Major" value={row.major} />
             <Field label="Graduation year" value={row.graduation_year} />
-            <Field label="Resume" value={row.resume_path && <button className="sp-link-button og-inline" onClick={openResume}>Open resume (PDF)</button>} />
+            <Field label="Gender" value={row.gender} />
+            <Field label="Race/ethnicity" value={row.race_ethnicity} />
+            <Field label="Lives in" value={[row.city_of_residence, row.country_of_residence].filter(Boolean).join(", ") || null} />
+            <Field label="Hackathons before" value={row.hackathon_experience} />
+            <Field label="Resume" value={row.resume_url ? <Link href={row.resume_url} /> : row.resume_path && <button className="sp-link-button og-inline" onClick={openResume}>Open resume (PDF)</button>} />
             <Field label="LinkedIn" value={<Link href={row.linkedin_url} />} />
+            <Field label="GitHub" value={<Link href={row.github_url} />} />
             <Field label="Devpost" value={<Link href={row.devpost_url} />} />
+            <Field label="Travel reimbursement" value={row.wants_travel_stipend
+              ? [row.travel_region, row.travel_method, row.travel_distance].filter(Boolean).join(" · ") + (row.travel_stipend_reason ? ` (${row.travel_stipend_reason})` : "")
+              : "No"} />
             <Field label="Project they're proudest of" value={row.essay_proudest_project} />
             <Field label="Something unique they'd bring" value={row.essay_unique_thing} />
             <Field label="What they want from the event" value={row.essay_goal} />

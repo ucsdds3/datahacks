@@ -41,11 +41,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
     <div className="sp-root">
       <aside className="sp-sidebar">
         <div className="sp-brand">
-          <img src="/datahacks-logo.png" alt="" />
-          <div>
-            <strong>DataHacks 2027</strong>
-            <span>Data Science Student Society</span>
-          </div>
+          <img src="/datahacks-logo.png" alt="DataHacks" />
         </div>
         <nav className="sp-nav" aria-label="Portal">
           {nav}

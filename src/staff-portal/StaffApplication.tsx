@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
+import { PhoneInput, Req, isValidPhone } from './formFields'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
@@ -30,8 +31,8 @@ const trackOptions = [
   { value: 'entertainment', label: 'Entertainment' },
 ]
 
-const BIO_MIN_LENGTH = 100
-const BIO_MAX_LENGTH = 500
+/** The blurb is optional; when given it needs some substance. Blank ones get written for them. */
+const BIO_MIN_LENGTH = 50
 
 const isValidUrl = (value: string) => {
   try {
@@ -82,14 +83,14 @@ export default function StaffApplication() {
   if (!form.first_name.trim()) missing.push('first_name')
   if (!form.last_name.trim()) missing.push('last_name')
   if (!isValidEmail(form.email.trim())) missing.push('email')
-  if (form.phone.replace(/\D/g, '').length < 10) missing.push('phone')
+  if (!isValidPhone(form.phone)) missing.push('phone')
   if (!form.organization.trim()) missing.push('organization')
   if (!form.role_title.trim()) missing.push('role_title')
   if (!isValidUrl(form.linkedin_url.trim())) missing.push('linkedin_url')
   if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
   if (!form.applicant_type) missing.push('applicant_type')
   if (isJudging && !form.judging_track) missing.push('judging_track')
-  if (isMentoring && (bioLength < BIO_MIN_LENGTH || bioLength > BIO_MAX_LENGTH)) missing.push('bio')
+  if (isMentoring && bioLength > 0 && bioLength < BIO_MIN_LENGTH) missing.push('bio')
   if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
   if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
   if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
@@ -141,7 +142,7 @@ export default function StaffApplication() {
       linkedin_url: form.linkedin_url.trim(),
       ucsd_affiliation: form.ucsd_affiliation,
       judging_track: isJudging ? form.judging_track : null,
-      bio: isMentoring ? form.bio.trim() : null,
+      bio: isMentoring && bioLength > 0 ? form.bio.trim() : null,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
       acknowledged_both_priority: form.acknowledged_both_priority,
@@ -171,30 +172,30 @@ export default function StaffApplication() {
           <form className="sp-card sp-form" onSubmit={handleSubmit} noValidate>
 
             <div className="sp-form-fields">
-              <label id="field-first_name" className={cls('first_name')}>First name
+              <label id="field-first_name" className={cls('first_name')}>First name <Req />
                 <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
               </label>
-              <label id="field-last_name" className={cls('last_name')}>Last name
+              <label id="field-last_name" className={cls('last_name')}>Last name <Req />
                 <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
               </label>
-              <label id="field-email" className={cls('email')}>Email
+              <label id="field-email" className={cls('email')}>Email <Req />
                 <input type="email" required readOnly value={form.email} />
               </label>
-              <label id="field-phone" className={cls('phone')}>Phone number
-                <input type="tel" required autoComplete="tel" value={form.phone} onChange={e => update('phone', e.target.value)} />
+              <label id="field-phone" className={cls('phone')}>Phone number <Req />
+                <PhoneInput value={form.phone} onChange={v => update('phone', v)} />
               </label>
-              <label id="field-organization" className={cls('organization')}>Company / lab you work for
+              <label id="field-organization" className={cls('organization')}>Company / lab you work for <Req />
                 <input required value={form.organization} onChange={e => update('organization', e.target.value)} />
               </label>
-              <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute
+              <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute <Req />
                 <input required value={form.role_title} onChange={e => update('role_title', e.target.value)} />
               </label>
-              <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn
+              <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn <Req />
                 <input type="url" required placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
               </label>
 
               <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
-                <legend>Are You A UCSD Student, Alumni, Or Faculty Member?</legend>
+                <legend>Are You A UCSD Student, Alumni, Or Faculty Member? <Req /></legend>
                 {ucsdOptions.map(option => (
                   <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                     <input
@@ -210,7 +211,7 @@ export default function StaffApplication() {
               </fieldset>
 
               <fieldset id="field-applicant_type" className={cls('applicant_type')}>
-                <legend>Are you willing to mentor, judge, or both?</legend>
+                <legend>Are you willing to mentor, judge, or both? <Req /></legend>
                 <p className="sp-form-note">We will be giving priority to people who sign up as both.</p>
                 {applicantTypeOptions.map(option => (
                   <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
@@ -228,7 +229,7 @@ export default function StaffApplication() {
 
               {isJudging && (
                 <fieldset id="field-judging_track" className={cls('judging_track')}>
-                  <legend>Which track would you be interested in judging? (select one)</legend>
+                  <legend>Which track would you be interested in judging? (select one) <Req /></legend>
                   {trackOptions.map(option => (
                     <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                       <input
@@ -245,16 +246,16 @@ export default function StaffApplication() {
               )}
 
               {isMentoring && (
-                <label id="field-bio" className={cls('bio')}>A short blurb about you <span>(shown to hackers on the mentor calendar)</span>
+                <label id="field-bio" className={cls('bio')}>A short blurb about you <span>(optional, shown to hackers on the mentor calendar)</span>
                   <textarea
-                    required
                     rows={4}
                     minLength={BIO_MIN_LENGTH}
-                    maxLength={BIO_MAX_LENGTH}
                     value={form.bio}
                     onChange={e => update('bio', e.target.value)}
                   />
-                  <span>{bioLength}/{BIO_MAX_LENGTH} characters (minimum {BIO_MIN_LENGTH})</span>
+                  <span>
+                    {bioLength > 0 ? `${bioLength} characters (at least ${BIO_MIN_LENGTH})` : "Leave it blank and we'll write one for you from your application."}
+                  </span>
                 </label>
               )}
 

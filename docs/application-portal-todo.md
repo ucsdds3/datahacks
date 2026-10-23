@@ -21,6 +21,7 @@
 - [x] One portal for everyone and the organizer console (2026-10-22). `supabase/migrations/20261022000000_organizer_console.sql` applied to the live project the same day.
 
 ## To do
+- [ ] **AI blurbs for mentors who skip theirs:** the mentor blurb is optional (50+ characters when given). Generate one from the rest of their application for anyone who leaves it blank, before the hacker Mentors tab opens.
 - [ ] **An MCP server for applications:** someone signs in (creates an account) and can fill out their application through an AI assistant over MCP instead of the form.
 - [ ] **Check-in portal UI** (Evan's repo, DS3-DataHacks-Check-in): mobile first, with the top bar collapsible behind a toggle instead of always showing. Organizers will test it on their phones.
 - [ ] ~~**One portal for everyone.**~~ Done, see above. Per the architecture diagram, hackers, mentors and judges all land in the same portal after Google sign-in. Mentors/judges already do (`/portal`); hackers still get a separate dashboard. Add a hacker section with application status, run of show and the mentor sign-in list (the mentor form already collects a blurb "shown to hackers on the mentor calendar"). The design is the 10/13 PDF from the group chat.

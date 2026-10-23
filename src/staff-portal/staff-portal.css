@@ -364,9 +364,14 @@
 /* Application forms */
 .sp-form { display: flex; flex-direction: column; gap: 18px; }
 .sp-form-fields { display: flex; flex-direction: column; gap: 16px; }
-.sp-form-fields > label,
-.sp-form-fields > fieldset > label,
-.sp-form-fields label[id^="field-"] { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; }
+/* Block labels, not flex: a flex column put the label text and its asterisk on separate lines. */
+.sp-form-fields > label:not(.sp-check),
+.sp-form-fields > fieldset > label:not(.sp-check),
+.sp-form-fields label[id^="field-"] { display: block; font-size: 14px; font-weight: 600; }
+.sp-form-fields label:not(.sp-check) > input,
+.sp-form-fields label:not(.sp-check) > select,
+.sp-form-fields label:not(.sp-check) > textarea { display: block; margin-top: 6px; }
+.sp-form-fields label[id^="field-"] > span:last-child:not(.sp-req) { display: block; margin-top: 4px; font-size: 13px; }
 .sp-form-fields label > span { color: var(--sp-muted); font-weight: 400; }
 .sp-form-fields fieldset { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; }
 .sp-form-fields legend { margin-bottom: 8px; padding: 0; font-size: 14px; font-weight: 600; }
@@ -609,4 +614,47 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .sp-root .sp-button { transition: none; transform: none !important; }
+}
+
+/* Application forms: required marker, sections, dropdowns, multi-select, yes/no */
+.sp-root .sp-req { margin-left: 2px; color: #b3412f; font-weight: 600; }
+.sp-root .sp-form-section { margin: 14px 0 0; padding-top: 14px; border-top: 1px solid rgb(0 0 0 / 0.12); font-size: 20px; }
+.sp-root .sp-form-fields > .sp-form-section:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
+.sp-root .sp-field { display: flex; flex-direction: column; gap: 6px; }
+.sp-root .sp-field-label { font-size: 14px; font-weight: 600; }
+.sp-root .sp-yesno { display: flex; gap: 20px; }
+.sp-root .sp-agree { margin-top: 8px; }
+.sp-root .sp-multiselect { position: relative; }
+.sp-root .sp-multiselect-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 2px solid #6d7a64;
+  background: #f1f2e7;
+  box-shadow: inset 2px 2px 0 rgb(0 0 0 / 0.08);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sp-root .sp-multiselect-button:focus-visible { outline: 3px solid #3c5634; outline-offset: 1px; }
+.sp-root .sp-placeholder { color: #6b7466; }
+.sp-root .sp-multiselect-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 12px;
+  border: 2px solid #6d7a64;
+  background: #f1f2e7;
+  box-shadow: 4px 4px 0 rgb(0 0 0 / 0.25);
 }

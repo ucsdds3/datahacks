@@ -6,82 +6,98 @@ import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
+import { MultiSelect, PhoneInput, Req, Select, YesNo, isHttpsUrl, isValidPhone } from './formFields'
+import {
+  COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
+  TRAVEL_DISTANCES, TRAVEL_METHODS,
+} from './formOptions'
 
 const PRIORITY_LABEL = TIMELINE.priorityDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
-const heardAboutOptions = ['Friend/word of mouth', 'Past DataHacks event', 'Tabling on campus', 'Social Media', 'Email newsletter', 'Other']
+const blank = {
+  first_name: '', last_name: '', phone: '', gender: '', race_ethnicity: [] as string[], birthdate: '',
+  country_of_residence: 'United States', city_of_residence: '', level_of_study: '', school: '',
+  major: '', graduation_year: '', hackathon_experience: '', attended_before: null as boolean | null,
+  linkedin_url: '', github_url: '', devpost_url: '', resume_url: '',
+  essay_proudest_project: '', essay_unique_thing: '', essay_goal: '', funniest_joke: '', lifetime_goal: '',
+  heard_about: [] as string[],
+  wants_travel_stipend: null as boolean | null, travel_region: '', travel_method: '', travel_distance: '', travel_stipend_reason: '',
+  agreed_to_terms: false,
+}
+type Form = typeof blank
 
 export default function HackerApplication() {
   const { session } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [resumeFile, setResumeFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [form, setForm] = useState<Form>(blank)
 
-  const [form, setForm] = useState({
-    first_name: '', last_name: '', phone: '', gender: '', race_ethnicity: '', birthdate: '',
-    country_of_residence: '', city_of_residence: '', level_of_study: '', school: '',
-    major: '', graduation_year: '', hackathon_experience: '', attended_before: false,
-    linkedin_url: '', devpost_url: '', essay_proudest_project: '', essay_unique_thing: '',
-    essay_goal: '', funniest_joke: '', lifetime_goal: '', wants_travel_stipend: false,
-    travel_stipend_reason: '', travel_region: '', heard_about: [] as string[], agreed_to_terms: false,
+  const update = <K extends keyof Form>(field: K, value: Form[K]) => setForm(prev => ({ ...prev, [field]: value }))
+  const text = (field: keyof Form) => ({
+    value: form[field] as string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => update(field, e.target.value as never),
   })
 
-  const update = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }))
-
-  const toggleHeardAbout = (option: string) => {
-    setForm(prev => ({
-      ...prev,
-      heard_about: prev.heard_about.includes(option)
-        ? prev.heard_about.filter(o => o !== option)
-        : [...prev.heard_about, option],
-    }))
+  /** What the browser's own checks can't catch: dropdown pickers, links and yes/no answers. */
+  const problem = (): string | null => {
+    if (!isValidPhone(form.phone)) return 'Enter a 10-digit phone number.'
+    if (form.race_ethnicity.length === 0) return 'Choose at least one option for race/ethnicity.'
+    if (form.attended_before === null) return 'Tell us whether you have attended DataHacks before.'
+    if (!isHttpsUrl(form.linkedin_url)) return 'Enter a link to your LinkedIn profile.'
+    if (!isHttpsUrl(form.github_url)) return 'Enter a link to your GitHub profile.'
+    if (form.devpost_url.trim() && !isHttpsUrl(form.devpost_url)) return 'Your Devpost link doesn\'t look like a link.'
+    if (!isHttpsUrl(form.resume_url)) return 'Enter a link to your resume.'
+    if (form.heard_about.length === 0) return 'Tell us how you heard about DataHacks.'
+    if (form.wants_travel_stipend === null) return 'Tell us whether you need travel reimbursement.'
+    if (form.wants_travel_stipend && (!form.travel_region.trim() || !form.travel_method || !form.travel_distance)) {
+      return 'Fill in where and how you\'re traveling from.'
+    }
+    if (!form.agreed_to_terms) return 'You must agree to the terms.'
+    return null
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
-
-    if (!resumeFile) return setError('Resume is required.')
-    if (!form.agreed_to_terms) return setError('You must agree to the terms.')
     if (!session) return setError('You must be signed in.')
+    const issue = problem()
+    if (issue) return setError(issue)
 
     setSubmitting(true)
-
     let eventId: string
     try {
       eventId = await currentEventId()
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err))
       setSubmitting(false)
       return
     }
 
-    const filePath = `${session.user.id}/${form.first_name}_${form.last_name}_resume.pdf`
-    const { error: uploadError } = await supabase.storage
-      .from('resumes')
-      .upload(filePath, resumeFile, { upsert: true })
-
-    if (uploadError) {
-      setError(uploadError.message)
-      setSubmitting(false)
-      return
-    }
-
+    const travel = form.wants_travel_stipend
     const { error: insertError } = await supabase.from('applications').insert({
       applicant_type: 'hacker',
       event_id: eventId,
       user_id: session.user.id,
       email: session.user.email,
-      resume_path: filePath,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
       ...form,
+      race_ethnicity: form.race_ethnicity.join('; '),
+      attended_before: form.attended_before === true,
+      wants_travel_stipend: travel === true,
+      linkedin_url: form.linkedin_url.trim(),
+      github_url: form.github_url.trim(),
+      devpost_url: form.devpost_url.trim() || null,
+      resume_url: form.resume_url.trim(),
+      travel_region: travel ? form.travel_region.trim() : null,
+      travel_method: travel ? form.travel_method : null,
+      travel_distance: travel ? form.travel_distance : null,
+      travel_stipend_reason: travel ? form.travel_stipend_reason.trim() || null : null,
     })
 
     setSubmitting(false)
-
     if (insertError) {
       // 23505 = unique violation: one application per account per event
       setError(insertError.code === '23505' ? "You've already applied. Your status is on the portal's Status page." : insertError.message)
@@ -98,130 +114,132 @@ export default function HackerApplication() {
         <h1>Hacker application</h1>
         <p>Applications submitted by {PRIORITY_LABEL} are reviewed in the priority batch.</p>
       </header>
-          <form className="sp-card sp-form" onSubmit={handleSubmit}>
-            <p className="sp-form-note">Fields marked required must be filled out. Your resume must be a PDF.</p>
+      <form className="sp-card sp-form" onSubmit={handleSubmit}>
+        <p className="sp-form-note">Fields marked <Req /> are required. You can't change your answers after submitting.</p>
 
-            <div className="sp-form-fields">
-              <label>First name (as on ID)
-                <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
-              </label>
-              <label>Last name (as on ID)
-                <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
-              </label>
-              <label>Phone number
-                <input type="tel" required autoComplete="tel" value={form.phone} onChange={e => update('phone', e.target.value)} />
-              </label>
-              <label>Gender
-                <input required value={form.gender} onChange={e => update('gender', e.target.value)} />
-              </label>
-              <label>Race/ethnicity
-                <input required value={form.race_ethnicity} onChange={e => update('race_ethnicity', e.target.value)} />
-              </label>
-              <label>Birthdate
-                <input type="date" required value={form.birthdate} onChange={e => update('birthdate', e.target.value)} />
-              </label>
-              <label>Country of residence
-                <input required value={form.country_of_residence} onChange={e => update('country_of_residence', e.target.value)} />
-              </label>
-              <label>City of residence
-                <input required value={form.city_of_residence} onChange={e => update('city_of_residence', e.target.value)} />
-              </label>
-              <label>Level of study
-                <input required value={form.level_of_study} onChange={e => update('level_of_study', e.target.value)} />
-              </label>
-              <label>School
-                <input required value={form.school} onChange={e => update('school', e.target.value)} />
-              </label>
-              <label>Major
-                <input required value={form.major} onChange={e => update('major', e.target.value)} />
-              </label>
-              <label>Expected graduation year
-                <input required value={form.graduation_year} onChange={e => update('graduation_year', e.target.value)} />
-              </label>
-              <label>Previous hackathon experience
-                <input required value={form.hackathon_experience} onChange={e => update('hackathon_experience', e.target.value)} />
-              </label>
+        <div className="sp-form-fields">
+          <h2 className="sp-form-section">About you</h2>
+          <label>First name (as on your ID) <Req />
+            <input required autoComplete="given-name" {...text('first_name')} />
+          </label>
+          <label>Last name (as on your ID) <Req />
+            <input required autoComplete="family-name" {...text('last_name')} />
+          </label>
+          <label htmlFor="hk-phone">Phone number <Req />
+            <PhoneInput id="hk-phone" value={form.phone} onChange={v => update('phone', v)} />
+          </label>
+          <label>Gender <Req />
+            <Select options={GENDERS} value={form.gender} onChange={v => update('gender', v)} />
+          </label>
+          <div className="sp-field">
+            <span className="sp-field-label" id="hk-race-label">Race/ethnicity <Req /></span>
+            <MultiSelect options={RACES} value={form.race_ethnicity} onChange={v => update('race_ethnicity', v)} />
+          </div>
+          <label>Birthdate <Req />
+            <input type="date" required {...text('birthdate')} />
+          </label>
+          <label>Country of residence <Req />
+            <Select options={COUNTRIES} value={form.country_of_residence} onChange={v => update('country_of_residence', v)} />
+          </label>
+          <label>City of residence <Req />
+            <input required autoComplete="address-level2" {...text('city_of_residence')} />
+          </label>
 
-              <div className="sp-check">
-                <input type="checkbox" id="attended_before" checked={form.attended_before} onChange={e => update('attended_before', e.target.checked)} />
-                <label htmlFor="attended_before">Attended DataHacks before</label>
-              </div>
+          <h2 className="sp-form-section">School</h2>
+          <label>Level of study <Req />
+            <Select options={LEVELS_OF_STUDY} value={form.level_of_study} onChange={v => update('level_of_study', v)} />
+          </label>
+          <label>School <Req />
+            <input required list="hk-schools" placeholder="Start typing to search" {...text('school')} />
+            <datalist id="hk-schools">{SCHOOLS.map(s => <option key={s} value={s} />)}</datalist>
+          </label>
+          <label>Major <Req />
+            <input required {...text('major')} />
+          </label>
+          <label>Expected graduation year <Req />
+            <Select options={GRADUATION_YEARS} value={form.graduation_year} onChange={v => update('graduation_year', v)} />
+          </label>
 
-              <label>LinkedIn <span>(optional)</span>
-                <input value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
+          <h2 className="sp-form-section">Experience</h2>
+          <label>Hackathons you've been to <Req />
+            <Select options={HACKATHON_EXPERIENCE} value={form.hackathon_experience} onChange={v => update('hackathon_experience', v)} />
+          </label>
+          <div className="sp-field">
+            <span className="sp-field-label">Have you attended DataHacks before? <Req /></span>
+            <YesNo name="attended_before" value={form.attended_before} onChange={v => update('attended_before', v)} />
+          </div>
+          <label>LinkedIn profile <Req />
+            <input type="url" required placeholder="https://www.linkedin.com/in/…" {...text('linkedin_url')} />
+          </label>
+          <label>GitHub profile <Req />
+            <input type="url" required placeholder="https://github.com/…" {...text('github_url')} />
+          </label>
+          <label>Devpost profile <span>(optional)</span>
+            <input type="url" placeholder="https://devpost.com/…" {...text('devpost_url')} />
+          </label>
+          <label>Link to your resume <Req />
+            <input type="url" required placeholder="Google Drive, Dropbox or any link we can open" {...text('resume_url')} />
+          </label>
+
+          <h2 className="sp-form-section">A few questions</h2>
+          <label>What's the project you're most proud of building? <Req />
+            <textarea required rows={4} {...text('essay_proudest_project')} />
+          </label>
+          <label>What's something unique you'd bring? <Req />
+            <textarea required rows={4} {...text('essay_unique_thing')} />
+          </label>
+          <label>What would you like to get out of this event? <Req />
+            <textarea required rows={4} {...text('essay_goal')} />
+          </label>
+          <label>Funniest joke <span>(optional)</span>
+            <textarea rows={2} {...text('funniest_joke')} />
+          </label>
+          <label>A lifetime goal of yours <span>(optional)</span>
+            <textarea rows={2} {...text('lifetime_goal')} />
+          </label>
+
+          <h2 className="sp-form-section">How did you hear about DataHacks?</h2>
+          <div className="sp-field">
+            <span className="sp-field-label">Pick all that apply <Req /></span>
+            <MultiSelect options={HEARD_ABOUT} value={form.heard_about} onChange={v => update('heard_about', v)} />
+          </div>
+
+          <h2 className="sp-form-section">Travel</h2>
+          <div className="sp-field">
+            <span className="sp-field-label">Would you need travel reimbursement to attend? <Req /></span>
+            <YesNo name="wants_travel_stipend" value={form.wants_travel_stipend} onChange={v => update('wants_travel_stipend', v)} />
+          </div>
+          {form.wants_travel_stipend && (
+            <>
+              <label>Where are you traveling from? <Req />
+                <input required placeholder="City, state or country" {...text('travel_region')} />
               </label>
-              <label>Devpost <span>(optional)</span>
-                <input value={form.devpost_url} onChange={e => update('devpost_url', e.target.value)} />
+              <label>How are you traveling here? <Req />
+                <Select options={TRAVEL_METHODS} value={form.travel_method} onChange={v => update('travel_method', v)} />
               </label>
-
-              <label>Resume (PDF, required)
-                <input type="file" accept=".pdf" required onChange={e => setResumeFile(e.target.files?.[0] ?? null)} />
+              <label>How far are you traveling? <Req />
+                <Select options={TRAVEL_DISTANCES} value={form.travel_distance} onChange={v => update('travel_distance', v)} />
               </label>
-
-              <label>What's the project you're most proud of building?
-                <textarea required rows={4} value={form.essay_proudest_project} onChange={e => update('essay_proudest_project', e.target.value)} />
+              <label>Anything else we should know about your travel? <span>(optional)</span>
+                <textarea rows={3} {...text('travel_stipend_reason')} />
               </label>
-              <label>What's something unique you'd bring?
-                <textarea required rows={4} value={form.essay_unique_thing} onChange={e => update('essay_unique_thing', e.target.value)} />
-              </label>
-              <label>What would you like to get out of this event?
-                <textarea required rows={4} value={form.essay_goal} onChange={e => update('essay_goal', e.target.value)} />
-              </label>
+            </>
+          )}
 
-              <label>Funniest joke <span>(optional)</span>
-                <textarea rows={2} value={form.funniest_joke} onChange={e => update('funniest_joke', e.target.value)} />
-              </label>
-              <label>A lifetime goal of yours <span>(optional)</span>
-                <textarea rows={2} value={form.lifetime_goal} onChange={e => update('lifetime_goal', e.target.value)} />
-              </label>
+          <label className="sp-check sp-agree">
+            <input type="checkbox" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} />
+            <span>I agree that all info above is correct and I'll abide by the code of conduct. <Req /></span>
+          </label>
+        </div>
 
-              <div className="sp-check">
-                <input type="checkbox" id="travel_stipend" checked={form.wants_travel_stipend} onChange={e => update('wants_travel_stipend', e.target.checked)} />
-                <label htmlFor="travel_stipend">Apply for travel stipend</label>
-              </div>
+        {error && <p className="sp-error" role="alert">{error}</p>}
 
-              {form.wants_travel_stipend && (
-                <>
-                  <label>How would a travel stipend help you?
-                    <textarea rows={3} value={form.travel_stipend_reason} onChange={e => update('travel_stipend_reason', e.target.value)} />
-                  </label>
-                  <label>Region traveling from
-                    <input value={form.travel_region} onChange={e => update('travel_region', e.target.value)} />
-                  </label>
-                </>
-              )}
-
-              <fieldset>
-                <legend>How did you hear about this event?</legend>
-                {heardAboutOptions.map(option => (
-                  <div className="sp-check" key={option} style={{ marginBottom: '8px' }}>
-                    <input
-                      type="checkbox"
-                      id={option}
-                      checked={form.heard_about.includes(option)}
-                      onChange={() => toggleHeardAbout(option)}
-                    />
-                    <label htmlFor={option}>{option}</label>
-                  </div>
-                ))}
-              </fieldset>
-
-              <div className="sp-check">
-                <input type="checkbox" id="agree" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} />
-                <label htmlFor="agree">I agree that all info above is correct and I'll abide by the code of conduct.</label>
-              </div>
-            </div>
-
-            {error && <p className="sp-form-note" style={{ color: '#c96b6b' }}>{error}</p>}
-
-            <div className="sp-form-actions">
-              <button type="submit" className="sp-button primary" disabled={submitting}>
-                {submitting ? 'Submitting...' : 'Submit Application'}
-              </button>
-            </div>
-
-            <p className="sp-form-note">You won't be able to change your answers after submitting. Need help? Reach out to the DataHacks team.</p>
-          </form>
+        <div className="sp-form-actions">
+          <button type="submit" className="sp-button primary" disabled={submitting}>
+            {submitting ? 'Submitting…' : 'Submit application'}
+          </button>
+        </div>
+      </form>
     </div>
   )
 }

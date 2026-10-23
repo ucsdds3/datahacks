@@ -35,6 +35,17 @@ export type Application = {
   essay_unique_thing: string | null;
   essay_goal: string | null;
   heard_about: string[] | null;
+  gender: string | null;
+  race_ethnicity: string | null;
+  city_of_residence: string | null;
+  country_of_residence: string | null;
+  hackathon_experience: string | null;
+  github_url: string | null;
+  wants_travel_stipend: boolean | null;
+  travel_region: string | null;
+  travel_method: string | null;
+  travel_distance: string | null;
+  travel_stipend_reason: string | null;
   decision: Decision | null;
   decision_released_at: string | null;
   decision_emailed_at: string | null;

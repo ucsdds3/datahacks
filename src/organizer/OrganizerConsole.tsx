@@ -75,9 +75,8 @@ export default function OrganizerConsole() {
     <div className="sp-root og-root">
       <aside className="sp-sidebar og-sidebar">
         <div className="sp-brand">
-          <img src="/datahacks-logo.png" alt="" />
+          <img src="/datahacks-logo.png" alt="DataHacks" />
           <div>
-            <strong>DataHacks 2027</strong>
             <span>Organizer console</span>
           </div>
         </div>

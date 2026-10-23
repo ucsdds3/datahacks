@@ -15,6 +15,9 @@ const base: Omit<Application, "id" | "applicant_type" | "status" | "first_name" 
   resume_url: null, resume_path: null, linkedin_url: "https://www.linkedin.com/in/example", devpost_url: null,
   judging_track: null, bio: null, essay_proudest_project: null, essay_unique_thing: null, essay_goal: null,
   heard_about: null, decision: null, decision_released_at: null, decision_emailed_at: null,
+  gender: null, race_ethnicity: null, city_of_residence: "San Diego", country_of_residence: "United States",
+  hackathon_experience: null, github_url: "https://github.com/example", wants_travel_stipend: false,
+  travel_region: null, travel_method: null, travel_distance: null, travel_stipend_reason: null,
 };
 
 const hacker = (id: number, first: string, last: string, school: string, extra: Partial<Row> = {}): Row => ({
