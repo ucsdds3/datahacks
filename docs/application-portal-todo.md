@@ -1,5 +1,7 @@
 # Application portal: to-do and open questions
 
+> **Superseded for launch work by [`launch-tracker.md`](launch-tracker.md)**, which has every open item with an owner and next step. This file keeps the background and how-tos.
+
 ## Decided
 - Everyone signs in with Google before applying: hackers, mentors, judges.
 - Mentors and judges get their role from an accepted application. Organizers accept in the Supabase dashboard (Table Editor → `applications` → `status` = `accepted`), and the role updates straight away.

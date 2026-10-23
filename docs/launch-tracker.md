@@ -1,0 +1,86 @@
+# Launch tracker
+
+The single list of what's left before DataHacks 2027 opens. Every open item has
+an ID, an owner and the exact next step. When something is finished, move it
+to **Done** with the date. Older notes are in `application-portal-todo.md`; this
+file wins where they disagree.
+
+Owners:
+- **Mohak**: needs Mohak's eyes, accounts or a decision.
+- **Claude**: an agent can do it.
+- **Evan**: the check-in repo.
+- **Team**: design, sponsorships, ops.
+
+Last updated: 2026-10-23.
+
+## Needs Mohak
+
+| ID | Item | Next step |
+|---|---|---|
+| M1 | **Merge PR #9 (`merge-final` → `main`)**. This puts the portal live. | Open https://github.com/ucsdds3/datahacks/pull/9 and tap **Merge**. If GitHub asks you to approve the `supabase-production` deployment afterwards, approve it. Claude then does C1–C4. |
+| M2 | Check the release emails reached real inboxes. | `prakashmohak2016@gmail.com` (hacker, accepted), `map.960.20@gmail.com` (mentor, accepted) and `info@ds3.club` (judge, rejected). Check spam too. `mohakprakash2016@gmail.com` (waitlisted) has already arrived. |
+| M3 | Evan reviews the event picker for the check-in app. | Send him https://github.com/eparkle/DS3-DataHacks-Check-in/pull/1. Once DH26 has dates (the migration in M1), the live app picks DH27BETA even without this PR. |
+| M4 | Google sign-in says "continue to yrxjhrrphhbmqejresvy.supabase.co". | Google Cloud Console → OAuth consent screen. Set the app name "DataHacks", the logo and the ds3ucsd.com domain, then submit for verification. Needs the Google Cloud account that owns the OAuth client. |
+| M5 | The questionnaire. | Decide what it's for, who fills it in, when it opens and closes, the questions, and whether it blocks anything (for example, check-in). |
+| M6 | Sponsor challenges content. | Per challenge: name, sponsor, a 1–2 sentence prompt, dataset link, judging criteria and prize. |
+| M7 | Design team art. | 9 layer backdrops (overworld, sulfur caves, lush caves, mineshaft, deep dark, stronghold, end city, the end, bedrock), about 2400px wide, WebP or PNG, plus the logo. Lush caves and end city are placeholders. |
+| M8 | Website open versus applications open. | Pick the date the site goes public and the date applications open (Oct 31?). If they differ, Claude adds an "applications open on …" gate. |
+| M9 | Supabase Pro ($25/mo) for the application window and event week. | Decide. It adds daily backups with point-in-time restore, and the project never pauses. Free projects pause after 7 days without activity. |
+| M10 | Waiver: DocuSign or something simpler. | Decide. Until then the waiver page says the document isn't ready. |
+| M11 | Coordinator contacts in the portal sidebar. | Send the real names and emails; Claude puts them in `src/staff-portal/config.ts`. |
+| M12 | Ansh and Tijil as organizers. | Both are invited on DH27BETA. Each signs in once at https://datahacks.ds3ucsd.com/organizer after M1. |
+| M13 | Error and uptime alerts (free tiers). | Create a Sentry project and an UptimeRobot account, or say which email to use; Claude wires them in. |
+
+## Claude
+
+| ID | Item | Status | Next step |
+|---|---|---|---|
+| C1 | Watch the deploys triggered by M1. | Waiting on M1 | `gh run list --branch main`. Expected: GitHub Pages deploy; `supabase-deploy` applies `20261023003947_revoke_role_when_unaccepted` and `20261023212816_dh26_dates` to staging then production, and redeploys the edge functions; `ci` passes. |
+| C2 | Check the live site end to end. | Waiting on M1 | In BrowserOS: Join the adventure → Google sign-in → hacker form → Status says "Under review". Same for mentor/judge from the Trial Chambers. Check `/organizer`. |
+| C3 | Protect `main`. | Waiting on M1 (so the merge isn't blocked) | Settings: pull request required, 1 approval, admins can bypass, required checks `site`, `migrations` and `functions`, no force-push, no deletion. |
+| C4 | Check that the check-in app picks DH27BETA. | Waiting on M1 | Read `events` and confirm DH26's `starts_at` is 2026-04-18. Ask Mohak or Evan to load datahacks-check-in.vercel.app and confirm. |
+| C5 | Prove backups restore. | Running | A restore into a throwaway Postgres with row counts compared; adds `scripts/backup/restore-drill.sh` and a weekly workflow. Note: the nightly backups only start once M1 merges. |
+| C6 | Keep DH27BETA and DH27 data from overlapping. | Running | An audit of every query, database function and edge function for event scoping; fixes go in a PR into `merge-final`. |
+| C7 | Wallet passes to chosen people only. | To do | The console button sends to every accepted person without a pass (dummies included). Add an option to send only to selected people. |
+| C8 | Supabase settings the deploy can't change. | To do, after M1 | Check the Auth URL config still allows `https://datahacks.ds3ucsd.com/**`. Check the function secrets (Gmail, WalletWallet) are present in production. |
+
+## Evan
+
+| ID | Item | Next step |
+|---|---|---|
+| E1 | Event picker in the check-in app. | Review and merge PR #1 on his repo. |
+| E2 | Check-in UI on phones. | Collapsible top bar, mobile-first. Organizers test on their phones. |
+
+## Event switch (Mohak is doing this; recorded so nothing is missed)
+
+- Create `DH27` in `events`. It needs a code (2–10 letters or digits) and start and end dates.
+- Add organizers to DH27. The invites and roles from DH27BETA don't carry over.
+- Point the site at it: `EVENT_CODE` in `src/portal/event.ts`.
+- Keep DH27BETA for testing; don't wipe it. Every table is keyed by event, and check-in codes are prefixed by event code (`DH27BETA-H001` and `DH27-H001`). C6 confirms nothing leaks.
+- Wallet passes, decision emails and check-in all take the event id. Check the console header and the check-in app show **DH27** before using them.
+
+## Later
+
+- **AI blurbs:** mentors who skip theirs get one written from their application, before hackers see the Mentors tab.
+- **Jev (TypeSafe AI) scoring:** a top or bottom 50% column in the console. Needs a key and a rubric.
+- **Insurance or liability form** for outside judges (sponsor engineers, professors).
+- **Waiver signatures stored in Supabase**, so organizers can see who has signed (currently only in the browser).
+- **MCP server for applications:** another Claude session, branch `feature/mcp-applications`; see `docs/mcp-server.md`.
+- **Checkout at the venue:** not needed, per Mohak on 2026-10-23.
+
+## Done
+
+- 2026-10-23: test plan (`docs/testing/portal-test-plan.md`). Two AI testers ran the forms; a pasted `+1` phone bug was fixed.
+- 2026-10-23: decisions move rows instantly in the console. Changing a released acceptance removes access (needs M1 to reach production).
+- 2026-10-23: hacker sidebar pages, no white flash, tab titles.
+- 2026-10-23: check-in tested for hackers, mentors, judges and hybrids. Hackers see mentors as checked in. Non-organizers can't check anyone in.
+- 2026-10-23: release emails go out (4 sent), and the `send-email` sender is "DataHacks Team" (deployed).
+- 2026-10-23: CI on every PR (`ci.yml`). Every portal page has its own deploy entry. DH26 dates migration added.
+- 2026-10-22: CI for database changes, staging first (PR #10). Production bootstrapped. Nightly backups and drift checks (active from M1).
+- 2026-10-22: site order and layers (PR #11), fuzzy school search, the organizer console, wallet passes.
+
+## Things to know
+
+- **The repo folder is shared.** Another Claude session (the MCP server work) uses `~/Desktop/datahacks-website/datahacks` on its own branch. Do launch work in a separate worktree, so commits don't land on the wrong branch.
+- **Dummy accounts** are all `@example.com`, on DH27BETA. Make more with `scripts/dev/create-dummy-applicant.mjs`. Open one with `/dev/test-accounts` (dev only).
+- **Only migrations change the database.** Never edit it in the SQL editor. Data fixes are migrations too (for example, the DH26 dates).
