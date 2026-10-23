@@ -22,9 +22,9 @@ export default function ApplicationPage() {
   const [signInError, setSignInError] = useState<string | null>(null);
   // Straight to Google's account picker, no separate sign-in page. Loaded on
   // click so the Supabase client stays out of the site's own bundle.
-  const signIn = (as: "hacker" | "staff") =>
+  const signIn = () =>
     import("@/portal/signIn")
-      .then(m => m.startGoogleSignIn(as))
+      .then(m => m.startGoogleSignIn("hacker"))
       .catch(error => setSignInError(error instanceof Error ? error.message : String(error)));
 
   return (
@@ -37,31 +37,20 @@ export default function ApplicationPage() {
 
       <p className="mc-form-disclaimer">
         Your next adventure starts here. Sign in with Google to start
-        your application, or to check on one you've already sent.
+        your hacker application, or to check on one you've already sent.
       </p>
 
       <div className="mc-form-actions">
         <button
           type="button"
           className="mc-button"
-          onClick={() => signIn("hacker")}
+          onClick={signIn}
           style={{
             width: "100%",
             justifyContent: "center",
           }}
         >
           Apply as a hacker <ArrowRight size={17} />
-        </button>
-        <button
-          type="button"
-          className="mc-button mc-button-stone"
-          onClick={() => signIn("staff")}
-          style={{
-            width: "100%",
-            justifyContent: "center",
-          }}
-        >
-          Apply to mentor or judge <ArrowRight size={17} />
         </button>
       </div>
 
