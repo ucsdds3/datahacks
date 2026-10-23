@@ -85,7 +85,8 @@ for (const file of process.argv.slice(2)) {
       ...spec.application,
       user_id: user.id,
       event_id: event.id,
-      email: spec.email,
+      // "contact_email" sends this dummy's emails to a real inbox you own, to test delivery.
+      email: spec.contact_email ?? spec.email,
     },
   });
   console.log(`${spec.email}: ${spec.application.applicant_type} application submitted`);
