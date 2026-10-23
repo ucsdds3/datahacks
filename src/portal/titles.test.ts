@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { portalTitle } from "./PortalShell";
+import { portalTitle } from "./titles";
 
 describe("portal tab titles", () => {
   it("names each portal page", () => {
