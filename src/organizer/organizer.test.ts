@@ -44,6 +44,17 @@ describe("templates", () => {
   });
 });
 
+describe("console tabs", () => {
+  it("moves a row to its tab as soon as a decision is picked", async () => {
+    const { placeOf } = await import("./types");
+    const row = (status: string, decision: string | null) => ({ status, decision }) as never;
+    expect(placeOf(row("submitted", null))).toBe("applied");
+    expect(placeOf(row("submitted", "waitlisted"))).toBe("waitlisted");
+    expect(placeOf(row("accepted", "rejected"))).toBe("rejected");
+    expect(placeOf(row("accepted", null))).toBe("accepted");
+  });
+});
+
 describe("ready-made emails", () => {
   it("won't send while [[blanks]] are left", async () => {
     const { BLASTS, hasBlanks } = await import("./blasts");

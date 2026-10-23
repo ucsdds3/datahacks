@@ -2,6 +2,9 @@
 
 .og-root .sp-main.og-main { padding-top: 28px; }
 
+/* Under a "Not released" badge: what the applicant still sees. */
+.og-was { display: block; margin-top: 2px; font-size: 0.75rem; opacity: 0.7; }
+
 /* Sidebar */
 .og-sidebar { display: flex; flex-direction: column; }
 .sp-root .og-nav-button { width: 100%; border: 0; background: none; font: inherit; text-align: left; cursor: pointer; }

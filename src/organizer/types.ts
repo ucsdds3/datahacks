@@ -63,6 +63,12 @@ export const tabOf = (status: Status | null): Tab =>
 /** A decision is staged when it's been chosen but not released yet. */
 export const isStaged = (app: Application) => app.decision !== null && app.decision !== app.status;
 
+/**
+ * The tab a row sits in on the console: the decision an organizer picked, as
+ * soon as they pick it. Applicants only see it once decisions are released.
+ */
+export const placeOf = (app: Application): Tab => app.decision ?? tabOf(app.status);
+
 export const TYPE_LABEL: Record<ApplicantType, string> = {
   hacker: "Hacker",
   mentor: "Mentor",

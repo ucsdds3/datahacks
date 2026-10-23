@@ -4,7 +4,7 @@ import { applicationBatch } from "@/staff-portal/config";
 import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
 import { stageDecision } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
 const TABS: Tab[] = ["applied", "accepted", "waitlisted", "rejected"];
 
@@ -57,13 +57,13 @@ export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kin
   const columns = COLUMNS[kind];
   const counts = useMemo(() => {
     const c: Record<Tab, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0 };
-    rows.forEach(r => c[tabOf(r.status)]++);
+    rows.forEach(r => c[placeOf(r)]++);
     return c;
   }, [rows]);
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows.filter(r => tabOf(r.status) === tab
+    return rows.filter(r => placeOf(r) === tab
       && (!q || [fullName(r), r.email, r.phone, r.school, r.organization].some(v => v?.toLowerCase().includes(q))));
   }, [rows, tab, query]);
 
@@ -139,7 +139,7 @@ export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kin
               <tr>
                 <th><input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" /></th>
                 {columns.map(c => <th key={c.header}>{c.header}</th>)}
-                <th>Decision</th>
+                <th>Release</th>
               </tr>
             </thead>
             <tbody>
@@ -153,7 +153,10 @@ export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kin
                       {c.header === "Checked in" ? (r.checkedIn ? <Check size={15} className="og-check" aria-label="Checked in" /> : "") : c.value(r)}
                     </td>
                   ))}
-                  <td>{isStaged(r) && <span className={`og-badge ${r.decision}`}>{DECISION_LABEL[r.decision!]}</span>}</td>
+                  <td>
+                    {isStaged(r) && <span className={`og-badge ${r.decision}`}>Not released</span>}
+                    {isStaged(r) && tabOf(r.status) !== "applied" && <span className="og-was">was {TAB_LABEL[tabOf(r.status)].toLowerCase()}</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>

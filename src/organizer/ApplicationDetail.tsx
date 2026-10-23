@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { applicationBatch } from "@/staff-portal/config";
 import { resumeLink, stageDecision } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, tabOf, type Decision, type Row } from "./types";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
@@ -53,8 +53,8 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
         <div>
           <h2>{fullName(row)}</h2>
           <p>
-            {TYPE_LABEL[row.applicant_type]} · {TAB_LABEL[tabOf(row.status)]}
-            {isStaged(row) && <span className={`og-badge ${row.decision}`}>Staged: {DECISION_LABEL[row.decision!]}</span>}
+            {TYPE_LABEL[row.applicant_type]} · {TAB_LABEL[placeOf(row)]}
+            {isStaged(row) && <span className={`og-badge ${row.decision}`}>Not released{tabOf(row.status) !== "applied" ? ` · they still see ${TAB_LABEL[tabOf(row.status)].toLowerCase()}` : ""}</span>}
           </p>
         </div>
         <button className="og-icon-button" onClick={onClose} aria-label="Close"><X size={18} /></button>
@@ -68,7 +68,7 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
         ))}
         <button className="sp-button" disabled={busy || row.decision === null} onClick={() => stage(null)}>Clear</button>
       </div>
-      <p className="og-hint">Decisions are only saved here. Nobody is told until you release decisions.</p>
+      <p className="og-hint">The row moves to that tab now. The applicant isn't told, and nothing changes for them, until you release decisions.</p>
       {error && <p className="sp-error">{error}</p>}
 
       <dl className="og-fields">
