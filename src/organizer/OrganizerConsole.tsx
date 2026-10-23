@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Mail, Send, Ticket, Users, UserCog } from "lucide-react";
+import { Navigate } from "react-router-dom";
+import { LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
+import { signOutTo } from "@/staff-portal/StaffPortalLayout";
+import OrganizersPanel from "./OrganizersPanel";
 import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
 import EmailComposer from "./EmailComposer";
@@ -15,7 +17,7 @@ import { isStaged, kindOf, needsPass, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
-type Section = "hackers" | "staff" | "email";
+type Section = "hackers" | "staff" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
@@ -33,6 +35,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: stri
   { id: "hackers", label: "Hackers", icon: <Users size={18} />, title: "Hacker applications" },
   { id: "staff", label: "Mentors & judges", icon: <UserCog size={18} />, title: "Mentor & judge applications" },
   { id: "email", label: "Email", icon: <Mail size={18} />, title: "Email" },
+  { id: "organizers", label: "Organizers", icon: <ShieldCheck size={18} />, title: "Organizers" },
 ];
 
 /** `/portal/organizer`: review applications, release decisions and email people. */
@@ -50,19 +53,13 @@ export default function OrganizerConsole() {
   const [dialog, setDialog] = useState<"release" | "retry" | "passes" | null>(null);
 
   if (loading) return <Gate title="Loading…" />;
-  if (!session) {
-    return (
-      <Gate title="Organizer console">
-        <p>Sign in with your organizer Google account.</p>
-        <Link className="sp-button primary" to={portal.login("hacker")}>Sign in</Link>
-      </Gate>
-    );
-  }
+  if (!session) return <Navigate to={portal.organizerLogin} replace />;
   if (!isOrganizer) {
     return (
       <Gate title="Organizers only">
         <p><strong>{session.user.email}</strong> isn't an organizer for {EVENT_CODE}.</p>
-        <p>If it should be, ask at <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a> to be added.</p>
+        <p>If it should be, ask an organizer to add you, or email <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a>.</p>
+        <button className="sp-button" onClick={() => signOutTo(portal.organizerLogin)}>Use a different account</button>
       </Gate>
     );
   }
@@ -88,7 +85,7 @@ export default function OrganizerConsole() {
           {SECTIONS.map(s => (
             <button key={s.id} className={`sp-nav-link og-nav-button${s.id === section ? " active" : ""}`} onClick={() => setSection(s.id)}>
               {s.icon} {s.label}
-              {s.id !== "email" && <span className="og-nav-count">{rows.filter(r => kindOf(r.applicant_type) === (s.id === "hackers" ? "hacker" : "staff")).length}</span>}
+              {(s.id === "hackers" || s.id === "staff") && <span className="og-nav-count">{rows.filter(r => kindOf(r.applicant_type) === (s.id === "hackers" ? "hacker" : "staff")).length}</span>}
             </button>
           ))}
         </nav>
@@ -96,6 +93,11 @@ export default function OrganizerConsole() {
           <span>Event</span>
           <strong>{EVENT_CODE}{preview && " · preview"}</strong>
           <span>{session.user.email}</span>
+          {!preview && (
+            <button className="sp-signout" onClick={() => signOutTo(portal.organizerLogin)}>
+              <LogOut size={14} aria-hidden /> Sign out
+            </button>
+          )}
         </div>
       </aside>
 
@@ -118,7 +120,9 @@ export default function OrganizerConsole() {
         {apps.isPending && <p className="og-empty">Loading applications…</p>}
         {apps.isError && <p className="sp-error">Couldn't load applications: {(apps.error as Error).message}</p>}
         {apps.isSuccess && event.data && (
-          section === "email"
+          section === "organizers"
+            ? <OrganizersPanel eventId={event.data} myEmail={session.user.email ?? ""} />
+            : section === "email"
             ? <EmailComposer eventId={event.data} rows={rows} />
             : <ApplicationsTable
                 key={section}

@@ -87,7 +87,7 @@ td .og-badge { margin-left: 0; }
 .og-template summary { cursor: pointer; font-size: 14px; font-weight: 600; }
 .og-template summary em { color: var(--sp-muted); font-style: normal; font-weight: 400; }
 .og-template label, .og-compose label, .og-confirm, .og-filters label { display: block; margin-top: 10px; font-size: 13px; font-weight: 600; }
-.og-template input, .og-template textarea, .og-compose input, .og-compose textarea, .og-confirm input, .og-filters select {
+.og-template input, .og-template textarea, .og-compose input, .og-compose textarea, .og-confirm input, .og-filters select, .og-add-organizer input {
   display: block;
   width: 100%;
   margin-top: 4px;
@@ -188,7 +188,7 @@ td .og-badge { margin-left: 0; }
 .og-template { border-radius: 0; border: 2px solid #b0b9a3; background: #ecede2; }
 .og-template summary { font-weight: 500; }
 .og-template label, .og-compose label, .og-confirm, .og-filters label { font-weight: 500; color: #394531; }
-.og-template input, .og-template textarea, .og-compose input, .og-compose textarea, .og-confirm input, .og-filters select {
+.og-template input, .og-template textarea, .og-compose input, .og-compose textarea, .og-confirm input, .og-filters select, .og-add-organizer input {
   border: 2px solid #6d7a64;
   border-radius: 0;
   background: #f1f2e7;
@@ -208,3 +208,14 @@ td .og-badge { margin-left: 0; }
 /* Send wallet passes: who's getting one */
 .og-pass-list { margin: 0; padding-left: 18px; font-size: 14px; }
 .og-pass-list li + li { margin-top: 2px; }
+
+/* Organizers section */
+.og-organizers { display: flex; flex-direction: column; gap: 20px; max-width: 760px; }
+.og-add-organizer { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; }
+.og-add-organizer label { display: flex; flex: 1 1 260px; flex-direction: column; gap: 6px; font-size: 14px; }
+.og-organizer-list { margin: 0; padding: 0; list-style: none; }
+.og-organizer-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid rgb(0 0 0 / 0.12); }
+.og-organizer-list li:first-child { border-top: 0; }
+.og-organizer-list li > span:first-child { flex: 1; overflow-wrap: anywhere; }
+.og-organizer-status { font-size: 13px; color: #5f6b5a; }
+.og-organizer-status.active { color: #3c7a2e; }

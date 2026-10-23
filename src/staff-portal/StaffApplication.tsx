@@ -41,15 +41,6 @@ const isValidUrl = (value: string) => {
     return false
   }
 }
-const isGoogleDriveFileUrl = (value: string) => {
-  try {
-    const url = new URL(value)
-    if (url.protocol !== 'https:' || url.hostname !== 'drive.google.com') return false
-    return /^\/file\/d\/[\w-]+/.test(url.pathname) || (url.pathname === '/open' && !!url.searchParams.get('id'))
-  } catch {
-    return false
-  }
-}
 const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
 export default function StaffApplication() {
@@ -69,7 +60,6 @@ export default function StaffApplication() {
     phone: '',
     organization: '',
     role_title: '',
-    resume_url: '',
     linkedin_url: '',
     ucsd_affiliation: '',
     applicant_type: '' as ApplicantType | '',
@@ -95,7 +85,6 @@ export default function StaffApplication() {
   if (form.phone.replace(/\D/g, '').length < 10) missing.push('phone')
   if (!form.organization.trim()) missing.push('organization')
   if (!form.role_title.trim()) missing.push('role_title')
-  if (!isGoogleDriveFileUrl(form.resume_url.trim())) missing.push('resume_url')
   if (!isValidUrl(form.linkedin_url.trim())) missing.push('linkedin_url')
   if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
   if (!form.applicant_type) missing.push('applicant_type')
@@ -149,7 +138,6 @@ export default function StaffApplication() {
       applicant_type: form.applicant_type,
       organization: form.organization.trim(),
       role_title: form.role_title.trim(),
-      resume_url: form.resume_url.trim(),
       linkedin_url: form.linkedin_url.trim(),
       ucsd_affiliation: form.ucsd_affiliation,
       judging_track: isJudging ? form.judging_track : null,
@@ -200,9 +188,6 @@ export default function StaffApplication() {
               </label>
               <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute
                 <input required value={form.role_title} onChange={e => update('role_title', e.target.value)} />
-              </label>
-              <label id="field-resume_url" className={cls('resume_url')}>Link to your resume (.pdf only Google Drive link)
-                <input type="url" required placeholder="https://drive.google.com/file/d/..." value={form.resume_url} onChange={e => update('resume_url', e.target.value)} />
               </label>
               <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn
                 <input type="url" required placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />

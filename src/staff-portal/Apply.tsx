@@ -25,6 +25,7 @@ export function ApplyLayout() {
   return (
     <PortalFrame
       nav={<NavLink to={pathname} className={linkClass}><ClipboardList size={18} /> Application</NavLink>}
+      signOutPath={portal.login(pathname.endsWith("mentor-judge") ? "mentor" : "hacker")}
     >
       <Outlet />
     </PortalFrame>

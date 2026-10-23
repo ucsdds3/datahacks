@@ -1,9 +1,9 @@
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
-import { BookOpen, CalendarClock, ClipboardList, FileSignature, Gavel, LayoutDashboard, LogOut, Mail, ShieldCheck, Users } from "lucide-react";
+import { BookOpen, CalendarClock, ClipboardList, FileSignature, Gavel, LayoutDashboard, LogOut, Mail, Users } from "lucide-react";
 import type { ReactNode } from "react";
-import { supabase } from "@/lib/supabaseClient";
 import { useAuth } from "@/context/AuthContext";
 import { portal as paths } from "@/portal/paths";
+import { signOutEverywhere } from "@/portal/signIn";
 import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
@@ -31,10 +31,12 @@ function navItems(portal: PortalRole, accepted: boolean, preview: boolean): NavI
   return items;
 }
 
+/** Signs out, clears this browser, and reloads onto a sign-in page so nothing is left on screen. */
+export const signOutTo = (loginPath: string) => signOutEverywhere().finally(() => window.location.replace(loginPath));
+
 /** The sidebar's brand block and contact footer, shared with the Apply pages. */
-export function PortalFrame({ nav, children }: { nav: ReactNode; children: ReactNode }) {
-  const { isOrganizer, session } = useAuth();
-  const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
+export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; signOutPath: string; children: ReactNode }) {
+  const { session } = useAuth();
   return (
     <div className="sp-root">
       <aside className="sp-sidebar">
@@ -47,16 +49,11 @@ export function PortalFrame({ nav, children }: { nav: ReactNode; children: React
         </div>
         <nav className="sp-nav" aria-label="Portal">
           {nav}
-          {isOrganizer && (
-            <NavLink to={paths.organizer} className={linkClass}>
-              <ShieldCheck size={18} /> Organizer console
-            </NavLink>
-          )}
         </nav>
         <div className="sp-sidebar-footer">
           <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}><Mail size={14} aria-hidden /> {GENERAL_CONTACT_EMAIL}</a>
           {session && (
-            <button className="sp-signout" onClick={() => supabase.auth.signOut()}>
+            <button className="sp-signout" onClick={() => signOutTo(signOutPath)}>
               <LogOut size={14} aria-hidden /> Sign out
             </button>
           )}
@@ -101,7 +98,7 @@ export default function StaffPortalLayout({ portal }: { portal: PortalRole }) {
 
   return (
     <StaffPortalProvider application={access.application} preview={access.preview}>
-      <PortalFrame nav={<Sidebar />}>
+      <PortalFrame nav={<Sidebar />} signOutPath={paths.login(portal === "hacker" ? "hacker" : "mentor")}>
         <Outlet />
       </PortalFrame>
     </StaffPortalProvider>

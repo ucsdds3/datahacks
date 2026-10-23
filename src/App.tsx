@@ -19,9 +19,7 @@ import { portal } from "./portal/paths";
 // The application portal. Lazy so the Supabase client stays out of the bundle the
 // holding page loads; see portal/PortalShell.
 const PortalShell = lazy(() => import("./portal/PortalShell"));
-const LoginHacker = lazy(() => import("./pages/LoginHacker"));
-const LoginJudge = lazy(() => import("./pages/LoginJudge"));
-const LoginMentor = lazy(() => import("./pages/LoginMentor"));
+const SignIn = lazy(() => import("./pages/SignIn"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const PortalHome = lazy(() => import("./staff-portal/StaffGate"));
 const PortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
@@ -63,9 +61,10 @@ const App = () => (
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={null}><PortalShell /></Suspense></PortalBoundary>}>
-            <Route path={portal.login("hacker")} element={<LoginHacker />} />
-            <Route path={portal.login("judge")} element={<LoginJudge />} />
-            <Route path={portal.login("mentor")} element={<LoginMentor />} />
+            <Route path={portal.login("hacker")} element={<SignIn as="hacker" />} />
+            <Route path={portal.login("judge")} element={<SignIn as="staff" />} />
+            <Route path={portal.login("mentor")} element={<SignIn as="staff" />} />
+            <Route path={portal.organizerLogin} element={<SignIn as="organizer" />} />
             <Route path={portal.callback} element={<AuthCallback />} />
             {/* One portal for everyone. /portal sends each person to their section, to
                 Apply if they haven't applied, or to the organizer console. Each section's

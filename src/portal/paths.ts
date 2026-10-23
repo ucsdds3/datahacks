@@ -19,6 +19,8 @@ export const portal = {
   applyHacker: "/portal/apply/hacker",
   applyStaff: "/portal/apply/mentor-judge",
   organizer: "/portal/organizer",
+  /** The organizer sign-in. Not linked from the site: organizers bookmark it. */
+  organizerLogin: "/organizer",
 };
 
 /** Which application a signed-in person without one should see: set by the sign-in page they used. */

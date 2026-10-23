@@ -12,8 +12,8 @@ export default function AuthCallback() {
   useEffect(() => {
     // Which sign-in button was used. It only picks where to go next; it never
     // grants anything, so it's fine that anyone can edit it in the URL.
-    const fromStaffLogin = searchParams.get('as') === 'staff'
-    if (fromStaffLogin) rememberApplyAs('staff')
+    const as = searchParams.get('as')
+    if (as === 'staff' || as === 'hacker') rememberApplyAs(as)
 
     const finishLogin = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -34,8 +34,9 @@ export default function AuthCallback() {
         return
       }
 
-      // Anyone who has applied goes to the portal, which opens on their status.
-      // Someone new who used a mentor/judge sign-in goes straight to that form.
+      // Organizers go to the console. Anyone who has applied goes to the portal,
+      // which opens on their status; someone new goes to the form for the
+      // sign-in they used (hacker, or mentor/judge).
       let eventId: string
       try {
         eventId = await currentEventId()
@@ -58,7 +59,7 @@ export default function AuthCallback() {
       }
 
       // Not applied yet: straight to the form for the sign-in page they used.
-      const next = application ? portal.home : applyPath()
+      const next = as === 'organizer' ? portal.organizer : application ? portal.home : applyPath()
       navigate(next, { replace: true })
     }
 
