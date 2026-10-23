@@ -30,6 +30,7 @@ Last updated: 2026-10-23.
 | M10 | Waiver: DocuSign or something simpler. | Decide. Until then the waiver page says the document isn't ready. |
 | M11 | Coordinator contacts in the portal sidebar. | Send the real names and emails; Claude puts them in `src/staff-portal/config.ts`. |
 | M12 | Ansh and Tijil as organizers. | Both are invited on DH27BETA. Each signs in once at https://datahacks.ds3ucsd.com/organizer after M1. |
+| M14 | The backup passphrase in a password manager. | `BACKUP_PASSPHRASE` exists only in `.env.local` on one laptop and in GitHub secrets. If it's lost, every backup is unreadable. Copy it into the team's password manager. Backups also keep only 7 days and sit in one place; Supabase Pro (M9) fixes both. |
 | M13 | Error and uptime alerts (free tiers). | Create a Sentry project and an UptimeRobot account, or say which email to use; Claude wires them in. |
 
 ## Claude
@@ -40,7 +41,7 @@ Last updated: 2026-10-23.
 | C2 | Check the live site end to end. | Waiting on M1 | In BrowserOS: Join the adventure → Google sign-in → hacker form → Status says "Under review". Same for mentor/judge from the Trial Chambers. Check `/organizer`. |
 | C3 | Protect `main`. | Waiting on M1 (so the merge isn't blocked) | Settings: pull request required, 1 approval, admins can bypass, required checks `site`, `migrations` and `functions`, no force-push, no deletion. |
 | C4 | Check that the check-in app picks DH27BETA. | Waiting on M1 | Read `events` and confirm DH26's `starts_at` is 2026-04-18. Ask Mohak or Evan to load datahacks-check-in.vercel.app and confirm. |
-| C5 | Prove backups restore. | Running | A restore into a throwaway Postgres with row counts compared; adds `scripts/backup/restore-drill.sh` and a weekly workflow. Note: the nightly backups only start once M1 merges. |
+| C5 | Prove backups restore. | Partly done; real proof after M1 | Proven on a local stand-in (every row matched; `docs/backups.md`, `scripts/backup/restore-drill.sh`, weekly `supabase-restore-drill`). Production couldn't be dumped from this laptop: its network blocks database port 5432. After M1, run the `supabase-restore-drill` workflow from the Actions tab and confirm it's green. |
 | C6 | Keep DH27BETA and DH27 data from overlapping. | Done, waiting on M0 | Audit in `docs/event-isolation.md`. Fixed 4 leaks: organizers of one event could read every resume; an application could be moved between events; staging a decision wasn't limited to the current event; the waiver flag was shared across events. Also, every application must now have an event (0 of 24 lacked one). |
 | C9 | An "accepting applications" flag on events. | To do, with M8 | Right now anyone could submit to DH26 or DH27BETA by calling the API directly. Add `events.applications_open` and check it on insert. |
 | C10 | Check-in app lists by event. | To do | Its list view returns an organizer's rows from every event, so the app has to filter by the chosen event. Confirm Evan's PR #1 does this everywhere. |
