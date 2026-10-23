@@ -26,7 +26,7 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const PortalHome = lazy(() => import("./staff-portal/StaffGate"));
 const PortalLayout = lazy(() => import("./staff-portal/StaffPortalLayout"));
 const ApplyLayout = lazy(() => import("./staff-portal/Apply").then(m => ({ default: m.ApplyLayout })));
-const ApplyChooser = lazy(() => import("./staff-portal/Apply").then(m => ({ default: m.ApplyChooser })));
+const ApplyRedirect = lazy(() => import("./staff-portal/Apply").then(m => ({ default: m.ApplyRedirect })));
 const HackerApplication = lazy(() => import("./staff-portal/HackerApplication"));
 const StaffApplication = lazy(() => import("./staff-portal/StaffApplication"));
 const PortalStatus = lazy(() => import("./staff-portal/Dashboard"));
@@ -73,7 +73,7 @@ const App = () => (
             <Route path={portal.home} element={<PortalHome />} />
             <Route path={portal.organizer} element={<OrganizerConsole />} />
             <Route path={portal.apply} element={<ApplyLayout />}>
-              <Route index element={<ApplyChooser />} />
+              <Route index element={<ApplyRedirect />} />
               <Route path="hacker" element={<HackerApplication />} />
               <Route path="mentor-judge" element={<StaffApplication />} />
             </Route>

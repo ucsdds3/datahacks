@@ -361,13 +361,6 @@
 .sp-submitted p.sp-muted { color: var(--sp-muted); font-size: 14px; }
 .sp-submitted .sp-button { margin-top: 10px; }
 
-/* Apply: choose an application */
-.sp-choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-.sp-root a.sp-choice { display: flex; flex-direction: column; gap: 6px; color: var(--sp-accent); text-decoration: none; transition: border-color 0.15s, box-shadow 0.15s; }
-.sp-root a.sp-choice:hover { border-color: var(--sp-accent); box-shadow: 0 4px 16px rgb(14 143 163 / 0.12); }
-.sp-choice h2 { margin: 6px 0 0; color: var(--sp-text); font-size: 18px; }
-.sp-choice p { margin: 0; color: var(--sp-muted); font-size: 14px; }
-
 /* Application forms */
 .sp-form { display: flex; flex-direction: column; gap: 18px; }
 .sp-form-fields { display: flex; flex-direction: column; gap: 16px; }
@@ -584,9 +577,6 @@
 /* Application tab, Apply chooser, handbook */
 .sp-submitted { color: var(--sp-green); }
 .sp-submitted h2 { font: 400 26px/1.2 "VT323", monospace; }
-.sp-root a.sp-choice { color: #3c5634; }
-.sp-root a.sp-choice:hover { border-color: var(--mc-ink); box-shadow: inset 3px 3px #f8f8ef, inset -3px -3px #a7b3a3, 6px 6px #15241c; transform: translateY(-2px); }
-.sp-choice h2 { font: 400 25px/1.2 "VT323", monospace; }
 .sp-toc span { color: var(--mc-light-muted); font: 400 16px "VT323", monospace; letter-spacing: 0.05em; }
 .sp-root .sp-toc a { color: var(--mc-light-muted); }
 .sp-root .sp-toc a:hover { color: var(--mc-light); }
@@ -618,5 +608,5 @@
   .sp-card { box-shadow: inset 3px 3px #f8f8ef, inset -3px -3px #a7b3a3, 4px 4px #15241c; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sp-root .sp-button, .sp-root a.sp-choice { transition: none; transform: none !important; }
+  .sp-root .sp-button { transition: none; transform: none !important; }
 }

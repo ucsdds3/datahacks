@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
-import { portal } from '@/portal/paths'
+import { applyPath, portal, rememberApplyAs } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
 
 export default function AuthCallback() {
@@ -13,6 +13,7 @@ export default function AuthCallback() {
     // Which sign-in button was used. It only picks where to go next; it never
     // grants anything, so it's fine that anyone can edit it in the URL.
     const fromStaffLogin = searchParams.get('as') === 'staff'
+    if (fromStaffLogin) rememberApplyAs('staff')
 
     const finishLogin = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -56,7 +57,8 @@ export default function AuthCallback() {
         return
       }
 
-      const next = !application && fromStaffLogin ? portal.applyStaff : portal.home
+      // Not applied yet: straight to the form for the sign-in page they used.
+      const next = application ? portal.home : applyPath()
       navigate(next, { replace: true })
     }
 

@@ -1,9 +1,10 @@
 import { supabase } from '@/lib/supabaseClient'
 import MinecraftLayout from '@/components/MinecraftLayout'
-import { portal } from '@/portal/paths'
+import { portal, rememberApplyAs } from '@/portal/paths'
 
 export default function LoginHacker() {
   const handleLogin = async () => {
+    rememberApplyAs('hacker')
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

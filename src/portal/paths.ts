@@ -20,3 +20,17 @@ export const portal = {
   applyStaff: "/portal/apply/mentor-judge",
   organizer: "/portal/organizer",
 };
+
+/** Which application a signed-in person without one should see: set by the sign-in page they used. */
+export type ApplyAs = "hacker" | "staff";
+const APPLY_AS_KEY = "datahacks.applyAs";
+
+export function rememberApplyAs(kind: ApplyAs) {
+  try { localStorage.setItem(APPLY_AS_KEY, kind); } catch { /* storage blocked: falls back to hacker */ }
+}
+
+export function applyPath(): string {
+  let kind: string | null = null;
+  try { kind = localStorage.getItem(APPLY_AS_KEY); } catch { /* storage blocked */ }
+  return kind === "staff" ? portal.applyStaff : portal.applyHacker;
+}
