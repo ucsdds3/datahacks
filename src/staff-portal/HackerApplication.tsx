@@ -6,11 +6,15 @@ import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
+import { indexSchools, searchSchools } from './schoolSearch'
 import { Combobox, MultiSelect, PhoneInput, Req, Select, YesNo, isHttpsUrl, isValidPhone } from './formFields'
 import {
   COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
   TRAVEL_DISTANCES, TRAVEL_METHODS,
 } from './formOptions'
+
+const SCHOOL_INDEX = indexSchools(SCHOOLS)
+const findSchools = (query: string) => searchSchools(SCHOOL_INDEX, query)
 
 const PRIORITY_LABEL = TIMELINE.priorityDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
 
@@ -151,7 +155,7 @@ export default function HackerApplication() {
           </label>
           <div className="sp-field">
             <label className="sp-field-label" htmlFor="hk-school">School <Req /></label>
-            <Combobox id="hk-school" options={SCHOOLS} value={form.school} onChange={v => update('school', v)} placeholder="Start typing your school's name" />
+            <Combobox id="hk-school" options={SCHOOLS} search={findSchools} value={form.school} onChange={v => update('school', v)} placeholder="Start typing your school's name, or a nickname like UCSD" />
           </div>
           <label>Major <Req />
             <input required {...text('major')} />

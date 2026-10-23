@@ -120,8 +120,10 @@ export const isHttpsUrl = (value: string) => {
  * (the browser's own datalist popup can't be). Matches that start with what
  * was typed come first; anything not on the list can still be entered.
  */
-export function Combobox({ options, value, onChange, id, placeholder, required = true, minChars = 2, limit = 60 }: {
+export function Combobox({ options, value, onChange, id, placeholder, required = true, minChars = 2, limit = 60, search }: {
   options: string[];
+  /** Custom matching (e.g. nicknames and typos); defaults to plain word-prefix matching. */
+  search?: (query: string) => string[];
   value: string;
   onChange: (value: string) => void;
   id: string;
@@ -138,6 +140,7 @@ export function Combobox({ options, value, onChange, id, placeholder, required =
 
   const matches = useMemo(() => {
     if (query.length < minChars) return [];
+    if (search) return search(value).slice(0, limit);
     const starts: string[] = [];
     const contains: string[] = [];
     for (const option of options) {
@@ -147,7 +150,7 @@ export function Combobox({ options, value, onChange, id, placeholder, required =
       if (starts.length >= limit) break;
     }
     return [...starts, ...contains].slice(0, limit);
-  }, [options, query, minChars, limit]);
+  }, [options, query, minChars, limit, search, value]);
 
   useEffect(() => {
     if (!open) return;
