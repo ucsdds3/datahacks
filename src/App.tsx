@@ -35,6 +35,8 @@ const PortalWaiver = lazy(() => import("./staff-portal/Waiver"));
 const PortalHandbook = lazy(() => import("./staff-portal/Handbook"));
 const JudgingPortal = lazy(() => import("./staff-portal/JudgingPortal"));
 const OrganizerConsole = lazy(() => import("./organizer/OrganizerConsole"));
+// Dev only: sign tabs in as dummy applicants. Left out of production builds.
+const TestAccounts = import.meta.env.DEV ? lazy(() => import("./dev/TestAccountsPage")) : null;
 
 const PORTALS = ["hacker", "mentor", "judge", "hybrid"] as const;
 
@@ -71,6 +73,7 @@ const App = () => (
                 layout decides which pages are open; see staff-portal/StaffPortalLayout. */}
             <Route path={portal.home} element={<PortalHome />} />
             <Route path={portal.organizer} element={<OrganizerConsole />} />
+            {TestAccounts && <Route path="/dev/test-accounts" element={<TestAccounts />} />}
             <Route path={portal.apply} element={<ApplyLayout />}>
               <Route index element={<ApplyRedirect />} />
               <Route path="hacker" element={<HackerApplication />} />
