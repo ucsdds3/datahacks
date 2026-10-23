@@ -17,30 +17,39 @@ export type Chapter = {
 const relief = "/images/minecraft/relief";
 const dimensions = "/images/minecraft/dimensions";
 
-/** The story spine, surface to bedrock. The Nether and Trial Chambers are doors off
- * it (chapters "tracks" and "trials"), not entries here. */
+/**
+ * The story spine, surface to the End: one layer of the world per section, with
+ * the footer as bedrock underneath. Mentors & judges, the run of show and the
+ * application are their own pages (DOOR_PATHS), not stops on the way down.
+ *
+ * Backdrops are reused from the earlier descent until the design team draws the
+ * new layers. TODO(design): Lush caves and the End city need their own art; the
+ * entries marked "stand-in" borrow the closest existing tile.
+ */
 export const CHAPTERS: Chapter[] = [
-  { id: "hero", path: "/datacraft", name: "Cherry grove", y: "+80", color: "#f0b9d0", art: null,
+  { id: "hero", path: "/datacraft", name: "The Overworld", y: "+80", color: "#7fb35a", art: null,
     title: "DataHacks 2.0 — the surface" },
-  { id: "about", path: "/datacraft/about", name: "Stone, coal & copper", y: "+48", color: "#d5aa87", art: `${relief}/01-about.webp`,
+  { id: "about", path: "/datacraft/about", name: "Sulfur caves", y: "+48", color: "#e7d88b", art: `${relief}/03-sponsors.webp`,
     title: "About DataHacks" },
-  { id: "tracks", path: "/datacraft/tracks", name: "Iron & redstone", y: "+24", color: "#cfae9c", art: `${relief}/02-tracks.webp`,
+  // Stand-in: the copper-flecked stone wall is the nearest thing to moss and clay.
+  { id: "tracks", path: "/datacraft/tracks", name: "Lush caves", y: "+24", color: "#7fbf6a", art: `${relief}/01-about.webp`,
     title: "Tracks" },
-  { id: "sponsors", path: "/datacraft/sponsors", name: "Sulfur cavern", y: "+08", color: "#e7d88b", art: `${relief}/03-sponsors.webp`,
-    title: "Sponsors" },
-  { id: "speakers", path: "/datacraft/speakers", name: "The mineshaft", y: "−08", color: "#cfa873", art: `${relief}/04-speakers.webp`,
-    title: "Speakers" },
-  { id: "prizes", path: "/datacraft/prizes", name: "Deepslate ores", y: "−28", color: "#98d4d8", art: `${relief}/05-prizes.webp`,
+  { id: "challenges", path: "/datacraft/challenges", name: "The mineshaft", y: "+08", color: "#cfa873", art: `${relief}/04-speakers.webp`,
+    title: "Challenges" },
+  { id: "prizes", path: "/datacraft/prizes", name: "The deep dark", y: "−20", color: "#5fa39b", art: `${relief}/06-faq.webp`,
     title: "Prizes" },
-  { id: "trials", path: "/datacraft/trials", name: "Trial chambers", y: "−36", color: "#b57853", art: `${dimensions}/trial-chamber-entrance.webp`,
-    title: "The trial chambers" },
-  { id: "faq", path: "/datacraft/faq", name: "Ancient city", y: "−44", color: "#8acbc4", art: `${relief}/06-faq.webp`,
+  { id: "sponsors", path: "/datacraft/sponsors", name: "The stronghold", y: "−36", color: "#c8b48a", art: `${relief}/07-stronghold.webp`,
+    title: "Sponsors" },
+  // Stand-in: the deep cave by the End portal, until there is an End city (and End ship) backdrop.
+  { id: "speakers", path: "/datacraft/speakers", name: "The End city", y: "−52", color: "#c9a6d8", art: `${relief}/07-apply.webp`,
+    title: "Speakers" },
+  // The End island; it has no Y of its own, so the meter reads bedrock. The bedrock footer follows.
+  { id: "faq", path: "/datacraft/faq", name: "The End", y: "—", color: "#d9d0a0", art: `${dimensions}/end-application.webp`,
     title: "Frequently asked questions" },
-  { id: "stronghold", path: "/datacraft/stronghold", name: "The stronghold", y: "−56", color: "#f0b175", art: `${relief}/07-stronghold.webp`,
-    title: "The stronghold" },
-  { id: "end", path: "/datacraft/apply", name: "The End", y: "—", color: "#d9d0a0", art: `${dimensions}/end-application.webp`,
-    title: "Apply to DataHacks 2.0" },
 ];
+
+/** Pages that open on their own rather than as a chapter of the descent. */
+export const DOOR_PATHS = ["/datacraft/schedule", "/datacraft/mentors", "/datacraft/apply"];
 
 /** Hashes the old scrolling page used, so existing links keep working. */
 export const LEGACY_HASHES: Record<string, string> = {
@@ -49,20 +58,21 @@ export const LEGACY_HASHES: Record<string, string> = {
   "#emerald-layer": "/datacraft/about",
   "#tracks": "/datacraft/tracks",
   "#iron-layer": "/datacraft/tracks",
+  "#challenges": "/datacraft/challenges",
   "#gold-layer": "/datacraft/sponsors",
   "#mineshaft-layer": "/datacraft/speakers",
   "#diamond-layer": "/datacraft/prizes",
-  "#trial-layer": "/datacraft/trials",
+  "#trial-layer": "/datacraft/mentors",
   "#faq": "/datacraft/faq",
   "#sculk-layer": "/datacraft/faq",
-  "#lava-layer": "/datacraft/stronghold",
+  "#lava-layer": "/datacraft/apply",
   "#apply": "/datacraft/apply",
 };
 
 export const chapterAt = (index: number): Chapter | undefined =>
   index < 0 ? undefined : CHAPTERS[index];
 
-/** -1 when the pathname is not a chapter — the Nether and Trial Chambers doors. */
+/** -1 when the pathname is not a chapter: the door pages (DOOR_PATHS) and anything unknown. */
 export const chapterIndexOf = (pathname: string): number => {
   const path = pathname.replace(/\/+$/, "") || "/datacraft";
   return CHAPTERS.findIndex(c => c.path === path);

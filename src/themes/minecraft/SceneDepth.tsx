@@ -2,14 +2,13 @@ import { useEffect, useRef, type CSSProperties } from "react";
 import type { Chapter } from "./chapters";
 
 const materials: Record<string, [string, string]> = {
-  about: ["stone", "copper_ore"],
-  tracks: ["stone", "iron_ore"],
-  sponsors: ["andesite", "sulfur"],
-  speakers: ["oak_log", "oak_planks"],
-  prizes: ["deepslate", "deepslate_diamond_ore"],
-  trials: ["deepslate_bricks", "copper_ore"],
-  faq: ["deepslate_tiles", "sculk"],
-  stronghold: ["cracked_deepslate_bricks", "deepslate_bricks"],
+  about: ["andesite", "sulfur"],
+  tracks: ["stone", "glow_lichen"],
+  challenges: ["oak_log", "oak_planks"],
+  prizes: ["deepslate_tiles", "sculk"],
+  sponsors: ["cracked_deepslate_bricks", "deepslate_bricks"],
+  speakers: ["obsidian", "end_portal_frame_top"],
+  faq: ["obsidian", "end_portal_frame_top"],
 };
 
 /** Decorative scenery only; navigation and text never move with the camera. */

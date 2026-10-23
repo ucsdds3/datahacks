@@ -6,7 +6,7 @@ import { WorldLink } from './WorldTravel';
  * about it no further. A dated sentence says more and claims less. */
 export function Speakers() {
   return <section className="mc-section mc-scene-open mc-speakers" id="speakers"><div className="mc-container">
-    <p className="mc-eyebrow">04 / MEET YOUR GUIDES</p><h2>Learn from<br /><em>fellow builders.</em></h2>
+    <p className="mc-eyebrow">06 / MEET YOUR GUIDES</p><h2>Learn from<br /><em>fellow builders.</em></h2>
     <p className="mc-body">Speakers and workshop leads are being confirmed now. We announce them alongside applications in October.</p>
     <p className="mc-section-note">DataHacks 2026 ran twelve hours of mentoring across the weekend, with engineers from Databricks on the floor.</p>
   </div></section>;
@@ -32,7 +32,7 @@ export function SculkFaq() {
   const reduce = useReducedMotion();
   return <section className="mc-section mc-sculk-faq" id="faq"><div className="mc-container mc-sculk-grid">
     <div className="mc-sculk-side">
-      <p className="mc-eyebrow">07 / THE DEEP DARK</p><h2>A little signal.<br /><em>A few answers.</em></h2>
+      <p className="mc-eyebrow">07 / THE END</p><h2>A little signal.<br /><em>A few answers.</em></h2>
       <div className="mc-sculk-controls" role="tablist" aria-label="FAQ topics" aria-orientation="vertical">{groups.map((group,i) => <button type="button" role="tab" key={group.title} id={`sculk-topic-${i}`} className={`mc-sculk-control ${selected===i?'is-selected':''}`} aria-selected={selected===i} aria-controls={`sculk-answer-${i}`} onClick={()=>{setSelected(i);setPulse(v=>v+1);}} data-mineable>
         <span className="mc-sculk-object"><img src={`/images/minecraft/layers/${group.sprite}.png`} alt="" width="128" height="128" loading="lazy" />
         {selected===i && !reduce && <span className="mc-sculk-rings" key={pulse} aria-hidden="true">{[0,1,2].map(n=><motion.i key={n} initial={{scale:.5,opacity:.85}} animate={{scale:2.3,opacity:0}} transition={{duration:.85,delay:n*.13,ease:'easeOut'}} />)}</span>}</span>

@@ -346,3 +346,27 @@
 .minecraft-root .mc-scene-open h2 { text-shadow:2px 2px 0 #05080c, 3px 4px 10px #05080cc0; }
 .minecraft-root .mc-scene-open .mc-body { color:#e6eaed; }
 .minecraft-root .mc-scene-open .mc-section-note { color:#c3cbd1; }
+
+/* Challenges: three sponsor-challenge cards, placeholders until sponsors confirm. */
+.minecraft-root .mc-challenge-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:calc(var(--scene) * 1.4); margin-top:calc(var(--scene) * 1.4); }
+.minecraft-root .mc-challenge-card { display:flex; flex-direction:column; gap:calc(var(--scene) * .5); min-height:calc(var(--scene) * 9); padding:calc(var(--scene) * 1.4); background:#20262ee6; border:2px dashed #8a7a58; }
+.minecraft-root .mc-challenge-index { font:var(--vt-sm) 'VT323',monospace; color:#cfa873; letter-spacing:.08em; }
+.minecraft-root .mc-challenge-card h3 { margin:0; font-size:calc(var(--scene) * 1.3); color:#eef0e6; }
+.minecraft-root .mc-challenge-card p { margin:0; font-size:calc(var(--scene) * .95); color:#b9c0c6; }
+@media (max-width:900px) { .minecraft-root .mc-challenge-grid { grid-template-columns:1fr; } .minecraft-root .mc-challenge-card { min-height:0; } }
+
+/* Nav: two apply buttons; on narrow screens the mentor one moves into the menu. */
+.minecraft-root .mc-nav-apply { display:flex; align-items:center; gap:10px; }
+.minecraft-root .mc-nav-apply-menu { display:none; }
+.minecraft-root .mc-apply-error { font-size:12px; color:#f0a39a; }
+@media (max-width:1100px) {
+  .minecraft-root .mc-nav-apply-staff { display:none; }
+  .minecraft-root .mc-links.is-open .mc-nav-apply-menu { display:block; padding:12px 0; border:0; background:none; color:inherit; font:inherit; text-align:left; cursor:pointer; }
+}
+
+/* Bedrock footer: a band of bedrock blocks, then contacts. */
+.minecraft-root .mc-bedrock-footer { display:block; padding:0; border-top:0; background:#14161a; }
+.minecraft-root .mc-bedrock-band { height:calc(var(--scene) * 2.2); background:url('/images/minecraft/textures/bedrock.png') left top/calc(var(--scene) * 2.2) repeat-x; image-rendering:pixelated; box-shadow:inset 0 -3px #0b0c0e; }
+.minecraft-root .mc-bedrock-row { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:calc(var(--scene) * .8) calc(var(--scene) * 2); padding:calc(var(--scene) * 1) calc(var(--scene) * 2); }
+.minecraft-root .mc-bedrock-row>div { display:flex; align-items:center; gap:calc(var(--scene) * 1); flex-wrap:wrap; }
+.minecraft-root .mc-bedrock-contacts { display:flex; flex-wrap:wrap; gap:calc(var(--scene) * 1.2); }

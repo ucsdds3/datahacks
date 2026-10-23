@@ -54,7 +54,8 @@ jobs:
           routes=$(node -e "
             const src = require('fs').readFileSync('src/themes/minecraft/chapters.ts','utf8');
             const chapters = [...src.matchAll(/path:\s*\"(\/[^\"]*)\"/g)].map(m => m[1]);
-            const extra = ['/datacraft/schedule', '/datacraft/mentors',
+            const extra = ['/datacraft/schedule', '/datacraft/mentors', '/datacraft/apply',
+                           '/datacraft/trials', '/datacraft/stronghold',
                            '/themes', '/pop', '/press', '/groove', '/legacy',
                            '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
                            '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor',
