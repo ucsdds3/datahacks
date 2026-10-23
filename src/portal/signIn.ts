@@ -25,7 +25,9 @@ export async function startGoogleSignIn(as: SignInAs) {
 export async function signOutEverywhere() {
   await supabase.auth.signOut();
   try {
-    for (const key of Object.keys(localStorage)) {
+    // Dev test tabs keep their login in this tab only: leave the organizer's alone.
+    const testTab = import.meta.env.DEV && sessionStorage.getItem("datahacks.testTab");
+    if (!testTab) for (const key of Object.keys(localStorage)) {
       if (key.startsWith("datahacks.") || key.startsWith("sb-")) localStorage.removeItem(key);
     }
     sessionStorage.clear();
