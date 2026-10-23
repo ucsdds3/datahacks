@@ -51,11 +51,15 @@ export function useRefreshApplications() {
   return () => client.invalidateQueries({ queryKey: ["organizer-applications"] });
 }
 
-/** Stages a decision (or clears it with null). Nothing is sent until decisions are released. */
+/**
+ * Stages a decision (or clears it with null). Nothing is sent until decisions are released.
+ * Limited to the current event too, so an organizer of several events can't touch another's.
+ */
 export async function stageDecision(ids: string[], decision: Decision | null) {
   if (ids.length === 0) return;
   if (isPreview()) return previewStage(ids, decision);
-  const { error } = await supabase.from("applications").update({ decision }).in("id", ids);
+  const eventId = await currentEventId();
+  const { error } = await supabase.from("applications").update({ decision }).in("id", ids).eq("event_id", eventId);
   if (error) throw error;
 }
 

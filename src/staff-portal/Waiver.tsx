@@ -4,6 +4,7 @@ import { CheckCircle2, PenLine } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { useStaffPortal } from "./StaffPortalContext";
 import { DOCUSIGN } from "./config";
+import { EVENT_CODE } from "@/portal/event";
 import MockSigning, { type MockSessionEnd } from "./MockSigning";
 
 // DocuSign's embedding script ("focused view"), which mounts the signing session in the page.
@@ -30,7 +31,7 @@ const loadBundle = () =>
   }));
 
 // Remembers this visit's envelope so a refresh re-checks it instead of starting over.
-const ENVELOPE_KEY = "datahacks.staffPortal.waiverEnvelope";
+const ENVELOPE_KEY = `datahacks.staffPortal.waiverEnvelope.${EVENT_CODE}`;
 const storedEnvelope = () => { try { return sessionStorage.getItem(ENVELOPE_KEY); } catch { return null; } };
 const storeEnvelope = (id: string) => { try { sessionStorage.setItem(ENVELOPE_KEY, id); } catch { /* storage blocked */ } };
 

@@ -1,5 +1,6 @@
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { EVENT_CODE } from "@/portal/event";
 import type { ApplicationStatus, PortalRole } from "./config";
 import type { StaffApplication } from "./useStaffAccess";
 
@@ -20,15 +21,22 @@ type StaffPortalState = {
 
 const StaffPortalContext = createContext<StaffPortalState | null>(null);
 
-const WAIVER_KEY = "datahacks.staffPortal.waiverSubmitted";
+/**
+ * Per event and per person: a waiver signed for the test event (or by another
+ * account on this browser) never counts for this one.
+ */
+export const waiverKey = (userId: string | undefined) =>
+  `datahacks.staffPortal.waiverSubmitted.${EVENT_CODE}.${userId ?? "preview"}`;
 
-const readWaiver = () => {
-  try { return localStorage.getItem(WAIVER_KEY) === "true"; } catch { return false; }
+const readWaiver = (key: string) => {
+  try { return localStorage.getItem(key) === "true"; } catch { return false; }
 };
 
 export function StaffPortalProvider({ application, preview, children }: { application: StaffApplication; preview: boolean; children: ReactNode }) {
   const { session } = useAuth();
-  const [waiverSubmitted, setWaiverSubmitted] = useState(readWaiver);
+  const key = waiverKey(session?.user?.id);
+  const [waiverSubmitted, setWaiverSubmitted] = useState(() => readWaiver(key));
+  useEffect(() => setWaiverSubmitted(readWaiver(key)), [key]);
 
   const fullName = `${application.firstName} ${application.lastName}`.trim()
     || (session?.user?.user_metadata?.full_name as string | undefined)?.trim()
@@ -37,14 +45,14 @@ export function StaffPortalProvider({ application, preview, children }: { applic
 
   const submitWaiver = useCallback(async () => {
     // TODO: record the submission in Supabase instead of this browser.
-    try { localStorage.setItem(WAIVER_KEY, "true"); } catch { /* storage blocked */ }
+    try { localStorage.setItem(key, "true"); } catch { /* storage blocked */ }
     setWaiverSubmitted(true);
-  }, []);
+  }, [key]);
 
   const resetWaiver = useCallback(() => {
-    try { localStorage.removeItem(WAIVER_KEY); } catch { /* storage blocked */ }
+    try { localStorage.removeItem(key); } catch { /* storage blocked */ }
     setWaiverSubmitted(false);
-  }, []);
+  }, [key]);
 
   const portal = application.type;
   return (
