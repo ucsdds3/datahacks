@@ -1,7 +1,8 @@
 # Nightly encrypted backup of production (structure and data). The free plan has
 # no automatic backups. This repo is public, so only the encrypted file ever
 # leaves the runner: it's encrypted with the BACKUP_PASSPHRASE secret and kept
-# as a workflow artifact for 7 days.
+# as a workflow artifact for 90 days (the most GitHub allows), so every night from
+# when applications open (Oct 31) through the event stays restorable.
 #
 # Restore: see docs/backups.md. supabase-restore-drill checks every week that
 # these files restore and match production.
@@ -61,5 +62,5 @@ jobs:
         with:
           name: datahacks-prod-backup
           path: datahacks-prod-*.dump.gpg
-          retention-days: 7
+          retention-days: 90
           if-no-files-found: error
