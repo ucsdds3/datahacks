@@ -9,9 +9,20 @@
 # Usage: PGPASSWORD=... try-migrations.sh <base-ref> "host=... user=... sslmode=require"
 set -euo pipefail
 base="$1"; conn="$2"
-files=$(git diff --name-only --diff-filter=A "$base"...HEAD -- supabase/migrations | sort)
+# Skip anything the target already records as applied (for example a PR
+# re-run after its migrations reached staging through main).
+applied=$(psql "$conn" -X -A -t -c "select version from supabase_migrations.schema_migrations" 2>/dev/null || true)
+files=""
+for f in $(git diff --name-only --diff-filter=A "$base"...HEAD -- supabase/migrations | sort); do
+  version=$(basename "$f" | cut -c1-14)
+  if grep -qx "$version" <<< "$applied"; then
+    echo "already applied on the target, skipping: $f"
+  else
+    files+="$f"$'\n'
+  fi
+done
 if [ -z "$files" ]; then
-  echo "No new migrations on this branch."
+  echo "No new migrations to try."
   exit 0
 fi
 
