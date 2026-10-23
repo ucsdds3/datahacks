@@ -1,7 +1,13 @@
-/** One CSV cell: quoted when it holds a comma, quote or line break, with quotes doubled. */
+/**
+ * One CSV cell: quoted when it holds a comma, quote or line break, with quotes
+ * doubled. Text an applicant typed that starts like a spreadsheet formula
+ * (= + - @, tab, CR) gets a leading ' so Excel or Sheets shows it instead of
+ * running it ("=HYPERLINK(...)" as a name). Numbers are left alone.
+ */
 export function csvCell(value: unknown): string {
   if (value === null || value === undefined) return "";
-  const text = Array.isArray(value) ? value.join("; ") : String(value);
+  let text = Array.isArray(value) ? value.join("; ") : String(value);
+  if (typeof value !== "number" && /^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 

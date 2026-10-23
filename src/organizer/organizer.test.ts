@@ -20,6 +20,16 @@ describe("csv", () => {
     expect(csvCell(["Social Media", "Other"])).toBe("Social Media; Other");
   });
 
+  it("defuses applicant text that a spreadsheet would run as a formula", () => {
+    expect(csvCell('=HYPERLINK("https://evil.example","Click")')).toBe(`"'=HYPERLINK(""https://evil.example"",""Click"")"`);
+    expect(csvCell("+1 joke")).toBe("'+1 joke");
+    expect(csvCell("-2+3")).toBe("'-2+3");
+    expect(csvCell("@SUM(A1)")).toBe("'@SUM(A1)");
+    expect(csvCell("\tx")).toBe("'\tx");
+    expect(csvCell(-5)).toBe("-5");
+    expect(csvCell("(858) 555-0123")).toBe("(858) 555-0123");
+  });
+
   it("joins rows with CRLF", () => {
     expect(toCsv([["a", "b,c"], ["d", null]])).toBe('a,"b,c"\r\nd,');
   });

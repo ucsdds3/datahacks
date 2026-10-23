@@ -62,11 +62,22 @@ const TYPE_LABEL: Record<string, string> = { hacker: "hacker", mentor: "mentor",
 const QR_MARK = "\u0000qr\u0000";
 const usesQr = (text: string) => /\{\{\s*qr\s*\}\}/.test(text);
 
+/**
+ * Applicant-typed text is untrusted (docs/untrusted-input.md): a name could hold
+ * a line break meant to add email headers, or a QR_MARK to plant an image.
+ * Control characters become spaces; the HTML is escaped separately below.
+ */
+// deno-lint-ignore no-control-regex
+const oneLine = (text: string | null | undefined) => (text ?? "").replace(/[\x00-\x1f\x7f]+/g, " ").trim();
+
+/** One plain address (the database enforces the same), so a value can't add recipients. */
+const isPlainEmail = (email: string) => email.length <= 254 && /^[A-Za-z0-9._+'-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email);
+
 const fill = (template: string, r: Recipient) =>
   template.replace(/\{\{\s*(first_name|last_name|status|type|code|qr)\s*\}\}/g, (_, key: string) => {
     switch (key) {
-      case "first_name": return r.first_name?.trim() || "there";
-      case "last_name": return r.last_name?.trim() ?? "";
+      case "first_name": return oneLine(r.first_name) || "there";
+      case "last_name": return oneLine(r.last_name);
       case "status": return r.status;
       case "type": return TYPE_LABEL[r.applicant_type] ?? r.applicant_type;
       case "code": return r.code ?? "";
@@ -76,7 +87,7 @@ const fill = (template: string, r: Recipient) =>
   });
 
 const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -163,6 +174,10 @@ Deno.serve(async req => {
       failed.push({ id: r.id, error: "No email address on file." });
       continue;
     }
+    if (!isPlainEmail(r.email)) {
+      failed.push({ id: r.id, error: "The email address on file isn't a single plain address." });
+      continue;
+    }
     if (withQr && !r.code) {
       failed.push({ id: r.id, error: "No check-in code yet (only accepted people get one)." });
       continue;
@@ -176,7 +191,8 @@ Deno.serve(async req => {
       await transport.sendMail({
         from: `DataHacks Team <${from}>`,
         to: r.email,
-        subject: fill(subject, r).split(QR_MARK).join(""),
+        // One line: no CR/LF from a name (or the template) can start a new header.
+        subject: oneLine(fill(subject, r).split(QR_MARK).join("")),
         text,
         html: `<div style="font-family: sans-serif; line-height: 1.5">${html}</div>`,
         attachments: withQr

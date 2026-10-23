@@ -67,7 +67,23 @@ async function createPass(eventName: string, a: Attendee): Promise<Pass> {
 }
 
 const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+
+/** Names come from applications, so they're untrusted: control characters (line breaks) become spaces. */
+// deno-lint-ignore no-control-regex
+const oneLine = (text: string) => text.replace(/[\x00-\x1f\x7f]+/g, " ").trim();
+
+/** One plain address (the database enforces the same), so a value can't add recipients. */
+const isPlainEmail = (email: string) => email.length <= 254 && /^[A-Za-z0-9._+'-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email);
+
+/** Only https links from WalletWallet become buttons. */
+const isHttps = (href: string | undefined): href is string => {
+  try {
+    return !!href && new URL(href).protocol === "https:";
+  } catch {
+    return false;
+  }
+};
 
 const button = (href: string, label: string) =>
   `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 8px 8px 0;padding:11px 18px;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">${label}</a>`;
@@ -75,7 +91,8 @@ const button = (href: string, label: string) =>
 function buildEmail(eventName: string, a: Attendee, pass: Pass) {
   const roles = roleLabels(a.roles);
   const first = a.name.split(" ")[0] || a.name;
-  const appleUrl = pass.shareUrl;
+  const appleUrl = isHttps(pass.shareUrl) ? pass.shareUrl : undefined;
+  const googleUrl = isHttps(pass.googleSaveUrl) ? pass.googleSaveUrl : undefined;
   const text = [
     `Hi ${first},`,
     "",
@@ -85,7 +102,7 @@ function buildEmail(eventName: string, a: Attendee, pass: Pass) {
     "",
     "Show the QR code in this email (or in your wallet) at the registration desk.",
     "On an iPhone, open the attached pass to add it to Apple Wallet.",
-    ...(pass.googleSaveUrl ? [`Android: add it to Google Wallet: ${pass.googleSaveUrl}`] : []),
+    ...(googleUrl ? [`Android: add it to Google Wallet: ${googleUrl}`] : []),
     ...(appleUrl ? [`Or open ${appleUrl} on your phone.`] : []),
     "",
     "See you there!",
@@ -97,7 +114,7 @@ function buildEmail(eventName: string, a: Attendee, pass: Pass) {
 <p>You're registered for ${escapeHtml(eventName)} as a ${escapeHtml(roles)}. Here's your check-in pass.</p>
 <img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(a.code)}" width="240" height="240" style="display:block;margin:8px 0">
 <p>Your check-in code: <strong>${escapeHtml(a.code)}</strong></p>
-<p>${appleUrl ? button(appleUrl, "Add to Apple Wallet") : ""}${pass.googleSaveUrl ? button(pass.googleSaveUrl, "Add to Google Wallet") : ""}</p>
+<p>${appleUrl ? button(appleUrl, "Add to Apple Wallet") : ""}${googleUrl ? button(googleUrl, "Add to Google Wallet") : ""}</p>
 <p>Show the QR code at the registration desk. On an iPhone you can also open the attached pass.</p>
 <p>See you there!<br>The DataHacks Team<br>info@ds3.club</p>
 </div>`;
@@ -148,7 +165,8 @@ Deno.serve(async req => {
   for (const r of rows ?? []) {
     const email = (r.email ?? "").trim();
     if (!email) failed.push({ code: r.code, email: "", error: "No email address on the roster." });
-    else queue.push({ id: r.id, code: String(r.code).toUpperCase(), name: r.name || email, email, roles: r.roles ?? [], team: r.team });
+    else if (!isPlainEmail(email)) failed.push({ code: r.code, email: "", error: "The roster email isn't a single plain address." });
+    else queue.push({ id: r.id, code: String(r.code).toUpperCase(), name: oneLine(r.name ?? "") || email, email, roles: r.roles ?? [], team: r.team ? oneLine(r.team) : null });
   }
   const batch = queue.slice(0, limit);
 
@@ -170,7 +188,7 @@ Deno.serve(async req => {
       await transport.sendMail({
         from: `DataHacks Team <${from}>`,
         to: a.email,
-        subject: `Your ${event.name} check-in pass`,
+        subject: oneLine(`Your ${event.name} check-in pass`),
         text,
         html,
         attachments: [

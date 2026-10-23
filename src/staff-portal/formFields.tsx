@@ -113,21 +113,12 @@ export function YesNo({ name, value, onChange }: { name: string; value: boolean 
   );
 }
 
-export const isHttpsUrl = (value: string) => {
-  try {
-    const url = new URL(value.trim());
-    return url.protocol === "https:" || url.protocol === "http:";
-  } catch {
-    return false;
-  }
-};
-
 /**
  * A text field with a searchable list of suggestions, styled like the portal
  * (the browser's own datalist popup can't be). Matches that start with what
  * was typed come first; anything not on the list can still be entered.
  */
-export function Combobox({ options, value, onChange, id, placeholder, required = true, minChars = 2, limit = 60, search }: {
+export function Combobox({ options, value, onChange, id, placeholder, required = true, minChars = 2, limit = 60, search, maxLength }: {
   options: string[];
   /** Custom matching (e.g. nicknames and typos); defaults to plain word-prefix matching. */
   search?: (query: string) => string[];
@@ -138,6 +129,7 @@ export function Combobox({ options, value, onChange, id, placeholder, required =
   required?: boolean;
   minChars?: number;
   limit?: number;
+  maxLength?: number;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
@@ -179,6 +171,7 @@ export function Combobox({ options, value, onChange, id, placeholder, required =
       <input
         id={id}
         required={required}
+        maxLength={maxLength}
         autoComplete="off"
         placeholder={placeholder}
         role="combobox"

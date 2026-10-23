@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
+import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink, isValidEmail } from '@/lib/applicantInput'
 import { PhoneInput, Req, isValidPhone } from './formFields'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
@@ -34,15 +35,6 @@ const trackOptions = [
 /** The blurb is optional; when given it needs some substance. Blank ones get written for them. */
 const BIO_MIN_LENGTH = 50
 
-const isValidUrl = (value: string) => {
-  try {
-    const { protocol } = new URL(value)
-    return protocol === 'http:' || protocol === 'https:'
-  } catch {
-    return false
-  }
-}
-const isValidEmail = (value: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
 
 export default function StaffApplication() {
   const { session } = useAuth()
@@ -76,7 +68,8 @@ export default function StaffApplication() {
   const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'hybrid'
   const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'hybrid'
 
-  const bioLength = form.bio.trim().length
+  const bio = cleanText(form.bio)
+  const bioLength = bio.length
 
   // Keys of incomplete fields, in the order they appear on the page.
   const missing: string[] = []
@@ -86,7 +79,7 @@ export default function StaffApplication() {
   if (!isValidPhone(form.phone)) missing.push('phone')
   if (!form.organization.trim()) missing.push('organization')
   if (!form.role_title.trim()) missing.push('role_title')
-  if (!isValidUrl(form.linkedin_url.trim())) missing.push('linkedin_url')
+  if (!isHttpsLink(form.linkedin_url.trim())) missing.push('linkedin_url')
   if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
   if (!form.applicant_type) missing.push('applicant_type')
   if (isJudging && !form.judging_track) missing.push('judging_track')
@@ -104,7 +97,9 @@ export default function StaffApplication() {
 
     if (!isComplete) {
       setShowErrors(true)
-      setError('All fields are required for submission.')
+      setError(missing.includes('linkedin_url') && form.linkedin_url.trim()
+        ? 'Your LinkedIn link should start with https://.'
+        : 'All fields are required for submission.')
       toast.error('Please complete all fields before submitting.')
       requestAnimationFrame(() => {
         const target = document.getElementById(`field-${missing[0]}`)
@@ -132,17 +127,17 @@ export default function StaffApplication() {
       event_id: eventId,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
-      first_name: form.first_name.trim(),
-      last_name: form.last_name.trim(),
+      first_name: cleanLine(form.first_name),
+      last_name: cleanLine(form.last_name),
       email: form.email.trim().toLowerCase(),
       phone: form.phone.trim(),
       applicant_type: form.applicant_type,
-      organization: form.organization.trim(),
-      role_title: form.role_title.trim(),
+      organization: cleanLine(form.organization),
+      role_title: cleanLine(form.role_title),
       linkedin_url: form.linkedin_url.trim(),
       ucsd_affiliation: form.ucsd_affiliation,
       judging_track: isJudging ? form.judging_track : null,
-      bio: isMentoring && bioLength > 0 ? form.bio.trim() : null,
+      bio: isMentoring && bioLength > 0 ? bio : null,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
       acknowledged_both_priority: form.acknowledged_both_priority,
@@ -151,10 +146,7 @@ export default function StaffApplication() {
     setSubmitting(false)
 
     if (insertError) {
-      // 23505 = unique violation: one application per account per event
-      setError(insertError.code === '23505'
-        ? "You've already applied. Your status is on the portal's Status page."
-        : insertError.message)
+      setError(applicationErrorMessage(insertError))
       return
     }
 
@@ -173,10 +165,10 @@ export default function StaffApplication() {
 
             <div className="sp-form-fields">
               <label id="field-first_name" className={cls('first_name')}>First name <Req />
-                <input required value={form.first_name} onChange={e => update('first_name', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.name} value={form.first_name} onChange={e => update('first_name', e.target.value)} />
               </label>
               <label id="field-last_name" className={cls('last_name')}>Last name <Req />
-                <input required value={form.last_name} onChange={e => update('last_name', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.name} value={form.last_name} onChange={e => update('last_name', e.target.value)} />
               </label>
               <label id="field-email" className={cls('email')}>Email <Req />
                 <input type="email" required readOnly value={form.email} />
@@ -185,13 +177,13 @@ export default function StaffApplication() {
                 <PhoneInput value={form.phone} onChange={v => update('phone', v)} />
               </label>
               <label id="field-organization" className={cls('organization')}>Company / lab you work for <Req />
-                <input required value={form.organization} onChange={e => update('organization', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.short} value={form.organization} onChange={e => update('organization', e.target.value)} />
               </label>
               <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute <Req />
-                <input required value={form.role_title} onChange={e => update('role_title', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.short} value={form.role_title} onChange={e => update('role_title', e.target.value)} />
               </label>
               <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn <Req />
-                <input type="url" required placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
+                <input type="url" required maxLength={MAX_LENGTH.link} placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
               </label>
 
               <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
@@ -250,6 +242,7 @@ export default function StaffApplication() {
                   <textarea
                     rows={4}
                     minLength={BIO_MIN_LENGTH}
+                    maxLength={MAX_LENGTH.bio}
                     value={form.bio}
                     onChange={e => update('bio', e.target.value)}
                   />
