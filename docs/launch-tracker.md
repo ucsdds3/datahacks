@@ -17,6 +17,7 @@ Last updated: 2026-10-23.
 
 | ID | Item | Next step |
 |---|---|---|
+| M0 | **Merge PR #12 into `merge-final` first.** These are the event-isolation fixes (C6). | Open https://github.com/ucsdds3/datahacks/pull/12 and tap **Merge**. All checks pass. Do this before M1 so the fixes ship with the launch. |
 | M1 | **Merge PR #9 (`merge-final` → `main`)**. This puts the portal live. | Open https://github.com/ucsdds3/datahacks/pull/9 and tap **Merge**. If GitHub asks you to approve the `supabase-production` deployment afterwards, approve it. Claude then does C1–C4. |
 | M2 | Check the release emails reached real inboxes. | `prakashmohak2016@gmail.com` (hacker, accepted), `map.960.20@gmail.com` (mentor, accepted) and `info@ds3.club` (judge, rejected). Check spam too. `mohakprakash2016@gmail.com` (waitlisted) has already arrived. |
 | M3 | Evan reviews the event picker for the check-in app. | Send him https://github.com/eparkle/DS3-DataHacks-Check-in/pull/1. Once DH26 has dates (the migration in M1), the live app picks DH27BETA even without this PR. |
@@ -40,7 +41,9 @@ Last updated: 2026-10-23.
 | C3 | Protect `main`. | Waiting on M1 (so the merge isn't blocked) | Settings: pull request required, 1 approval, admins can bypass, required checks `site`, `migrations` and `functions`, no force-push, no deletion. |
 | C4 | Check that the check-in app picks DH27BETA. | Waiting on M1 | Read `events` and confirm DH26's `starts_at` is 2026-04-18. Ask Mohak or Evan to load datahacks-check-in.vercel.app and confirm. |
 | C5 | Prove backups restore. | Running | A restore into a throwaway Postgres with row counts compared; adds `scripts/backup/restore-drill.sh` and a weekly workflow. Note: the nightly backups only start once M1 merges. |
-| C6 | Keep DH27BETA and DH27 data from overlapping. | Running | An audit of every query, database function and edge function for event scoping; fixes go in a PR into `merge-final`. |
+| C6 | Keep DH27BETA and DH27 data from overlapping. | Done, waiting on M0 | Audit in `docs/event-isolation.md`. Fixed 4 leaks: organizers of one event could read every resume; an application could be moved between events; staging a decision wasn't limited to the current event; the waiver flag was shared across events. Also, every application must now have an event (0 of 24 lacked one). |
+| C9 | An "accepting applications" flag on events. | To do, with M8 | Right now anyone could submit to DH26 or DH27BETA by calling the API directly. Add `events.applications_open` and check it on insert. |
+| C10 | Check-in app lists by event. | To do | Its list view returns an organizer's rows from every event, so the app has to filter by the chosen event. Confirm Evan's PR #1 does this everywhere. |
 | C7 | Wallet passes to chosen people only. | To do | The console button sends to every accepted person without a pass (dummies included). Add an option to send only to selected people. |
 | C8 | Supabase settings the deploy can't change. | To do, after M1 | Check the Auth URL config still allows `https://datahacks.ds3ucsd.com/**`. Check the function secrets (Gmail, WalletWallet) are present in production. |
 
@@ -53,7 +56,7 @@ Last updated: 2026-10-23.
 
 ## Event switch (Mohak is doing this; recorded so nothing is missed)
 
-- Create `DH27` in `events`. It needs a code (2–10 letters or digits) and start and end dates.
+- Create `DH27` in `events`. The first DH27 organizer has to be added in the SQL editor, because adding organizers from the console requires already being one. The query is in `docs/event-isolation.md`. It needs a code (2–10 letters or digits) and start and end dates.
 - Add organizers to DH27. The invites and roles from DH27BETA don't carry over.
 - Point the site at it: `EVENT_CODE` in `src/portal/event.ts`.
 - Keep DH27BETA for testing; don't wipe it. Every table is keyed by event, and check-in codes are prefixed by event code (`DH27BETA-H001` and `DH27-H001`). C6 confirms nothing leaks.
@@ -64,7 +67,7 @@ Last updated: 2026-10-23.
 - **AI blurbs:** mentors who skip theirs get one written from their application, before hackers see the Mentors tab.
 - **Jev (TypeSafe AI) scoring:** a top or bottom 50% column in the console. Needs a key and a rubric.
 - **Insurance or liability form** for outside judges (sponsor engineers, professors).
-- **Waiver signatures stored in Supabase**, so organizers can see who has signed (currently only in the browser).
+- **Waiver signatures stored in Supabase**, so organizers can see who has signed (currently only in the browser). Store them per event and person, so a test-event signature can't count for DH27.
 - **MCP server for applications:** another Claude session, branch `feature/mcp-applications`; see `docs/mcp-server.md`.
 - **Checkout at the venue:** not needed, per Mohak on 2026-10-23.
 
