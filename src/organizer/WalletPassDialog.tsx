@@ -60,8 +60,8 @@ export default function WalletPassDialog({ eventId, rows, onClose, onChanged }: 
               ) : (
                 <>
                   <p>
-                    Emails a check-in pass to <strong>{pending.length}</strong> accepted {pending.length === 1 ? "person" : "people"} who
-                    don't have one yet: the QR code in the email, an Add to Apple Wallet button with the pass attached, and an Add to Google
+                    Emails a check-in pass to <strong>{pending.length}</strong> accepted {pending.length === 1 ? "person who doesn't" : "people who don't"} have
+                    one yet: the QR code in the email, an Add to Apple Wallet button with the pass attached, and an Add to Google
                     Wallet button for Android.
                   </p>
                   <ul className="og-pass-list">
