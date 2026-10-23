@@ -4,8 +4,15 @@ import { ChevronDown } from "lucide-react";
 /** The asterisk on a required field's label. */
 export const Req = () => <span className="sp-req" aria-hidden="true">*</span>;
 
-/** Phone numbers: exactly 10 digits, shown and saved as (858) 370-2478. */
-export const phoneDigits = (value: string) => value.replace(/\D/g, "").slice(0, 10);
+/**
+ * Phone numbers: exactly 10 digits, shown and saved as (858) 370-2478. A
+ * leading country code 1 is dropped once there are 11 digits, so pasting
+ * "+1 858 370 2478" keeps the right number (no US area code starts with 1).
+ */
+export const phoneDigits = (value: string) => {
+  const digits = value.replace(/\D/g, "");
+  return (digits.length > 10 && digits.startsWith("1") ? digits.slice(1) : digits).slice(0, 10);
+};
 export const isValidPhone = (value: string) => /^\(\d{3}\) \d{3}-\d{4}$/.test(value);
 
 export function formatPhone(value: string) {

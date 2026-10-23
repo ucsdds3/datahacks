@@ -18,6 +18,13 @@ describe("phone numbers", () => {
     expect(formatPhone("abc")).toBe("");
   });
 
+  it("drops a pasted +1 country code instead of shifting the number", () => {
+    expect(formatPhone("+1 858 370 2478")).toBe("(858) 370-2478");
+    expect(formatPhone("1-858-370-2478")).toBe("(858) 370-2478");
+    // Typed digit by digit with the 1 first, it still ends up right.
+    expect(formatPhone(formatPhone("1858370247") + "8")).toBe("(858) 370-2478");
+  });
+
   it("only accepts all 10 digits", () => {
     expect(isValidPhone("(858) 370-2478")).toBe(true);
     expect(isValidPhone("(858) 370-247")).toBe(false);
