@@ -23,16 +23,16 @@ const dimensions = "/images/minecraft/dimensions";
  * application are their own pages (DOOR_PATHS), not stops on the way down.
  *
  * Backdrops are reused from the earlier descent until the design team draws the
- * new layers. TODO(design): Lush caves and the End city need their own art; the
- * entries marked "stand-in" borrow the closest existing tile.
+ * new layers. TODO(design): Lush caves and the End city use basic generated
+ * placeholders (scripts/generate-basic-layer-art.py) until they get real art.
  */
 export const CHAPTERS: Chapter[] = [
   { id: "hero", path: "/datacraft", name: "The Overworld", y: "+80", color: "#7fb35a", art: null,
     title: "DataHacks 2.0 — the surface" },
   { id: "about", path: "/datacraft/about", name: "Sulfur caves", y: "+48", color: "#e7d88b", art: `${relief}/03-sponsors.webp`,
     title: "About DataHacks" },
-  // Stand-in: the copper-flecked stone wall is the nearest thing to moss and clay.
-  { id: "tracks", path: "/datacraft/tracks", name: "Lush caves", y: "+24", color: "#7fbf6a", art: `${relief}/01-about.webp`,
+  // Placeholder art: moss, clay and glow berries from scripts/generate-basic-layer-art.py.
+  { id: "tracks", path: "/datacraft/tracks", name: "Lush caves", y: "+24", color: "#7fbf6a", art: `${relief}/08-lush-caves.webp`,
     title: "Tracks" },
   { id: "challenges", path: "/datacraft/challenges", name: "The mineshaft", y: "+08", color: "#cfa873", art: `${relief}/04-speakers.webp`,
     title: "Challenges" },
@@ -40,8 +40,8 @@ export const CHAPTERS: Chapter[] = [
     title: "Prizes" },
   { id: "sponsors", path: "/datacraft/sponsors", name: "The stronghold", y: "−36", color: "#c8b48a", art: `${relief}/07-stronghold.webp`,
     title: "Sponsors" },
-  // Stand-in: the deep cave by the End portal, until there is an End city (and End ship) backdrop.
-  { id: "speakers", path: "/datacraft/speakers", name: "The End city", y: "−52", color: "#c9a6d8", art: `${relief}/07-apply.webp`,
+  // Placeholder art: end stone and purpur from scripts/generate-basic-layer-art.py; needs an End ship.
+  { id: "speakers", path: "/datacraft/speakers", name: "The End city", y: "−52", color: "#c9a6d8", art: `${relief}/09-end-city.webp`,
     title: "Speakers" },
   // The End island; it has no Y of its own, so the meter reads bedrock. The bedrock footer follows.
   { id: "faq", path: "/datacraft/faq", name: "The End", y: "—", color: "#d9d0a0", art: `${dimensions}/end-application.webp`,
