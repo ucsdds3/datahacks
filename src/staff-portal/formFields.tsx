@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
 /** The asterisk on a required field's label. */
@@ -114,3 +114,98 @@ export const isHttpsUrl = (value: string) => {
     return false;
   }
 };
+
+/**
+ * A text field with a searchable list of suggestions, styled like the portal
+ * (the browser's own datalist popup can't be). Matches that start with what
+ * was typed come first; anything not on the list can still be entered.
+ */
+export function Combobox({ options, value, onChange, id, placeholder, required = true, minChars = 2, limit = 60 }: {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+  id: string;
+  placeholder?: string;
+  required?: boolean;
+  minChars?: number;
+  limit?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [active, setActive] = useState(0);
+  const root = useRef<HTMLDivElement>(null);
+  const list = useRef<HTMLUListElement>(null);
+  const query = value.trim().toLowerCase();
+
+  const matches = useMemo(() => {
+    if (query.length < minChars) return [];
+    const starts: string[] = [];
+    const contains: string[] = [];
+    for (const option of options) {
+      const lower = option.toLowerCase();
+      if (lower.startsWith(query) || lower.split(/[\s,(]+/).some(word => word.startsWith(query))) starts.push(option);
+      else if (lower.includes(query)) contains.push(option);
+      if (starts.length >= limit) break;
+    }
+    return [...starts, ...contains].slice(0, limit);
+  }, [options, query, minChars, limit]);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: MouseEvent) => { if (!root.current?.contains(e.target as Node)) setOpen(false); };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  useEffect(() => { setActive(0); }, [query]);
+  useEffect(() => {
+    list.current?.querySelector<HTMLElement>(`[data-index="${active}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [active]);
+
+  const choose = (option: string) => { onChange(option); setOpen(false); };
+  const showList = open && query.length >= minChars;
+
+  return (
+    <div className="sp-combobox" ref={root}>
+      <input
+        id={id}
+        required={required}
+        autoComplete="off"
+        placeholder={placeholder}
+        role="combobox"
+        aria-expanded={showList}
+        aria-controls={`${id}-list`}
+        aria-autocomplete="list"
+        aria-activedescendant={showList && matches[active] ? `${id}-opt-${active}` : undefined}
+        value={value}
+        onChange={e => { onChange(e.target.value); setOpen(true); }}
+        onFocus={() => setOpen(true)}
+        onKeyDown={e => {
+          if (!showList) return;
+          if (e.key === "ArrowDown") { e.preventDefault(); setActive(i => Math.min(i + 1, matches.length - 1)); }
+          else if (e.key === "ArrowUp") { e.preventDefault(); setActive(i => Math.max(i - 1, 0)); }
+          else if (e.key === "Enter" && matches[active]) { e.preventDefault(); choose(matches[active]); }
+          else if (e.key === "Escape") setOpen(false);
+        }}
+      />
+      {showList && (
+        <ul className="sp-combobox-menu" role="listbox" id={`${id}-list`} ref={list}>
+          {matches.map((option, i) => (
+            <li
+              key={option}
+              id={`${id}-opt-${i}`}
+              data-index={i}
+              role="option"
+              aria-selected={i === active}
+              className={i === active ? "active" : ""}
+              onMouseDown={e => { e.preventDefault(); choose(option); }}
+              onMouseEnter={() => setActive(i)}
+            >
+              {option}
+            </li>
+          ))}
+          {matches.length === 0 && <li className="sp-combobox-empty">Not listed? Keep typing your school's full name.</li>}
+        </ul>
+      )}
+    </div>
+  );
+}

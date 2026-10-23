@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
-import { MultiSelect, PhoneInput, Req, Select, YesNo, isHttpsUrl, isValidPhone } from './formFields'
+import { Combobox, MultiSelect, PhoneInput, Req, Select, YesNo, isHttpsUrl, isValidPhone } from './formFields'
 import {
   COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
   TRAVEL_DISTANCES, TRAVEL_METHODS,
@@ -149,10 +149,10 @@ export default function HackerApplication() {
           <label>Level of study <Req />
             <Select options={LEVELS_OF_STUDY} value={form.level_of_study} onChange={v => update('level_of_study', v)} />
           </label>
-          <label>School <Req />
-            <input required list="hk-schools" placeholder="Start typing to search" {...text('school')} />
-            <datalist id="hk-schools">{SCHOOLS.map(s => <option key={s} value={s} />)}</datalist>
-          </label>
+          <div className="sp-field">
+            <label className="sp-field-label" htmlFor="hk-school">School <Req /></label>
+            <Combobox id="hk-school" options={SCHOOLS} value={form.school} onChange={v => update('school', v)} placeholder="Start typing your school's name" />
+          </div>
           <label>Major <Req />
             <input required {...text('major')} />
           </label>
