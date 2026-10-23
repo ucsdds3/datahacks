@@ -1,0 +1,56 @@
+# Nightly: fails if production's schema differs from staging's. Staging is only
+# ever changed by supabase-deploy from the migrations on main, so a difference
+# means someone changed production (or staging) by hand in the dashboard.
+# Compares structure, grants, storage policies and Realtime; never data.
+name: supabase-drift
+
+on:
+  schedule:
+    - cron: "17 10 * * *" # 03:17 Pacific
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Postgres 17 client
+        run: |
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Snapshot production
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: >
+          supabase/scripts/schema-snapshot.sh
+          "host=aws-0-us-west-1.pooler.supabase.com port=5432 dbname=postgres user=postgres.${{ vars.SUPABASE_PROJECT_REF }} sslmode=require"
+          > prod.txt
+
+      - name: Snapshot staging
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_STAGING_DB_PASSWORD }}
+        run: >
+          supabase/scripts/schema-snapshot.sh
+          "host=aws-0-us-east-1.pooler.supabase.com port=5432 dbname=postgres user=postgres.${{ vars.SUPABASE_STAGING_PROJECT_REF }} sslmode=require"
+          > staging.txt
+
+      - name: Compare
+        run: |
+          if diff -u staging.txt prod.txt > drift.diff; then
+            echo "No drift: production matches the migrations."
+          else
+            echo "::error::Production differs from the migrations (lines starting with + exist only in production). Turn the change into a migration, or undo it."
+            cat drift.diff
+            exit 1
+          fi

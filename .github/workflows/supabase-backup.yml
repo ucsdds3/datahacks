@@ -1,0 +1,65 @@
+# Nightly encrypted backup of production (structure and data). The free plan has
+# no automatic backups. This repo is public, so only the encrypted file ever
+# leaves the runner: it's encrypted with the BACKUP_PASSPHRASE secret and kept
+# as a workflow artifact for 7 days.
+#
+# Restore: see docs/backups.md. supabase-restore-drill checks every week that
+# these files restore and match production.
+name: supabase-backup
+
+on:
+  schedule:
+    - cron: "41 10 * * *" # 03:41 Pacific
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Passphrase set?
+        id: check
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$PASSPHRASE" ]; then
+            echo "::warning::No backup taken: add the BACKUP_PASSPHRASE repo secret (see docs/application-portal-todo.md)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install Postgres 17 client
+        if: steps.check.outputs.ok == 'true'
+        run: |
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+
+      - name: Dump and encrypt
+        if: steps.check.outputs.ok == 'true'
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          umask 077
+          stamp=$(date -u +%Y-%m-%d)
+          dump="$RUNNER_TEMP/prod.dump"
+          /usr/lib/postgresql/17/bin/pg_dump \
+            "host=aws-0-us-west-1.pooler.supabase.com port=5432 dbname=postgres user=postgres.${{ vars.SUPABASE_PROJECT_REF }} sslmode=require" \
+            --format=custom --no-owner --schema=public --schema=auth -f "$dump"
+          printf '%s' "$PASSPHRASE" | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 0 \
+            --symmetric --cipher-algo AES256 -o "datahacks-prod-$stamp.dump.gpg" "$dump"
+          shred -u "$dump"
+          ls -l datahacks-prod-*.dump.gpg
+
+      - uses: actions/upload-artifact@v4
+        if: steps.check.outputs.ok == 'true'
+        with:
+          name: datahacks-prod-backup
+          path: datahacks-prod-*.dump.gpg
+          retention-days: 7
+          if-no-files-found: error

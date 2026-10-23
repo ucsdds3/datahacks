@@ -1,0 +1,57 @@
+# Weekly proof that the backups restore. Restores the newest nightly backup,
+# then a fresh dump taken exactly like supabase-backup, each into a throwaway
+# Postgres container on the runner, and compares row counts and checksums with
+# production. Only reads production. Logs show counts and match/mismatch only,
+# never data, because this repo (and its logs) are public.
+#
+# Fails if a backup is missing or won't decrypt or restore, if a table comes
+# back empty, or if the fresh dump's restore differs from production at all.
+# The nightly backup is hours old, so its differences are listed but allowed.
+# Same drill locally: scripts/backup/restore-drill.sh (see docs/backups.md).
+name: supabase-restore-drill
+
+on:
+  schedule:
+    - cron: "29 11 * * 0" # Sundays 04:29 Pacific, after the nightly backup
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read # download the backup artifact
+
+jobs:
+  drill:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Secrets set?
+        id: check
+        env:
+          PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          if [ -z "$PASSPHRASE" ] || [ -z "$PW" ]; then
+            echo "::warning::No restore drill: add the BACKUP_PASSPHRASE and SUPABASE_DB_PASSWORD repo secrets (see docs/application-portal-todo.md)."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Restore the newest nightly backup
+        if: steps.check.outputs.ok == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: scripts/backup/restore-drill.sh --latest-artifact
+
+      - name: Fresh dump, restore, exact comparison
+        if: ${{ !cancelled() && steps.check.outputs.ok == 'true' }}
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: scripts/backup/restore-drill.sh --fresh

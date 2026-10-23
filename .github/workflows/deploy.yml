@@ -54,10 +54,23 @@ jobs:
           routes=$(node -e "
             const src = require('fs').readFileSync('src/themes/minecraft/chapters.ts','utf8');
             const chapters = [...src.matchAll(/path:\s*\"(\/[^\"]*)\"/g)].map(m => m[1]);
-            const extra = ['/datacraft/schedule', '/datacraft/mentors',
+            // The hacker portal's pages, read from the same list the sidebar uses.
+            const config = require('fs').readFileSync('src/staff-portal/config.ts','utf8');
+            const guide = config.slice(config.indexOf('HACKER_GUIDE_PAGES'));
+            const hackerPages = [...guide.slice(0, guide.indexOf('] as const')).matchAll(/slug:\s*\"([a-z-]+)\"/g)].map(m => m[1]);
+            const extra = ['/datacraft/schedule', '/datacraft/mentors', '/datacraft/apply',
+                           '/datacraft/trials', '/datacraft/stronghold',
                            '/themes', '/pop', '/press', '/groove', '/legacy',
                            '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
-                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor', '/apply'];
+                           '/organizer', '/portal/organizer',
+                           '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor',
+                           '/apply', '/apply/mentor-judge', '/portal',
+                           '/portal/apply', '/portal/apply/hacker', '/portal/apply/mentor-judge',
+                           ...['hacker', 'mentor', 'judge', 'hybrid'].flatMap(p => [
+                             '/portal/' + p, '/portal/' + p + '/questions', '/portal/' + p + '/waiver',
+                             '/portal/' + p + '/schedule', '/portal/' + p + '/handbook']),
+                           ...hackerPages.map(s => '/portal/hacker/' + s), '/portal/hacker/mentors',
+                           '/portal/judge/judging', '/portal/hybrid/judging'];
             console.log([...new Set([...chapters, ...extra])].join(' '));
           ")
           for route in $routes; do

@@ -1,0 +1,95 @@
+# Applies merged database changes and deploys edge functions: staging first,
+# then production only if staging succeeded. One run at a time.
+#
+# Production is locked until the one-time bootstrap in
+# docs/application-portal-todo.md is done and the repo variable
+# SUPABASE_PROD_BOOTSTRAPPED is "true"; otherwise the first push would try to
+# re-run the baseline on a database that already has it.
+name: supabase-deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/functions/**"
+      - "supabase/config.toml"
+  workflow_dispatch:
+
+concurrency:
+  group: supabase-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  SUPABASE_CLI_VERSION: 2.121.0
+  STAGING_REF: ${{ vars.SUPABASE_STAGING_PROJECT_REF }}
+  STAGING_HOST: aws-0-us-east-1.pooler.supabase.com
+  PROD_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+  PROD_HOST: aws-0-us-west-1.pooler.supabase.com
+  FUNCTIONS: send-email send-wallet-passes
+
+jobs:
+  staging:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3.0.1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Staging connection
+        env:
+          PW: ${{ secrets.SUPABASE_STAGING_DB_PASSWORD }}
+        run: |
+          url="postgresql://postgres.$STAGING_REF:$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""))' "$PW")@$STAGING_HOST:5432/postgres"
+          echo "::add-mask::$url"
+          echo "DB_URL=$url" >> "$GITHUB_ENV"
+
+      - name: Apply migrations to staging
+        run: supabase db push --db-url "$DB_URL" --yes
+
+      - name: Lint staging
+        run: supabase db lint --db-url "$DB_URL" --schema public --level error --fail-on error
+
+      - name: Deploy edge functions to staging
+        run: supabase functions deploy $FUNCTIONS --project-ref "$STAGING_REF" --use-api
+
+  production:
+    needs: staging
+    runs-on: ubuntu-latest
+    environment: supabase-production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+    steps:
+      - name: Production bootstrapped?
+        if: vars.SUPABASE_PROD_BOOTSTRAPPED != 'true'
+        run: |
+          echo "::error::Production's migration history isn't set up yet. Do the one-time bootstrap in docs/application-portal-todo.md, then set the repo variable SUPABASE_PROD_BOOTSTRAPPED to true and re-run this workflow."
+          exit 1
+
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v3.0.1
+        with:
+          version: ${{ env.SUPABASE_CLI_VERSION }}
+
+      - name: Production connection
+        env:
+          PW: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: |
+          url="postgresql://postgres.$PROD_REF:$(python3 -c 'import sys,urllib.parse;print(urllib.parse.quote(sys.argv[1],safe=""))' "$PW")@$PROD_HOST:5432/postgres"
+          echo "::add-mask::$url"
+          echo "DB_URL=$url" >> "$GITHUB_ENV"
+
+      - name: What will change (dry run)
+        run: supabase db push --db-url "$DB_URL" --dry-run
+
+      - name: Apply migrations to production
+        run: supabase db push --db-url "$DB_URL" --yes
+
+      - name: Deploy edge functions to production
+        run: supabase functions deploy $FUNCTIONS --project-ref "$PROD_REF" --use-api

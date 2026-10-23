@@ -1,0 +1,66 @@
+# Pull-request checks for database and edge-function changes. Nothing here
+# changes a database: new migrations are tried on staging inside a transaction
+# that's rolled back, so staging keeps matching main.
+name: supabase-ci
+
+on:
+  pull_request:
+    paths:
+      - "supabase/**"
+      - ".github/workflows/supabase-*.yml"
+
+concurrency:
+  group: supabase-staging
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  STAGING_REF: ${{ vars.SUPABASE_STAGING_PROJECT_REF }}
+  STAGING_HOST: aws-0-us-east-1.pooler.supabase.com
+
+jobs:
+  migrations:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Migration rules (no edits to existing ones, new ones sort last)
+        run: supabase/scripts/check-migrations.sh "origin/${{ github.base_ref }}"
+
+      # Fork PRs get no secrets; the rules above still run for them.
+      - name: Staging available?
+        id: secrets
+        env:
+          PW: ${{ secrets.SUPABASE_STAGING_DB_PASSWORD }}
+        run: echo "ok=$([ -n "$PW" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Install Postgres 17 client
+        if: steps.secrets.outputs.ok == 'true'
+        run: |
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+
+      - name: Try the new migrations on staging (rolled back)
+        if: steps.secrets.outputs.ok == 'true'
+        env:
+          PGPASSWORD: ${{ secrets.SUPABASE_STAGING_DB_PASSWORD }}
+        run: >
+          supabase/scripts/try-migrations.sh "origin/${{ github.base_ref }}"
+          "host=$STAGING_HOST port=5432 dbname=postgres user=postgres.$STAGING_REF sslmode=require"
+
+  functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check edge functions
+        working-directory: supabase/functions
+        run: deno check */index.ts

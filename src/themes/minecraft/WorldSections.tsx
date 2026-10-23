@@ -60,11 +60,36 @@ export function Tracks() {
   </div></section>;
 }
 
+/**
+ * Sponsor challenges. Placeholder until sponsors confirm: the design team
+ * replaces the three cards with the real challenges, prizes and datasets.
+ */
+const challenges = [
+  { title: "Sponsor challenge", note: "Announced closer to the event" },
+  { title: "Sponsor challenge", note: "Announced closer to the event" },
+  { title: "Sponsor challenge", note: "Announced closer to the event" },
+];
+
+export function Challenges() {
+  return <section className="mc-section mc-challenges" id="challenges"><div className="mc-container">
+    <div className="mc-section-head">
+      <div><p className="mc-eyebrow">03 / SIDE QUESTS</p><h2>Extra quests.<br /><em>Extra loot.</em></h2></div>
+      <p className="mc-body">Sponsors set their own challenges, each with its own prize. Enter one on top of your track; your project can go for both.</p>
+    </div>
+    <div className="mc-challenge-grid">{challenges.map((challenge, i) => <div className="mc-challenge-card" key={i}>
+      <span className="mc-challenge-index">{String(i + 1).padStart(2, "0")}</span>
+      <h3>{challenge.title}</h3>
+      <p>{challenge.note}</p>
+    </div>)}</div>
+    <p className="mc-section-note">Sponsor challenges are announced closer to the event.</p>
+  </div></section>;
+}
+
 /** The podium stays — it is the scene. The per-place figures do not: three blocks
  * reading "—" over "TO BE ANNOUNCED" spent the credibility a real number buys. */
 export function Prizes() {
   const prizes = [{ rank: "2nd", material: "IRON", cls: "silver", item: "trophy" as const }, { rank: "1st", material: "DIAMOND", cls: "diamond", item: "diamond" as const }, { rank: "3rd", material: "GOLD", cls: "gold", item: "gold" as const }];
-  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$50,000</strong><small>Split across places and tracks, announced in October</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong></div></div>)}</div><p className="mc-section-note">DataHacks 2026 awarded $31,793 in cash and prizes across the weekend.</p></div></section>;
+  return <section className="mc-section mc-prizes" id="prizes"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">04 / THE LOOT CHEST</p><h2>Good things<br />come to <em>builders.</em></h2></div><div className="mc-prize-pool"><span>TOTAL PRIZE POOL</span><strong>$50,000</strong><small>Split across places and tracks, announced in October</small></div></div><div className="mc-podium">{prizes.map(item => <div className={`mc-podium-place mc-podium-${item.cls}`} key={item.rank}><span className="mc-prize-icon" aria-hidden="true"><PixelItem item={item.item} /></span><div className="mc-podium-block"><span className="mc-material">{item.material} TIER</span><strong>{item.rank}</strong></div></div>)}</div><p className="mc-section-note">DataHacks 2026 awarded $31,793 in cash and prizes across the weekend.</p></div></section>;
 }
 
 export function Schedule() {
@@ -72,7 +97,7 @@ export function Schedule() {
 }
 
 export function Sponsors() {
-  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">03 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:info@ds3.club">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:info@ds3.club" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
+  return <section className="mc-section mc-sponsors" id="sponsors"><div className="mc-container"><div className="mc-section-head"><div><p className="mc-eyebrow">05 / BUILDING THIS WORLD TOGETHER</p><h2>Every adventure<br />needs <em>a little support.</em></h2></div><div><p className="mc-body">Help a new generation of builders get started. Sponsor a weekend of learning, experimenting, and making things happen.</p><a className="mc-text-link" href="mailto:info@ds3.club">Become a sponsor <ArrowUpRight size={18} /></a></div></div><div className="mc-sponsor-tiers">{[{ tier: "Diamond", slots: 2 }, { tier: "Gold", slots: 3 }, { tier: "Silver", slots: 4 }].map(({ tier, slots }) => <div className="mc-sponsor-tier" key={tier}><span className={`mc-tier-label mc-tier-${tier.toLowerCase()}`}><Gem size={17} aria-hidden="true" />{tier}</span><div className="mc-sponsor-slots">{Array.from({ length: slots }, (_, i) => <a href="mailto:info@ds3.club" className="mc-sponsor-slot" key={i} aria-label={`Ask about ${tier.toLowerCase()} sponsorship slot ${i + 1}`}><span aria-hidden="true">+</span><small>Your logo here</small></a>)}</div></div>)}</div><p className="mc-section-note">Sponsorship spaces for 2027 are open. Let’s build something together.</p></div></section>;
 }
 
 export function Faq() {

@@ -1,30 +1,34 @@
 import { describe, expect, it } from "vitest";
-import { CHAPTERS, LEGACY_HASHES, chapterAt, chapterIndexOf } from "./chapters";
+import { CHAPTERS, DOOR_PATHS, LEGACY_HASHES, chapterAt, chapterIndexOf } from "./chapters";
 
 describe("chapter registry", () => {
-  it("runs from the surface down to the End", () => {
+  it("runs from the surface down to the End, one layer per section", () => {
     expect(CHAPTERS.map(c => c.id)).toEqual([
-      "hero", "about", "tracks", "sponsors", "speakers",
-      "prizes", "trials", "faq", "stronghold", "end",
+      "hero", "about", "tracks", "challenges", "prizes", "sponsors", "speakers", "faq",
+    ]);
+    expect(CHAPTERS.map(c => c.name)).toEqual([
+      "The Overworld", "Sulfur caves", "Lush caves", "The mineshaft", "The deep dark", "The stronghold", "The End city", "The End",
     ]);
   });
 
   it("gives the hero the bare theme root so /minecraft opens the story", () => {
     expect(CHAPTERS[0].path).toBe("/datacraft");
-    expect(CHAPTERS.at(-1)?.path).toBe("/datacraft/apply");
+    expect(CHAPTERS.at(-1)?.path).toBe("/datacraft/faq");
   });
 
   it("has a unique path for every chapter", () => {
     expect(new Set(CHAPTERS.map(c => c.path)).size).toBe(CHAPTERS.length);
   });
 
-  it("keeps the doors off the spine", () => {
-    expect(CHAPTERS.map(c => c.path)).not.toContain("/datacraft/schedule");
-    expect(CHAPTERS.map(c => c.path)).not.toContain("/datacraft/mentors");
+  it("keeps the door pages off the spine", () => {
+    DOOR_PATHS.forEach(path => expect(CHAPTERS.map(c => c.path)).not.toContain(path));
+    expect(DOOR_PATHS).toEqual(["/datacraft/schedule", "/datacraft/mentors", "/datacraft/apply"]);
   });
 
   it("resolves a pathname to its chapter", () => {
     expect(chapterIndexOf("/datacraft/faq")).toBe(7);
+    expect(chapterIndexOf("/datacraft/challenges")).toBe(3);
+    expect(chapterIndexOf("/datacraft/apply")).toBe(-1);
     expect(chapterIndexOf("/datacraft")).toBe(0);
     expect(chapterIndexOf("/datacraft/")).toBe(0);
     expect(chapterIndexOf("/datacraft/schedule")).toBe(-1);
@@ -42,8 +46,10 @@ describe("chapter registry", () => {
     expect(LEGACY_HASHES["#top"]).toBe("/datacraft");
   });
 
-  it("points every legacy hash at a real chapter", () => {
-    const paths = new Set(CHAPTERS.map(c => c.path));
+  it("points every legacy hash at a real chapter or door page", () => {
+    const paths = new Set([...CHAPTERS.map(c => c.path), ...DOOR_PATHS]);
     Object.entries(LEGACY_HASHES).forEach(([hash, path]) => expect(paths, hash).toContain(path));
+    expect(LEGACY_HASHES["#trial-layer"]).toBe("/datacraft/mentors");
+    expect(LEGACY_HASHES["#apply"]).toBe("/datacraft/apply");
   });
 });

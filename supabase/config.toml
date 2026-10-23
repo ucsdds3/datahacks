@@ -1,0 +1,22 @@
+# Supabase CLI settings for this repo. Only what CI and local tooling need:
+# never run `supabase config push` with this file, because unset sections fall
+# back to CLI defaults and would overwrite production's Auth settings.
+project_id = "yrxjhrrphhbmqejresvy"
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = false
+
+# Every function checks the caller's Supabase session itself, but the gateway
+# should reject calls without a valid JWT too.
+[functions.send-email]
+verify_jwt = true
+
+[functions.send-wallet-passes]
+verify_jwt = true
+
+[functions.docusign-waiver]
+verify_jwt = true
