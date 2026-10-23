@@ -18,6 +18,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import StaffPortalLayout from "./StaffPortalLayout";
 import Dashboard from "./Dashboard";
 import Waiver from "./Waiver";
+import { waiverKey } from "./StaffPortalContext";
+import { EVENT_CODE } from "@/portal/event";
 
 function renderWaiver() {
   render(
@@ -83,5 +85,20 @@ describe("simulated waiver signing", () => {
     fireEvent.click(screen.getByRole("button", { name: button }));
     expect(await screen.findByText(message)).toBeInTheDocument();
     expect(submit()).toBeDisabled();
+  });
+});
+
+describe("waiver flag isolation", () => {
+  it("ignores a waiver saved for another event, another account or by the old shared key", async () => {
+    localStorage.setItem("datahacks.staffPortal.waiverSubmitted", "true");
+    localStorage.setItem("datahacks.staffPortal.waiverSubmitted.DH26.preview", "true");
+    localStorage.setItem(waiverKey("someone-else"), "true");
+    renderWaiver();
+    expect(await screen.findByText("Incomplete")).toBeInTheDocument();
+  });
+
+  it("saves the submitted waiver under this event and person", () => {
+    expect(waiverKey("user-1")).toBe(`datahacks.staffPortal.waiverSubmitted.${EVENT_CODE}.user-1`);
+    expect(waiverKey("user-1")).not.toBe(waiverKey("user-2"));
   });
 });
