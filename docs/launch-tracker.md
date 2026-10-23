@@ -35,7 +35,6 @@ Last updated: 2026-10-23 (evening, after launch).
 
 | ID | Item | Status | Next step |
 |---|---|---|---|
-| C5 | Prove backups restore. | Running on production next | Proven on a local stand-in (every row matched; `docs/backups.md`, `scripts/backup/restore-drill.sh`, weekly `supabase-restore-drill`). Production couldn't be dumped from this laptop: its network blocks database port 5432. Next: run `supabase-backup` by hand, then `supabase-restore-drill`, and record the result here. |
 | C9 | An "accepting applications" flag on events. | To do, with M8 | Right now anyone could submit to DH26 or DH27BETA by calling the API directly. Add `events.applications_open` and check it on insert. |
 | C10 | Check-in app lists by event. | To do | Its list view returns an organizer's rows from every event, so the app has to filter by the chosen event. Confirm Evan's PR #1 does this everywhere. |
 | C11 | Drop resume file uploads. | To do | Only links are collected (Google Drive, portfolio). Remove the unused upload code and the `resumes` storage bucket's policies; DH26 files stay until someone deletes them. |
@@ -70,6 +69,7 @@ Last updated: 2026-10-23 (evening, after launch).
 - 2026-10-23: **Portal live.** PR #12 (event isolation) and PR #9 merged. Pages deployed. Production got 4 database changes (role revoke, DH26 dates, event isolation, event required) and both email functions. Tested live: Trial Chambers, then Google, then the mentor/judge form; `/organizer` works.
 - 2026-10-23: `main` protected: PR plus 1 approval, `site` check required, no force-push or delete, admins can bypass. The database checks aren't required because they only run when `supabase/` changes.
 - 2026-10-23: the check-in app now picks DH27BETA (DH26 has dates).
+- 2026-10-23: **backups proven on production.** A manual `supabase-backup` run, then `supabase-restore-drill`: 11 tables, every row and field identical, no restore errors. It reruns every Sunday.
 - 2026-10-23: event isolation audit (`docs/event-isolation.md`). Fixed: resume access across events, moving applications between events, staging decisions limited to the event, the waiver flag shared across events. Applications must now have an event.
 - 2026-10-23: sign-in redirect URLs and the email secrets confirmed in production (live sign-in returned to the site; emails sent).
 - 2026-10-23: email from the live console reached all three test inboxes. Backup retention is 90 days.
