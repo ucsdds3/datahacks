@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabaseClient";
  * `events` table. Applications, roles and check-in codes are all per event, so
  * for a new year: add the event in Table Editor -> events, then change this.
  */
-export const EVENT_CODE = "DH26";
+export const EVENT_CODE = "DH27BETA";
 
 let cached: Promise<string> | null = null;
 
