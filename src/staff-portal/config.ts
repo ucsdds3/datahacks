@@ -121,10 +121,12 @@ export const SCHEDULE: ScheduleDay[] = [
 
 export type Contact = { initials: string; name: string; role: string; email: string; phone?: string };
 
+/** Lead organizers. Shared with their OK (Mohak, 2026-10-23); roles as in the 2026 Hacker Handbook. */
 export const CONTACTS: Contact[] = [
-  { initials: "MP", name: "Maya Patel", role: "Mentor coordinator", email: "maya.patel@example.com", phone: "(555) 010-2001" },
-  { initials: "TJ", name: "Tyler Johnson", role: "Judging lead", email: "tyler.johnson@example.com", phone: "(555) 010-2002" },
-  { initials: "AB", name: "Ava Brooks", role: "Day-of logistics", email: "ava.brooks@example.com", phone: "(555) 010-2003" },
+  { initials: "MP", name: "Mohak Prakash", role: "DataHacks Co-Director", email: "mprakash@ucsd.edu", phone: "(858) 370-2478" },
+  { initials: "TC", name: "Tijil Chhabra", role: "DataHacks Director", email: "tchhabra@ucsd.edu", phone: "(619) 953-7870" },
+  { initials: "AB", name: "Ansh Bhatnagar", role: "DS3 President", email: "abhatnagar@ucsd.edu", phone: "(510) 709-6583" },
+  { initials: "PS", name: "Praveen Sharma", role: "DS3 VP of External Relations", email: "p4sharma@ucsd.edu", phone: "(858) 729-4474" },
 ];
 
 export const GENERAL_CONTACT_EMAIL = "info@ds3.club";
