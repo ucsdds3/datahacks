@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
@@ -39,6 +39,8 @@ import PortalHome from "./StaffGate";
 import StaffPortalLayout from "./StaffPortalLayout";
 import Dashboard from "./Dashboard";
 import Handbook from "./Handbook";
+import HackerGuide from "./HackerGuide";
+import { HACKER_GUIDE_SLUGS } from "./config";
 import JudgingPortal from "./JudgingPortal";
 
 const Where = () => <div data-testid="where">{useLocation().pathname}</div>;
@@ -59,6 +61,7 @@ function renderAt(path: string) {
               <Route key={portal} path={`/portal/${portal}`} element={<StaffPortalLayout portal={portal} />}>
                 <Route index element={<Dashboard />} />
                 <Route path="handbook" element={<Handbook />} />
+                {portal === "hacker" && HACKER_GUIDE_SLUGS.map(slug => <Route key={slug} path={slug} element={<HackerGuide page={slug} />} />)}
                 {(portal === "judge" || portal === "hybrid") && <Route path="judging" element={<JudgingPortal />} />}
               </Route>
             ))}
@@ -168,6 +171,49 @@ describe("people on the wrong portal are moved to their own", () => {
   });
 });
 
+describe("the hacker handbook is a page per topic", () => {
+  const nav = () => within(screen.getByRole("navigation", { name: "Portal" }));
+  const links = () => nav().getAllByRole("link").map(a => a.textContent?.trim());
+
+  it("accepted hackers get each page, in order, and the Mentors tab", async () => {
+    signedIn("hacker");
+    renderAt("/portal/hacker");
+    await screen.findByText("Hello, Jane Doe!");
+    expect(links()).toEqual([
+      "Status", "Application", "Resources", "Transportation", "Travel", "Reimbursement", "Run of show", "Food",
+      "Mentorship", "Prizes", "Tracks & challenges", "Hardware", "Devpost", "Mentors", "Liability Waiver",
+    ]);
+    expect(screen.queryByText("Hacker Handbook")).not.toBeInTheDocument();
+  });
+
+  it("the pages stay closed until they're accepted", async () => {
+    signedIn("hacker", "pending");
+    renderAt("/portal/hacker/food");
+    await waitFor(() => expect(at()).toBe("/portal/hacker"));
+    expect(screen.queryByRole("link", { name: /Food|Mentors/ })).not.toBeInTheDocument();
+  });
+
+  it("opens a page", async () => {
+    signedIn("hacker");
+    renderAt("/portal/hacker/hardware");
+    expect(await screen.findByRole("heading", { level: 1, name: "Hardware" })).toBeInTheDocument();
+    expect(screen.getByText("Draft — details coming soon")).toBeInTheDocument();
+  });
+
+  it("old handbook links open Resources", async () => {
+    signedIn("hacker");
+    renderAt("/portal/hacker/handbook");
+    await waitFor(() => expect(at()).toBe("/portal/hacker/resources"));
+  });
+
+  it("mentors keep their handbook", async () => {
+    signedIn("mentor");
+    renderAt("/portal/mentor/handbook");
+    expect(await screen.findByRole("heading", { level: 1, name: "Mentor Handbook" })).toBeInTheDocument();
+    expect(nav().queryByRole("link", { name: "Resources" })).not.toBeInTheDocument();
+  });
+});
+
 describe("people who can't open a portal", () => {
   it("signed out -> login", async () => {
     renderAt("/portal");
@@ -190,7 +236,7 @@ describe("people who can't open a portal", () => {
     signedIn("hacker");
     renderAt("/portal");
     await waitFor(() => expect(at()).toBe("/portal/hacker"));
-    expect(await screen.findByText("Hacker Handbook")).toBeInTheDocument();
+    expect(await screen.findByRole("link", { name: /Resources/ })).toBeInTheDocument();
   });
 
   it("Supabase error", async () => {

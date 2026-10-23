@@ -29,6 +29,27 @@ export const HANDBOOK_TITLE: Record<PortalRole, string> = {
   hybrid: "Mentor & Judge Handbook",
 };
 
+/**
+ * Hackers get the handbook as separate pages, in this order, at /portal/hacker/<slug>.
+ * "schedule" is the run of show. Content is in handbookContent.tsx.
+ */
+export const HACKER_GUIDE_PAGES = [
+  { slug: "resources", label: "Resources" },
+  { slug: "transportation", label: "Transportation" },
+  { slug: "travel", label: "Travel" },
+  { slug: "reimbursement", label: "Reimbursement" },
+  { slug: "schedule", label: "Run of show" },
+  { slug: "food", label: "Food" },
+  { slug: "mentorship", label: "Mentorship" },
+  { slug: "prizes", label: "Prizes" },
+  { slug: "tracks", label: "Tracks & challenges" },
+  { slug: "hardware", label: "Hardware" },
+  { slug: "devpost", label: "Devpost" },
+] as const;
+export type HackerGuideSlug = Exclude<(typeof HACKER_GUIDE_PAGES)[number]["slug"], "schedule">;
+/** The hacker pages drawn from handbookContent (everything but the run of show). */
+export const HACKER_GUIDE_SLUGS = HACKER_GUIDE_PAGES.map(p => p.slug).filter((s): s is HackerGuideSlug => s !== "schedule");
+
 export const hasMentorAccess =(portal: PortalRole) => portal === "mentor" || portal === "hybrid";
 export const hasJudgeAccess = (portal: PortalRole) => portal === "judge" || portal === "hybrid";
 
@@ -124,7 +145,10 @@ export const TIMELINE = {
     judge: "Sunday, January 17, 2027",
     hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
   } satisfies Record<PortalRole, string>,
-  /** The hacker Mentors tab appears from this moment (the morning of the event). */
+  /**
+   * Meant to be when the hacker Mentors tab appears (the morning of the event). Not
+   * applied while organizers test the tab; re-enable it in StaffPortalLayout's navItems.
+   */
   mentorsTabOpens: new Date("2027-01-16T08:00:00-08:00"),
 };
 

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import type { HackerGuideSlug } from "./config";
 
 // DEMO CONTENT: the DataHacks 2026 Hacker Handbook ("Revisions_ DataHacks 26' Hacker
 // Handbook.pdf"), used to try out the handbook pages. Replace with the real mentor/judge
@@ -21,6 +22,75 @@ const Table = ({ head, rows }: { head: string[]; rows: string[][] }) => (
 );
 
 const REG_FORM = "http://forms.gle/RHFgLkNfUF9tr1TZA";
+
+// Parts of sections, shared by the staff handbook and the hacker pages that split it up.
+
+const GETTING_HERE = <>
+      <h3>Parking</h3>
+      <p>On the weekend, a <A href="https://transportation.ucsd.edu/commute/permits/index.html#nw-night-weekend">NW Pass</A> costs $4.75 per day and covers spots marked V, S, B or A. Pay at the paystation at any lot exit or with the <A href="https://transportation.ucsd.edu/commute/permits/parkmobile.html">ParkMobile</A> app.</p>
+      <p>The two closest structures:</p>
+      <ul>
+        <li><A href="https://maps.app.goo.gl/dYUpJw7tcpSraxmz6">8th College/Theatre District Parking Structure</A> (9135 S Scholars Dr), <A href="https://maps.app.goo.gl/mWZTh3chYc1J6DqSA">walking directions</A></li>
+        <li><A href="https://maps.app.goo.gl/aHmRupbMfVgSiLZ89">Scholars Parking</A> (9655 Scholars Dr N), <A href="https://maps.app.goo.gl/p3xKiw1xDzwnejCv9">walking directions</A></li>
+      </ul>
+      <p>Don't park in the Gymnasium Parking Lot. It's reserved for event and venue staff, and cars there may be ticketed or towed.</p>
+      <h3>Ride-sharing</h3>
+      <p>Set your Uber or Lyft destination to <A href="https://maps.app.goo.gl/1H52i1ZLgVsTRuMN9">Main Gym – Muir College</A> (2995 Scholars Ln), then follow our signs from the Gymnasium lot to the Rec Gym.</p>
+      <h3>Public transportation</h3>
+      <p>Buses and the trolley cost about $2.50 per one-way, 2-hour trip with the <A href="https://www.sdmts.com/fares/pronto-ways-pay">PRONTO</A> app or tap-to-pay (details on the <A href="https://www.sdmts.com/">SDMTS website</A>). From the airport, take the free <A href="https://www.sdmts.com/getting-around/airport">San Diego Flyer</A> shuttle (Terminals 1 and 2, every 30 minutes) to the Old Town Transit Center, then the Blue Line trolley to UCSD Central Campus Station and walk to the Rec Gym.</p>
+      <h3>FlixBus</h3>
+      <p><A href="https://www.flixbus.com">FlixBus</A> stops on Campus Point Drive, just south of the UC San Diego Health La Jolla trolley station. It's about a 30-minute walk, or take the trolley to UC San Diego Main Campus station and walk 15 minutes.</p>
+</>;
+
+const TRAVEL_REIMBURSEMENTS = <>
+      <h3>Travel reimbursements</h3>
+      <p>Hackers assigned a reimbursement were told the amount by email. To receive it they must submit a completed project and provide valid receipts. The team reaches out after the event to collect payment information and receipts.</p>
+</>;
+
+const TRACK_RULES = <>
+      <h3>Rules</h3>
+      <p>To keep the competition fair, all participants must follow these guidelines. Failure to comply may lead to disqualification.</p>
+      <ul>
+        <li>Participants must be students at an accredited college or university who registered before the event.</li>
+        <li>Teams have at most 4 people, and each person can be on only one team.</li>
+        <li>Team and project names must be appropriate for a professional environment.</li>
+        <li>Projects can be submitted to up to TWO tracks.</li>
+        <li>All project materials must be created during the hackathon. Reusing previous projects isn't allowed, and GitHub repos are checked.</li>
+        <li>Plagiarism is strictly prohibited.</li>
+        <li>Don't sabotage other teams, manipulate results or try to bypass these rules.</li>
+        <li>Be respectful and kind to fellow hackers, mentors and staff. See the <A href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md">MLH Code of Conduct</A>.</li>
+      </ul>
+      <p>Report rule-breaking to a volunteer or at <a href="mailto:datahacks@ucsd.edu">datahacks@ucsd.edu</a>.</p>
+      <h3>Teams</h3>
+      <p>Teams of 1–4 must fill out the <A href={REG_FORM}>Team & Track Registration Form</A> by 12:00 PM Saturday, April 18 to be eligible to submit. The form is where teams lock in their tracks.</p>
+      <h3>Domain tracks</h3>
+      <p>There are 8 domain tracks, and a project can be submitted to up to two. Teams can win at most 1 Domain Track Prize and 1 Challenge Prize, though they can enter as many challenges as they like. See the <A href="https://docs.google.com/document/d/1XNavL7E6oWTiJOveEbOH5kSt_fNvt0lNWKxOKGylrWQ/edit?tab=t.0">track descriptions, judging rubrics and prizes</A>.</p>
+      <h3>Required datasets</h3>
+      <p>Projects in ML/AI, Data Analytics, Cloud, UI/UX & Web Development, Economics, and Product & Entrepreneurship must use at least one provided dataset as a core part of the project. This keeps projects on theme and prevents pre-planning. Datasets are revealed after the Opening Ceremony in the <A href="https://docs.google.com/document/d/1jgVPbccPBTHQiSiFLm0EgrIxyqb1jNlOwjKdaDzY57w/edit?usp=drivesdk">DataHacks 2026 Bank of Required Datasets</A>.</p>
+</>;
+
+const HARDWARE = <>
+      <h3>Provided hardware</h3>
+      <p>For hardware-based tracks (teams can also bring their own):</p>
+      <ul>
+        <li>Sensors Kit: 1 per team, theirs to keep</li>
+        <li>Qualcomm Arduino Uno Q Kit: 1 per person, must be returned. Includes the Arduino Uno Q chip, a Logitech webcam, Modulino Distance, Movement and Thermo, a USB-C multiport adapter (critical for Mac) and wiring.</li>
+        <li><A href="https://drive.google.com/file/d/1lHWQE0qHh5_AS2SLeWR2JqshKVZ4R7AM/view?usp=sharing">Arduino Uno Q Setup & Troubleshooting Guide</A></li>
+      </ul>
+      <h3>Makerspace access</h3>
+      <p>Hackers must fill out the <A href="https://forms.gle/CkRvytHBxFCz6Abo6">access form and rules</A> before entering, or they incur penalties. Competitors can work in the EnVision Makerspace (Structural and Materials Engineering (SME) Building) and the Design and Innovation Building (DIB) Makerspace, with 3D printers and hand tools provided.</p>
+      <ul>
+        <li><strong>DIB Makerspace</strong> (9510 Innovation Ln, near the UCSD Central Campus trolley station): open 1–6 PM Saturday, closed Sunday, UCSD students only. Hard cut-off is 7 PM. Prints started before closing keep running overnight and an organizer picks them up the next day, but long unsupervised prints aren't guaranteed to finish. Scan your student ID on entry.</li>
+        <li><strong>EnVision Makerspace</strong> (SME Building, 3291 Voigt Dr): standard hours 12–4 PM Saturday (UCSD students only, with an organizer holding a DataHacks table), then reserved for DataHacks overnight with full access to hand tools and 9 Bambu Lab 3D printers. Classrooms SME 302 and 304/306 are open to competitors after 6 PM. Non-UCSD students can only use EnVision, after its open hours.</li>
+        <li>3D printing uses a sign-up sheet, and G-code is reviewed before printing. Keep prints to 10 hours or less on one print bed. Longer prints need a volunteer's sign-off.</li>
+        <li>Outside materials can be brought in once DataHacks starts.</li>
+      </ul>
+</>;
+
+const SPONSOR_CHALLENGES = <>
+      <h3>Sponsor challenges</h3>
+      <p>Sponsors run special challenges with extra prizes, which teams can win alongside tracks. See the <A href="https://docs.google.com/document/d/1XNavL7E6oWTiJOveEbOH5kSt_fNvt0lNWKxOKGylrWQ/edit?tab=t.zf9h33ydpfhg">challenge descriptions and prizes</A>.</p>
+</>;
 
 export const HANDBOOK: HandbookSection[] = [
   {
@@ -100,22 +170,8 @@ export const HANDBOOK: HandbookSection[] = [
     id: "getting-here",
     title: "Getting Here",
     content: <>
-      <h3>Parking</h3>
-      <p>On the weekend, a <A href="https://transportation.ucsd.edu/commute/permits/index.html#nw-night-weekend">NW Pass</A> costs $4.75 per day and covers spots marked V, S, B or A. Pay at the paystation at any lot exit or with the <A href="https://transportation.ucsd.edu/commute/permits/parkmobile.html">ParkMobile</A> app.</p>
-      <p>The two closest structures:</p>
-      <ul>
-        <li><A href="https://maps.app.goo.gl/dYUpJw7tcpSraxmz6">8th College/Theatre District Parking Structure</A> (9135 S Scholars Dr), <A href="https://maps.app.goo.gl/mWZTh3chYc1J6DqSA">walking directions</A></li>
-        <li><A href="https://maps.app.goo.gl/aHmRupbMfVgSiLZ89">Scholars Parking</A> (9655 Scholars Dr N), <A href="https://maps.app.goo.gl/p3xKiw1xDzwnejCv9">walking directions</A></li>
-      </ul>
-      <p>Don't park in the Gymnasium Parking Lot. It's reserved for event and venue staff, and cars there may be ticketed or towed.</p>
-      <h3>Ride-sharing</h3>
-      <p>Set your Uber or Lyft destination to <A href="https://maps.app.goo.gl/1H52i1ZLgVsTRuMN9">Main Gym – Muir College</A> (2995 Scholars Ln), then follow our signs from the Gymnasium lot to the Rec Gym.</p>
-      <h3>Public transportation</h3>
-      <p>Buses and the trolley cost about $2.50 per one-way, 2-hour trip with the <A href="https://www.sdmts.com/fares/pronto-ways-pay">PRONTO</A> app or tap-to-pay (details on the <A href="https://www.sdmts.com/">SDMTS website</A>). From the airport, take the free <A href="https://www.sdmts.com/getting-around/airport">San Diego Flyer</A> shuttle (Terminals 1 and 2, every 30 minutes) to the Old Town Transit Center, then the Blue Line trolley to UCSD Central Campus Station and walk to the Rec Gym.</p>
-      <h3>FlixBus</h3>
-      <p><A href="https://www.flixbus.com">FlixBus</A> stops on Campus Point Drive, just south of the UC San Diego Health La Jolla trolley station. It's about a 30-minute walk, or take the trolley to UC San Diego Main Campus station and walk 15 minutes.</p>
-      <h3>Travel reimbursements</h3>
-      <p>Hackers assigned a reimbursement were told the amount by email. To receive it they must submit a completed project and provide valid receipts. The team reaches out after the event to collect payment information and receipts.</p>
+      {GETTING_HERE}
+      {TRAVEL_REIMBURSEMENTS}
     </>,
   },
   {
@@ -207,42 +263,9 @@ export const HANDBOOK: HandbookSection[] = [
     id: "hacking",
     title: "Hacking Rules & Tracks",
     content: <>
-      <h3>Rules</h3>
-      <p>To keep the competition fair, all participants must follow these guidelines. Failure to comply may lead to disqualification.</p>
-      <ul>
-        <li>Participants must be students at an accredited college or university who registered before the event.</li>
-        <li>Teams have at most 4 people, and each person can be on only one team.</li>
-        <li>Team and project names must be appropriate for a professional environment.</li>
-        <li>Projects can be submitted to up to TWO tracks.</li>
-        <li>All project materials must be created during the hackathon. Reusing previous projects isn't allowed, and GitHub repos are checked.</li>
-        <li>Plagiarism is strictly prohibited.</li>
-        <li>Don't sabotage other teams, manipulate results or try to bypass these rules.</li>
-        <li>Be respectful and kind to fellow hackers, mentors and staff. See the <A href="https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md">MLH Code of Conduct</A>.</li>
-      </ul>
-      <p>Report rule-breaking to a volunteer or at <a href="mailto:datahacks@ucsd.edu">datahacks@ucsd.edu</a>.</p>
-      <h3>Teams</h3>
-      <p>Teams of 1–4 must fill out the <A href={REG_FORM}>Team & Track Registration Form</A> by 12:00 PM Saturday, April 18 to be eligible to submit. The form is where teams lock in their tracks.</p>
-      <h3>Domain tracks</h3>
-      <p>There are 8 domain tracks, and a project can be submitted to up to two. Teams can win at most 1 Domain Track Prize and 1 Challenge Prize, though they can enter as many challenges as they like. See the <A href="https://docs.google.com/document/d/1XNavL7E6oWTiJOveEbOH5kSt_fNvt0lNWKxOKGylrWQ/edit?tab=t.0">track descriptions, judging rubrics and prizes</A>.</p>
-      <h3>Required datasets</h3>
-      <p>Projects in ML/AI, Data Analytics, Cloud, UI/UX & Web Development, Economics, and Product & Entrepreneurship must use at least one provided dataset as a core part of the project. This keeps projects on theme and prevents pre-planning. Datasets are revealed after the Opening Ceremony in the <A href="https://docs.google.com/document/d/1jgVPbccPBTHQiSiFLm0EgrIxyqb1jNlOwjKdaDzY57w/edit?usp=drivesdk">DataHacks 2026 Bank of Required Datasets</A>.</p>
-      <h3>Provided hardware</h3>
-      <p>For hardware-based tracks (teams can also bring their own):</p>
-      <ul>
-        <li>Sensors Kit: 1 per team, theirs to keep</li>
-        <li>Qualcomm Arduino Uno Q Kit: 1 per person, must be returned. Includes the Arduino Uno Q chip, a Logitech webcam, Modulino Distance, Movement and Thermo, a USB-C multiport adapter (critical for Mac) and wiring.</li>
-        <li><A href="https://drive.google.com/file/d/1lHWQE0qHh5_AS2SLeWR2JqshKVZ4R7AM/view?usp=sharing">Arduino Uno Q Setup & Troubleshooting Guide</A></li>
-      </ul>
-      <h3>Makerspace access</h3>
-      <p>Hackers must fill out the <A href="https://forms.gle/CkRvytHBxFCz6Abo6">access form and rules</A> before entering, or they incur penalties. Competitors can work in the EnVision Makerspace (Structural and Materials Engineering (SME) Building) and the Design and Innovation Building (DIB) Makerspace, with 3D printers and hand tools provided.</p>
-      <ul>
-        <li><strong>DIB Makerspace</strong> (9510 Innovation Ln, near the UCSD Central Campus trolley station): open 1–6 PM Saturday, closed Sunday, UCSD students only. Hard cut-off is 7 PM. Prints started before closing keep running overnight and an organizer picks them up the next day, but long unsupervised prints aren't guaranteed to finish. Scan your student ID on entry.</li>
-        <li><strong>EnVision Makerspace</strong> (SME Building, 3291 Voigt Dr): standard hours 12–4 PM Saturday (UCSD students only, with an organizer holding a DataHacks table), then reserved for DataHacks overnight with full access to hand tools and 9 Bambu Lab 3D printers. Classrooms SME 302 and 304/306 are open to competitors after 6 PM. Non-UCSD students can only use EnVision, after its open hours.</li>
-        <li>3D printing uses a sign-up sheet, and G-code is reviewed before printing. Keep prints to 10 hours or less on one print bed. Longer prints need a volunteer's sign-off.</li>
-        <li>Outside materials can be brought in once DataHacks starts.</li>
-      </ul>
-      <h3>Sponsor challenges</h3>
-      <p>Sponsors run special challenges with extra prizes, which teams can win alongside tracks. See the <A href="https://docs.google.com/document/d/1XNavL7E6oWTiJOveEbOH5kSt_fNvt0lNWKxOKGylrWQ/edit?tab=t.zf9h33ydpfhg">challenge descriptions and prizes</A>.</p>
+      {TRACK_RULES}
+      {HARDWARE}
+      {SPONSOR_CHALLENGES}
     </>,
   },
   {
@@ -312,3 +335,114 @@ export const HANDBOOK: HandbookSection[] = [
     </>,
   },
 ];
+
+// The hacker portal splits the handbook into its own pages (see HACKER_GUIDE_PAGES).
+// Sections marked draft are placeholders for organizers to fill in.
+
+export type GuideSection = HandbookSection & { draft?: boolean };
+export type GuidePage = { title: string; intro: string; sections: GuideSection[] };
+
+const section = (id: string) => HANDBOOK.find(s => s.id === id)!;
+
+export const HACKER_GUIDE: Record<HackerGuideSlug, GuidePage> = {
+  resources: {
+    title: "Resources",
+    intro: "The essentials: what DataHacks is, what to bring, and free tools for your project.",
+    sections: [section("welcome"), section("overview"), section("general"), section("resources")],
+  },
+  transportation: {
+    title: "Transportation",
+    intro: "Getting to the venue by car, rideshare, bus, trolley or FlixBus.",
+    sections: [{ id: "getting-here", title: "Getting Here", content: GETTING_HERE }],
+  },
+  travel: {
+    title: "Travel",
+    intro: "Coming from out of town? Here's how travel works.",
+    sections: [
+      {
+        id: "travel-support",
+        title: "Travel support",
+        draft: true,
+        content: <>
+          <p>Hackers coming from outside San Diego may be offered travel support. If you were, the amount is in your acceptance email.</p>
+          <ul>
+            <li>Who's eligible and how much: to be confirmed.</li>
+            <li>Booking: book your own flight, bus or train, and keep every receipt. See Reimbursement for how to claim it back.</li>
+            <li>Arrival: plan to arrive before check-in closes for non-UCSD students.</li>
+          </ul>
+        </>,
+      },
+      {
+        id: "staying-over",
+        title: "Staying overnight",
+        draft: true,
+        content: <>
+          <p>The venue stays open overnight with a quiet sleeping room. We don't provide bedding, so bring a sleeping bag, pillow and anything else you need to rest. Nearby hotel options: to be confirmed.</p>
+        </>,
+      },
+    ],
+  },
+  reimbursement: {
+    title: "Reimbursement",
+    intro: "How travel reimbursements are paid out.",
+    sections: [
+      { id: "travel-reimbursements", title: "Travel reimbursements", content: TRAVEL_REIMBURSEMENTS },
+      {
+        id: "claiming",
+        title: "How to claim",
+        draft: true,
+        content: <>
+          <ol>
+            <li>Keep the receipts for every ticket you were reimbursed for.</li>
+            <li>Submit a completed project on Devpost before the hard deadline.</li>
+            <li>After the event, fill out the reimbursement form (link to come) with your receipts and payment details.</li>
+            <li>Payment timeline: to be confirmed.</li>
+          </ol>
+        </>,
+      },
+    ],
+  },
+  food: {
+    title: "Food",
+    intro: "Every meal and snack we serve over the weekend.",
+    sections: [section("menu")],
+  },
+  mentorship: {
+    title: "Mentorship",
+    intro: "Getting help from mentors during the event. The Mentors tab shows who's here right now.",
+    sections: [section("mentorship")],
+  },
+  prizes: {
+    title: "Prizes",
+    intro: "What you can win, who's sponsoring, and common questions.",
+    sections: [section("more")],
+  },
+  tracks: {
+    title: "Tracks & challenges",
+    intro: "The rules, the domain tracks, required datasets and sponsor challenges.",
+    sections: [
+      { id: "tracks", title: "Rules & tracks", content: TRACK_RULES },
+      { id: "challenges", title: "Sponsor challenges", content: SPONSOR_CHALLENGES },
+    ],
+  },
+  hardware: {
+    title: "Hardware",
+    intro: "Hardware for the hardware tracks, and the makerspaces you can use.",
+    sections: [
+      { id: "hardware", title: "Hardware & makerspaces", content: HARDWARE },
+      {
+        id: "lending",
+        title: "Borrowing hardware",
+        draft: true,
+        content: <>
+          <p>Hardware is checked out at the hardware desk with your lanyard and returned before judging. What's available this year and where the desk is: to be confirmed.</p>
+        </>,
+      },
+    ],
+  },
+  devpost: {
+    title: "Devpost",
+    intro: "Submitting your project and how it's judged.",
+    sections: [section("submission")],
+  },
+};

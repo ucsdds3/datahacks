@@ -52,7 +52,7 @@
 .sp-brand img { width: 36px; height: 36px; object-fit: contain; }
 .sp-brand strong { display: block; font-size: 16px; }
 .sp-brand span { display: block; font-size: 12px; color: var(--sp-muted); }
-.sp-nav { display: flex; flex-direction: column; gap: 4px; }
+.sp-nav { display: flex; flex-direction: column; gap: 4px; min-height: 0; overflow-y: auto; }
 .sp-root .sp-nav-link {
   display: flex;
   align-items: center;
@@ -589,6 +589,9 @@
 .sp-prose p, .sp-prose ul { color: #3a4535; }
 .sp-prose section + section { border-top-color: #c3cbb5; }
 .sp-demo-note { border-radius: 0; border: 2px solid #c9a95a; background: #f6ecc9; color: #5f4710; }
+/* A hacker page section that's still a placeholder. */
+.sp-prose .sp-draft-note { display: inline-block; margin-top: 10px; padding: 4px 10px; color: #5f4710; }
+.sp-prose ol { margin: 10px 0 0; padding-left: 20px; list-style: decimal; color: #3a4535; }
 .sp-table-wrap { border: 2px solid #9aa58e; border-radius: 0; }
 .sp-table th { background: var(--sp-bg); font-weight: 500; }
 .sp-table th, .sp-table td { border-bottom-color: #c3cbb5; }

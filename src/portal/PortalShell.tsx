@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { NoIndex } from "@/components/NoIndex";
+import { HACKER_GUIDE_PAGES } from "@/staff-portal/config";
+import { prefetchPortalPages } from "./pages";
 
 const PORTAL = "DataHacks Application Portal";
 
@@ -10,11 +12,15 @@ const PAGE_NAMES: Record<string, string> = {
   "": "Status",
   questions: "Application",
   handbook: "Handbook",
+  ...Object.fromEntries(HACKER_GUIDE_PAGES.map(p => [p.slug, p.label])),
   schedule: "Run of Show",
   waiver: "Liability Waiver",
   judging: "Judging",
   mentors: "Mentors",
 };
+
+/** The portal's dark page colour, behind everything while a portal page is open. */
+const PORTAL_BACKGROUND = "#26382f";
 
 /** The browser tab's name for a portal page, so it reads as the portal rather than the main site. */
 export function portalTitle(pathname: string): string {
@@ -47,6 +53,16 @@ export default function PortalShell() {
     return () => { document.title = siteTitle; };
   }, []);
   useEffect(() => { document.title = portalTitle(pathname); }, [pathname]);
+
+  // No white behind the portal: paint the page dark (overscroll, a page still loading),
+  // and fetch the other pages now so moving between them is instant.
+  useEffect(() => {
+    const html = document.documentElement;
+    const before = html.style.backgroundColor;
+    html.style.backgroundColor = PORTAL_BACKGROUND;
+    prefetchPortalPages();
+    return () => { html.style.backgroundColor = before; };
+  }, []);
 
   return <AuthProvider><NoIndex /><Outlet /></AuthProvider>;
 }
