@@ -6,6 +6,8 @@
 //
 // applicant.json: { "email": "...@example.com", "name": "First Last",
 //                   "application": { applicant_type, first_name, ... } }
+// Leave "application" out to make only the account, so a tester can apply
+// through the real form.
 // Reads VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY
 // and VITE_DEV_TEST_PASSWORD from .env.local. Never prints them.
 
@@ -61,6 +63,12 @@ for (const file of process.argv.slice(2)) {
   const as = { token: session.access_token };
 
   await call("/rest/v1/profiles", { ...as, method: "POST", body: { id: user.id, email: spec.email }, prefer: "resolution=merge-duplicates,return=minimal" });
+
+  // No application: just the account, for a tester to fill the form in themselves.
+  if (!spec.application) {
+    console.log(`${spec.email}: account ready, no application`);
+    continue;
+  }
 
   const existing = await call(`/rest/v1/applications?user_id=eq.${user.id}&event_id=eq.${event.id}&select=id`, as);
   if (existing.length) {

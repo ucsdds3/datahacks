@@ -13,6 +13,7 @@ export default function TestAccounts() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
   const as = params.get('testAs')
+  const go = params.get('go')
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -24,9 +25,10 @@ export default function TestAccounts() {
     }
     supabase.auth.signInWithPassword({ email: as, password }).then(({ error: signInError }) => {
       if (signInError) setError(signInError.message)
-      else navigate(portal.home, { replace: true })
+      // ?go=/portal/apply/mentor-judge lands a fresh account on that form.
+      else navigate(go?.startsWith('/portal') ? go : portal.home, { replace: true })
     })
-  }, [as, navigate])
+  }, [as, go, navigate])
 
   if (as) {
     return <main style={{ padding: 32, fontFamily: 'system-ui' }}>{error ? <p>Couldn't sign in as {as}: {error}</p> : <p>Signing in as {as}…</p>}</main>
