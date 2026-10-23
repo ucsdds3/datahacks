@@ -14,7 +14,7 @@ Two Supabase projects: **staging** (`gpoqlosneoicpzrluilj`, test data only) and 
 1. **Make a change:** `npx supabase@2.121.0 migration new <what_it_does>` creates `supabase/migrations/<UTC timestamp>_<what_it_does>.sql`. Write the SQL there. Keep it additive (add columns and tables; don't drop or rename in the same step), because the free plan has no automatic backups and the site deploys separately from the database.
 2. **Open a PR.** `supabase-ci` checks that existing migrations weren't edited and new ones sort last, applies the new ones to staging inside a transaction that's rolled back (so staging keeps matching `main`), and type-checks the edge functions.
 3. **Merge to `main`.** `supabase-deploy` applies the migrations to staging, lints it, and deploys `send-email` and `send-wallet-passes` there; then, only if staging succeeded, does a dry run on production, applies the migrations and deploys the functions to production.
-4. **Every night,** `supabase-drift` fails if production's schema (tables, functions, grants, storage policies, Realtime) differs from staging's, which catches changes made by hand in the SQL editor. `supabase-backup` saves an encrypted copy of production.
+4. **Every night,** `supabase-drift` fails if production's schema (tables, functions, grants, storage policies, Realtime) differs from staging's, which catches changes made by hand in the SQL editor. `supabase-backup` saves an encrypted copy of production, and every Sunday `supabase-restore-drill` proves those copies restore (see `docs/backups.md`).
 
 Never change the schema in the dashboard's SQL editor any more: write a migration. The check-in repo (DS3-DataHacks-Check-in) shares this database, so its SQL changes come here as PRs too. Function secrets (Gmail, WalletWallet) stay in the dashboard; CI never touches them. Never run `supabase config push`.
 
@@ -27,7 +27,7 @@ Never change the schema in the dashboard's SQL editor any more: write a migratio
   gh variable set SUPABASE_PROD_BOOTSTRAPPED --repo ucsdds3/datahacks --body true
   ```
   This only writes the history table; it runs no SQL. Until the variable is `true`, `supabase-deploy` stops before touching production. (Percent-encode the password if it has symbols.)
-- [ ] **`BACKUP_PASSPHRASE` secret:** a long random passphrase, also kept in the team's password manager. Without it the nightly backup skips with a warning. This repo is public, so only the encrypted file is ever uploaded (kept 7 days as a workflow artifact). Restore with `gpg --decrypt` then `pg_restore`.
+- [ ] **`BACKUP_PASSPHRASE` secret:** a long random passphrase, also kept in the team's password manager. Without it the nightly backup skips with a warning. This repo is public, so only the encrypted file is ever uploaded (kept 7 days as a workflow artifact). How to restore, and what isn't backed up (resume files): `docs/backups.md`.
 - [ ] **GitHub Environment `supabase-production`** (Settings → Environments), limited to the `main` branch. The deploy job uses it; GitHub creates it on the first run if it doesn't exist, but without the branch rule.
 - [ ] **Protect `main`:** require pull requests and the `supabase-ci` checks before merging, since a merge now changes the production database.
 

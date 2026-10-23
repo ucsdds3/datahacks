@@ -3,9 +3,8 @@
 # leaves the runner: it's encrypted with the BACKUP_PASSPHRASE secret and kept
 # as a workflow artifact for 7 days.
 #
-# Restore: download the artifact, then
-#   gpg --decrypt datahacks-prod-<date>.dump.gpg > prod.dump
-#   pg_restore --list prod.dump   # look before restoring anything
+# Restore: see docs/backups.md. supabase-restore-drill checks every week that
+# these files restore and match production.
 name: supabase-backup
 
 on:
