@@ -19,4 +19,10 @@ export const TEST_ACCOUNTS: TestAccount[] = [
   { email: "ravi.shah@example.com", name: "Ravi Shah", kind: "Mentor" },
   { email: "elena.petrova@example.com", name: "Elena Petrova", kind: "Judge" },
   { email: "jordan.taylor@example.com", name: "Jordan Taylor", kind: "Mentor & judge" },
+  { email: "maya.chen@example.com", name: "Maya Chen", kind: "Mentor" },
+  { email: "omar.haddad@example.com", name: "Omar Haddad", kind: "Mentor" },
+  { email: "natalie.brooks@example.com", name: "Natalie Brooks", kind: "Judge" },
+  { email: "samuel.ortiz@example.com", name: "Samuel Ortiz", kind: "Judge" },
+  { email: "keiko.tanaka@example.com", name: "Keiko Tanaka", kind: "Mentor & judge" },
+  { email: "ben.carter@example.com", name: "Ben Carter", kind: "Mentor & judge" },
 ];
