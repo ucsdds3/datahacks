@@ -27,54 +27,12 @@ export const LEVELS_OF_STUDY = [
   "Other",
 ];
 
-/** Suggestions for the school field; anything else can be typed in. */
-export const SCHOOLS = [
-  "Arizona State University",
-  "California Institute of Technology",
-  "California Polytechnic State University, Pomona",
-  "California Polytechnic State University, San Luis Obispo",
-  "California State University, Fullerton",
-  "California State University, Long Beach",
-  "California State University, Los Angeles",
-  "California State University, Northridge",
-  "California State University San Marcos",
-  "Carnegie Mellon University",
-  "Claremont McKenna College",
-  "Columbia University",
-  "Cornell University",
-  "Georgia Institute of Technology",
-  "Grossmont College",
-  "Harvard University",
-  "Harvey Mudd College",
-  "Massachusetts Institute of Technology",
-  "MiraCosta College",
-  "Mesa College (San Diego)",
-  "Miramar College (San Diego)",
-  "New York University",
-  "Point Loma Nazarene University",
-  "Pomona College",
-  "Purdue University",
-  "San Diego City College",
-  "San Diego State University",
-  "San Jose State University",
-  "Southwestern College",
-  "Stanford University",
-  "University of California, Berkeley",
-  "University of California, Davis",
-  "University of California, Irvine",
-  "University of California, Los Angeles",
-  "University of California, Merced",
-  "University of California, Riverside",
-  "University of California, San Diego",
-  "University of California, Santa Barbara",
-  "University of California, Santa Cruz",
-  "University of Illinois Urbana-Champaign",
-  "University of Michigan",
-  "University of San Diego",
-  "University of Southern California",
-  "University of Texas at Austin",
-  "University of Washington",
-];
+/**
+ * Suggestions for the school field: every US and Canadian college and university
+ * in the open Hipo university-domains-list (MIT licensed,
+ * github.com/Hipo/university-domains-list), A–Z. Anything else can be typed in.
+ */
+export { default as SCHOOLS } from "./schools.json";
 
 const thisYear = new Date().getFullYear();
 export const GRADUATION_YEARS = [...Array.from({ length: 8 }, (_, i) => String(thisYear + i)), "Already graduated", "Not applicable"];
