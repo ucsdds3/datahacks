@@ -70,7 +70,7 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
     try {
       if (mode === "release") {
         setProgress("Releasing decisions…");
-        const released = await releaseDecisions(eventId);
+        const released = await releaseDecisions(eventId, unsentDecisionRows(rows).map(r => r.id));
         result.released = released.length;
         emailGroups = groupIds(released.map(r => ({ id: r.application_id, decision: r.status, type: r.applicant_type })));
         onChanged();

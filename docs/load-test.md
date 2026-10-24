@@ -120,6 +120,13 @@ until a short page comes back (or raise *Max rows* in API settings, which
 only moves the cliff). Loading the long essay columns only when an
 application is opened would also cut the ~3 MB per refresh.
 
+**Fixed** on branch `console-paging`: the console pages through applications
+and the attendee roster 1,000 at a time, loads 14 list columns instead of 39
+(essays load one application at a time when it's opened), stages decisions
+100 ids per request (a URL past about 16 KB, roughly 430 ids, gets a 400),
+and finds everyone a large release covered even though `release_decisions`'
+reply is capped at 1,000 rows too.
+
 ## Supabase Free vs Pro, for this
 
 | | Free (staging today) | Pro ($25/month) |
