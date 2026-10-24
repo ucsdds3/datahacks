@@ -7,7 +7,7 @@ a courtesy; the database's are the rule.
 
 ## What the database enforces
 
-`supabase/migrations/20261023225421_application_checks.sql` adds one
+`supabase/migrations/20261024001558_application_checks.sql` adds one
 `application_<column>_check` per column of `public.applications`:
 
 | Columns | Rule |
