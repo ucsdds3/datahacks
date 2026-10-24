@@ -47,6 +47,15 @@ per user, not per event (see below).
 **Dev**: `scripts/dev/create-dummy-applicant.mjs` hardcodes DH27BETA, and its
 dummies are `@example.com`.
 
+**Applications open**: `events.applications_open` is each event's switch, off
+for a new event. While it's off, the database refuses an applicant's new
+application or submitted draft for that event (trigger
+`applications_require_open_event`), and the apply pages show "Applications open
+on <date>" from `events.applications_open_at` (or "aren't open right now" with
+no date) instead of the form. Organizers of the event and the service role are
+exempt, and decisions, release and check-in never check it. DH27BETA is on for
+testing. Tests: `supabase/tests/run.sh`.
+
 ## Switching EVENT_CODE to DH27
 
 1. Add DH27 in Table Editor -> events (code `DH27`; the code is the check-in code prefix).
@@ -57,8 +66,11 @@ dummies are `@example.com`.
 3. Change `EVENT_CODE` in `src/portal/event.ts`. That's the only place: the
    console and the release confirmation read it. Leave
    `scripts/dev/create-dummy-applicant.mjs` on DH27BETA.
-4. Deploy, then check as an organizer: the console header says DH27 and the
+4. Open applications: in Table Editor -> events, set DH27's `applications_open`
+   to true (optionally fill `applications_open_at` beforehand, so the apply pages
+   announce the date until then). Set it back to false to close them.
+5. Deploy, then check as an organizer: the console header says DH27 and the
    table is empty.
-5. Point the check-in desk (DS3-DataHacks-Check-in) at DH27's event too.
-6. To keep testing, use a separate deploy (or a local `npm run dev`) built with
+6. Point the check-in desk (DS3-DataHacks-Check-in) at DH27's event too.
+7. To keep testing, use a separate deploy (or a local `npm run dev`) built with
    `EVENT_CODE = "DH27BETA"`. Never send emails or passes from it to real people.
