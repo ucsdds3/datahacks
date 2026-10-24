@@ -19,6 +19,7 @@ export const portalPages = {
   hackerGuide: () => import("@/staff-portal/HackerGuide"),
   judging: () => import("@/staff-portal/JudgingPortal"),
   organizer: () => import("@/organizer/OrganizerConsole"),
+  oauthConsent: () => import("@/pages/OAuthConsent"),
 };
 
 /** Fetch every page chunk when the browser is idle. Already-loaded ones cost nothing. */

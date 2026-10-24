@@ -20,3 +20,9 @@ verify_jwt = true
 
 [functions.docusign-waiver]
 verify_jwt = true
+
+# The MCP server checks tokens itself (@supabase/server), and MCP clients have to
+# reach its OAuth discovery endpoints before they have a token, so the gateway
+# must not reject calls without one.
+[functions.mcp]
+verify_jwt = false
