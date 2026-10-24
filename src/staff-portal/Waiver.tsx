@@ -16,7 +16,8 @@ type SigningSession = {
 };
 declare global {
   interface Window {
-    DocuSign?: { loaded: (opts: { clientId: string }) => Promise<{ signing: (opts: { url: string; displayFormat: "focused" }) => SigningSession }> };
+    // bundle.js exposes loadDocuSign(integrationKey); there is no `loaded`.
+    DocuSign?: { loadDocuSign: (clientId: string) => Promise<{ signing: (opts: { url: string; displayFormat: "focused" }) => SigningSession }> };
   }
 }
 
@@ -105,7 +106,7 @@ export default function Waiver() {
         loadBundle(),
       ]);
       storeEnvelope(envelopeId);
-      const docusign = await window.DocuSign!.loaded({ clientId: DOCUSIGN.clientId });
+      const docusign = await window.DocuSign!.loadDocuSign(DOCUSIGN.clientId);
       const signing = docusign.signing({ url, displayFormat: "focused" });
       signing.on("sessionEnd", event => {
         const end = event.sessionEndType ?? "";

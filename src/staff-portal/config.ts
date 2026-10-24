@@ -4,11 +4,11 @@
 /**
  * DocuSign embedded signing for the liability waiver. The waiver file itself lives in
  * DocuSign as a template; the server side is supabase/functions/docusign-waiver (setup
- * steps are at the top of that file). Paste the app's integration key here once it
- * exists. While it's empty the waiver page says the document isn't ready yet.
+ * steps are in docs/docusign-waiver.md). clientId is the app's integration key, which is
+ * public. While it's empty the waiver page says the document isn't ready yet.
  */
 export const DOCUSIGN: { clientId: string; environment: "demo" | "production" } = {
-  clientId: "",
+  clientId: "24c6a289-a194-46f9-a5f3-3a13fd5aa71a",
   environment: "demo",
 };
 
