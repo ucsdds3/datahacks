@@ -8,7 +8,7 @@ const COLUMNS = [
   "id", "user_id", "event_id", "applicant_type", "status", "submitted_at",
   "first_name", "last_name", "email", "phone",
   "school", "level_of_study", "major", "graduation_year",
-  "organization", "role_title", "resume_url", "resume_path", "linkedin_url", "devpost_url",
+  "organization", "role_title", "resume_url", "linkedin_url", "devpost_url",
   "judging_track", "bio", "essay_proudest_project", "essay_unique_thing", "essay_goal", "heard_about",
   "gender", "race_ethnicity", "city_of_residence", "country_of_residence", "hackathon_experience", "github_url",
   "wants_travel_stipend", "travel_region", "travel_method", "travel_distance", "travel_stipend_reason",
@@ -157,11 +157,4 @@ export async function sendWalletPasses(eventId: string, onProgress?: (sent: numb
       return total;
     }
   }
-}
-
-/** A short-lived link to a hacker's uploaded resume. */
-export async function resumeLink(path: string): Promise<string> {
-  const { data, error } = await supabase.storage.from("resumes").createSignedUrl(path, 300);
-  if (error || !data) throw error ?? new Error("No link returned.");
-  return data.signedUrl;
 }

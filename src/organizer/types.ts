@@ -26,7 +26,6 @@ export type Application = {
   organization: string | null;
   role_title: string | null;
   resume_url: string | null;
-  resume_path: string | null;
   linkedin_url: string | null;
   devpost_url: string | null;
   judging_track: string | null;
