@@ -18,6 +18,10 @@
 //   resend          include people who already have emailed_at set
 //   limit           most to send in this request (default and max 40); call again while remaining > 0
 //
+// GET  ->  { applicationIds: true }. The console asks before sending to chosen
+// people, so a console that ships ahead of this function gets a 405 from the
+// old one and stops, instead of the old one emailing everyone without a pass.
+//
 // Secrets: WALLETWALLET_API_KEY, GMAIL_ADDRESS, GMAIL_APP_PASSWORD, SEND_DELAY_SECONDS (optional).
 // SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 // Deploy: supabase functions deploy send-wallet-passes
@@ -110,6 +114,7 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
+  if (req.method === "GET") return json({ applicationIds: true });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
   let input: { eventId?: unknown; applicationIds?: unknown; resend?: unknown; limit?: unknown };

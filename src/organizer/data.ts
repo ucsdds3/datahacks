@@ -131,13 +131,28 @@ type WalletPassRound = WalletPassResult & { remaining: number };
 /** The function's per-request maximum, so each chosen-people request is one round. */
 export const WALLET_PASS_CHUNK = 40;
 
+const notSetUp = (error: { name: string; context?: { status?: number } }) =>
+  error.name === "FunctionsFetchError" || error.name === "FunctionsRelayError" || error.context?.status === 404;
+
+const NOT_SET_UP = "Wallet passes aren't set up yet. Deploy the send-wallet-passes function (see supabase/functions/send-wallet-passes) and try again.";
+
+/**
+ * Before sending to chosen people, makes sure the deployed function knows
+ * applicationIds. An older one ignores the list and would email everyone
+ * without a pass, so it's refused here and nothing is sent.
+ */
+async function checkCanChoose() {
+  const { data, error } = await supabase.functions.invoke("send-wallet-passes", { method: "GET" });
+  if (error && notSetUp(error)) throw new Error(NOT_SET_UP);
+  if (error || (data as { applicationIds?: unknown } | null)?.applicationIds !== true) {
+    throw new Error("The deployed send-wallet-passes function can't send to chosen people yet. Deploy the latest version and try again. Nothing was sent.");
+  }
+}
+
 async function walletPassRound(body: Record<string, unknown>): Promise<WalletPassRound> {
   const { data, error } = await supabase.functions.invoke("send-wallet-passes", { body });
   if (error) {
-    const status = (error as { context?: { status?: number } }).context?.status;
-    if (error.name === "FunctionsFetchError" || error.name === "FunctionsRelayError" || status === 404) {
-      throw new Error("Wallet passes aren't set up yet. Deploy the send-wallet-passes function (see supabase/functions/send-wallet-passes) and try again.");
-    }
+    if (notSetUp(error)) throw new Error(NOT_SET_UP);
     let message = error.message;
     try {
       const detail = await (error as { context?: Response }).context?.json();
@@ -157,8 +172,8 @@ async function walletPassRound(body: Record<string, unknown>): Promise<WalletPas
  * address) can't loop forever.
  *
  * With applicationIds it sends to just those people, 40 per request, once
- * each; resend also covers chosen people who already have a pass. An empty
- * list sends nothing.
+ * each, after checking the deployed function supports that; resend also
+ * covers chosen people who already have a pass. An empty list sends nothing.
  */
 export async function sendWalletPasses(
   eventId: string,
@@ -170,6 +185,7 @@ export async function sendWalletPasses(
   const { applicationIds, resend = false } = options;
 
   if (applicationIds) {
+    if (applicationIds.length > 0) await checkCanChoose();
     for (let i = 0; i < applicationIds.length; i += WALLET_PASS_CHUNK) {
       const round = await walletPassRound({ eventId, applicationIds: applicationIds.slice(i, i + WALLET_PASS_CHUNK), resend });
       total.sent += round.sent;

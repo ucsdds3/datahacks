@@ -1,15 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-// Records what the console asks send-wallet-passes for, and answers like the function would.
+// Records what the console asks send-wallet-passes to send, and answers like the function would.
+// GET is the "do you know applicationIds?" check; oldFunction answers it like the previous version (405).
 const calls: Record<string, unknown>[] = [];
+const checks: string[] = [];
+let oldFunction = false;
 let respond: (body: Record<string, unknown>) => unknown = () => ({ sent: 0, failed: [], remaining: 0 });
 vi.mock("@/lib/supabaseClient", () => ({
   supabase: {
     functions: {
-      invoke: async (_name: string, { body }: { body: Record<string, unknown> }) => {
-        calls.push(body);
-        return { data: respond(body), error: null };
+      invoke: async (_name: string, { body, method }: { body?: Record<string, unknown>; method?: string }) => {
+        if (method === "GET") {
+          checks.push("GET");
+          return oldFunction
+            ? { data: null, error: Object.assign(new Error("Edge Function returned a non-2xx status code"), { name: "FunctionsHttpError", context: { status: 405 } }) }
+            : { data: { applicationIds: true }, error: null };
+        }
+        if (oldFunction) throw new Error("the old function would have emailed everyone");
+        calls.push(body!);
+        return { data: respond(body!), error: null };
       },
     },
   },
@@ -28,6 +38,8 @@ const row = (id: string, status: string, code: string | null, passSentAt: string
 
 beforeEach(() => {
   calls.length = 0;
+  checks.length = 0;
+  oldFunction = false;
   respond = () => ({ sent: 0, failed: [], remaining: 0 });
 });
 
@@ -101,6 +113,20 @@ describe("sendWalletPasses", () => {
     expect(calls.every(c => c.eventId === "event-1" && c.resend === true)).toBe(true);
     expect(result.sent).toBe(90);
     expect(result.failed).toHaveLength(3);
+  });
+
+  it("checks the function knows applicationIds before sending to chosen people", async () => {
+    respond = () => ({ sent: 1, failed: [], remaining: 0 });
+    await sendWalletPasses("event-1", undefined, { applicationIds: [uuid(1)] });
+    expect(checks).toEqual(["GET"]);
+    await sendWalletPasses("event-1");
+    expect(checks).toEqual(["GET"]);
+  });
+
+  it("sends nothing if the deployed function is too old to pick people", async () => {
+    oldFunction = true;
+    await expect(sendWalletPasses("event-1", undefined, { applicationIds: [uuid(1)] })).rejects.toThrow(/Nothing was sent/);
+    expect(calls).toEqual([]);
   });
 
   it("sends nothing for an empty selection", async () => {
