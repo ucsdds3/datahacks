@@ -97,5 +97,23 @@ const DECISIONS: readonly string[] = ["accepted", "waitlisted", "rejected"];
 export const unsentDecisionRows = <T extends Application>(rows: T[]) =>
   rows.filter(r => r.decision_released_at && !r.decision_emailed_at && r.status !== null && DECISIONS.includes(r.status));
 
+/** Accepted (released) and on the check-in roster, so a pass can be made for them. */
+export const canGetPass = (r: Row) => r.status === "accepted" && !!r.code;
+
 /** Accepted, on the check-in roster, and not sent a pass yet (by the console or the check-in repo's script). */
-export const needsPass = (r: Row) => r.status === "accepted" && !!r.code && !r.passSentAt;
+export const needsPass = (r: Row) => canGetPass(r) && !r.passSentAt;
+
+/**
+ * The people an organizer picked, split by what "Send pass" does for them:
+ * due get their first pass, alreadySent only get one again if the organizer
+ * asks, and noCode can't get one (not accepted, or not released yet).
+ */
+export function passTargets(rows: Row[], ids: Iterable<string>) {
+  const chosen = new Set(ids);
+  const picked = rows.filter(r => chosen.has(r.id));
+  return {
+    due: picked.filter(needsPass),
+    alreadySent: picked.filter(r => canGetPass(r) && !!r.passSentAt),
+    noCode: picked.filter(r => !canGetPass(r)),
+  };
+}

@@ -1,10 +1,10 @@
 import { useMemo, useState } from "react";
-import { Check, Download, Search } from "lucide-react";
+import { Check, Download, Search, Ticket } from "lucide-react";
 import { applicationBatch } from "@/staff-portal/config";
 import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
 import { stageDecision } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, canGetPass, fullName, isStaged, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
 const TABS: Tab[] = ["applied", "accepted", "waitlisted", "rejected"];
 
@@ -46,7 +46,13 @@ const CSV_EXTRA: Column[] = [
 
 const TABLE_SLUG: Record<Kind, string> = { hacker: "hackers", staff: "mentors-judges" };
 
-export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kind; rows: Row[]; onChanged: () => void }) {
+export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses }: {
+  kind: Kind;
+  rows: Row[];
+  onChanged: () => void;
+  /** Opens the wallet pass dialog for just these application ids. */
+  onSendPasses?: (ids: string[]) => void;
+}) {
   const [tab, setTab] = useState<Tab>("applied");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -96,7 +102,9 @@ export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kin
   };
 
   const open = rows.find(r => r.id === openId);
-  const selectedCount = visible.filter(r => selected.has(r.id)).length;
+  const selectedRows = visible.filter(r => selected.has(r.id));
+  const selectedCount = selectedRows.length;
+  const canSendPasses = !!onSendPasses && selectedRows.some(canGetPass);
 
   return (
     <section className="sp-card og-table-card">
@@ -126,6 +134,11 @@ export default function ApplicationsTable({ kind, rows, onChanged }: { kind: Kin
             <button key={d} className={`sp-button og-decide-${d}`} disabled={busy} onClick={() => stageSelected(d)}>{DECISION_LABEL[d]}</button>
           ))}
           <button className="sp-button" disabled={busy} onClick={() => stageSelected(null)}>Clear decision</button>
+          {canSendPasses && (
+            <button className="sp-button" disabled={busy} onClick={() => onSendPasses!(selectedRows.map(r => r.id))}>
+              <Ticket size={15} aria-hidden /> Send pass
+            </button>
+          )}
         </div>
       )}
       {error && <p className="sp-error">{error}</p>}
