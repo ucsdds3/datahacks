@@ -17,6 +17,7 @@
 //                             PKCS#1; convert with: openssl pkcs8 -topk8 -nocrypt -in key.pem
 //   DOCUSIGN_TEMPLATE_ID      template made from the waiver file
 //   DOCUSIGN_TEMPLATE_ROLE    signer role name in that template (default "Signer")
+// Full setup (consent, template, test script): docs/docusign-waiver.md
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { importPKCS8, SignJWT } from "npm:jose@5.9.6";
@@ -100,7 +101,22 @@ Deno.serve(async req => {
     if (body.action === "start") {
       const origin = req.headers.get("Origin");
       if (!origin) return json({ error: "Missing origin" }, 400);
-      const name = (user.user_metadata?.full_name as string | undefined)?.trim() || user.email;
+      // Only accepted applicants get a waiver; each envelope counts against the DocuSign plan.
+      // Row-level security limits this to the caller's own applications.
+      const { data: applications, error: applicationError } = await supabase
+        .from("applications")
+        .select("first_name, last_name")
+        .eq("user_id", user.id)
+        .eq("status", "accepted")
+        .order("submitted_at", { ascending: false })
+        .limit(1);
+      if (applicationError) throw applicationError;
+      const application = applications?.[0];
+      if (!application) return json({ error: "Only accepted applicants can sign the waiver." }, 403);
+      // Same name the portal greets them with, so the waiver's "Participant full name" matches.
+      const name = `${application.first_name ?? ""} ${application.last_name ?? ""}`.trim()
+        || (user.user_metadata?.full_name as string | undefined)?.trim()
+        || user.email;
       // Back to the waiver page of whichever portal (mentor/judge) started signing.
       const returnPath = typeof body.returnPath === "string" && /^\/portal\/[a-z]+\/waiver$/.test(body.returnPath)
         ? body.returnPath

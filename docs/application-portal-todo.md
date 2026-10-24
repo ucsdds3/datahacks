@@ -53,7 +53,7 @@ Never change the schema in the dashboard's SQL editor any more: write a migratio
 - [ ] **One entrance.** A single "Create an account / Sign in" page for hackers, mentors and judges, linked from the main site, instead of three separate sign-in pages.
 - [ ] **Insurance / liability form for outside judges.** Sponsors will send engineers to judge, and we may invite professors. They need a separate form confirming they're insured or covered before the event.
 - [ ] Real coordinator contacts in `src/staff-portal/config.ts` (currently placeholders).
-- [ ] DocuSign: a developer account, a template made from the waiver PDF, the app's key in `src/staff-portal/config.ts`, and the secrets listed at the top of `supabase/functions/docusign-waiver/index.ts`. Until then the waiver page says the document isn't ready.
+- [ ] DocuSign: the demo account, app, consent and template are done, and a test signing completed (`docs/docusign-waiver.md`). What's left is setting the function's secrets on staging/production with the command in that doc. Until then, Start signing shows an error.
 - [ ] Waiver submissions are only remembered in the browser (`localStorage`), so organizers can't see who has signed. Store them in Supabase.
 - [ ] **Jev (TypeSafe AI) sort:** a server function scores each application top/bottom 50% with a confidence; shown as a column in the organizer console. Needs a Jev API key and a rubric.
 - [ ] Evan to push his branch. (He's the existing organizer in the database, and likely built the check-in system in a separate repo.)
