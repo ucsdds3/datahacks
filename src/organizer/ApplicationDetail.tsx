@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
+import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
 import { stageDecision } from "./data";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
@@ -16,8 +17,18 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-const Link = ({ href }: { href: string | null }) =>
-  href ? <a href={href} target="_blank" rel="noreferrer">{href} <ExternalLink size={12} aria-hidden /></a> : null;
+/** An applicant's link. Only http(s) becomes clickable; anything else (javascript:, data:) is shown as text. */
+function Link({ href }: { href: string | null }) {
+  if (!href) return null;
+  const safe = safeHref(href);
+  return safe ? <a href={safe} target="_blank" rel="noopener noreferrer">{href} <ExternalLink size={12} aria-hidden /></a> : <>{href}</>;
+}
+
+function Email({ email }: { email: string | null }) {
+  if (!email) return null;
+  const mailto = safeMailto(email);
+  return mailto ? <a href={mailto}>{email}</a> : <>{email}</>;
+}
 
 /** Everything one person submitted, with buttons that stage a decision. */
 export default function ApplicationDetail({ row, onClose, onChanged }: { row: Row; onClose: () => void; onChanged: () => void }) {
@@ -63,7 +74,7 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
       {error && <p className="sp-error">{error}</p>}
 
       <dl className="og-fields">
-        <Field label="Email" value={row.email && <a href={`mailto:${row.email}`}>{row.email}</a>} />
+        <Field label="Email" value={row.email && <Email email={row.email} />} />
         <Field label="Phone" value={row.phone} />
         <Field label="Submitted" value={formatDate(row.submitted_at)} />
         <Field label="Batch" value={applicationBatch(row.submitted_at) === "priority" ? "Priority" : "Regular"} />

@@ -1,5 +1,10 @@
 // Choices for the application forms' dropdowns. Lists are alphabetical, with
 // the likeliest answer pinned first where that saves scrolling.
+//
+// The database only accepts these exact options (application_*_check in
+// supabase/migrations/*_application_checks.sql, see docs/untrusted-input.md):
+// adding, renaming or removing one needs a migration that updates the matching
+// constraint. COUNTRIES and SCHOOLS aren't checked there.
 
 export const GENDERS = ["Woman", "Man", "Non-binary", "Prefer to self-describe", "Prefer not to say"];
 

@@ -7,7 +7,8 @@ import { portal } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
 import { indexSchools, searchSchools } from './schoolSearch'
-import { Combobox, MultiSelect, PhoneInput, Req, Select, YesNo, isHttpsUrl, isValidPhone } from './formFields'
+import { MAX_LENGTH, applicationErrorMessage, birthdateBounds, cleanLine, cleanText, isHttpsLink } from '@/lib/applicantInput'
+import { Combobox, MultiSelect, PhoneInput, Req, Select, YesNo, isValidPhone } from './formFields'
 import {
   COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
   TRAVEL_DISTANCES, TRAVEL_METHODS,
@@ -49,10 +50,12 @@ export default function HackerApplication() {
     if (!isValidPhone(form.phone)) return 'Enter a 10-digit phone number.'
     if (form.race_ethnicity.length === 0) return 'Choose at least one option for race/ethnicity.'
     if (form.attended_before === null) return 'Tell us whether you have attended DataHacks before.'
-    if (!isHttpsUrl(form.linkedin_url)) return 'Enter a link to your LinkedIn profile.'
-    if (!isHttpsUrl(form.github_url)) return 'Enter a link to your GitHub profile.'
-    if (form.devpost_url.trim() && !isHttpsUrl(form.devpost_url)) return 'Your Devpost link doesn\'t look like a link.'
-    if (!isHttpsUrl(form.resume_url)) return 'Enter a link to your resume.'
+    const { min, max } = birthdateBounds()
+    if (form.birthdate < min || form.birthdate > max) return 'Check your birthdate: DataHacks is for people 18 and over.'
+    if (!isHttpsLink(form.linkedin_url.trim())) return 'Enter a link to your LinkedIn profile, starting with https://.'
+    if (!isHttpsLink(form.github_url.trim())) return 'Enter a link to your GitHub profile, starting with https://.'
+    if (form.devpost_url.trim() && !isHttpsLink(form.devpost_url.trim())) return 'Your Devpost link should start with https://.'
+    if (!isHttpsLink(form.resume_url.trim())) return 'Enter a link to your resume, starting with https://.'
     if (form.heard_about.length === 0) return 'Tell us how you heard about DataHacks.'
     if (form.wants_travel_stipend === null) return 'Tell us whether you need travel reimbursement.'
     if (form.wants_travel_stipend && (!form.travel_region.trim() || !form.travel_method || !form.travel_distance)) {
@@ -88,6 +91,16 @@ export default function HackerApplication() {
       status: 'submitted',
       submitted_at: new Date().toISOString(),
       ...form,
+      first_name: cleanLine(form.first_name),
+      last_name: cleanLine(form.last_name),
+      city_of_residence: cleanLine(form.city_of_residence),
+      school: cleanLine(form.school),
+      major: cleanLine(form.major),
+      essay_proudest_project: cleanText(form.essay_proudest_project),
+      essay_unique_thing: cleanText(form.essay_unique_thing),
+      essay_goal: cleanText(form.essay_goal),
+      funniest_joke: cleanText(form.funniest_joke),
+      lifetime_goal: cleanText(form.lifetime_goal),
       race_ethnicity: form.race_ethnicity.join('; '),
       attended_before: form.attended_before === true,
       wants_travel_stipend: travel === true,
@@ -95,16 +108,15 @@ export default function HackerApplication() {
       github_url: form.github_url.trim(),
       devpost_url: form.devpost_url.trim() || null,
       resume_url: form.resume_url.trim(),
-      travel_region: travel ? form.travel_region.trim() : null,
+      travel_region: travel ? cleanLine(form.travel_region) : null,
       travel_method: travel ? form.travel_method : null,
       travel_distance: travel ? form.travel_distance : null,
-      travel_stipend_reason: travel ? form.travel_stipend_reason.trim() || null : null,
+      travel_stipend_reason: travel ? cleanText(form.travel_stipend_reason) || null : null,
     })
 
     setSubmitting(false)
     if (insertError) {
-      // 23505 = unique violation: one application per account per event
-      setError(insertError.code === '23505' ? "You've already applied. Your status is on the portal's Status page." : insertError.message)
+      setError(applicationErrorMessage(insertError))
       return
     }
 
@@ -124,10 +136,10 @@ export default function HackerApplication() {
         <div className="sp-form-fields">
           <h2 className="sp-form-section">About you</h2>
           <label>First name (as on your ID) <Req />
-            <input required autoComplete="given-name" {...text('first_name')} />
+            <input required autoComplete="given-name" maxLength={MAX_LENGTH.name} {...text('first_name')} />
           </label>
           <label>Last name (as on your ID) <Req />
-            <input required autoComplete="family-name" {...text('last_name')} />
+            <input required autoComplete="family-name" maxLength={MAX_LENGTH.name} {...text('last_name')} />
           </label>
           <label htmlFor="hk-phone">Phone number <Req />
             <PhoneInput id="hk-phone" value={form.phone} onChange={v => update('phone', v)} />
@@ -140,13 +152,13 @@ export default function HackerApplication() {
             <MultiSelect options={RACES} value={form.race_ethnicity} onChange={v => update('race_ethnicity', v)} />
           </div>
           <label>Birthdate <Req />
-            <input type="date" required {...text('birthdate')} />
+            <input type="date" required min={birthdateBounds().min} max={birthdateBounds().max} {...text('birthdate')} />
           </label>
           <label>Country of residence <Req />
             <Select options={COUNTRIES} value={form.country_of_residence} onChange={v => update('country_of_residence', v)} />
           </label>
           <label>City of residence <Req />
-            <input required autoComplete="address-level2" {...text('city_of_residence')} />
+            <input required autoComplete="address-level2" maxLength={MAX_LENGTH.short} {...text('city_of_residence')} />
           </label>
 
           <h2 className="sp-form-section">School</h2>
@@ -155,10 +167,10 @@ export default function HackerApplication() {
           </label>
           <div className="sp-field">
             <label className="sp-field-label" htmlFor="hk-school">School <Req /></label>
-            <Combobox id="hk-school" options={SCHOOLS} search={findSchools} value={form.school} onChange={v => update('school', v)} placeholder="Start typing your school's name, or a nickname like UCSD" />
+            <Combobox id="hk-school" options={SCHOOLS} search={findSchools} value={form.school} onChange={v => update('school', v)} maxLength={MAX_LENGTH.short} placeholder="Start typing your school's name, or a nickname like UCSD" />
           </div>
           <label>Major <Req />
-            <input required {...text('major')} />
+            <input required maxLength={MAX_LENGTH.short} {...text('major')} />
           </label>
           <label>Expected graduation year <Req />
             <Select options={GRADUATION_YEARS} value={form.graduation_year} onChange={v => update('graduation_year', v)} />
@@ -173,33 +185,33 @@ export default function HackerApplication() {
             <YesNo name="attended_before" value={form.attended_before} onChange={v => update('attended_before', v)} />
           </div>
           <label>LinkedIn profile <Req />
-            <input type="url" required placeholder="https://www.linkedin.com/in/…" {...text('linkedin_url')} />
+            <input type="url" required maxLength={MAX_LENGTH.link} placeholder="https://www.linkedin.com/in/…" {...text('linkedin_url')} />
           </label>
           <label>GitHub profile <Req />
-            <input type="url" required placeholder="https://github.com/…" {...text('github_url')} />
+            <input type="url" required maxLength={MAX_LENGTH.link} placeholder="https://github.com/…" {...text('github_url')} />
           </label>
           <label>Devpost profile <span>(optional)</span>
-            <input type="url" placeholder="https://devpost.com/…" {...text('devpost_url')} />
+            <input type="url" maxLength={MAX_LENGTH.link} placeholder="https://devpost.com/…" {...text('devpost_url')} />
           </label>
           <label>Link to your resume <Req />
-            <input type="url" required placeholder="Google Drive, Dropbox or any link we can open" {...text('resume_url')} />
+            <input type="url" required maxLength={MAX_LENGTH.link} placeholder="Google Drive, Dropbox or any link we can open" {...text('resume_url')} />
           </label>
 
           <h2 className="sp-form-section">A few questions</h2>
           <label>What's the project you're most proud of building? <Req />
-            <textarea required rows={4} {...text('essay_proudest_project')} />
+            <textarea required rows={4} maxLength={MAX_LENGTH.essay} {...text('essay_proudest_project')} />
           </label>
           <label>What's something unique you'd bring? <Req />
-            <textarea required rows={4} {...text('essay_unique_thing')} />
+            <textarea required rows={4} maxLength={MAX_LENGTH.essay} {...text('essay_unique_thing')} />
           </label>
           <label>What would you like to get out of this event? <Req />
-            <textarea required rows={4} {...text('essay_goal')} />
+            <textarea required rows={4} maxLength={MAX_LENGTH.essay} {...text('essay_goal')} />
           </label>
           <label>Funniest joke <span>(optional)</span>
-            <textarea rows={2} {...text('funniest_joke')} />
+            <textarea rows={2} maxLength={MAX_LENGTH.brief} {...text('funniest_joke')} />
           </label>
           <label>A lifetime goal of yours <span>(optional)</span>
-            <textarea rows={2} {...text('lifetime_goal')} />
+            <textarea rows={2} maxLength={MAX_LENGTH.brief} {...text('lifetime_goal')} />
           </label>
 
           <h2 className="sp-form-section">How did you hear about DataHacks?</h2>
@@ -216,7 +228,7 @@ export default function HackerApplication() {
           {form.wants_travel_stipend && (
             <>
               <label>Where are you traveling from? <Req />
-                <input required placeholder="City, state or country" {...text('travel_region')} />
+                <input required maxLength={MAX_LENGTH.short} placeholder="City, state or country" {...text('travel_region')} />
               </label>
               <label>How are you traveling here? <Req />
                 <Select options={TRAVEL_METHODS} value={form.travel_method} onChange={v => update('travel_method', v)} />
@@ -225,7 +237,7 @@ export default function HackerApplication() {
                 <Select options={TRAVEL_DISTANCES} value={form.travel_distance} onChange={v => update('travel_distance', v)} />
               </label>
               <label>Anything else we should know about your travel? <span>(optional)</span>
-                <textarea rows={3} {...text('travel_stipend_reason')} />
+                <textarea rows={3} maxLength={MAX_LENGTH.essay} {...text('travel_stipend_reason')} />
               </label>
             </>
           )}
