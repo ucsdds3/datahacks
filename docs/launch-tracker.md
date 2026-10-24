@@ -24,21 +24,18 @@ Last updated: 2026-10-23 (evening, after launch).
 | M7 | Design team art. | 9 layer backdrops (overworld, sulfur caves, lush caves, mineshaft, deep dark, stronghold, end city, the end, bedrock), about 2400px wide, WebP or PNG, plus the logo. Lush caves and end city are placeholders. |
 | M8 | Website open versus applications open. | Pick the date the site goes public and the date applications open (Oct 31?). If they differ, Claude adds an "applications open on …" gate. |
 | M9 | Supabase Pro ($25/mo) for the application window and event week. | Decide. It adds daily backups with point-in-time restore, and the project never pauses. Free projects pause after 7 days without activity. |
-| M10 | DocuSign waiver setup. | Embedded signing is already built (`supabase/functions/docusign-waiver`): people sign inside the portal, the envelope carries their name and email, and the portal asks DocuSign whether they finished. Needs a DocuSign developer account, a template made from the waiver PDF with one Signer role (name and email filled in automatically) and the secrets listed at the top of the function. Production use needs DocuSign's go-live review and a paid plan. |
-| M11 | Coordinator contacts in the portal sidebar. | Send the real names and emails; Claude puts them in `src/staff-portal/config.ts`. |
+| M10 | DocuSign for real (not sandbox). | Asked docusign@ucsd.edu for a UCSD licence (2026-10-23). If they say no: a paid plan (about $50 for 40 waivers, which doesn't scale) or a typed-signature waiver stored in Supabase. When going live, set the app's Integration Type to "Private custom integration" (it can't be changed later). Setup and the steps to go live are in `docs/docusign-waiver.md`. Previously: | Embedded signing is already built (`supabase/functions/docusign-waiver`): people sign inside the portal, the envelope carries their name and email, and the portal asks DocuSign whether they finished. Needs a DocuSign developer account, a template made from the waiver PDF with one Signer role (name and email filled in automatically) and the secrets listed at the top of the function. Production use needs DocuSign's go-live review and a paid plan. |
 | M12 | Ansh and Tijil as organizers. | Both are invited on DH27BETA. Each signs in once at https://datahacks.ds3ucsd.com/organizer after M1. |
 | M14 | The backup passphrase in a password manager. | `BACKUP_PASSPHRASE` exists only in `.env.local` on one laptop and in GitHub secrets. If it's lost, every backup is unreadable. Copy it into the team's password manager. Backups are now kept 90 days (GitHub's limit for a public repo), so Oct 31 onwards stays restorable through the event. |
-| M15 | Stricter checks on submitted applications. | Applications can't go to staging first (they're live data, not schema). Instead, decide whether the database itself should reject bad values: https-only links, phone format, required fields per role. Claude adds that as a migration. |
+| M16 | Raise the Supabase sign-in rate limit. | Authentication → Rate Limits: about 30 sign-ins a minute per IP will block a room on campus Wi-Fi. Raise it, for example to 300 per 5 minutes. The access token can't change this. |
+| M17 | The MCP server follows the new database rules. | Https-only links and length caps (`src/lib/applicantInput.ts`), or its submissions will be rejected. That's the other session's branch, `feature/mcp-applications`. |
 | M13 | Error and uptime alerts (free tiers). | Create a Sentry project and an UptimeRobot account, or say which email to use; Claude wires them in. |
 
 ## Claude
 
 | ID | Item | Status | Next step |
 |---|---|---|---|
-| C9 | An "accepting applications" flag on events. | To do, with M8 | Right now anyone could submit to DH26 or DH27BETA by calling the API directly. Add `events.applications_open` and check it on insert. |
 | C10 | Check-in app lists by event. | To do | Its list view returns an organizer's rows from every event, so the app has to filter by the chosen event. Confirm Evan's PR #1 does this everywhere. |
-| C11 | Drop resume file uploads. | To do | Only links are collected (Google Drive, portfolio). Remove the unused upload code and the `resumes` storage bucket's policies; DH26 files stay until someone deletes them. |
-| C7 | Wallet passes to chosen people only. | To do | The console button sends to every accepted person without a pass (dummies included). Add an option to send only to selected people. |
 
 ## Evan
 
@@ -66,6 +63,8 @@ Last updated: 2026-10-23 (evening, after launch).
 - **Checkout at the venue:** not needed, per Mohak on 2026-10-23.
 
 ## Done
+
+- 2026-10-23 (night): PRs #13–#21 merged. Stricter database checks, 18+, resume uploads closed, wallet passes to selected people, applications-open switch, the DocuSign sandbox waiver live, load-tested, and the console paging fix. See `work-queue.md`.
 
 - 2026-10-23: **Portal live.** PR #12 (event isolation) and PR #9 merged. Pages deployed. Production got 4 database changes (role revoke, DH26 dates, event isolation, event required) and both email functions. Tested live: Trial Chambers, then Google, then the mentor/judge form; `/organizer` works.
 - 2026-10-23: `main` protected: PR plus 1 approval, `site` check required, no force-push or delete, admins can bypass. The database checks aren't required because they only run when `supabase/` changes.
