@@ -51,6 +51,9 @@ export default function OrganizerConsole() {
   const refresh = useRefreshApplications();
   const [section, setSection] = useState<Section>("hackers");
   const [dialog, setDialog] = useState<"release" | "retry" | "passes" | null>(null);
+  // Who "Send pass" was pressed for in a table; null means everyone without a pass.
+  const [passIds, setPassIds] = useState<string[] | null>(null);
+  const openPasses = (ids: string[] | null) => { setPassIds(ids); setDialog("passes"); };
 
   if (loading) return <Gate title="Loading…" />;
   if (!session) return <Navigate to={portal.organizerLogin} replace />;
@@ -104,7 +107,7 @@ export default function OrganizerConsole() {
         <header className="og-topbar">
           <h1>{current.title}</h1>
           <div className="og-topbar-actions">
-            <button className="sp-button" onClick={() => setDialog("passes")} disabled={passesDue === 0}>
+            <button className="sp-button" onClick={() => openPasses(null)} disabled={passesDue === 0}>
               <Ticket size={15} aria-hidden /> Send wallet passes ({passesDue})
             </button>
             {unsent > 0 && (
@@ -128,12 +131,19 @@ export default function OrganizerConsole() {
                 kind={section === "hackers" ? "hacker" : "staff"}
                 rows={rows.filter(r => kindOf(r.applicant_type) === (section === "hackers" ? "hacker" : "staff"))}
                 onChanged={refresh}
+                onSendPasses={openPasses}
               />
         )}
       </main>
 
       {dialog === "passes" && event.data && (
-        <WalletPassDialog eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />
+        <WalletPassDialog
+          eventId={event.data}
+          rows={rows}
+          selectedIds={passIds ?? undefined}
+          onClose={() => setDialog(null)}
+          onChanged={refresh}
+        />
       )}
       {(dialog === "release" || dialog === "retry") && event.data && (
         <ReleaseDialog mode={dialog} eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />

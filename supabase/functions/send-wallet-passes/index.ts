@@ -10,9 +10,13 @@
 // offers "Add to Apple Wallet"), and Add to Apple Wallet / Add to Google Wallet
 // buttons, so it works on Android and laptops too.
 //
-// POST { eventId, resend?, limit? }  ->  { sent, failed: [{ code, email, error }], remaining }
-//   resend   include people who already have emailed_at set
-//   limit    most to send in this request (default and max 40); call again while remaining > 0
+// POST { eventId, applicationIds?, resend?, limit? }  ->  { sent, failed: [{ code, email, error }], remaining }
+//   applicationIds  only these people (at most 40 per request). Every id must be an
+//                   application at the event, or nothing is sent. Chosen people who
+//                   aren't on the check-in roster come back in failed. Leave it out
+//                   to send to everyone accepted who has no pass yet.
+//   resend          include people who already have emailed_at set
+//   limit           most to send in this request (default and max 40); call again while remaining > 0
 //
 // Secrets: WALLETWALLET_API_KEY, GMAIL_ADDRESS, GMAIL_APP_PASSWORD, SEND_DELAY_SECONDS (optional).
 // SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
@@ -21,6 +25,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import nodemailer from "npm:nodemailer@6.9.16";
 import QRCode from "npm:qrcode@1.5.4";
+import { MAX_PER_REQUEST, outsideEvent, parseApplicationIds } from "./selection.ts";
 
 const env = (name: string) => {
   const value = Deno.env.get(name);
@@ -35,9 +40,6 @@ const cors = {
 
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
-
-/** Keeps one request well inside the function time limit (a pass and an email each, plus the delay). */
-const MAX_PER_REQUEST = 40;
 
 const ROLE_LABELS: Record<string, string> = { hacker: "Hacker", judge: "Judge", mentor: "Mentor" };
 const roleLabels = (roles: string[]) => roles.map(r => ROLE_LABELS[r] ?? r).join(", ") || "Attendee";
@@ -110,7 +112,7 @@ Deno.serve(async req => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
-  let input: { eventId?: unknown; resend?: unknown; limit?: unknown };
+  let input: { eventId?: unknown; applicationIds?: unknown; resend?: unknown; limit?: unknown };
   try {
     input = await req.json();
   } catch {
@@ -118,6 +120,9 @@ Deno.serve(async req => {
   }
   const { eventId } = input;
   if (typeof eventId !== "string") return json({ error: "Send eventId." }, 400);
+  const selection = parseApplicationIds(input.applicationIds);
+  if (!selection.ok) return json({ error: selection.error }, 400);
+  const chosen = selection.ids;
   const resend = input.resend === true;
   const limit = Math.min(MAX_PER_REQUEST, Math.max(1, Number(input.limit) || MAX_PER_REQUEST));
 
@@ -133,17 +138,47 @@ Deno.serve(async req => {
   const { data: event, error: eventError } = await admin.from("events").select("id, name").eq("id", eventId).single();
   if (eventError || !event) return json({ error: eventError?.message ?? "No such event." }, 404);
 
+  const failed: { code: string; email: string; error: string }[] = [];
+
+  // Chosen people: every id has to be an application at this event.
+  if (chosen) {
+    if (chosen.length === 0) return json({ sent: 0, failed, remaining: 0 });
+    const { data: apps, error: appsError } = await admin
+      .from("applications")
+      .select("id, email")
+      .eq("event_id", eventId)
+      .in("id", chosen);
+    if (appsError) return json({ error: appsError.message }, 500);
+    const outside = outsideEvent(chosen, (apps ?? []).map(a => a.id as string));
+    if (outside.length > 0) {
+      return json({ error: `${outside.length} of the chosen applications aren't at this event, so nothing was sent.`, ids: outside }, 400);
+    }
+    const { data: roster, error: rosterError } = await admin
+      .from("attendees")
+      .select("application_id")
+      .eq("event_id", eventId)
+      .not("code", "is", null)
+      .in("application_id", chosen);
+    if (rosterError) return json({ error: rosterError.message }, 500);
+    const onRoster = new Set((roster ?? []).map(r => String(r.application_id).toLowerCase()));
+    for (const app of apps ?? []) {
+      if (!onRoster.has(String(app.id).toLowerCase())) {
+        failed.push({ code: "", email: app.email ?? "", error: "Not on the check-in roster, so no code yet (only released acceptances get one)." });
+      }
+    }
+  }
+
   let query = admin
     .from("attendees")
     .select("id, code, name, email, roles, team, emailed_at")
     .eq("event_id", eventId)
     .not("code", "is", null)
     .order("code");
+  if (chosen) query = query.in("application_id", chosen);
   if (!resend) query = query.is("emailed_at", null);
   const { data: rows, error: rowsError } = await query;
   if (rowsError) return json({ error: rowsError.message }, 500);
 
-  const failed: { code: string; email: string; error: string }[] = [];
   const queue: Attendee[] = [];
   for (const r of rows ?? []) {
     const email = (r.email ?? "").trim();

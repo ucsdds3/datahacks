@@ -126,30 +126,61 @@ export async function sendEmails(
 }
 
 export type WalletPassResult = { sent: number; failed: { code: string; email: string; error: string }[] };
+type WalletPassRound = WalletPassResult & { remaining: number };
+
+/** The function's per-request maximum, so each chosen-people request is one round. */
+export const WALLET_PASS_CHUNK = 40;
+
+async function walletPassRound(body: Record<string, unknown>): Promise<WalletPassRound> {
+  const { data, error } = await supabase.functions.invoke("send-wallet-passes", { body });
+  if (error) {
+    const status = (error as { context?: { status?: number } }).context?.status;
+    if (error.name === "FunctionsFetchError" || error.name === "FunctionsRelayError" || status === 404) {
+      throw new Error("Wallet passes aren't set up yet. Deploy the send-wallet-passes function (see supabase/functions/send-wallet-passes) and try again.");
+    }
+    let message = error.message;
+    try {
+      const detail = await (error as { context?: Response }).context?.json();
+      if (detail?.error) message = detail.error;
+    } catch { /* not JSON */ }
+    throw new Error(message);
+  }
+  const round = (data ?? {}) as Partial<WalletPassRound>;
+  return { sent: round.sent ?? 0, failed: round.failed ?? [], remaining: round.remaining ?? 0 };
+}
 
 /**
- * Emails check-in passes through the send-wallet-passes function, 40 at a
- * time until everyone accepted has one. Stops if a round sends nothing, so a
- * persistent failure (say, a bad address) can't loop forever.
+ * Emails check-in passes through the send-wallet-passes function.
+ *
+ * With no applicationIds it sends to everyone accepted without a pass, 40 at a
+ * time, and stops if a round sends nothing, so a persistent failure (say, a bad
+ * address) can't loop forever.
+ *
+ * With applicationIds it sends to just those people, 40 per request, once
+ * each; resend also covers chosen people who already have a pass. An empty
+ * list sends nothing.
  */
-export async function sendWalletPasses(eventId: string, onProgress?: (sent: number) => void): Promise<WalletPassResult> {
+export async function sendWalletPasses(
+  eventId: string,
+  onProgress?: (sent: number) => void,
+  options: { applicationIds?: string[]; resend?: boolean } = {},
+): Promise<WalletPassResult> {
   if (isPreview()) throw new PreviewOnlyError();
   const total: WalletPassResult = { sent: 0, failed: [] };
-  for (;;) {
-    const { data, error } = await supabase.functions.invoke("send-wallet-passes", { body: { eventId } });
-    if (error) {
-      const status = (error as { context?: { status?: number } }).context?.status;
-      if (error.name === "FunctionsFetchError" || error.name === "FunctionsRelayError" || status === 404) {
-        throw new Error("Wallet passes aren't set up yet. Deploy the send-wallet-passes function (see supabase/functions/send-wallet-passes) and try again.");
-      }
-      let message = error.message;
-      try {
-        const detail = await (error as { context?: Response }).context?.json();
-        if (detail?.error) message = detail.error;
-      } catch { /* not JSON */ }
-      throw new Error(message);
+  const { applicationIds, resend = false } = options;
+
+  if (applicationIds) {
+    for (let i = 0; i < applicationIds.length; i += WALLET_PASS_CHUNK) {
+      const round = await walletPassRound({ eventId, applicationIds: applicationIds.slice(i, i + WALLET_PASS_CHUNK), resend });
+      total.sent += round.sent;
+      total.failed.push(...round.failed);
+      onProgress?.(total.sent);
     }
-    const round = data as WalletPassResult & { remaining: number };
+    return total;
+  }
+
+  for (;;) {
+    const round = await walletPassRound({ eventId });
     total.sent += round.sent;
     onProgress?.(total.sent);
     if (round.remaining === 0 || round.sent === 0) {
