@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
-import { resumeLink, stageDecision } from "./data";
+import { stageDecision } from "./data";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
@@ -48,15 +48,6 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
     }
   };
 
-  const openResume = async () => {
-    setError(null);
-    try {
-      window.open(await resumeLink(row.resume_path!), "_blank", "noopener");
-    } catch (e) {
-      setError(`Couldn't open the resume: ${e instanceof Error ? e.message : String(e)}`);
-    }
-  };
-
   const hacker = row.applicant_type === "hacker";
   return (
     <aside className="og-drawer" aria-label={`Application from ${fullName(row)}`}>
@@ -99,7 +90,7 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Race/ethnicity" value={row.race_ethnicity} />
             <Field label="Lives in" value={[row.city_of_residence, row.country_of_residence].filter(Boolean).join(", ") || null} />
             <Field label="Hackathons before" value={row.hackathon_experience} />
-            <Field label="Resume" value={row.resume_url ? <Link href={row.resume_url} /> : row.resume_path && <button className="sp-link-button og-inline" onClick={openResume}>Open resume (PDF)</button>} />
+            <Field label="Resume" value={<Link href={row.resume_url} />} />
             <Field label="LinkedIn" value={<Link href={row.linkedin_url} />} />
             <Field label="GitHub" value={<Link href={row.github_url} />} />
             <Field label="Devpost" value={<Link href={row.devpost_url} />} />

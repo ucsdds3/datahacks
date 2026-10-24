@@ -71,7 +71,6 @@ td .og-badge { margin-left: 0; }
 .og-field dt { color: var(--sp-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 .og-field dd { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .og-field a { display: inline-flex; align-items: center; gap: 4px; }
-.sp-root .sp-link-button.og-inline { margin-top: 0; color: var(--sp-accent); }
 
 /* Release dialog */
 .og-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(22 24 26 / 0.45); }
