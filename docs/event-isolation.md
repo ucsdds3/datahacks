@@ -42,7 +42,10 @@ event's id.
 **Edge functions**: `send-email` checks `is_event_staff(eventId)` and loads
 recipients with `event_id = eventId` (ids from other events are reported, not
 sent). `send-wallet-passes` does the same for the roster. `docusign-waiver` is
-per user, not per event (see below).
+per user, not per event (see below). `mcp` (applying through an AI assistant)
+runs as the signed-in person and reads and inserts only for the event its own
+`EVENT_CODE` names (in `supabase/functions/mcp/application.ts`, kept equal to
+`src/portal/event.ts` by a test).
 
 **Dev**: `scripts/dev/create-dummy-applicant.mjs` hardcodes DH27BETA, and its
 dummies are `@example.com`.
@@ -63,8 +66,9 @@ testing. Tests: `supabase/tests/run.sh`.
    an organizer of that event:
    `insert into event_roles (event_id, user_id, role) select e.id, u.id, 'organizer' from events e, auth.users u where e.code = 'DH27' and u.email = '...';`
    Then add the rest from the console. DH27BETA organizers carry nothing over.
-3. Change `EVENT_CODE` in `src/portal/event.ts`. That's the only place: the
-   console and the release confirmation read it. Leave
+3. Change `EVENT_CODE` in `src/portal/event.ts`, and the copy in
+   `supabase/functions/mcp/application.ts` (a test fails until they match). The
+   console and the release confirmation read the first. Leave
    `scripts/dev/create-dummy-applicant.mjs` on DH27BETA.
 4. Open applications: in Table Editor -> events, set DH27's `applications_open`
    to true (optionally fill `applications_open_at` beforehand, so the apply pages

@@ -47,7 +47,10 @@ Never change the schema in the dashboard's SQL editor any more: write a migratio
 
 ## To do
 - [ ] **AI blurbs for mentors who skip theirs:** the mentor blurb is optional (50+ characters when given). Generate one from the rest of their application for anyone who leaves it blank, before the hacker Mentors tab opens.
-- [ ] **An MCP server for applications:** someone signs in (creates an account) and can fill out their application through an AI assistant over MCP instead of the form.
+- [x] ~~**An MCP server for applications.**~~ Built (2026-10-23), see `docs/mcp-server.md`: hackers, mentors and judges connect an AI assistant, sign in with Google on `/oauth/consent`, and apply by chatting. Still to do:
+  - [ ] Turn on the OAuth 2.1 server with dynamic client registration and Authorization Path `/oauth/consent` (staging, then production).
+  - [ ] Point the Site URL at `https://datahacks.ds3ucsd.com`, checking with Evan first.
+  - [ ] Connect Claude to the staging URL and apply once as a hacker and once as a mentor.
 - [ ] **Check-in portal UI** (Evan's repo, DS3-DataHacks-Check-in): mobile first, with the top bar collapsible behind a toggle instead of always showing. Organizers will test it on their phones.
 - [ ] ~~**One portal for everyone.**~~ Done, see above. Per the architecture diagram, hackers, mentors and judges all land in the same portal after Google sign-in. Mentors/judges already do (`/portal`); hackers still get a separate dashboard. Add a hacker section with application status, run of show and the mentor sign-in list (the mentor form already collects a blurb "shown to hackers on the mentor calendar"). The design is the 10/13 PDF from the group chat.
 - [ ] **One entrance.** A single "Create an account / Sign in" page for hackers, mentors and judges, linked from the main site, instead of three separate sign-in pages.

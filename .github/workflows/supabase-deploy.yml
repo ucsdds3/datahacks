@@ -29,7 +29,7 @@ env:
   STAGING_HOST: aws-0-us-east-1.pooler.supabase.com
   PROD_REF: ${{ vars.SUPABASE_PROJECT_REF }}
   PROD_HOST: aws-0-us-west-1.pooler.supabase.com
-  FUNCTIONS: send-email send-wallet-passes docusign-waiver
+  FUNCTIONS: send-email send-wallet-passes docusign-waiver mcp
 
 jobs:
   staging:

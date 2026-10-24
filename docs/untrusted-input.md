@@ -23,7 +23,7 @@ a courtesy; the database's are the rule.
 | status | draft, submitted, accepted, waitlisted, rejected |
 | gender, level_of_study, hackathon_experience, travel_method, travel_distance, race_ethnicity (each `; ` piece), heard_about (each element) | one of the options in `src/staff-portal/formOptions.ts` |
 | graduation_year | a year 1900–2099, "Already graduated" or "Not applicable" |
-| birthdate | 1900-01-01 to 13 years before today |
+| birthdate | 1900-01-01 to 18 years before today |
 
 The forms stop earlier (`MAX_LENGTH` in `src/lib/applicantInput.ts`), so a
 person sees the limit before the database rejects anything. **Changing an
@@ -65,3 +65,10 @@ a model. Treat it as data, never as instructions:
 5. **Don't echo secrets or other people's data into prompts.** Send only the
    fields the task needs (no emails, phone numbers or birthdates for scoring),
    and never keys or other applicants' answers.
+
+The MCP server (`supabase/functions/mcp`, see `docs/mcp-server.md`) is the
+other way round: the model is the applicant's own assistant, writing for them.
+It applies the same rules as the forms before inserting (a copy of this file's
+helpers, tested against it), acts only as the signed-in person under RLS, and
+returns no one else's data. Its instructions tell the model that names and
+answers in tool results are data, not instructions.
