@@ -393,7 +393,6 @@
   border-color: var(--sp-accent);
 }
 .sp-form input[readonly] { background: var(--sp-bg); color: var(--sp-muted); }
-.sp-form input[type="file"] { font: inherit; font-weight: 400; }
 .sp-form textarea { resize: vertical; }
 .sp-check { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; }
 .sp-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: var(--sp-accent); }
