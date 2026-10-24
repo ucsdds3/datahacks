@@ -1,10 +1,11 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { currentEventId } from "@/portal/event";
-import type { Application, Decision, Row } from "./types";
-import { PREVIEW_EVENT_ID, PreviewOnlyError, isPreview, previewRows, previewStage } from "./preview";
+import { LIST_FIELDS, unsentDecisionRows, type Application, type Decision, type ListApplication, type Row } from "./types";
+import { PREVIEW_EVENT_ID, PreviewOnlyError, isPreview, previewApplication, previewRows, previewStage } from "./preview";
 
-const COLUMNS = [
+/** Everything ApplicationDetail shows, loaded for one application at a time. */
+const DETAIL_COLUMNS = [
   "id", "user_id", "event_id", "applicant_type", "status", "submitted_at",
   "first_name", "last_name", "email", "phone",
   "school", "level_of_study", "major", "graduation_year",
@@ -15,34 +16,101 @@ const COLUMNS = [
   "decision", "decision_released_at", "decision_emailed_at",
 ].join(", ");
 
+const LIST_COLUMNS = LIST_FIELDS.join(", ");
+
+/**
+ * Rows per request. Supabase's API returns at most 1,000 rows a request
+ * (max_rows) and cuts a longer list short without an error, so this must not
+ * be more than that setting.
+ */
+export const PAGE_SIZE = 1000;
+
+type Page<T> = PromiseLike<{ data: T[] | null; error: unknown }>;
+
+/**
+ * Fetches a whole list a page at a time, until a page comes back short.
+ * `page(from, to)` gets inclusive row offsets for `.range(from, to)` and must
+ * order by a unique key, so pages neither overlap nor skip rows.
+ */
+export async function fetchAllPages<T>(page: (from: number, to: number) => Page<T>, pageSize = PAGE_SIZE): Promise<T[]> {
+  const all: T[] = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data, error } = await page(from, from + pageSize - 1);
+    if (error) throw error;
+    const rows = data ?? [];
+    all.push(...rows);
+    if (rows.length < pageSize) return all;
+  }
+}
+
 export function useEventId() {
   return useQuery({ queryKey: ["current-event"], queryFn: () => (isPreview() ? PREVIEW_EVENT_ID : currentEventId()), staleTime: Infinity });
 }
 
+type RosterEntry = { application_id: string | null; code: string | null; checked_in_at: string | null; emailed_at: string | null };
+
+/** Drafts (no submitted_at) sort last. Array sort is stable, so ties keep their created order. */
+const submittedTime = (app: ListApplication) => (app.submitted_at ? Date.parse(app.submitted_at) : Infinity);
+const bySubmitted = (a: ListApplication, b: ListApplication) => {
+  const [x, y] = [submittedTime(a), submittedTime(b)];
+  return x === y ? 0 : x < y ? -1 : 1;
+};
+
 /**
- * Every application at the event, with check-in codes from the attendee roster.
+ * Every application at the event (the list columns only), with check-in codes
+ * from the attendee roster, oldest submission first and drafts last.
  * Row-level security only returns these to organizers of the event.
+ *
+ * Pages are ordered by created_at then id, which never change and only grow
+ * at the end, so a submission arriving mid-load can't shift a row between pages.
  */
+export async function fetchApplicationRows(eventId: string): Promise<Row[]> {
+  if (isPreview()) return previewRows();
+  const [apps, attendees] = await Promise.all([
+    fetchAllPages<ListApplication>((from, to) =>
+      supabase.from("applications").select(LIST_COLUMNS).eq("event_id", eventId)
+        .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<ListApplication>),
+    // The roster is a nice-to-have here: a failure leaves codes and check-ins blank.
+    fetchAllPages<RosterEntry>((from, to) =>
+      supabase.from("attendees").select("application_id, code, checked_in_at, emailed_at").eq("event_id", eventId)
+        .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<RosterEntry>)
+      .catch(() => [] as RosterEntry[]),
+  ]);
+  const roster = new Map(attendees.filter(a => a.application_id).map(a => [a.application_id!, a]));
+  return apps.sort(bySubmitted).map(app => {
+    const entry = roster.get(app.id);
+    return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null };
+  });
+}
+
 export function useApplications(eventId: string | undefined) {
   return useQuery({
     queryKey: ["organizer-applications", eventId],
     enabled: !!eventId,
-    queryFn: async (): Promise<Row[]> => {
-      if (isPreview()) return previewRows();
-      const [apps, attendees] = await Promise.all([
-        supabase.from("applications").select(COLUMNS).eq("event_id", eventId!).order("submitted_at", { ascending: true }),
-        supabase.from("attendees").select("application_id, code, checked_in_at, emailed_at").eq("event_id", eventId!),
-      ]);
-      if (apps.error) throw apps.error;
-      // The roster is a nice-to-have here: a failure leaves codes and check-ins blank.
-      const roster = new Map(
-        (attendees.data ?? []).map(a => [a.application_id as string, a as { code: string | null; checked_in_at: string | null; emailed_at: string | null }]),
-      );
-      return ((apps.data ?? []) as unknown as Application[]).map(app => {
-        const entry = roster.get(app.id);
-        return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null };
-      });
-    },
+    queryFn: () => fetchApplicationRows(eventId!),
+  });
+}
+
+/** One whole application (essays and all), for the detail drawer. */
+export async function fetchApplication(eventId: string, id: string): Promise<Application> {
+  if (isPreview()) {
+    const app = previewApplication(id);
+    if (!app) throw new Error("That application isn't in the preview.");
+    return app;
+  }
+  const { data, error } = await supabase.from("applications").select(DETAIL_COLUMNS).eq("id", id).eq("event_id", eventId).maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("That application wasn't found. It may have been deleted.");
+  return data as unknown as Application;
+}
+
+/** Loaded when an organizer opens a row; kept for a few minutes so reopening it is instant. */
+export function useApplication(eventId: string | undefined, id: string) {
+  return useQuery({
+    queryKey: ["organizer-application", eventId, id],
+    enabled: !!eventId,
+    queryFn: () => fetchApplication(eventId!, id),
+    staleTime: 5 * 60_000,
   });
 }
 
@@ -52,6 +120,12 @@ export function useRefreshApplications() {
 }
 
 /**
+ * Ids per update. The ids go in the URL, and the API answers 400 Bad Request
+ * once a URL passes about 16 KB (roughly 430 ids), so accepting 1,500 people at once would fail.
+ */
+export const STAGE_CHUNK = 100;
+
+/**
  * Stages a decision (or clears it with null). Nothing is sent until decisions are released.
  * Limited to the current event too, so an organizer of several events can't touch another's.
  */
@@ -59,18 +133,37 @@ export async function stageDecision(ids: string[], decision: Decision | null) {
   if (ids.length === 0) return;
   if (isPreview()) return previewStage(ids, decision);
   const eventId = await currentEventId();
-  const { error } = await supabase.from("applications").update({ decision }).in("id", ids).eq("event_id", eventId);
-  if (error) throw error;
+  for (let i = 0; i < ids.length; i += STAGE_CHUNK) {
+    const { error } = await supabase.from("applications").update({ decision }).in("id", ids.slice(i, i + STAGE_CHUNK)).eq("event_id", eventId);
+    if (error) throw error;
+  }
 }
 
 export type ReleasedRow = { application_id: string; email: string | null; first_name: string | null; applicant_type: string; status: string };
 
-/** Applies every staged decision at the event in one database call. */
-export async function releaseDecisions(eventId: string): Promise<ReleasedRow[]> {
+/**
+ * Applies every staged decision at the event in one database call, and says
+ * who was released so they can be emailed.
+ *
+ * The call's reply is capped at 1,000 rows like any other, though every staged
+ * decision is applied. When it comes back full, the rest are found by loading
+ * the list again: released, not emailed, and not already in that state before
+ * (`unsentBefore`, the ids unsentDecisionRows gave before releasing). If that
+ * load fails, they still show under "Send unsent decision emails".
+ */
+export async function releaseDecisions(eventId: string, unsentBefore: Iterable<string> = []): Promise<ReleasedRow[]> {
   if (isPreview()) throw new PreviewOnlyError();
   const { data, error } = await supabase.rpc("release_decisions", { p_event_id: eventId });
   if (error) throw error;
-  return (data ?? []) as ReleasedRow[];
+  const released = (data ?? []) as ReleasedRow[];
+  if (released.length < PAGE_SIZE) return released;
+  try {
+    const skip = new Set([...unsentBefore, ...released.map(r => r.application_id)]);
+    const rest = unsentDecisionRows(await fetchApplicationRows(eventId)).filter(r => !skip.has(r.id));
+    return [...released, ...rest.map(r => ({ application_id: r.id, email: r.email, first_name: r.first_name, applicant_type: r.applicant_type, status: r.status! }))];
+  } catch {
+    return released;
+  }
 }
 
 export class EmailNotSetUpError extends Error {

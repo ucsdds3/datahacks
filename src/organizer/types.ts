@@ -50,9 +50,25 @@ export type Application = {
   decision_emailed_at: string | null;
 };
 
-/** An application with what the check-in roster knows about it. */
-/** passSentAt: when the check-in pass was emailed (attendees.emailed_at). */
-export type Row = Application & { code: string | null; checkedIn: boolean; passSentAt: string | null };
+/**
+ * The columns the console's tables load for every application: what the
+ * table, search, tab counts, CSV, decisions, emails and passes use. Essays and
+ * the rest are fetched one application at a time when an organizer opens it
+ * (see useApplication), which keeps a 1,500-applicant load small.
+ */
+export const LIST_FIELDS = [
+  "id", "applicant_type", "status", "submitted_at",
+  "first_name", "last_name", "email", "phone", "school", "level_of_study", "organization",
+  "decision", "decision_released_at", "decision_emailed_at",
+] as const satisfies readonly (keyof Application)[];
+
+export type ListApplication = Pick<Application, (typeof LIST_FIELDS)[number]>;
+
+/**
+ * One table row: the list columns plus what the check-in roster knows.
+ * passSentAt: when the check-in pass was emailed (attendees.emailed_at).
+ */
+export type Row = ListApplication & { code: string | null; checkedIn: boolean; passSentAt: string | null };
 
 export const kindOf = (type: ApplicantType): Kind => (type === "hacker" ? "hacker" : "staff");
 
@@ -60,13 +76,13 @@ export const tabOf = (status: Status | null): Tab =>
   status === "accepted" || status === "waitlisted" || status === "rejected" ? status : "applied";
 
 /** A decision is staged when it's been chosen but not released yet. */
-export const isStaged = (app: Application) => app.decision !== null && app.decision !== app.status;
+export const isStaged = (app: ListApplication) => app.decision !== null && app.decision !== app.status;
 
 /**
  * The tab a row sits in on the console: the decision an organizer picked, as
  * soon as they pick it. Applicants only see it once decisions are released.
  */
-export const placeOf = (app: Application): Tab => app.decision ?? tabOf(app.status);
+export const placeOf = (app: ListApplication): Tab => app.decision ?? tabOf(app.status);
 
 export const TYPE_LABEL: Record<ApplicantType, string> = {
   hacker: "Hacker",
@@ -88,13 +104,13 @@ export const DECISION_LABEL: Record<Decision, string> = {
   rejected: "Reject",
 };
 
-export const fullName = (app: Application) =>
+export const fullName = (app: Pick<Application, "first_name" | "last_name">) =>
   [app.first_name, app.last_name].filter(Boolean).join(" ").trim() || "(no name)";
 
 const DECISIONS: readonly string[] = ["accepted", "waitlisted", "rejected"];
 
 /** Released, but the decision email never went out (for example, sending wasn't set up yet). */
-export const unsentDecisionRows = <T extends Application>(rows: T[]) =>
+export const unsentDecisionRows = <T extends ListApplication>(rows: T[]) =>
   rows.filter(r => r.decision_released_at && !r.decision_emailed_at && r.status !== null && DECISIONS.includes(r.status));
 
 /** Accepted (released) and on the check-in roster, so a pass can be made for them. */

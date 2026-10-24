@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
-import { stageDecision } from "./data";
+import { stageDecision, useApplication, useEventId } from "./data";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
@@ -30,8 +30,16 @@ function Email({ email }: { email: string | null }) {
   return mailto ? <a href={mailto}>{email}</a> : <>{email}</>;
 }
 
-/** Everything one person submitted, with buttons that stage a decision. */
+/**
+ * Everything one person submitted, with buttons that stage a decision. The
+ * table only has the list columns, so the whole application (essays and all)
+ * is loaded here when the drawer opens. The decision and status come from the
+ * table's row, which refreshes as soon as one is staged.
+ */
 export default function ApplicationDetail({ row, onClose, onChanged }: { row: Row; onClose: () => void; onChanged: () => void }) {
+  const event = useEventId();
+  const full = useApplication(event.data, row.id);
+  const app = full.data;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -80,39 +88,41 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
         <Field label="Batch" value={applicationBatch(row.submitted_at) === "priority" ? "Priority" : "Regular"} />
         <Field label="Check-in code" value={row.code} />
         <Field label="Checked in" value={row.code ? (row.checkedIn ? "Yes" : "No") : null} />
-        {hacker ? (
+        {app && (hacker ? (
           <>
-            <Field label="School" value={row.school} />
-            <Field label="Level of study" value={row.level_of_study} />
-            <Field label="Major" value={row.major} />
-            <Field label="Graduation year" value={row.graduation_year} />
-            <Field label="Gender" value={row.gender} />
-            <Field label="Race/ethnicity" value={row.race_ethnicity} />
-            <Field label="Lives in" value={[row.city_of_residence, row.country_of_residence].filter(Boolean).join(", ") || null} />
-            <Field label="Hackathons before" value={row.hackathon_experience} />
-            <Field label="Resume" value={<Link href={row.resume_url} />} />
-            <Field label="LinkedIn" value={<Link href={row.linkedin_url} />} />
-            <Field label="GitHub" value={<Link href={row.github_url} />} />
-            <Field label="Devpost" value={<Link href={row.devpost_url} />} />
-            <Field label="Travel reimbursement" value={row.wants_travel_stipend
-              ? [row.travel_region, row.travel_method, row.travel_distance].filter(Boolean).join(" · ") + (row.travel_stipend_reason ? ` (${row.travel_stipend_reason})` : "")
+            <Field label="School" value={app.school} />
+            <Field label="Level of study" value={app.level_of_study} />
+            <Field label="Major" value={app.major} />
+            <Field label="Graduation year" value={app.graduation_year} />
+            <Field label="Gender" value={app.gender} />
+            <Field label="Race/ethnicity" value={app.race_ethnicity} />
+            <Field label="Lives in" value={[app.city_of_residence, app.country_of_residence].filter(Boolean).join(", ") || null} />
+            <Field label="Hackathons before" value={app.hackathon_experience} />
+            <Field label="Resume" value={<Link href={app.resume_url} />} />
+            <Field label="LinkedIn" value={<Link href={app.linkedin_url} />} />
+            <Field label="GitHub" value={<Link href={app.github_url} />} />
+            <Field label="Devpost" value={<Link href={app.devpost_url} />} />
+            <Field label="Travel reimbursement" value={app.wants_travel_stipend
+              ? [app.travel_region, app.travel_method, app.travel_distance].filter(Boolean).join(" · ") + (app.travel_stipend_reason ? ` (${app.travel_stipend_reason})` : "")
               : "No"} />
-            <Field label="Project they're proudest of" value={row.essay_proudest_project} />
-            <Field label="Something unique they'd bring" value={row.essay_unique_thing} />
-            <Field label="What they want from the event" value={row.essay_goal} />
-            <Field label="Heard about us" value={row.heard_about?.join(", ")} />
+            <Field label="Project they're proudest of" value={app.essay_proudest_project} />
+            <Field label="Something unique they'd bring" value={app.essay_unique_thing} />
+            <Field label="What they want from the event" value={app.essay_goal} />
+            <Field label="Heard about us" value={app.heard_about?.join(", ")} />
           </>
         ) : (
           <>
-            <Field label="Organization" value={row.organization} />
-            <Field label="Role" value={row.role_title} />
-            <Field label="Judging track" value={row.judging_track?.replace(/_/g, " ")} />
-            <Field label="Resume" value={<Link href={row.resume_url} />} />
-            <Field label="LinkedIn" value={<Link href={row.linkedin_url} />} />
-            <Field label="Mentor blurb" value={row.bio} />
+            <Field label="Organization" value={app.organization} />
+            <Field label="Role" value={app.role_title} />
+            <Field label="Judging track" value={app.judging_track?.replace(/_/g, " ")} />
+            <Field label="Resume" value={<Link href={app.resume_url} />} />
+            <Field label="LinkedIn" value={<Link href={app.linkedin_url} />} />
+            <Field label="Mentor blurb" value={app.bio} />
           </>
-        )}
+        ))}
       </dl>
+      {full.isPending && <p className="og-hint">Loading the application…</p>}
+      {full.isError && <p className="sp-error">Couldn't load the rest of this application: {(full.error as Error).message}</p>}
     </aside>
   );
 }
