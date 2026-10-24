@@ -23,6 +23,7 @@ export function portalTitle(pathname: string): string {
   if (path === "/organizer") return "Organizer Sign In · DataHacks";
   if (path.startsWith("/login/")) return `Sign In · ${PORTAL}`;
   if (path === "/auth/callback") return `Signing In · ${PORTAL}`;
+  if (path === "/oauth/consent") return `Connect an AI Assistant · ${PORTAL}`;
   if (path === "/portal/apply/hacker") return `Hacker Application · ${PORTAL}`;
   if (path === "/portal/apply/mentor-judge") return `Mentor & Judge Application · ${PORTAL}`;
   const page = path.match(/^\/portal\/(?:hacker|mentor|judge|hybrid)(?:\/([a-z]+))?$/);

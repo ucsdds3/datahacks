@@ -7,12 +7,16 @@ export type SignInAs = "hacker" | "staff" | "organizer";
 /**
  * Goes straight to Google's account picker, then back to /auth/callback. The
  * site's buttons call this directly, so there's no extra "sign in" page.
+ * `next` sends them on to a page other than the portal afterwards (only the
+ * OAuth consent page; see AuthCallback).
  */
-export async function startGoogleSignIn(as: SignInAs) {
+export async function startGoogleSignIn(as: SignInAs, next?: string) {
   if (as !== "organizer") rememberApplyAs(as);
+  const params = new URLSearchParams({ as });
+  if (next) params.set("next", next);
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}${portal.callback}?as=${as}` },
+    options: { redirectTo: `${window.location.origin}${portal.callback}?${params}` },
   });
   if (error) throw error;
 }

@@ -38,6 +38,7 @@ const PortalHandbook = lazy(portalPages.handbook);
 const HackerGuide = lazy(portalPages.hackerGuide);
 const JudgingPortal = lazy(portalPages.judging);
 const OrganizerConsole = lazy(portalPages.organizer);
+const OAuthConsent = lazy(portalPages.oauthConsent);
 // Dev only: sign tabs in as dummy applicants. Left out of production builds.
 const TestAccounts = import.meta.env.DEV ? lazy(() => import("./dev/TestAccountsPage")) : null;
 
@@ -74,6 +75,7 @@ const App = () => (
             <Route path={portal.login("mentor")} element={<SignIn as="staff" />} />
             <Route path={portal.organizerLogin} element={<SignIn as="organizer" />} />
             <Route path={portal.callback} element={<AuthCallback />} />
+            <Route path={portal.oauthConsent} element={<OAuthConsent />} />
             {/* One portal for everyone. /portal sends each person to their section, to
                 Apply if they haven't applied, or to the organizer console. Each section's
                 layout decides which pages are open; see staff-portal/StaffPortalLayout. */}

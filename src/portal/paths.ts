@@ -21,6 +21,8 @@ export const portal = {
   organizer: "/portal/organizer",
   /** The organizer sign-in. Not linked from the site: organizers bookmark it. */
   organizerLogin: "/organizer",
+  /** Where Supabase Auth's OAuth server sends people to approve an AI assistant (MCP client). Set as the Authorization Path in the dashboard. */
+  oauthConsent: "/oauth/consent",
 };
 
 /** Which application a signed-in person without one should see: set by the sign-in page they used. */

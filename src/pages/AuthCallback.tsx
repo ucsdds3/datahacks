@@ -34,6 +34,14 @@ export default function AuthCallback() {
         return
       }
 
+      // Signed in to approve an AI assistant: back to the consent page. Only that
+      // page, since anyone can edit the URL.
+      const returnTo = searchParams.get('next')
+      if (returnTo?.startsWith(`${portal.oauthConsent}?`)) {
+        navigate(returnTo, { replace: true })
+        return
+      }
+
       // Organizers go to the console. Anyone who has applied goes to the portal,
       // which opens on their status; someone new goes to the form for the
       // sign-in they used (hacker, or mentor/judge).
