@@ -52,6 +52,7 @@ Last updated: 2026-10-23 (evening, after launch).
 - Create `DH27` in `events`. The first DH27 organizer has to be added in the SQL editor, because adding organizers from the console requires already being one. The query is in `docs/event-isolation.md`. It needs a code (2–10 letters or digits) and start and end dates.
 - Add organizers to DH27. The invites and roles from DH27BETA don't carry over.
 - Point the site at it: `EVENT_CODE` in `src/portal/event.ts`.
+- Open applications: set DH27's `applications_open` to true in `events` (off until then; the apply pages show `applications_open_at` as "Applications open on …" if it's set). Without it, every DH27 application is refused.
 - Keep DH27BETA for testing; don't wipe it. Every table is keyed by event, and check-in codes are prefixed by event code (`DH27BETA-H001` and `DH27-H001`). C6 confirms nothing leaks.
 - Wallet passes, decision emails and check-in all take the event id. Check the console header and the check-in app show **DH27** before using them.
 
