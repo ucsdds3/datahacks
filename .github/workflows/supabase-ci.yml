@@ -54,6 +54,19 @@ jobs:
           supabase/scripts/try-migrations.sh "origin/${{ github.base_ref }}"
           "host=$STAGING_HOST port=5432 dbname=postgres user=postgres.$STAGING_REF sslmode=require"
 
+  # supabase/tests on a throwaway Postgres 17 in the runner (no Supabase project).
+  db-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Postgres 17
+        run: |
+          sudo apt-get install -y -q postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-17
+      - name: Database tests
+        run: PG_BIN=/usr/lib/postgresql/17/bin supabase/tests/run.sh
+
   functions:
     runs-on: ubuntu-latest
     steps:
