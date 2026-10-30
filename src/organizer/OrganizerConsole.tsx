@@ -75,7 +75,7 @@ export default function OrganizerConsole() {
   const passes = passTargets(rows);
   const passesDue = passes.due.length;
   // Still open the dialog when nobody's due, so it can say who's waiting on a release.
-  const passesWaiting = passes.onHold.length + passes.notReleased.length;
+  const passesWaiting = passes.notReleased.length;
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (

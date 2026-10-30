@@ -2,9 +2,10 @@
 //
 // The same job as send_emails.py in the check-in repo (DS3-DataHacks-Check-in),
 // moved server-side so nobody has to run it from a laptop: it reads the roster
-// from public.attendees, makes a WalletWallet pass per person with the same
-// design (barcode = attendees.code, which the check-in desk scans), emails it,
-// and sets attendees.emailed_at. Either one skips people the other has done.
+// from public.attendees, makes a WalletWallet pass per person (barcode =
+// attendees.code, which the check-in desk scans; a colour and title per role,
+// see passDesign.ts), emails it, and sets attendees.emailed_at. Either one
+// skips people the other has done.
 //
 // Each email has the QR code in the body, the .pkpass attached (iPhone Mail
 // offers "Add to Apple Wallet"), and Add to Apple Wallet / Add to Google Wallet
@@ -30,6 +31,7 @@ import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import nodemailer from "npm:nodemailer@6.9.16";
 import QRCode from "npm:qrcode@1.5.4";
 import { MAX_PER_REQUEST, outsideEvent, parseApplicationIds } from "./selection.ts";
+import { buildEmail, oneLine, passPayload, type CreatedPass, type PassAttendee, type PassEvent } from "./passDesign.ts";
 
 const env = (name: string) => {
   const value = Deno.env.get(name);
@@ -45,87 +47,21 @@ const cors = {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
-const ROLE_LABELS: Record<string, string> = { hacker: "Hacker", judge: "Judge", mentor: "Mentor" };
-const roleLabels = (roles: string[]) => roles.map(r => ROLE_LABELS[r] ?? r).join(", ") || "Attendee";
+type Attendee = PassAttendee & { id: string; email: string };
 
-type Attendee = { id: string; code: string; name: string; email: string; roles: string[]; team: string | null };
-type Pass = { applePass: string; googleSaveUrl?: string; shareUrl?: string };
-
-/** The pass design from send_emails.py's build_pass_payload. */
-async function createPass(eventName: string, a: Attendee): Promise<Pass> {
+/** Makes the pass on WalletWallet; the design per role is in passDesign.ts. */
+async function createPass(event: PassEvent, a: Attendee): Promise<CreatedPass> {
   const response = await fetch("https://api.walletwallet.dev/api/passes", {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${env("WALLETWALLET_API_KEY")}` },
-    body: JSON.stringify({
-      barcodeValue: a.code,
-      barcodeFormat: "QR",
-      logoText: eventName,
-      organizationName: "DataHacks",
-      primaryFields: [{ label: roleLabels(a.roles).toUpperCase(), value: a.name }],
-      secondaryFields: [
-        { label: "TEAM", value: a.team || "—" },
-        { label: "CODE", value: a.code },
-      ],
-    }),
+    body: JSON.stringify(passPayload(event, a)),
   });
   if (!response.ok) throw new Error(`WalletWallet ${response.status}: ${(await response.text()).slice(0, 200)}`);
-  return await response.json() as Pass;
+  return await response.json() as CreatedPass;
 }
-
-const escapeHtml = (text: string) =>
-  text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-
-/** Names come from applications, so they're untrusted: control characters (line breaks) become spaces. */
-// deno-lint-ignore no-control-regex
-const oneLine = (text: string) => text.replace(/[\x00-\x1f\x7f]+/g, " ").trim();
 
 /** One plain address (the database enforces the same), so a value can't add recipients. */
 const isPlainEmail = (email: string) => email.length <= 254 && /^[A-Za-z0-9._+'-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)+$/.test(email);
-
-/** Only https links from WalletWallet become buttons. */
-const isHttps = (href: string | undefined): href is string => {
-  try {
-    return !!href && new URL(href).protocol === "https:";
-  } catch {
-    return false;
-  }
-};
-
-const button = (href: string, label: string) =>
-  `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 8px 8px 0;padding:11px 18px;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">${label}</a>`;
-
-function buildEmail(eventName: string, a: Attendee, pass: Pass) {
-  const roles = roleLabels(a.roles);
-  const first = a.name.split(" ")[0] || a.name;
-  const appleUrl = isHttps(pass.shareUrl) ? pass.shareUrl : undefined;
-  const googleUrl = isHttps(pass.googleSaveUrl) ? pass.googleSaveUrl : undefined;
-  const text = [
-    `Hi ${first},`,
-    "",
-    `You're registered for ${eventName} as a ${roles}. Here's your check-in pass.`,
-    "",
-    `Your check-in code: ${a.code}`,
-    "",
-    "Show the QR code in this email (or in your wallet) at the registration desk.",
-    "On an iPhone, open the attached pass to add it to Apple Wallet.",
-    ...(googleUrl ? [`Android: add it to Google Wallet: ${googleUrl}`] : []),
-    ...(appleUrl ? [`Or open ${appleUrl} on your phone.`] : []),
-    "",
-    "See you there!",
-    "The DataHacks Team",
-    "info@ds3.club",
-  ].join("\n");
-  const html = `<div style="font-family:sans-serif;line-height:1.5;color:#111">
-<p>Hi ${escapeHtml(first)},</p>
-<p>You're registered for ${escapeHtml(eventName)} as a ${escapeHtml(roles)}. Here's your check-in pass.</p>
-<img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(a.code)}" width="240" height="240" style="display:block;margin:8px 0">
-<p>Your check-in code: <strong>${escapeHtml(a.code)}</strong></p>
-<p>${appleUrl ? button(appleUrl, "Add to Apple Wallet") : ""}${googleUrl ? button(googleUrl, "Add to Google Wallet") : ""}</p>
-<p>Show the QR code at the registration desk. On an iPhone you can also open the attached pass.</p>
-<p>See you there!<br>The DataHacks Team<br>info@ds3.club</p>
-</div>`;
-  return { text, html };
-}
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -157,7 +93,7 @@ Deno.serve(async req => {
   if (isStaff !== true) return json({ error: "Only organizers of this event can send passes." }, 403);
 
   const admin = createClient(env("SUPABASE_URL"), env("SUPABASE_SERVICE_ROLE_KEY"));
-  const { data: event, error: eventError } = await admin.from("events").select("id, name").eq("id", eventId).single();
+  const { data: event, error: eventError } = await admin.from("events").select("id, name, starts_at, ends_at").eq("id", eventId).single();
   if (eventError || !event) return json({ error: eventError?.message ?? "No such event." }, 404);
 
   const failed: { code: string; email: string; error: string }[] = [];
@@ -223,12 +159,12 @@ Deno.serve(async req => {
   for (const [i, a] of batch.entries()) {
     if (i > 0 && delayMs) await sleep(delayMs);
     try {
-      const pass = await createPass(event.name, a);
-      const { text, html } = buildEmail(event.name, a, pass);
+      const pass = await createPass(event, a);
+      const { subject, text, html } = buildEmail(event, a, pass);
       await transport.sendMail({
         from: `DataHacks Team <${from}>`,
         to: a.email,
-        subject: oneLine(`Your ${event.name} check-in pass`),
+        subject,
         text,
         html,
         attachments: [

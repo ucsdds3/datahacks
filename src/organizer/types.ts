@@ -151,6 +151,41 @@ export function passTargets(rows: Row[], ids?: Iterable<string>) {
   };
 }
 
+/** The order the wallet pass dialog lists roles in, and what it calls each. */
+export const PASS_ROLES: readonly ApplicantType[] = ["hacker", "mentor", "judge", "hybrid"];
+
+export const ROLE_PLURAL: Record<ApplicantType, string> = {
+  hacker: "Hackers",
+  mentor: "Mentors",
+  judge: "Judges",
+  hybrid: "Mentors & judges",
+};
+
+/** For "Send 3 mentor passes". */
+export const ROLE_NOUN: Record<ApplicantType, string> = {
+  hacker: "hacker",
+  mentor: "mentor",
+  judge: "judge",
+  hybrid: "mentor & judge",
+};
+
+export type PassGroup<T> = { type: ApplicantType; label: string; send: T[]; notReleased: T[] };
+
+/**
+ * Splits who'd get a pass (send) and who's waiting on a release (notReleased)
+ * by role, in PASS_ROLES order, leaving out roles with nobody in either.
+ */
+export function passGroups<T extends Pick<Row, "applicant_type">>(send: T[], notReleased: T[] = []): PassGroup<T>[] {
+  return PASS_ROLES
+    .map(type => ({
+      type,
+      label: ROLE_PLURAL[type],
+      send: send.filter(r => r.applicant_type === type),
+      notReleased: notReleased.filter(r => r.applicant_type === type),
+    }))
+    .filter(g => g.send.length > 0 || g.notReleased.length > 0);
+}
+
 /** "Ana, Ben and 3 more": the first few names in a list. */
 export function someNames(rows: Pick<Application, "first_name" | "last_name">[], show = 5) {
   const names = rows.slice(0, show).map(fullName);
