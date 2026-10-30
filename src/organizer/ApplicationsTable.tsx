@@ -4,7 +4,7 @@ import { applicationBatch } from "@/staff-portal/config";
 import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
 import { stageDecision } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, canGetPass, fullName, isStaged, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isStaged, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
 const TABS: Tab[] = ["applied", "accepted", "waitlisted", "rejected"];
 
@@ -61,10 +61,14 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   const [error, setError] = useState<string | null>(null);
 
   const columns = COLUMNS[kind];
-  const counts = useMemo(() => {
+  const [counts, unreleased] = useMemo(() => {
     const c: Record<Tab, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0 };
-    rows.forEach(r => c[placeOf(r)]++);
-    return c;
+    const u: Record<Tab, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0 };
+    rows.forEach(r => {
+      c[placeOf(r)]++;
+      if (isStaged(r)) u[placeOf(r)]++;
+    });
+    return [c, u];
   }, [rows]);
 
   const visible = useMemo(() => {
@@ -104,7 +108,8 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   const open = rows.find(r => r.id === openId);
   const selectedRows = visible.filter(r => selected.has(r.id));
   const selectedCount = selectedRows.length;
-  const canSendPasses = !!onSendPasses && selectedRows.some(canGetPass);
+  // Also shown for people who can't get one yet, so the dialog can say why.
+  const canSendPasses = !!onSendPasses && selectedRows.some(r => canGetPass(r) || passOnHold(r) || acceptedNotReleased(r));
 
   return (
     <section className="sp-card og-table-card">
@@ -113,6 +118,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
           {TABS.map(t => (
             <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? "active" : ""} onClick={() => switchTab(t)}>
               {TAB_LABEL[t]} <span className="og-count">{counts[t]}</span>
+              {unreleased[t] > 0 && <span className="og-count-unreleased"> ({unreleased[t]} not released)</span>}
             </button>
           ))}
         </div>
@@ -151,8 +157,10 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
             <thead>
               <tr>
                 <th><input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" /></th>
-                {columns.map(c => <th key={c.header}>{c.header}</th>)}
-                <th>Release</th>
+                <th>{columns[0].header}</th>
+                {/* Right after the name, so it's visible without scrolling sideways. */}
+                <th className="og-release-col">Release</th>
+                {columns.slice(1).map(c => <th key={c.header}>{c.header}</th>)}
               </tr>
             </thead>
             <tbody>
@@ -161,15 +169,16 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
                   <td onClick={e => e.stopPropagation()}>
                     <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={`Select ${fullName(r)}`} />
                   </td>
-                  {columns.map(c => (
+                  <td>{columns[0].value(r)}</td>
+                  <td className="og-release-col">
+                    {isStaged(r) && <span className={`og-badge ${r.decision}`}>Not released</span>}
+                    {isStaged(r) && tabOf(r.status) !== "applied" && <span className="og-was">was {TAB_LABEL[tabOf(r.status)].toLowerCase()}</span>}
+                  </td>
+                  {columns.slice(1).map(c => (
                     <td key={c.header}>
                       {c.header === "Checked in" ? (r.checkedIn ? <Check size={15} className="og-check" aria-label="Checked in" /> : "") : c.value(r)}
                     </td>
                   ))}
-                  <td>
-                    {isStaged(r) && <span className={`og-badge ${r.decision}`}>Not released</span>}
-                    {isStaged(r) && tabOf(r.status) !== "applied" && <span className="og-was">was {TAB_LABEL[tabOf(r.status)].toLowerCase()}</span>}
-                  </td>
                 </tr>
               ))}
             </tbody>

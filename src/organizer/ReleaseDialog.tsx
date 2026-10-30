@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, X } from "lucide-react";
 import { EVENT_CODE } from "@/portal/event";
-import { EmailNotSetUpError, releaseDecisions, sendEmails } from "./data";
+import { EmailNotSetUpError, fetchApplicationRows, releaseDecisions, sendEmails, sendWalletPasses } from "./data";
 import { DEFAULT_TEMPLATES, PLACEHOLDERS, type Template } from "./templates";
-import { kindOf, unsentDecisionRows, type ApplicantType, type Decision, type Kind, type Row } from "./types";
+import { kindOf, passTargets, unsentDecisionRows, type ApplicantType, type Decision, type Kind, type Row } from "./types";
 
 type GroupKey = `${Decision}:${Kind}`;
 // Emails go out rejections first, then the waitlist, then acceptances.
@@ -30,7 +30,40 @@ function groupIds(items: { id: string; decision: string | null; type: string }[]
 }
 
 type Phase = "review" | "working" | "done";
-type Outcome = { released: number; sent: number; failed: { id: string; error: string }[]; emailError: string | null };
+/** Wallet passes sent after a release: who got one, and who didn't and why. */
+type PassOutcome = { sent: number; failed: number; alreadyHad: number; noCode: number; error: string | null };
+type Outcome = {
+  released: number; sent: number; failed: { id: string; error: string }[]; emailError: string | null;
+  passes: PassOutcome | null;
+};
+
+/**
+ * After a release: emails a wallet pass to the people it just accepted, once
+ * the roster has their new check-in codes (the database makes them on release).
+ * Only people who got their acceptance email, have a code and have no pass yet;
+ * passTargets also leaves out anyone whose picked decision isn't accepted.
+ * sendWalletPasses checks the deployed function can take a list of people first
+ * and sends nothing if it can't, so this never falls back to "everyone".
+ */
+async function sendPassesToNewlyAccepted(eventId: string, acceptedIds: string[], onProgress: (text: string) => void): Promise<PassOutcome> {
+  onProgress("Loading check-in codes…");
+  const rows = await fetchApplicationRows(eventId);
+  const targets = passTargets(rows, acceptedIds);
+  const outcome: PassOutcome = {
+    sent: 0,
+    failed: 0,
+    alreadyHad: targets.alreadySent.length,
+    noCode: acceptedIds.length - targets.due.length - targets.alreadySent.length,
+    error: null,
+  };
+  const ids = targets.due.map(r => r.id);
+  if (ids.length === 0) return outcome;
+  onProgress(`Sending wallet passes (0 of ${ids.length})…`);
+  const result = await sendWalletPasses(eventId, sent => onProgress(`Sending wallet passes (${sent} of ${ids.length})…`), { applicationIds: ids });
+  outcome.sent = result.sent;
+  outcome.failed = result.failed.length;
+  return outcome;
+}
 
 /**
  * Releases every staged decision, then emails each person. In "retry" mode it
@@ -58,6 +91,8 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
   const [progress, setProgress] = useState("");
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sendPasses, setSendPasses] = useState(true);
+  const accepting = mode === "release" && (groups.has("accepted:hacker") || groups.has("accepted:staff"));
 
   const editTemplate = (key: GroupKey, field: keyof Template, value: string) =>
     setTemplates(prev => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
@@ -65,14 +100,16 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
   const run = async () => {
     setPhase("working");
     setError(null);
-    const result: Outcome = { released: 0, sent: 0, failed: [], emailError: null };
+    const result: Outcome = { released: 0, sent: 0, failed: [], emailError: null, passes: null };
     let emailGroups = groups;
+    let newlyAccepted: string[] = [];
     try {
       if (mode === "release") {
         setProgress("Releasing decisions…");
         const released = await releaseDecisions(eventId, unsentDecisionRows(rows).map(r => r.id));
         result.released = released.length;
         emailGroups = groupIds(released.map(r => ({ id: r.application_id, decision: r.status, type: r.applicant_type })));
+        newlyAccepted = released.filter(r => r.status === "accepted").map(r => r.application_id);
         onChanged();
       }
       try {
@@ -87,6 +124,16 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
         }
       } catch (e) {
         result.emailError = e instanceof EmailNotSetUpError || e instanceof Error ? e.message : String(e);
+      }
+      // A pass shouldn't arrive before the acceptance email, so only people whose email went out.
+      if (sendPasses && newlyAccepted.length > 0 && !result.emailError) {
+        const emailFailed = new Set(result.failed.map(f => f.id));
+        const ids = newlyAccepted.filter(id => !emailFailed.has(id));
+        try {
+          result.passes = await sendPassesToNewlyAccepted(eventId, ids, setProgress);
+        } catch (e) {
+          result.passes = { sent: 0, failed: 0, alreadyHad: 0, noCode: 0, error: e instanceof Error ? e.message : String(e) };
+        }
       }
       setOutcome(result);
       setPhase("done");
@@ -126,6 +173,26 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
                 </div>
               </div>
             )}
+            {outcome.passes && !outcome.passes.error && (
+              <p>
+                Sent <strong>{outcome.passes.sent}</strong> wallet pass{outcome.passes.sent === 1 ? "" : "es"}; {outcome.passes.failed} failed.
+                {outcome.passes.alreadyHad > 0 && <> {outcome.passes.alreadyHad} already had one.</>}
+                {outcome.passes.noCode > 0 && <> {outcome.passes.noCode} without a check-in code yet; use "Send wallet passes" later.</>}
+              </p>
+            )}
+            {outcome.passes?.error && (
+              <div className="og-warning">
+                <AlertTriangle size={16} aria-hidden />
+                <div>
+                  <strong>Wallet passes not sent.</strong>
+                  <p>{outcome.passes.error}</p>
+                  <p>Use "Send wallet passes" once it's fixed.</p>
+                </div>
+              </div>
+            )}
+            {outcome.emailError && sendPasses && accepting && (
+              <p className="og-pass-skip">Wallet passes weren't sent either, since acceptance emails didn't go out. Use "Send wallet passes" after.</p>
+            )}
             <div className="og-modal-actions"><button className="sp-button primary" onClick={onClose}>Done</button></div>
           </div>
         ) : (
@@ -156,6 +223,13 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
                     <label>Body<textarea rows={8} value={templates[k].body} onChange={e => editTemplate(k, "body", e.target.value)} disabled={phase === "working"} /></label>
                   </details>
                 ))}
+
+                {accepting && (
+                  <label className="og-pass-resend">
+                    <input type="checkbox" checked={sendPasses} onChange={e => setSendPasses(e.target.checked)} disabled={phase === "working"} />
+                    Also send wallet passes to everyone newly accepted
+                  </label>
+                )}
 
                 <label className="og-confirm">
                   Type <code>{EVENT_CODE}</code> to confirm

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X } from "lucide-react";
 import { sendWalletPasses, type WalletPassResult } from "./data";
-import { TYPE_LABEL, fullName, needsPass, passTargets, type Row } from "./types";
+import { TYPE_LABEL, fullName, passTargets, someNames, type Row } from "./types";
 
 /**
  * Emails check-in passes (QR code, Apple Wallet, Google Wallet) to accepted
@@ -10,6 +10,11 @@ import { TYPE_LABEL, fullName, needsPass, passTargets, type Row } from "./types"
  *
  * With selectedIds (rows picked in a table) it only sends to those people,
  * and can send a second pass to any of them who already has one.
+ *
+ * Passes go by the released status (only released acceptances have a code),
+ * while the tables go by the picked decision. So it never sends to someone
+ * released as accepted whose picked decision is now something else, and says
+ * who's picked to accept but has no code until decisions are released.
  */
 export default function WalletPassDialog({ eventId, rows, selectedIds, onClose, onChanged }: {
   eventId: string;
@@ -19,8 +24,14 @@ export default function WalletPassDialog({ eventId, rows, selectedIds, onClose, 
   onChanged: () => void;
 }) {
   const [resend, setResend] = useState(false);
-  const chosen = selectedIds ? passTargets(rows, selectedIds) : null;
-  const pending = chosen ? [...chosen.due, ...(resend ? chosen.alreadySent : [])] : rows.filter(needsPass);
+  const targets = passTargets(rows, selectedIds);
+  const chosen = selectedIds ? targets : null;
+  const pending = [...targets.due, ...(chosen && resend ? targets.alreadySent : [])];
+  // Sending to "everyone without a pass" lets the function pick from the roster,
+  // which would include people on hold; name exactly who to send to instead.
+  const sendOptions = chosen
+    ? { applicationIds: pending.map(r => r.id), resend }
+    : targets.onHold.length > 0 ? { applicationIds: pending.map(r => r.id) } : {};
   const [phase, setPhase] = useState<"review" | "working" | "done">("review");
   const [progress, setProgress] = useState("");
   const [result, setResult] = useState<WalletPassResult | null>(null);
@@ -33,7 +44,7 @@ export default function WalletPassDialog({ eventId, rows, selectedIds, onClose, 
       const outcome = await sendWalletPasses(
         eventId,
         sent => setProgress(`Sent ${sent} of ${pending.length}…`),
-        chosen ? { applicationIds: pending.map(r => r.id), resend } : {},
+        sendOptions,
       );
       setResult(outcome);
       setPhase("done");
@@ -66,7 +77,7 @@ export default function WalletPassDialog({ eventId, rows, selectedIds, onClose, 
           ) : (
             <>
               {pending.length === 0 ? (
-                <p>{chosen ? "Nobody you selected needs a pass." : "Everyone accepted already has their pass."}</p>
+                <p>{chosen ? "Nobody you selected needs a pass." : "Everyone released as accepted already has their pass."}</p>
               ) : (
                 <>
                   <p>
@@ -88,9 +99,21 @@ export default function WalletPassDialog({ eventId, rows, selectedIds, onClose, 
                   Also send a new copy to the {chosen.alreadySent.length} who already {chosen.alreadySent.length === 1 ? "has a pass" : "have passes"}
                 </label>
               )}
+              {targets.onHold.length > 0 && (
+                <p className="og-pass-skip">
+                  {targets.onHold.length} skipped: you've picked a different decision for them that
+                  isn't released yet — release decisions first. ({someNames(targets.onHold)})
+                </p>
+              )}
+              {targets.notReleased.length > 0 && (
+                <p className="og-pass-skip">
+                  {targets.notReleased.length} accepted but not released yet — release decisions to give them a check-in
+                  code: {someNames(targets.notReleased)}.
+                </p>
+              )}
               {chosen && chosen.noCode.length > 0 && (
                 <p className="og-pass-skip">
-                  Skipping {chosen.noCode.length} without a check-in code (not accepted, or their acceptance isn't released yet).
+                  Skipping {chosen.noCode.length} without a check-in code (not accepted).
                 </p>
               )}
               {error && <p className="sp-error">{error}</p>}

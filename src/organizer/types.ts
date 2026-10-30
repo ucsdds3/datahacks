@@ -113,23 +113,49 @@ const DECISIONS: readonly string[] = ["accepted", "waitlisted", "rejected"];
 export const unsentDecisionRows = <T extends ListApplication>(rows: T[]) =>
   rows.filter(r => r.decision_released_at && !r.decision_emailed_at && r.status !== null && DECISIONS.includes(r.status));
 
-/** Accepted (released) and on the check-in roster, so a pass can be made for them. */
-export const canGetPass = (r: Row) => r.status === "accepted" && !!r.code;
+/**
+ * Released as accepted and on the check-in roster, but the organizer has since
+ * picked a different decision that isn't released yet. They're about to stop
+ * being accepted, so the console doesn't offer them a pass.
+ */
+export const passOnHold = (r: Row) => r.status === "accepted" && !!r.code && isStaged(r) && r.decision !== "accepted";
+
+/** Picked to accept but not released yet, so not on the check-in roster and no code to put on a pass. */
+export const acceptedNotReleased = (r: Row) => isStaged(r) && r.decision === "accepted" && !r.code;
+
+/** Accepted (released), on the check-in roster, and not about to be un-accepted, so a pass can be made for them. */
+export const canGetPass = (r: Row) => r.status === "accepted" && !!r.code && !passOnHold(r);
 
 /** Accepted, on the check-in roster, and not sent a pass yet (by the console or the check-in repo's script). */
 export const needsPass = (r: Row) => canGetPass(r) && !r.passSentAt;
 
 /**
- * The people an organizer picked, split by what "Send pass" does for them:
- * due get their first pass, alreadySent only get one again if the organizer
- * asks, and noCode can't get one (not accepted, or not released yet).
+ * Who "Send wallet passes" would email (rows passed in), split by what it does
+ * for them. With ids, only those rows are considered.
+ *   due          get their first pass
+ *   alreadySent  only get one again if the organizer asks
+ *   onHold       released as accepted, but a different decision is picked and not released yet
+ *   notReleased  picked to accept, not released yet, so no code
+ *   noCode       everyone else without a code (not accepted)
+ * Without ids, onHold only counts people who'd otherwise get a first pass.
  */
-export function passTargets(rows: Row[], ids: Iterable<string>) {
-  const chosen = new Set(ids);
-  const picked = rows.filter(r => chosen.has(r.id));
+export function passTargets(rows: Row[], ids?: Iterable<string>) {
+  const chosen = ids ? new Set(ids) : null;
+  const picked = chosen ? rows.filter(r => chosen.has(r.id)) : rows;
   return {
     due: picked.filter(needsPass),
-    alreadySent: picked.filter(r => canGetPass(r) && !!r.passSentAt),
-    noCode: picked.filter(r => !canGetPass(r)),
+    alreadySent: chosen ? picked.filter(r => canGetPass(r) && !!r.passSentAt) : [],
+    onHold: picked.filter(r => passOnHold(r) && (chosen !== null || !r.passSentAt)),
+    notReleased: picked.filter(acceptedNotReleased),
+    noCode: chosen ? picked.filter(r => !canGetPass(r) && !passOnHold(r) && !acceptedNotReleased(r)) : [],
   };
+}
+
+/** "Ana, Ben and 3 more": the first few names in a list. */
+export function someNames(rows: Pick<Application, "first_name" | "last_name">[], show = 5) {
+  const names = rows.slice(0, show).map(fullName);
+  const rest = rows.length - names.length;
+  if (rest > 0) return `${names.join(", ")} and ${rest} more`;
+  if (names.length <= 1) return names.join("");
+  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
 }

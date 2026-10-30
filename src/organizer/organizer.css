@@ -22,6 +22,9 @@
 /* Tables */
 .og-table-card { position: relative; }
 .og-count { margin-left: 4px; color: var(--sp-muted); font-weight: 500; }
+.og-count-unreleased { color: var(--sp-muted); font-size: 12px; font-weight: 500; }
+/* Release sits right after the name, so keep it narrow. */
+.og-table .og-release-col { width: 1%; white-space: nowrap; }
 .og-toolbar { display: flex; gap: 8px; align-items: center; }
 .og-search { display: flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid var(--sp-border); border-radius: 8px; color: var(--sp-muted); }
 .og-search input { width: 220px; padding: 9px 0; border: 0; outline: none; background: transparent; font: inherit; font-size: 14px; color: var(--sp-text); }
@@ -205,7 +208,7 @@ td .og-badge { margin-left: 0; }
 .og-preview { border-radius: 0; border: 2px solid #b0b9a3; background: #f1f2e7; }
 .og-preview pre { color: #3a4535; font-family: "DM Sans", system-ui, sans-serif; }
 .og-root input[type="checkbox"] { accent-color: #59744b; }
-.og-table td:nth-child(4) { white-space: nowrap; }
+.og-table td:nth-child(5) { white-space: nowrap; }
 
 /* Send wallet passes: who's getting one */
 .og-pass-list { margin: 0; padding-left: 18px; font-size: 14px; }
