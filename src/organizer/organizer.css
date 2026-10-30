@@ -214,7 +214,12 @@ td .og-badge { margin-left: 0; }
 .og-pass-list { margin: 0; padding-left: 18px; font-size: 14px; }
 .og-pass-list li + li { margin-top: 2px; }
 .og-pass-resend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; }
-.og-pass-skip { margin: 10px 0 0; color: var(--sp-muted); font-size: 14px; }
+.og-pass-skip { margin: 6px 0 0; color: var(--sp-muted); font-size: 13px; }
+.og-pass-group { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgb(0 0 0 / 0.12); }
+.og-pass-group h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 6px; font-size: 15px; }
+.og-pass-count { color: var(--sp-muted); font-size: 13px; font-weight: 600; }
+.og-pass-send { display: flex; justify-content: flex-end; margin-top: 8px; }
+.og-pass-result { margin: 8px 0 0; font-size: 14px; }
 
 /* Organizers section */
 .og-organizers { display: flex; flex-direction: column; gap: 20px; max-width: 760px; }
