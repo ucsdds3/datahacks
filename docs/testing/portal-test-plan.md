@@ -98,6 +98,13 @@ live site.
       it arrive, and are the `{{first_name}}`-style placeholders filled in?
 - [ ] **Send wallet passes**: does each accepted person get one email with a QR
       code, an Apple Wallet pass and a Google Wallet button?
+- [ ] Release with "Also send wallet passes to everyone newly accepted"
+      ticked. Do only the people just accepted get a pass, after their
+      acceptance email? Does the dialog say "Sent N passes; M failed"?
+- [ ] Pick "Reject" for someone already released as accepted, but don't
+      release. **Send wallet passes** should leave them out and say "1 skipped".
+      Someone picked "Accept" but not released should be listed as "accepted
+      but not released yet", and the Accepted tab should say "(N not released)".
 - [ ] **Organizers** section: add a teammate's email. Can they open the
       console after signing in? Then remove them.
 

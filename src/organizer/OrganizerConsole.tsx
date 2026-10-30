@@ -13,7 +13,7 @@ import ReleaseDialog from "./ReleaseDialog";
 import WalletPassDialog from "./WalletPassDialog";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
-import { isStaged, kindOf, needsPass, unsentDecisionRows } from "./types";
+import { isStaged, kindOf, passTargets, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
@@ -71,7 +71,11 @@ export default function OrganizerConsole() {
   const rows = apps.data ?? [];
   const staged = rows.filter(isStaged).length;
   const unsent = unsentDecisionRows(rows).length;
-  const passesDue = rows.filter(needsPass).length;
+  // Released acceptances without a pass, minus anyone picked for a different decision since.
+  const passes = passTargets(rows);
+  const passesDue = passes.due.length;
+  // Still open the dialog when nobody's due, so it can say who's waiting on a release.
+  const passesWaiting = passes.onHold.length + passes.notReleased.length;
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
@@ -107,7 +111,7 @@ export default function OrganizerConsole() {
         <header className="og-topbar">
           <h1>{current.title}</h1>
           <div className="og-topbar-actions">
-            <button className="sp-button" onClick={() => openPasses(null)} disabled={passesDue === 0}>
+            <button className="sp-button" onClick={() => openPasses(null)} disabled={passesDue === 0 && passesWaiting === 0}>
               <Ticket size={15} aria-hidden /> Send wallet passes ({passesDue})
             </button>
             {unsent > 0 && (
