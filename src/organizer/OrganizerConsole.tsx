@@ -10,14 +10,14 @@ import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
 import EmailComposer from "./EmailComposer";
 import ReleaseDialog from "./ReleaseDialog";
-import WalletPassDialog from "./WalletPassDialog";
+import PassesPage from "./PassesPage";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
-import { isStaged, kindOf, passTargets, unsentDecisionRows } from "./types";
+import { isStaged, kindOf, needsPass, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
-type Section = "hackers" | "staff" | "email" | "organizers";
+type Section = "hackers" | "staff" | "passes" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
@@ -34,6 +34,7 @@ function Gate({ title, children }: { title: string; children?: React.ReactNode }
 const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: string }[] = [
   { id: "hackers", label: "Hackers", icon: <Users size={18} />, title: "Hacker applications" },
   { id: "staff", label: "Mentors & judges", icon: <UserCog size={18} />, title: "Mentor & judge applications" },
+  { id: "passes", label: "Passes", icon: <Ticket size={18} />, title: "Wallet passes" },
   { id: "email", label: "Email", icon: <Mail size={18} />, title: "Email" },
   { id: "organizers", label: "Organizers", icon: <ShieldCheck size={18} />, title: "Organizers" },
 ];
@@ -50,10 +51,11 @@ export default function OrganizerConsole() {
   const apps = useApplications(isOrganizer ? event.data : undefined);
   const refresh = useRefreshApplications();
   const [section, setSection] = useState<Section>("hackers");
-  const [dialog, setDialog] = useState<"release" | "retry" | "passes" | null>(null);
-  // Who "Send pass" was pressed for in a table; null means everyone without a pass.
-  const [passIds, setPassIds] = useState<string[] | null>(null);
-  const openPasses = (ids: string[] | null) => { setPassIds(ids); setDialog("passes"); };
+  const [dialog, setDialog] = useState<"release" | "retry" | null>(null);
+  // Who "Send pass" was pressed for in a table, to select on the Passes page; null when it was opened any other way.
+  const [passPick, setPassPick] = useState<{ ids: string[]; n: number } | null>(null);
+  const goTo = (s: Section) => { setPassPick(null); setSection(s); };
+  const openPasses = (ids: string[]) => { setPassPick(prev => ({ ids, n: (prev?.n ?? 0) + 1 })); setSection("passes"); };
 
   if (loading) return <Gate title="Loading…" />;
   if (!session) return <Navigate to={portal.organizerLogin} replace />;
@@ -72,10 +74,7 @@ export default function OrganizerConsole() {
   const staged = rows.filter(isStaged).length;
   const unsent = unsentDecisionRows(rows).length;
   // Released acceptances without a pass, minus anyone picked for a different decision since.
-  const passes = passTargets(rows);
-  const passesDue = passes.due.length;
-  // Still open the dialog when nobody's due, so it can say who's waiting on a release.
-  const passesWaiting = passes.notReleased.length;
+  const passesDue = rows.filter(needsPass).length;
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
@@ -89,9 +88,10 @@ export default function OrganizerConsole() {
         </div>
         <nav className="sp-nav" aria-label="Organizer">
           {SECTIONS.map(s => (
-            <button key={s.id} className={`sp-nav-link og-nav-button${s.id === section ? " active" : ""}`} onClick={() => setSection(s.id)}>
+            <button key={s.id} className={`sp-nav-link og-nav-button${s.id === section ? " active" : ""}`} onClick={() => goTo(s.id)} aria-current={s.id === section ? "page" : undefined}>
               {s.icon} {s.label}
               {(s.id === "hackers" || s.id === "staff") && <span className="og-nav-count">{rows.filter(r => kindOf(r.applicant_type) === (s.id === "hackers" ? "hacker" : "staff")).length}</span>}
+              {s.id === "passes" && passesDue > 0 && <span className="og-nav-count" aria-label={`${passesDue} to send`}>{passesDue}</span>}
             </button>
           ))}
         </nav>
@@ -111,9 +111,11 @@ export default function OrganizerConsole() {
         <header className="og-topbar">
           <h1>{current.title}</h1>
           <div className="og-topbar-actions">
-            <button className="sp-button" onClick={() => openPasses(null)} disabled={passesDue === 0 && passesWaiting === 0}>
-              <Ticket size={15} aria-hidden /> Send wallet passes ({passesDue})
-            </button>
+            {section !== "passes" && (
+              <button className="sp-button" onClick={() => goTo("passes")}>
+                <Ticket size={15} aria-hidden /> Passes ({passesDue} to send)
+              </button>
+            )}
             {unsent > 0 && (
               <button className="sp-button" onClick={() => setDialog("retry")}><Send size={15} aria-hidden /> Send {unsent} unsent decision email{unsent === 1 ? "" : "s"}</button>
             )}
@@ -128,6 +130,15 @@ export default function OrganizerConsole() {
         {apps.isSuccess && event.data && (
           section === "organizers"
             ? <OrganizersPanel eventId={event.data} myEmail={session.user.email ?? ""} />
+            : section === "passes"
+            ? <PassesPage
+                key={passPick?.n ?? 0}
+                eventId={event.data}
+                rows={rows}
+                initialSelected={passPick?.ids}
+                onChanged={refresh}
+                onRelease={() => setDialog("release")}
+              />
             : section === "email"
             ? <EmailComposer eventId={event.data} rows={rows} />
             : <ApplicationsTable
@@ -140,15 +151,6 @@ export default function OrganizerConsole() {
         )}
       </main>
 
-      {dialog === "passes" && event.data && (
-        <WalletPassDialog
-          eventId={event.data}
-          rows={rows}
-          selectedIds={passIds ?? undefined}
-          onClose={() => setDialog(null)}
-          onChanged={refresh}
-        />
-      )}
       {(dialog === "release" || dialog === "retry") && event.data && (
         <ReleaseDialog mode={dialog} eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />
       )}

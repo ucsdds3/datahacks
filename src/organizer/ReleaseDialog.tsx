@@ -177,7 +177,7 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
               <p>
                 Sent <strong>{outcome.passes.sent}</strong> wallet pass{outcome.passes.sent === 1 ? "" : "es"}; {outcome.passes.failed} failed.
                 {outcome.passes.alreadyHad > 0 && <> {outcome.passes.alreadyHad} already had one.</>}
-                {outcome.passes.noCode > 0 && <> {outcome.passes.noCode} without a check-in code yet; use "Send wallet passes" later.</>}
+                {outcome.passes.noCode > 0 && <> {outcome.passes.noCode} without a check-in code yet; send them from Passes later.</>}
               </p>
             )}
             {outcome.passes?.error && (
@@ -186,12 +186,12 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
                 <div>
                   <strong>Wallet passes not sent.</strong>
                   <p>{outcome.passes.error}</p>
-                  <p>Use "Send wallet passes" once it's fixed.</p>
+                  <p>Send them from Passes once it's fixed.</p>
                 </div>
               </div>
             )}
             {outcome.emailError && sendPasses && accepting && (
-              <p className="og-pass-skip">Wallet passes weren't sent either, since acceptance emails didn't go out. Use "Send wallet passes" after.</p>
+              <p className="og-pass-skip">Wallet passes weren't sent either, since acceptance emails didn't go out. Send them from Passes after.</p>
             )}
             <div className="og-modal-actions"><button className="sp-button primary" onClick={onClose}>Done</button></div>
           </div>

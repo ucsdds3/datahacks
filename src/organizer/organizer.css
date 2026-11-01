@@ -210,16 +210,89 @@ td .og-badge { margin-left: 0; }
 .og-root input[type="checkbox"] { accent-color: #59744b; }
 .og-table td:nth-child(5) { white-space: nowrap; }
 
-/* Send wallet passes: who's getting one */
-.og-pass-list { margin: 0; padding-left: 18px; font-size: 14px; }
-.og-pass-list li + li { margin-top: 2px; }
+/* Release dialog: the "also send wallet passes" box and notes under it */
 .og-pass-resend { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 14px; }
 .og-pass-skip { margin: 6px 0 0; color: var(--sp-muted); font-size: 13px; }
-.og-pass-group { margin-top: 16px; padding-top: 12px; border-top: 1px solid rgb(0 0 0 / 0.12); }
-.og-pass-group h3 { display: flex; align-items: baseline; gap: 8px; margin: 0 0 6px; font-size: 15px; }
-.og-pass-count { color: var(--sp-muted); font-size: 13px; font-weight: 600; }
-.og-pass-send { display: flex; justify-content: flex-end; margin-top: 8px; }
-.og-pass-result { margin: 8px 0 0; font-size: 14px; }
+
+/* Passes section */
+.og-passes .og-hint { margin: 10px 0 0; }
+.og-passes .og-search input:focus-visible { outline: none; }
+.og-pass-note { margin: 10px 0 0; padding: 8px 12px; border: 2px solid #9fb486; background: var(--sp-accent-soft); font-size: 14px; }
+.og-pass-status:empty { display: none; }
+.og-pass-status p { margin: 10px 0 0; }
+.og-pass-release {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
+  margin-top: 14px; padding: 10px 12px; border: 2px solid #d9b98f; background: #f6ead9; color: #5a3410; font-size: 14px;
+}
+.og-pass-release > span { flex: 1 1 320px; }
+.og-pass-release .sp-button { padding: 6px 12px; }
+.og-pass-actions {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  margin-top: 14px; padding: 10px 12px; border: 2px solid #9fb486; background: var(--sp-accent-soft); font-size: 14px;
+}
+.og-pass-actions .sp-button { padding: 6px 12px; }
+.og-pass-selected { margin-right: auto; font-weight: 500; }
+
+.og-pass-role { margin-top: 14px; border: 2px solid #b0b9a3; background: #ecede2; }
+.og-pass-role > summary {
+  display: flex; align-items: baseline; gap: 8px; padding: 10px 12px; cursor: pointer; list-style: none;
+  font-size: 15px; font-weight: 600;
+}
+.og-pass-role > summary::-webkit-details-marker { display: none; }
+.og-pass-chevron { flex: none; align-self: center; transition: transform 120ms ease; }
+.og-pass-role[open] > summary .og-pass-chevron { transform: rotate(90deg); }
+.og-pass-role-name { font: 400 22px/1.1 "VT323", monospace; letter-spacing: 0.02em; }
+.og-pass-count { color: var(--sp-muted); font-size: 13px; font-weight: 500; }
+.og-pass-role-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; padding: 0 12px 10px; }
+.og-pass-role-bar .sp-button { padding: 6px 12px; margin-left: auto; }
+.og-pass-all { display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer; }
+
+.og-pass-rows { margin: 0; padding: 0; list-style: none; background: var(--sp-surface); }
+.og-pass-row {
+  display: grid; grid-template-columns: 18px minmax(150px, 1.2fr) minmax(170px, 1.4fr) minmax(110px, 1fr) minmax(96px, auto);
+  grid-template-areas: "check who email school tag";
+  align-items: center; gap: 4px 14px; padding: 8px 12px; border-top: 1px solid #c3cbb5; font-size: 14px;
+}
+label.og-pass-row { cursor: pointer; }
+label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
+.og-pass-row > input { grid-area: check; margin: 0; }
+.og-pass-row.sent {
+  grid-template-columns: minmax(150px, 1.2fr) minmax(170px, 1.4fr) minmax(110px, auto) auto;
+  grid-template-areas: "who email date action";
+}
+.og-pass-row.waiting { color: var(--sp-muted); }
+.og-pass-who { grid-area: who; display: flex; flex-direction: column; min-width: 0; }
+.og-pass-who strong { font-size: 15px; font-weight: 600; color: var(--sp-text); overflow-wrap: anywhere; }
+.og-pass-role-label { color: var(--sp-muted); font-size: 12px; }
+.og-pass-email { grid-area: email; min-width: 0; overflow-wrap: anywhere; }
+.og-pass-school { grid-area: school; min-width: 0; color: var(--sp-muted); overflow-wrap: anywhere; }
+.og-pass-date { grid-area: date; color: var(--sp-muted); white-space: nowrap; }
+.og-pass-tag-cell { grid-area: tag; justify-self: end; }
+.og-pass-tag { display: inline-block; padding: 1px 6px 0; background: #f1dcc7; color: #8a4512; font: 400 15px/1.2 "VT323", monospace; letter-spacing: 0.05em; white-space: nowrap; }
+.og-pass-resend-cell { grid-area: action; justify-self: end; }
+.og-pass-resend-cell .sp-button { padding: 4px 10px; }
+.og-pass-confirm { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; font-size: 13px; }
+
+@media (max-width: 700px) {
+  .og-passes .sp-card-header .og-search { flex: 1 1 100%; }
+  .og-passes .og-search input { width: 100%; }
+  .og-pass-row {
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    grid-template-areas: "check who tag" ". email email" ". school school";
+    gap: 2px 10px;
+  }
+  .og-pass-row.sent {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "who action" "email email" "date date";
+  }
+  .og-pass-date { white-space: normal; }
+  .og-pass-actions { position: static; }
+  .og-pass-actions .og-pass-selected { flex: 1 1 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .og-pass-chevron { transition: none; }
+}
 
 /* Organizers section */
 .og-organizers { display: flex; flex-direction: column; gap: 20px; max-width: 760px; }

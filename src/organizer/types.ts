@@ -130,7 +130,7 @@ export const canGetPass = (r: Row) => r.status === "accepted" && !!r.code && !pa
 export const needsPass = (r: Row) => canGetPass(r) && !r.passSentAt;
 
 /**
- * Who "Send wallet passes" would email (rows passed in), split by what it does
+ * Who a wallet pass send would email (rows passed in), split by what it does
  * for them. With ids, only those rows are considered.
  *   due          get their first pass
  *   alreadySent  only get one again if the organizer asks
@@ -151,7 +151,7 @@ export function passTargets(rows: Row[], ids?: Iterable<string>) {
   };
 }
 
-/** The order the wallet pass dialog lists roles in, and what it calls each. */
+/** The order the Passes page lists roles in, and what it calls each. */
 export const PASS_ROLES: readonly ApplicantType[] = ["hacker", "mentor", "judge", "hybrid"];
 
 export const ROLE_PLURAL: Record<ApplicantType, string> = {
@@ -186,11 +186,18 @@ export function passGroups<T extends Pick<Row, "applicant_type">>(send: T[], not
     .filter(g => g.send.length > 0 || g.notReleased.length > 0);
 }
 
-/** "Ana, Ben and 3 more": the first few names in a list. */
-export function someNames(rows: Pick<Application, "first_name" | "last_name">[], show = 5) {
-  const names = rows.slice(0, show).map(fullName);
-  const rest = rows.length - names.length;
-  if (rest > 0) return `${names.join(", ")} and ${rest} more`;
-  if (names.length <= 1) return names.join("");
-  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+/**
+ * The Passes page's two tabs.
+ *   toSend        released as accepted, on the check-in roster, no pass yet
+ *   releaseFirst  picked to accept but not released, so no code yet; listed, never sent
+ *   sent          has a pass (attendees.emailed_at) and is still accepted
+ * Anyone picked for reject or waitlist is in none of them, even if they were
+ * released as accepted earlier.
+ */
+export function passLists(rows: Row[]) {
+  return {
+    toSend: rows.filter(needsPass),
+    releaseFirst: rows.filter(acceptedNotReleased),
+    sent: rows.filter(r => canGetPass(r) && !!r.passSentAt),
+  };
 }
