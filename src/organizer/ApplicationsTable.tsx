@@ -50,7 +50,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   kind: Kind;
   rows: Row[];
   onChanged: () => void;
-  /** Opens the wallet pass dialog for just these application ids. */
+  /** Opens the Passes page with these application ids selected. */
   onSendPasses?: (ids: string[]) => void;
 }) {
   const [tab, setTab] = useState<Tab>("applied");
@@ -108,7 +108,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   const open = rows.find(r => r.id === openId);
   const selectedRows = visible.filter(r => selected.has(r.id));
   const selectedCount = selectedRows.length;
-  // Also shown for people who can't get one yet, so the dialog can say why.
+  // Also shown for people not released yet (the Passes page releases first) or about to be un-accepted (it says why not).
   const canSendPasses = !!onSendPasses && selectedRows.some(r => canGetPass(r) || passOnHold(r) || acceptedNotReleased(r));
 
   return (

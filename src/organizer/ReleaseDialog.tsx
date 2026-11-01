@@ -35,7 +35,17 @@ type PassOutcome = { sent: number; failed: number; alreadyHad: number; noCode: n
 type Outcome = {
   released: number; sent: number; failed: { id: string; error: string }[]; emailError: string | null;
   passes: PassOutcome | null;
+  /** Passes for the already-released people picked on the Passes page (passPick). */
+  pickedPasses: { sent: number; failed: number; error: string | null } | null;
 };
+
+/**
+ * Opened from the Passes page's "Release decisions & send N passes": how many
+ * people the organizer picked there, and which of them were already released
+ * (they get their pass straight after the release; the rest are newly
+ * accepted and get theirs from "Also send wallet passes").
+ */
+export type PassPick = { count: number; releasedIds: string[] };
 
 /**
  * After a release: emails a wallet pass to the people it just accepted, once
@@ -69,10 +79,11 @@ async function sendPassesToNewlyAccepted(eventId: string, acceptedIds: string[],
  * Releases every staged decision, then emails each person. In "retry" mode it
  * only sends the decision emails that didn't go out last time.
  */
-export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged }: {
+export default function ReleaseDialog({ mode, eventId, rows, passPick, onClose, onChanged }: {
   mode: "release" | "retry";
   eventId: string;
   rows: Row[];
+  passPick?: PassPick;
   onClose: () => void;
   onChanged: () => void;
 }) {
@@ -100,7 +111,7 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
   const run = async () => {
     setPhase("working");
     setError(null);
-    const result: Outcome = { released: 0, sent: 0, failed: [], emailError: null, passes: null };
+    const result: Outcome = { released: 0, sent: 0, failed: [], emailError: null, passes: null, pickedPasses: null };
     let emailGroups = groups;
     let newlyAccepted: string[] = [];
     try {
@@ -133,6 +144,18 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
           result.passes = await sendPassesToNewlyAccepted(eventId, ids, setProgress);
         } catch (e) {
           result.passes = { sent: 0, failed: 0, alreadyHad: 0, noCode: 0, error: e instanceof Error ? e.message : String(e) };
+        }
+      }
+      // People picked on the Passes page who were already released: the release doesn't touch them,
+      // and their acceptance email went out before, so they get their pass either way.
+      const pickedIds = sendPasses && passPick ? passTargets(rows, passPick.releasedIds).due.map(r => r.id) : [];
+      if (pickedIds.length > 0) {
+        setProgress(`Sending the passes you picked (0 of ${pickedIds.length})…`);
+        try {
+          const sent = await sendWalletPasses(eventId, n => setProgress(`Sending the passes you picked (${n} of ${pickedIds.length})…`), { applicationIds: pickedIds });
+          result.pickedPasses = { sent: sent.sent, failed: sent.failed.length, error: null };
+        } catch (e) {
+          result.pickedPasses = { sent: 0, failed: 0, error: e instanceof Error ? e.message : String(e) };
         }
       }
       setOutcome(result);
@@ -177,7 +200,7 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
               <p>
                 Sent <strong>{outcome.passes.sent}</strong> wallet pass{outcome.passes.sent === 1 ? "" : "es"}; {outcome.passes.failed} failed.
                 {outcome.passes.alreadyHad > 0 && <> {outcome.passes.alreadyHad} already had one.</>}
-                {outcome.passes.noCode > 0 && <> {outcome.passes.noCode} without a check-in code yet; use "Send wallet passes" later.</>}
+                {outcome.passes.noCode > 0 && <> {outcome.passes.noCode} without a check-in code yet; send them from Passes later.</>}
               </p>
             )}
             {outcome.passes?.error && (
@@ -186,12 +209,26 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
                 <div>
                   <strong>Wallet passes not sent.</strong>
                   <p>{outcome.passes.error}</p>
-                  <p>Use "Send wallet passes" once it's fixed.</p>
+                  <p>Send them from Passes once it's fixed.</p>
+                </div>
+              </div>
+            )}
+            {outcome.pickedPasses && !outcome.pickedPasses.error && (
+              <p>
+                Sent <strong>{outcome.pickedPasses.sent}</strong> wallet pass{outcome.pickedPasses.sent === 1 ? "" : "es"} to people you picked who were already released; {outcome.pickedPasses.failed} failed.
+              </p>
+            )}
+            {outcome.pickedPasses?.error && (
+              <div className="og-warning">
+                <AlertTriangle size={16} aria-hidden />
+                <div>
+                  <strong>Passes for the already-released people you picked weren't sent.</strong>
+                  <p>{outcome.pickedPasses.error}</p>
                 </div>
               </div>
             )}
             {outcome.emailError && sendPasses && accepting && (
-              <p className="og-pass-skip">Wallet passes weren't sent either, since acceptance emails didn't go out. Use "Send wallet passes" after.</p>
+              <p className="og-pass-skip">Wallet passes weren't sent either, since acceptance emails didn't go out. Send them from Passes after.</p>
             )}
             <div className="og-modal-actions"><button className="sp-button primary" onClick={onClose}>Done</button></div>
           </div>
@@ -229,6 +266,15 @@ export default function ReleaseDialog({ mode, eventId, rows, onClose, onChanged 
                     <input type="checkbox" checked={sendPasses} onChange={e => setSendPasses(e.target.checked)} disabled={phase === "working"} />
                     Also send wallet passes to everyone newly accepted
                   </label>
+                )}
+                {passPick && (
+                  <p className="og-pass-skip og-pass-pick">
+                    From Passes: you picked {passPick.count} {passPick.count === 1 ? "person" : "people"} to send a pass to. Releasing is
+                    for the whole event: everything listed above is released and emailed, and with the box ticked everyone newly
+                    accepted gets a pass, not only the people you picked.
+                    {passPick.releasedIds.length === 1 && <> The 1 you picked who was already released gets theirs right after.</>}
+                    {passPick.releasedIds.length > 1 && <> The {passPick.releasedIds.length} you picked who were already released get theirs right after.</>}
+                  </p>
                 )}
 
                 <label className="og-confirm">

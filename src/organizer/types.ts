@@ -130,7 +130,7 @@ export const canGetPass = (r: Row) => r.status === "accepted" && !!r.code && !pa
 export const needsPass = (r: Row) => canGetPass(r) && !r.passSentAt;
 
 /**
- * Who "Send wallet passes" would email (rows passed in), split by what it does
+ * Who a wallet pass send would email (rows passed in), split by what it does
  * for them. With ids, only those rows are considered.
  *   due          get their first pass
  *   alreadySent  only get one again if the organizer asks
@@ -151,7 +151,7 @@ export function passTargets(rows: Row[], ids?: Iterable<string>) {
   };
 }
 
-/** The order the wallet pass dialog lists roles in, and what it calls each. */
+/** The order the Passes page lists roles in, and what it calls each. */
 export const PASS_ROLES: readonly ApplicantType[] = ["hacker", "mentor", "judge", "hybrid"];
 
 export const ROLE_PLURAL: Record<ApplicantType, string> = {
@@ -169,28 +169,21 @@ export const ROLE_NOUN: Record<ApplicantType, string> = {
   hybrid: "mentor & judge",
 };
 
-export type PassGroup<T> = { type: ApplicantType; label: string; send: T[]; notReleased: T[] };
+/** Accepted without a pass yet: released (with a code), or picked to accept and waiting on a release. */
+export const passDue = (r: Row) => needsPass(r) || acceptedNotReleased(r);
 
 /**
- * Splits who'd get a pass (send) and who's waiting on a release (notReleased)
- * by role, in PASS_ROLES order, leaving out roles with nobody in either.
+ * The Passes page's two tabs.
+ *   toSend  everyone accepted without a pass: released with a code, or picked
+ *           to accept and not released yet (no code until release, so sending
+ *           to them releases decisions first)
+ *   sent    has a pass (attendees.emailed_at) and is still accepted
+ * Anyone picked for reject or waitlist is in neither, even if they were
+ * released as accepted earlier.
  */
-export function passGroups<T extends Pick<Row, "applicant_type">>(send: T[], notReleased: T[] = []): PassGroup<T>[] {
-  return PASS_ROLES
-    .map(type => ({
-      type,
-      label: ROLE_PLURAL[type],
-      send: send.filter(r => r.applicant_type === type),
-      notReleased: notReleased.filter(r => r.applicant_type === type),
-    }))
-    .filter(g => g.send.length > 0 || g.notReleased.length > 0);
-}
-
-/** "Ana, Ben and 3 more": the first few names in a list. */
-export function someNames(rows: Pick<Application, "first_name" | "last_name">[], show = 5) {
-  const names = rows.slice(0, show).map(fullName);
-  const rest = rows.length - names.length;
-  if (rest > 0) return `${names.join(", ")} and ${rest} more`;
-  if (names.length <= 1) return names.join("");
-  return `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}`;
+export function passLists(rows: Row[]) {
+  return {
+    toSend: rows.filter(passDue),
+    sent: rows.filter(r => canGetPass(r) && !!r.passSentAt),
+  };
 }

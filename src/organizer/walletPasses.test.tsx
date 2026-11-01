@@ -28,14 +28,14 @@ vi.mock("@/portal/event", () => ({ currentEventId: async () => "event-1" }));
 
 import { outsideEvent, parseApplicationIds } from "../../supabase/functions/send-wallet-passes/selection";
 import { sendWalletPasses } from "./data";
-import { needsPass, passGroups, passTargets, someNames, type Row } from "./types";
-import WalletPassDialog from "./WalletPassDialog";
+import { needsPass, passLists, passTargets, type Row } from "./types";
+import PassesPage from "./PassesPage";
 import ApplicationsTable from "./ApplicationsTable";
 
 const uuid = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
 
 const row = (id: string, status: string, code: string | null, passSentAt: string | null = null, decision: string | null = null, applicant_type = "hacker") =>
-  ({ id, status, decision, code, passSentAt, first_name: id, last_name: null, applicant_type, checkedIn: false }) as unknown as Row;
+  ({ id, status, decision, code, passSentAt, first_name: id, last_name: null, email: `${id}@example.com`, school: null, organization: null, applicant_type, checkedIn: false }) as unknown as Row;
 
 beforeEach(() => {
   calls.length = 0;
@@ -118,16 +118,6 @@ describe("passTargets", () => {
   });
 });
 
-describe("someNames", () => {
-  const people = (n: number) => Array.from({ length: n }, (_, i) => ({ first_name: `P${i + 1}`, last_name: null }));
-  it("lists up to five names, then how many more", () => {
-    expect(someNames(people(1))).toBe("P1");
-    expect(someNames(people(3))).toBe("P1, P2 and P3");
-    expect(someNames(people(5))).toBe("P1, P2, P3, P4 and P5");
-    expect(someNames(people(7))).toBe("P1, P2, P3, P4, P5 and 2 more");
-  });
-});
-
 describe("sendWalletPasses", () => {
   it("still sends to everyone without a pass by default, round after round", async () => {
     let left = 50;
@@ -177,155 +167,200 @@ describe("sendWalletPasses", () => {
   });
 });
 
-describe("WalletPassDialog for selected rows", () => {
-  const rows = [
-    row("new", "accepted", "DH-1"),
-    row("had", "accepted", "DH-2", "2026-10-20T00:00:00Z"),
-    row("staged", "submitted", null),
-    row("someone-else", "accepted", "DH-3"),
-  ];
-
-  it("sends only to the chosen people who need a pass", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    render(<WalletPassDialog eventId="event-1" rows={rows} selectedIds={["new", "had", "staged"]} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.getByText(/Skipping 1 without a check-in code/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Send 1 pass" }));
-    await waitFor(() => expect(screen.getByText(/pass sent/)).toBeInTheDocument());
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["new"], resend: false }]);
-  });
-
-  it("can send a new copy to chosen people who already have one", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    render(<WalletPassDialog eventId="event-1" rows={rows} selectedIds={["new", "had"]} onClose={() => {}} onChanged={() => {}} />);
-    fireEvent.click(screen.getByRole("checkbox"));
-    fireEvent.click(screen.getByRole("button", { name: "Send 2 passes" }));
-    await waitFor(() => expect(screen.getByText(/passes sent/)).toBeInTheDocument());
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["new", "had"], resend: true }]);
-  });
-
-  it("lists people by name only, without their check-in codes", () => {
-    render(<WalletPassDialog eventId="event-1" rows={rows} selectedIds={["new", "had"]} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.getByRole("listitem")).toHaveTextContent(/^new$/);
-    expect(screen.queryByText(/DH-1/)).not.toBeInTheDocument();
-  });
-
-  it("names everyone without a pass instead of letting the function pick", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    render(<WalletPassDialog eventId="event-1" rows={rows} onClose={() => {}} onChanged={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: "Send 2 hacker passes" }));
-    await waitFor(() => expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["new", "someone-else"], resend: false }]));
-  });
-
-  it("skips chosen people picked for a different decision that isn't released", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    const withFlipped = [...rows, row("flipped", "accepted", "DH-9", null, "rejected")];
-    render(<WalletPassDialog eventId="event-1" rows={withFlipped} selectedIds={["new", "flipped"]} onClose={() => {}} onChanged={() => {}} />);
-    // Left out without a word: they're about to stop being accepted.
-    expect(screen.queryByText(/skipp/i)).not.toBeInTheDocument();
-    expect(screen.queryByText("flipped")).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Send 1 pass" }));
-    await waitFor(() => expect(screen.getByText(/pass sent/)).toBeInTheDocument());
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["new"], resend: false }]);
+describe("passLists", () => {
+  it("puts everyone accepted without a pass in To send, released or not, and passes in Sent", () => {
+    const rows = [
+      row("due", "accepted", "DH-1"),
+      row("had", "accepted", "DH-2", "2026-10-20T00:00:00Z"),
+      row("picked", "submitted", null, null, "accepted"),
+      row("flipped", "accepted", "DH-3", null, "rejected"),
+      row("flipped-had", "accepted", "DH-4", "2026-10-20T00:00:00Z", "waitlisted"),
+      row("rejected", "submitted", null, null, "rejected"),
+      row("waitlisted", "waitlisted", null),
+      row("applied", "submitted", null),
+    ];
+    const l = passLists(rows);
+    expect(l.toSend.map(r => r.id)).toEqual(["due", "picked"]);
+    expect(l.sent.map(r => r.id)).toEqual(["had"]);
   });
 });
 
-describe("WalletPassDialog for everyone without a pass", () => {
-  // Like DH27BETA: released acceptances since picked "rejected", and picked acceptances not released yet.
-  const rows = [
-    row("due", "accepted", "DH-1"),
-    row("had", "accepted", "DH-2", "2026-10-20T00:00:00Z"),
-    row("flipped-1", "accepted", "DH-3", null, "rejected"),
-    row("flipped-2", "accepted", "DH-4", null, "rejected"),
-    ...["Ana", "Ben", "Cy", "Di", "Ed", "Flo", "Gus"].map(n => row(n, "submitted", null, null, "accepted")),
-  ];
-
-  it("leaves out people about to be un-accepted, and names exactly who to send to", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    render(<WalletPassDialog eventId="event-1" rows={rows} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.queryByText(/skipped/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/flipped/)).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Send 1 hacker pass" }));
-    await waitFor(() => expect(screen.getByText("1 hacker pass sent.")).toBeInTheDocument());
-    // Not { eventId } alone, which lets the function send to everyone on the roster without a pass.
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["due"], resend: false }]);
-  });
-
-  it("says who's accepted but waiting on a release, with their names", () => {
-    render(<WalletPassDialog eventId="event-1" rows={rows} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.getByText(
-      "Not released yet: Ana, Ben, Cy, Di, Ed and 2 more — release decisions to include them.",
-    )).toBeInTheDocument();
-  });
-
-  it("explains itself even when nobody can get a pass yet", () => {
-    render(<WalletPassDialog eventId="event-1" rows={rows.filter(r => r.status !== "accepted" || r.decision)} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.queryByRole("button", { name: /^Send/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Hackers 0" })).toBeInTheDocument();
-    expect(screen.getByText(/Not released yet: Ana/)).toBeInTheDocument();
-  });
-});
-
-describe("WalletPassDialog by role", () => {
+describe("PassesPage", () => {
   const rows = [
     row("hana", "accepted", "DH-H1"),
-    row("hugo", "accepted", "DH-H2"),
+    { ...row("hugo", "accepted", "DH-H2"), school: "UC San Diego" } as Row,
     row("mia", "accepted", "DH-M1", null, null, "mentor"),
-    row("max", "accepted", "DH-M2", null, null, "mentor"),
     row("jo", "accepted", "DH-J1", null, null, "judge"),
-    row("jay", "accepted", "DH-J2", "2026-10-20T00:00:00Z", null, "judge"),
+    row("jay", "accepted", "DH-J2", "2026-10-20T12:00:00Z", null, "judge"),
     row("kim", "accepted", "DH-X1", null, null, "hybrid"),
     row("lee", "submitted", null, null, "accepted", "hybrid"),
     row("flip", "accepted", "DH-M3", null, "rejected", "mentor"),
+    row("flip-sent", "accepted", "DH-J3", "2026-10-20T12:00:00Z", "waitlisted", "judge"),
+    row("rej", "submitted", null, null, "rejected"),
+    row("wl", "waitlisted", null),
   ];
-  const dialog = () => render(<WalletPassDialog eventId="event-1" rows={rows} onClose={() => {}} onChanged={() => {}} />);
-  const section = (name: RegExp) => screen.getByRole("region", { name });
+  const onReleaseAndSend = vi.fn();
+  const page = (r = rows, initialSelected?: string[]) =>
+    render(<PassesPage eventId="event-1" rows={r} initialSelected={initialSelected} onChanged={() => {}} onReleaseAndSend={onReleaseAndSend} />);
+  const group = (name: string) => screen.getAllByRole("group").find(g => g.querySelector(".og-pass-role-name")?.textContent === name)!;
+  const names = (el: HTMLElement) => within(el).queryAllByRole("listitem").map(li => li.querySelector("strong")!.textContent);
+  const sendsTo = (ids: string[], resend = false) => expect(calls).toEqual([{ eventId: "event-1", applicationIds: ids, resend }]);
 
-  it("has a section per role with its own count, names and Send button", () => {
-    dialog();
-    expect(screen.getAllByRole("heading", { level: 3 }).map(h => h.textContent)).toEqual([
-      "Hackers 2", "Mentors 2", "Judges 1", "Mentors & judges 1",
-    ]);
-    expect(within(section(/^Mentors 2/)).getAllByRole("listitem").map(li => li.textContent)).toEqual(["mia", "max"]);
-    expect(within(section(/^Judges/)).getByRole("button")).toHaveTextContent("Send 1 judge pass");
-    expect(within(section(/^Mentors & judges/)).getByRole("button")).toHaveTextContent("Send 1 mentor & judge pass");
-    // The not-released note sits under its own role.
-    expect(within(section(/^Mentors & judges/)).getByText("Not released yet: lee — release decisions to include them.")).toBeInTheDocument();
+  beforeEach(() => {
+    onReleaseAndSend.mockClear();
+    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
+  });
+
+  it("lists everyone accepted without a pass by name, role group and email, groups open, no codes", () => {
+    page();
+    expect(screen.getByRole("tab", { name: "To send 6" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "Sent 1" })).toBeInTheDocument();
+    const groups = screen.getAllByRole("group");
+    expect(groups.map(g => g.querySelector(".og-pass-role-name")!.textContent)).toEqual(["Hackers", "Mentors", "Judges", "Mentors & judges"]);
+    expect(groups.every(g => (g as HTMLDetailsElement).open)).toBe(true);
+    expect(names(group("Hackers"))).toEqual(["hana", "hugo"]);
+    expect(names(group("Mentors"))).toEqual(["mia"]);
+    expect(names(group("Judges"))).toEqual(["jo"]);
+    expect(names(group("Mentors & judges"))).toEqual(["kim", "lee"]);
+    expect(screen.getByText("hana@example.com")).toBeInTheDocument();
+    expect(screen.getByText("UC San Diego")).toBeInTheDocument();
+    // Picked for reject or waitlist, or already sent: never in To send.
+    for (const id of ["flip", "flip-sent", "rej", "wl", "jay"]) expect(screen.queryByText(id)).not.toBeInTheDocument();
     expect(screen.queryByText(/DH-/)).not.toBeInTheDocument();
   });
 
-  it("sends one role at a time, naming exactly who", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    dialog();
-    fireEvent.click(screen.getByRole("button", { name: "Send 2 mentor passes" }));
-    await waitFor(() => expect(screen.getByText("2 mentor passes sent.")).toBeInTheDocument());
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["mia", "max"], resend: false }]);
-    // Mentors aren't offered again before the list reloads; the other roles still are.
-    expect(screen.queryByRole("button", { name: /mentor passes?$/ })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send 2 hacker passes" })).toBeEnabled();
-    expect(screen.getByRole("button", { name: "Send all 4 passes" })).toBeEnabled();
+  it("shows people not released yet like everyone else, with a tag, selectable and counted", () => {
+    page();
+    const lee = screen.getByText("lee").closest("li")!;
+    expect(within(lee).getByText("Not released")).toBeInTheDocument();
+    expect(within(lee).getByRole("checkbox", { name: "Select lee" })).toBeEnabled();
+    expect(within(screen.getByText("kim").closest("li")!).queryByText("Not released")).not.toBeInTheDocument();
+    expect(group("Mentors & judges").querySelector("summary")).toHaveTextContent("2 to send · 1 not released");
+    expect(screen.getByText(/isn't released yet/)).toHaveTextContent(/^1 of these isn't released yet/);
   });
 
-  it("can send every role at once, still as a list of people", async () => {
-    respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
-    dialog();
-    fireEvent.click(screen.getByRole("button", { name: "Send all 6 passes" }));
-    await waitFor(() => expect(screen.getByText("6 passes sent.")).toBeInTheDocument());
-    expect(calls).toEqual([{ eventId: "event-1", applicationIds: ["hana", "hugo", "mia", "max", "jo", "kim"], resend: false }]);
+  it("says Release decisions & send when a button would include someone not released, and opens the Release dialog", () => {
+    page();
+    expect(screen.getByRole("button", { name: "Send 2 hacker passes" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send 2 mentor & judge passes" }));
+    expect(onReleaseAndSend).toHaveBeenCalledWith({ count: 2, releasedIds: ["kim"] });
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send all 6" }));
+    expect(onReleaseAndSend).toHaveBeenLastCalledWith({ count: 6, releasedIds: ["hana", "hugo", "mia", "jo", "kim"] });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select lee" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select hana" }));
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send passes to 2 selected" }));
+    expect(onReleaseAndSend).toHaveBeenLastCalledWith({ count: 2, releasedIds: ["hana"] });
+    // Nothing is sent from the page itself; the Release dialog does it after releasing.
+    expect(calls).toEqual([]);
   });
 
-  it("only offers Send all when more than one role has someone to send to", () => {
-    render(<WalletPassDialog eventId="event-1" rows={rows.filter(r => r.applicant_type === "judge")} onClose={() => {}} onChanged={() => {}} />);
-    expect(screen.queryByRole("button", { name: /Send all/ })).not.toBeInTheDocument();
+  it("renders every row, however many, so find-in-page reaches them", () => {
+    const many = Array.from({ length: 150 }, (_, i) => row(`h${i}`, "accepted", `DH-H${i}`));
+    page(many);
+    expect(names(group("Hackers"))).toHaveLength(150);
+    expect(screen.queryByText(/more/)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Send 150 hacker passes" })).toBeInTheDocument();
   });
 
-  it("groups by role in a fixed order and leaves out empty roles", () => {
-    const g = passGroups([rows[6], rows[0], rows[2]], [rows[7]]);
-    expect(g.map(x => [x.label, x.send.map(r => r.id), x.notReleased.map(r => r.id)])).toEqual([
-      ["Hackers", ["hana"], []],
-      ["Mentors", ["mia"], []],
-      ["Mentors & judges", ["kim"], ["lee"]],
-    ]);
-    expect(passGroups([])).toEqual([]);
+  it("filters by name, email and school", () => {
+    page();
+    const search = screen.getByRole("searchbox", { name: "Search passes" });
+    fireEvent.change(search, { target: { value: "san diego" } });
+    expect(screen.getAllByRole("group")).toHaveLength(1);
+    expect(names(group("Hackers"))).toEqual(["hugo"]);
+    fireEvent.change(search, { target: { value: "MIA@EXAMPLE" } });
+    expect(names(group("Mentors"))).toEqual(["mia"]);
+    fireEvent.change(search, { target: { value: "lee" } });
+    expect(names(group("Mentors & judges"))).toEqual(["lee"]);
+    fireEvent.change(search, { target: { value: "nobody" } });
+    expect(screen.getByText("Nobody matches that search.")).toBeInTheDocument();
+  });
+
+  it("sends to exactly the selected people when they're all released", async () => {
+    page();
+    const send = () => screen.getByRole("button", { name: /^Send passes to \d+ selected$/ });
+    expect(send()).toBeDisabled();
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select hugo" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select kim" }));
+    expect(send()).toHaveTextContent("Send passes to 2 selected");
+    fireEvent.click(send());
+    await waitFor(() => expect(screen.getByText("2 passes sent.")).toBeInTheDocument());
+    sendsTo(["hugo", "kim"]);
+    expect(onReleaseAndSend).not.toHaveBeenCalled();
+    // Not offered again before the list reloads.
+    expect(screen.queryByText("hugo")).not.toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "To send 4" })).toBeInTheDocument();
+  });
+
+  it("selects a whole role, keeping selections hidden by search", () => {
+    page();
+    fireEvent.click(within(group("Hackers")).getByRole("checkbox", { name: "Select all 2 shown" }));
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "mia" } });
+    expect(document.querySelector(".og-pass-selected")).toHaveTextContent("2 selected (2 hidden by search)");
+  });
+
+  it("sends one role, naming exactly who", async () => {
+    page();
+    fireEvent.click(screen.getByRole("button", { name: "Send 1 mentor pass" }));
+    await waitFor(() => expect(screen.getByText("1 mentor pass sent.")).toBeInTheDocument());
+    sendsTo(["mia"]);
+  });
+
+  it("sends to everyone at once, still as a list, never the function's own pick", async () => {
+    page(rows.filter(r => r.id !== "lee"));
+    fireEvent.click(screen.getByRole("button", { name: "Send all 5" }));
+    await waitFor(() => expect(screen.getByText("5 passes sent.")).toBeInTheDocument());
+    sendsTo(["hana", "hugo", "mia", "jo", "kim"]);
+    expect(screen.getByText("Everyone accepted has their pass.")).toBeInTheDocument();
+  });
+
+  it("says so when a send fails", async () => {
+    oldFunction = true;
+    page();
+    fireEvent.click(screen.getByRole("button", { name: "Send 1 judge pass" }));
+    await waitFor(() => expect(screen.getByText(/Nothing was sent/)).toBeInTheDocument());
+    expect(calls).toEqual([]);
+  });
+
+  it("lists who has a pass on Sent, by role, with the date and a confirmed Resend", async () => {
+    page();
+    fireEvent.click(screen.getByRole("tab", { name: "Sent 1" }));
+    expect(names(group("Judges"))).toEqual(["jay"]);
+    expect(screen.queryByText("flip-sent")).not.toBeInTheDocument();
+    expect(screen.getByText("jay@example.com")).toBeInTheDocument();
+    expect(screen.getByText(/^Sent .*2026/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Resend pass to jay" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    expect(calls).toEqual([]);
+
+    fireEvent.click(screen.getByRole("button", { name: "Resend pass to jay" }));
+    fireEvent.click(screen.getByRole("button", { name: "Yes, resend" }));
+    await waitFor(() => expect(screen.getByText("New pass sent to jay.")).toBeInTheDocument());
+    sendsTo(["jay"], true);
+  });
+
+  it("searches Sent too", () => {
+    page();
+    fireEvent.click(screen.getByRole("tab", { name: "Sent 1" }));
+    fireEvent.change(screen.getByRole("searchbox"), { target: { value: "zzz" } });
+    expect(screen.getByText("Nobody matches that search.")).toBeInTheDocument();
+  });
+
+  it("arrives from a table's Send pass with those people selected, and says about the rest", () => {
+    page(rows, ["hana", "jay", "lee", "rej"]);
+    expect(screen.getByRole("checkbox", { name: "Select hana" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Select lee" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Select hugo" })).not.toBeChecked();
+    expect(screen.getByRole("button", { name: "Release decisions & send passes to 2 selected" })).toBeEnabled();
+    expect(screen.getByText(/you picked in the table/).textContent).toBe(
+      "Selected 2 of the 4 you picked in the table. 1 already has a pass (see Sent). 1 can't get one (not accepted).",
+    );
+  });
+
+  it("opens on Sent when everyone picked in a table already has a pass", () => {
+    page(rows, ["jay"]);
+    expect(screen.getByRole("tab", { name: "Sent 1" })).toHaveAttribute("aria-selected", "true");
   });
 });
 
@@ -347,7 +382,7 @@ describe("ApplicationsTable accepted tab", () => {
     expect(screen.getAllByText("Not released")).toHaveLength(2);
   });
 
-  it("offers Send pass for someone picked to accept, so the dialog can say why there's no code", () => {
+  it("offers Send pass for someone picked to accept, so the Passes page can say why there's no code", () => {
     const onSendPasses = vi.fn();
     render(<ApplicationsTable kind="hacker" rows={rows} onChanged={() => {}} onSendPasses={onSendPasses} />);
     fireEvent.click(screen.getByRole("tab", { name: /Accepted/ }));

@@ -96,15 +96,40 @@ live site.
 - [ ] Search by name, email and school.
 - [ ] **Email** section (real addresses only): send a blast to one person. Did
       it arrive, and are the `{{first_name}}`-style placeholders filled in?
-- [ ] **Send wallet passes**: does each accepted person get one email with a QR
-      code, an Apple Wallet pass and a Google Wallet button?
+- [ ] **Passes** section (sidebar, or **Passes (N to send)** in the top bar).
+      **To send** should list everyone accepted without a pass, released or
+      not, by real name with role and email (no check-in codes), in Hackers /
+      Mentors / Judges / Mentors & judges groups that start open. Anyone not
+      released yet has a small "Not released" tag and is counted like
+      everyone else.
+- [ ] Collapse a group, then Cmd+F a name in it. Chrome should open the group
+      and find the name. With a long list, every person should be on the page
+      (no "and N more").
+- [ ] Search by name, email and school on both tabs.
+- [ ] Tick one or two people and **Send passes to N selected**: does each get
+      one email with a QR code, an Apple Wallet pass and a Google Wallet
+      button, in their role's design? Do they move to **Sent** after the list
+      reloads? Try a per-role **Send N … passes** and **Send all N** on test
+      data only.
+- [ ] **Sent**: each person shows the date their pass went out. **Resend** asks
+      first; Cancel sends nothing, **Yes, resend** sends one new copy.
 - [ ] Release with "Also send wallet passes to everyone newly accepted"
       ticked. Do only the people just accepted get a pass, after their
       acceptance email? Does the dialog say "Sent N passes; M failed"?
 - [ ] Pick "Reject" for someone already released as accepted, but don't
-      release. **Send wallet passes** should leave them out and say "1 skipped".
-      Someone picked "Accept" but not released should be listed as "accepted
-      but not released yet", and the Accepted tab should say "(N not released)".
+      release. They should vanish from both Passes tabs. The Accepted tab
+      should say "(N not released)".
+- [ ] Pick "Accept" for someone and don't release. On Passes, any button that
+      includes them should read **Release decisions & send …** and open the
+      Release dialog with "Also send wallet passes" ticked and a note that the
+      release is for the whole event. After releasing, do the newly accepted
+      get their pass after their acceptance email, and do the already-released
+      people you picked get theirs too? A button covering only released people
+      should just say **Send N passes**.
+- [ ] In Hackers or Mentors & judges, tick people on the Accepted tab and
+      press **Send pass**. You should land on Passes with the ones who can get
+      a pass ticked, and a line saying what happened to the rest.
+- [ ] Phone width: Passes has no sideways scrolling and every button works.
 - [ ] **Organizers** section: add a teammate's email. Can they open the
       console after signing in? Then remove them.
 
