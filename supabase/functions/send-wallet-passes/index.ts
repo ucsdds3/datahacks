@@ -7,9 +7,19 @@
 // see passDesign.ts), emails it, and sets attendees.emailed_at. Either one
 // skips people the other has done.
 //
-// Each email has the QR code in the body, the .pkpass attached (iPhone Mail
-// offers "Add to Apple Wallet"), and Add to Apple Wallet / Add to Google Wallet
-// buttons, so it works on Android and laptops too.
+// Each email has Add to Apple Wallet / Add to Google Wallet buttons and the
+// .pkpass attached (iPhone Mail adds it with one tap). There's no QR image in
+// the email: people show the wallet pass, and the desk can type the code.
+//
+// Add to Apple Wallet: the .pkpass is uploaded to the private `wallet-passes`
+// bucket at <event_id>/<random uuid>.pkpass with Content-Type
+// application/vnd.apple.pkpass, and the button is a signed link to it, valid
+// until 30 days after events.ends_at (120 days if there's no end date). Storage
+// serves a signed object with its stored Content-Type and no
+// Content-Disposition (no `download` option), so Safari on an iPhone opens the
+// native Add to Apple Wallet sheet directly. If the upload or signing fails, the
+// button falls back to WalletWallet's shareUrl page so the email still works.
+// Add to Google Wallet is WalletWallet's pay.google.com save link.
 //
 // POST { eventId, applicationIds?, resend?, limit? }  ->  { sent, failed: [{ code, email, error }], remaining }
 //   applicationIds  only these people (at most 40 per request). Every id must be an
@@ -27,11 +37,12 @@
 // SUPABASE_URL, SUPABASE_ANON_KEY and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 // Deploy: supabase functions deploy send-wallet-passes
 
-import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { createClient, type SupabaseClient } from "npm:@supabase/supabase-js@2.45.4";
 import nodemailer from "npm:nodemailer@6.9.16";
-import QRCode from "npm:qrcode@1.5.4";
 import { MAX_PER_REQUEST, outsideEvent, parseApplicationIds } from "./selection.ts";
-import { buildEmail, oneLine, passPayload, type CreatedPass, type PassAttendee, type PassEvent } from "./passDesign.ts";
+import {
+  buildEmail, oneLine, passLinkSeconds, passPayload, type CreatedPass, type PassAttendee, type PassEvent,
+} from "./passDesign.ts";
 
 const env = (name: string) => {
   const value = Deno.env.get(name);
@@ -58,6 +69,38 @@ async function createPass(event: PassEvent, a: Attendee): Promise<CreatedPass> {
   });
   if (!response.ok) throw new Error(`WalletWallet ${response.status}: ${(await response.text()).slice(0, 200)}`);
   return await response.json() as CreatedPass;
+}
+
+const PASS_BUCKET = "wallet-passes";
+const PKPASS = "application/vnd.apple.pkpass";
+
+const fromBase64 = (b64: string) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+
+/**
+ * Puts the .pkpass in the private wallet-passes bucket and returns a signed
+ * link to it for the Add to Apple Wallet button, or undefined if anything fails
+ * (the email then links WalletWallet's page instead).
+ */
+async function applePassLink(
+  admin: SupabaseClient,
+  eventId: string,
+  endsAt: string | null | undefined,
+  pass: CreatedPass,
+  code: string,
+): Promise<string | undefined> {
+  try {
+    if (!pass.applePass) return undefined;
+    const path = `${eventId}/${crypto.randomUUID()}.pkpass`;
+    const bucket = admin.storage.from(PASS_BUCKET);
+    const { error: uploadError } = await bucket.upload(path, fromBase64(pass.applePass), { contentType: PKPASS, upsert: false });
+    if (uploadError) throw uploadError;
+    const { data, error: signError } = await bucket.createSignedUrl(path, passLinkSeconds(endsAt));
+    if (signError || !data?.signedUrl) throw signError ?? new Error("No signed URL");
+    return data.signedUrl;
+  } catch (error) {
+    console.error(`Could not store the pass for ${code}, linking WalletWallet's page instead:`, error instanceof Error ? error.message : String(error));
+    return undefined;
+  }
 }
 
 /** One plain address (the database enforces the same), so a value can't add recipients. */
@@ -160,7 +203,8 @@ Deno.serve(async req => {
     if (i > 0 && delayMs) await sleep(delayMs);
     try {
       const pass = await createPass(event, a);
-      const { subject, text, html } = buildEmail(event, a, pass);
+      const appleLink = await applePassLink(admin, eventId, event.ends_at, pass, a.code);
+      const { subject, text, html } = buildEmail(event, a, pass, appleLink);
       await transport.sendMail({
         from: `DataHacks Team <${from}>`,
         to: a.email,
@@ -168,8 +212,7 @@ Deno.serve(async req => {
         text,
         html,
         attachments: [
-          { filename: `checkin-${a.code}.png`, content: await QRCode.toBuffer(a.code, { width: 480, margin: 2 }), cid: "checkin-qr" },
-          { filename: `${a.code}.pkpass`, content: pass.applePass, encoding: "base64", contentType: "application/vnd.apple.pkpass" },
+          { filename: `${a.code}.pkpass`, content: pass.applePass, encoding: "base64", contentType: PKPASS },
         ],
       });
       const { error } = await admin.from("attendees").update({ emailed_at: new Date().toISOString() }).eq("id", a.id);

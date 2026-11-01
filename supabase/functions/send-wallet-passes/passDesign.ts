@@ -149,7 +149,7 @@ export const escapeHtml = (text: string) =>
 /** Names come from applications, so they're untrusted: control characters (line breaks) become spaces. */
 export const oneLine = (text: string) => text.replace(/\p{Cc}+/gu, " ").trim();
 
-/** Only https links from WalletWallet become buttons. */
+/** Only https links (the signed pass link, WalletWallet's) become buttons. */
 export const isHttps = (href: string | undefined): href is string => {
   try {
     return !!href && new URL(href).protocol === "https:";
@@ -158,8 +158,31 @@ export const isHttps = (href: string | undefined): href is string => {
   }
 };
 
+/**
+ * A wallet button. Plain black, like Apple's and Google's own badges, but text
+ * only (no images, so nothing to load or block).
+ */
 const button = (href: string, label: string) =>
-  `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 8px 8px 0;padding:11px 18px;background:#111;color:#fff;border-radius:8px;text-decoration:none;font-weight:600">${label}</a>`;
+  `<a href="${escapeHtml(href)}" style="display:inline-block;margin:0 8px 8px 0;padding:12px 20px;background:#000;color:#fff;border:1px solid #a6a6a6;border-radius:10px;text-decoration:none;font-weight:600;font-size:15px">${escapeHtml(label)}</a>`;
+
+/** How long the "Add to Apple Wallet" link works: 30 days after the event ends. */
+export const PASS_LINK_DAYS_AFTER_EVENT = 30;
+/** When the event has no end date (or it's long past): 120 days from sending. */
+export const PASS_LINK_FALLBACK_DAYS = 120;
+const DAY_SECONDS = 24 * 60 * 60;
+
+/**
+ * Seconds until the signed "Add to Apple Wallet" link expires: until 30 days
+ * after events.ends_at, or 120 days from now if there's no end date or that
+ * would already be (nearly) over, so a resend for an old event still works.
+ */
+export function passLinkSeconds(endsAt: string | null | undefined, now = Date.now()): number {
+  if (validDate(endsAt)) {
+    const seconds = Math.floor((Date.parse(endsAt) - now) / 1000) + PASS_LINK_DAYS_AFTER_EVENT * DAY_SECONDS;
+    if (seconds >= DAY_SECONDS) return seconds;
+  }
+  return PASS_LINK_FALLBACK_DAYS * DAY_SECONDS;
+}
 
 /** The coloured role label at the top of the email, matching the pass colour. */
 export function roleBadge(role: PassRole) {
@@ -167,39 +190,46 @@ export function roleBadge(role: PassRole) {
   return `<span style="display:inline-block;padding:6px 14px;border-radius:6px;background:${badge.background};color:${badge.color};font-weight:700;font-size:15px;letter-spacing:0.08em">${escapeHtml(title)}</span>`;
 }
 
-export function buildEmail(event: PassEvent, a: PassAttendee, pass: CreatedPass) {
+/**
+ * The pass email. appleLink is a signed link to this person's .pkpass in the
+ * private wallet-passes bucket: Safari on an iPhone opens it straight into the
+ * Add to Apple Wallet sheet. Without one (the upload failed), the button falls
+ * back to WalletWallet's shareUrl page. No QR image: people show the wallet
+ * pass, and the desk can type the code.
+ */
+export function buildEmail(event: PassEvent, a: PassAttendee, pass: CreatedPass, appleLink?: string) {
   const role = roleOf(a.roles);
   const design = ROLE_DESIGN[role];
   const when = whenFor(role, event);
   const first = a.name.split(" ")[0] || a.name;
-  const appleUrl = isHttps(pass.shareUrl) ? pass.shareUrl : undefined;
+  const appleUrl = isHttps(appleLink) ? appleLink : isHttps(pass.shareUrl) ? pass.shareUrl : undefined;
   const googleUrl = isHttps(pass.googleSaveUrl) ? pass.googleSaveUrl : undefined;
   const subject = oneLine(`Your ${event.name} ${design.noun} pass`);
+  const howTo = "Add your pass to Apple Wallet or Google Wallet and show it at the registration desk.";
+  const codeLine = (code: string) => `Your check-in code is ${code} if you need it.`;
   const text = [
     `Hi ${first},`,
     "",
     `[${design.title}] ${design.thanks(event.name)}`,
     ...(when ? [`When: ${when.long}`] : []),
     "",
-    `Your check-in code: ${a.code}`,
+    `${howTo} ${codeLine(a.code)}`,
     "",
-    "Show the QR code in this email (or in your wallet) at the registration desk.",
-    "On an iPhone, open the attached pass to add it to Apple Wallet.",
-    ...(googleUrl ? [`Android: add it to Google Wallet: ${googleUrl}`] : []),
-    ...(appleUrl ? [`Or open ${appleUrl} on your phone.`] : []),
+    ...(appleUrl ? [`Add to Apple Wallet: ${appleUrl}`] : []),
+    ...(googleUrl ? [`Add to Google Wallet: ${googleUrl}`] : []),
+    "On an iPhone you can also tap the attached pass.",
     "",
     "See you there!",
     "The DataHacks Team",
     "info@ds3.club",
   ].join("\n");
+  const buttons = `${appleUrl ? button(appleUrl, "Add to Apple Wallet") : ""}${googleUrl ? button(googleUrl, "Add to Google Wallet") : ""}`;
   const html = `<div style="font-family:sans-serif;line-height:1.5;color:#111">
 <p>${roleBadge(role)}</p>
 <p>Hi ${escapeHtml(first)},</p>
 <p>${escapeHtml(design.thanks(event.name))}</p>
-${when ? `<p><strong>When:</strong> ${escapeHtml(when.long)}</p>\n` : ""}<img src="cid:checkin-qr" alt="Check-in QR code ${escapeHtml(a.code)}" width="240" height="240" style="display:block;margin:8px 0">
-<p>Your check-in code: <strong>${escapeHtml(a.code)}</strong></p>
-<p>${appleUrl ? button(appleUrl, "Add to Apple Wallet") : ""}${googleUrl ? button(googleUrl, "Add to Google Wallet") : ""}</p>
-<p>Show the QR code at the registration desk. On an iPhone you can also open the attached pass.</p>
+${when ? `<p><strong>When:</strong> ${escapeHtml(when.long)}</p>\n` : ""}<p>${escapeHtml(howTo)} Your check-in code is <strong>${escapeHtml(a.code)}</strong> if you need it.</p>
+${buttons ? `<p>${buttons}</p>\n` : ""}<p>On an iPhone you can also tap the attached pass.</p>
 <p>See you there!<br>The DataHacks Team<br>info@ds3.club</p>
 </div>`;
   return { subject, text, html };
