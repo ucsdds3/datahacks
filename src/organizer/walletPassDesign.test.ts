@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-  ROLE_DESIGN, SCHEDULE, buildEmail, oneLine, passPayload, roleBadge, roleOf, whenFor, type PassRole,
+  PASS_LINK_FALLBACK_DAYS, ROLE_DESIGN, SCHEDULE, buildEmail, oneLine, passLinkSeconds, passPayload, roleBadge, roleOf, whenFor, type PassRole,
 } from "../../supabase/functions/send-wallet-passes/passDesign";
 import { TIMELINE } from "@/staff-portal/config";
 
@@ -121,6 +121,59 @@ describe("the pass email", () => {
     expect(html).toContain("Add to Google Wallet");
     const noLinks = buildEmail(dh27, person(["hacker"]), { applePass: "", shareUrl: "javascript:alert(1)" });
     expect(noLinks.html).not.toContain("Add to Apple Wallet");
+  });
+});
+
+describe("the pass email's links", () => {
+  const signed = "https://yrxjhrrphhbmqejresvy.supabase.co/storage/v1/object/sign/wallet-passes/e/abc.pkpass?token=t";
+
+  it("has no QR image or inline attachment, and gives the code as text", () => {
+    for (const roles of Object.values(ROLES)) {
+      const { html, text } = buildEmail(dh27, person(roles), pass, signed);
+      expect(html).not.toMatch(/<img/i);
+      expect(html).not.toContain("cid:");
+      expect(html + text).not.toMatch(/QR/);
+      expect(text).toContain("Add your pass to Apple Wallet or Google Wallet and show it at the registration desk. Your check-in code is DH27-X001 if you need it.");
+      expect(html).toContain("Your check-in code is <strong>DH27-X001</strong> if you need it.");
+    }
+  });
+
+  it("links Add to Apple Wallet to the signed .pkpass link when there is one", () => {
+    const { html, text } = buildEmail(dh27, person(["mentor"]), pass, signed);
+    expect(html).toContain(`href="${signed}"`);
+    expect(html).not.toContain(pass.shareUrl);
+    expect(text).toContain(`Add to Apple Wallet: ${signed}`);
+    expect(html.indexOf("Add to Apple Wallet")).toBeLessThan(html.indexOf("Add to Google Wallet"));
+    expect(html).toContain(`href="${pass.googleSaveUrl}"`);
+  });
+
+  it("falls back to WalletWallet's page when the upload failed or the link isn't https", () => {
+    for (const link of [undefined, "", "http://example.com/x.pkpass", "javascript:alert(1)"]) {
+      const { html, text } = buildEmail(dh27, person(["judge"]), pass, link);
+      expect(html).toContain(`href="${pass.shareUrl}"`);
+      expect(text).toContain(`Add to Apple Wallet: ${pass.shareUrl}`);
+    }
+  });
+
+  it("escapes the signed link", () => {
+    const { html } = buildEmail(dh27, person(["hacker"]), pass, `${signed}&download="x"`);
+    expect(html).toContain("&amp;download=&quot;x&quot;");
+  });
+});
+
+describe("passLinkSeconds", () => {
+  const day = 24 * 60 * 60;
+  const now = Date.parse("2026-11-01T00:00:00Z");
+
+  it("lasts until 30 days after the event ends", () => {
+    expect(passLinkSeconds("2027-01-18T04:00:00Z", now)).toBe((Date.parse("2027-02-17T04:00:00Z") - now) / 1000);
+  });
+
+  it("falls back to 120 days with no end date, a bad one, or one long past", () => {
+    expect(PASS_LINK_FALLBACK_DAYS).toBe(120);
+    for (const end of [null, undefined, "", "not a date", "2026-04-20T04:00:00Z"]) {
+      expect(passLinkSeconds(end, now)).toBe(120 * day);
+    }
   });
 });
 
