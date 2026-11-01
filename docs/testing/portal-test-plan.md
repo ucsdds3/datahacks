@@ -97,9 +97,11 @@ live site.
 - [ ] **Email** section (real addresses only): send a blast to one person. Did
       it arrive, and are the `{{first_name}}`-style placeholders filled in?
 - [ ] **Passes** section (sidebar, or **Passes (N to send)** in the top bar).
-      **To send** should list only people released as accepted without a pass,
-      by real name with role and email (no check-in codes), in Hackers /
-      Mentors / Judges / Mentors & judges groups that start open.
+      **To send** should list everyone accepted without a pass, released or
+      not, by real name with role and email (no check-in codes), in Hackers /
+      Mentors / Judges / Mentors & judges groups that start open. Anyone not
+      released yet has a small "Not released" tag and is counted like
+      everyone else.
 - [ ] Collapse a group, then Cmd+F a name in it. Chrome should open the group
       and find the name. With a long list, every person should be on the page
       (no "and N more").
@@ -115,11 +117,15 @@ live site.
       ticked. Do only the people just accepted get a pass, after their
       acceptance email? Does the dialog say "Sent N passes; M failed"?
 - [ ] Pick "Reject" for someone already released as accepted, but don't
-      release. They should vanish from both Passes tabs. Someone picked
-      "Accept" but not released should be in To send with a **Release first**
-      tag, can't be ticked and isn't counted in any Send button; the line at
-      the top ("N accepted but not released yet") opens Release decisions.
-      The Accepted tab should say "(N not released)".
+      release. They should vanish from both Passes tabs. The Accepted tab
+      should say "(N not released)".
+- [ ] Pick "Accept" for someone and don't release. On Passes, any button that
+      includes them should read **Release decisions & send …** and open the
+      Release dialog with "Also send wallet passes" ticked and a note that the
+      release is for the whole event. After releasing, do the newly accepted
+      get their pass after their acceptance email, and do the already-released
+      people you picked get theirs too? A button covering only released people
+      should just say **Send N passes**.
 - [ ] In Hackers or Mentors & judges, tick people on the Accepted tab and
       press **Send pass**. You should land on Passes with the ones who can get
       a pass ticked, and a line saying what happened to the rest.

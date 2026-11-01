@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import { sendWalletPasses, type WalletPassResult } from "./data";
-import { PASS_ROLES, ROLE_NOUN, ROLE_PLURAL, TYPE_LABEL, fullName, passLists, passGroups, type ApplicantType, type Row } from "./types";
+import type { PassPick } from "./ReleaseDialog";
+import { PASS_ROLES, ROLE_NOUN, ROLE_PLURAL, TYPE_LABEL, acceptedNotReleased, fullName, passLists, type ApplicantType, type Row } from "./types";
 
 /**
  * The console's Passes section. Emails check-in passes (QR code, Apple Wallet,
@@ -9,10 +10,13 @@ import { PASS_ROLES, ROLE_NOUN, ROLE_PLURAL, TYPE_LABEL, fullName, passLists, pa
  * send_emails.py in the check-in repo; both mark attendees.emailed_at, so
  * neither sends anyone a second pass unless asked to resend.
  *
- * "To send" lists everyone released as accepted without a pass, plus people
- * picked to accept but not released yet (no check-in code until release), who
- * are shown but can't be selected. "Sent" lists everyone with a pass, with a
- * Resend per person. Anyone picked for reject or waitlist is left out.
+ * "To send" lists everyone accepted without a pass. Some may be picked to
+ * accept but not released yet: they have no check-in code until release, so
+ * a send that includes them opens the Release dialog instead ("Release
+ * decisions & send N passes"), which releases, emails and sends passes to the
+ * newly accepted, then sends to the already-released people picked here.
+ * "Sent" lists everyone with a pass, with a Resend per person. Anyone picked
+ * for reject or waitlist is left out.
  *
  * Every row is in the page (no paging or "and N more"), and the role groups
  * are <details open>, so the browser's find-in-page reaches every name.
@@ -37,14 +41,14 @@ const failedText = (failed: WalletPassResult["failed"]) =>
 /** School for hackers, organization for mentors and judges. */
 const affiliation = (r: Row) => (r.applicant_type === "hacker" ? r.school : r.organization || r.school) ?? "";
 
-export default function PassesPage({ eventId, rows, initialSelected, onChanged, onRelease }: {
+export default function PassesPage({ eventId, rows, initialSelected, onChanged, onReleaseAndSend }: {
   eventId: string;
   rows: Row[];
   /** Rows picked in a Hackers or Mentors & judges table ("Send pass"). */
   initialSelected?: string[];
   onChanged: () => void;
-  /** Opens the Release dialog. */
-  onRelease: () => void;
+  /** Opens the Release dialog to release, then send passes to the people picked here. */
+  onReleaseAndSend: (pick: PassPick) => void;
 }) {
   const lists = useMemo(() => passLists(rows), [rows]);
 
@@ -55,8 +59,7 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
     const count = (list: Row[]) => list.filter(r => ids.has(r.id)).length;
     const selectable = lists.toSend.filter(r => ids.has(r.id)).map(r => r.id);
     const sent = count(lists.sent);
-    const releaseFirst = count(lists.releaseFirst);
-    return { selectable, sent, releaseFirst, other: ids.size - selectable.length - sent - releaseFirst };
+    return { selectable, sent, other: ids.size - selectable.length - sent };
   });
 
   const [view, setView] = useState<View>(() => (picked && picked.selectable.length === 0 && picked.sent > 0 ? "sent" : "toSend"));
@@ -96,6 +99,15 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
     }
   };
 
+  // Anyone not released yet has no code, so the send goes through the Release dialog.
+  const send = (people: Row[], noun?: string) => {
+    if (people.some(acceptedNotReleased)) {
+      onReleaseAndSend({ count: people.length, releasedIds: people.filter(r => !acceptedNotReleased(r)).map(r => r.id) });
+      return;
+    }
+    run(people, sent => `${passes(sent, noun)} sent.`);
+  };
+
   const toggle = (ids: string[], on: boolean) => setSelected(prev => {
     const next = new Set(prev);
     ids.forEach(id => (on ? next.add(id) : next.delete(id)));
@@ -127,9 +139,8 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
         <p className="og-pass-note">
           {picked.selectable.length > 0
             ? <>Selected {picked.selectable.length} of the {initialSelected!.length} you picked in the table.</>
-            : <>None of the {initialSelected!.length} you picked in the table can get a first pass.</>}
+            : <>None of the {initialSelected!.length} you picked in the table needs a pass.</>}
           {picked.sent > 0 && <> {picked.sent} already {picked.sent === 1 ? "has a pass" : "have passes"} (see Sent).</>}
-          {picked.releaseFirst > 0 && <> {picked.releaseFirst} need{picked.releaseFirst === 1 ? "s" : ""} decisions released first.</>}
           {picked.other > 0 && <> {picked.other} can't get one (not accepted).</>}
         </p>
       )}
@@ -149,7 +160,6 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
         {view === "toSend" ? (
           <ToSend
             toSend={toSend}
-            releaseFirst={lists.releaseFirst}
             query={q}
             selected={selected}
             chosen={chosen}
@@ -157,8 +167,7 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
             working={working}
             onToggle={toggle}
             onClear={() => setSelected(new Set())}
-            onSend={run}
-            onRelease={onRelease}
+            onSend={send}
           />
         ) : (
           <Sent
@@ -197,9 +206,12 @@ function Who({ r, showRole }: { r: Row; showRole: boolean }) {
   );
 }
 
-function ToSend({ toSend, releaseFirst, query, selected, chosen, chosenHidden, working, onToggle, onClear, onSend, onRelease }: {
+/** "Send 3 hacker passes", or "Release decisions & send 3 hacker passes" when someone in it isn't released. */
+const sendLabel = (people: Row[], text: string) =>
+  people.some(acceptedNotReleased) ? `Release decisions & ${text.charAt(0).toLowerCase()}${text.slice(1)}` : text;
+
+function ToSend({ toSend, query, selected, chosen, chosenHidden, working, onToggle, onClear, onSend }: {
   toSend: Row[];
-  releaseFirst: Row[];
   query: string;
   selected: ReadonlySet<string>;
   chosen: Row[];
@@ -207,84 +219,66 @@ function ToSend({ toSend, releaseFirst, query, selected, chosen, chosenHidden, w
   working: boolean;
   onToggle: (ids: string[], on: boolean) => void;
   onClear: () => void;
-  onSend: (people: Row[], done: (sent: number) => string) => void;
-  onRelease: () => void;
+  onSend: (people: Row[], noun?: string) => void;
 }) {
-  const groups = passGroups(toSend, releaseFirst);
-  const anyShown = groups.some(g => [...g.send, ...g.notReleased].some(r => matches(r, query)));
+  if (toSend.length === 0) return <p className="og-empty">Everyone accepted has their pass.</p>;
+  const groups = PASS_ROLES
+    .map(type => ({ type, all: toSend.filter(r => r.applicant_type === type) }))
+    .filter(g => g.all.length > 0)
+    .map(g => ({ ...g, shown: g.all.filter(r => matches(r, query)) }));
+  const unreleased = toSend.filter(acceptedNotReleased).length;
 
   return (
     <>
-      {releaseFirst.length > 0 && (
-        <div className="og-pass-release">
-          <span>
-            <strong>{releaseFirst.length}</strong> accepted but not released yet. They get a check-in code, and can get a pass, once decisions are released.
-          </span>
-          <button className="sp-button" onClick={onRelease} disabled={working}>Release decisions</button>
-        </div>
+      {unreleased > 0 && (
+        <p className="og-pass-note">
+          {unreleased} of these {unreleased === 1 ? "isn't" : "aren't"} released yet. They get a check-in code when decisions are released,
+          so a send that includes them releases decisions first.
+        </p>
       )}
 
-      {toSend.length > 0 && (
-        <div className="og-pass-actions">
-          <span className="og-pass-selected">
-            {chosen.length} selected{chosenHidden > 0 && <> ({chosenHidden} hidden by search)</>}
-          </span>
-          <button className="sp-button primary" disabled={working || chosen.length === 0} onClick={() => onSend(chosen, sent => `${passes(sent)} sent.`)}>
-            Send passes to {chosen.length} selected
-          </button>
-          {chosen.length > 0 && <button className="sp-button" disabled={working} onClick={onClear}>Clear selection</button>}
-          <button className="sp-button" disabled={working} onClick={() => onSend(toSend, sent => `${passes(sent)} sent.`)}>
-            Send all {toSend.length}
-          </button>
-        </div>
-      )}
+      <div className="og-pass-actions">
+        <span className="og-pass-selected">
+          {chosen.length} selected{chosenHidden > 0 && <> ({chosenHidden} hidden by search)</>}
+        </span>
+        <button className="sp-button primary" disabled={working || chosen.length === 0} onClick={() => onSend(chosen)}>
+          {sendLabel(chosen, `Send passes to ${chosen.length} selected`)}
+        </button>
+        {chosen.length > 0 && <button className="sp-button" disabled={working} onClick={onClear}>Clear selection</button>}
+        <button className="sp-button" disabled={working} onClick={() => onSend(toSend)}>
+          {sendLabel(toSend, `Send all ${toSend.length}`)}
+        </button>
+      </div>
 
-      {toSend.length === 0 && <p className="og-empty">Everyone released as accepted has their pass.</p>}
-      {groups.length > 0 && !anyShown && <p className="og-empty">Nobody matches that search.</p>}
+      {groups.every(g => g.shown.length === 0) && <p className="og-empty">Nobody matches that search.</p>}
 
       {groups.map(g => {
-        const shown = g.send.filter(r => matches(r, query));
-        const waiting = g.notReleased.filter(r => matches(r, query));
-        if (shown.length === 0 && waiting.length === 0) return null;
-        const allOn = shown.length > 0 && shown.every(r => selected.has(r.id));
+        if (g.shown.length === 0) return null;
+        const allOn = g.shown.every(r => selected.has(r.id));
         const noun = ROLE_NOUN[g.type];
-        const summary = [`${g.send.length} to send`, g.notReleased.length > 0 && `${g.notReleased.length} release first`].filter(Boolean).join(" · ");
+        const waiting = g.all.filter(acceptedNotReleased).length;
+        const summary = [`${g.all.length} to send`, waiting > 0 && `${waiting} not released`].filter(Boolean).join(" · ");
         return (
           <RoleGroup key={g.type} type={g.type} summary={summary}>
             <div className="og-pass-role-bar">
-              {shown.length > 0 && (
-                <label className="og-pass-all">
-                  <input type="checkbox" checked={allOn} disabled={working} onChange={() => onToggle(shown.map(r => r.id), !allOn)} />
-                  Select all {shown.length} shown
-                </label>
-              )}
-              {g.send.length > 0 && (
-                <button className="sp-button" disabled={working} onClick={() => onSend(g.send, sent => `${passes(sent, noun)} sent.`)}>
-                  Send {passes(g.send.length, noun)}
-                </button>
-              )}
+              <label className="og-pass-all">
+                <input type="checkbox" checked={allOn} disabled={working} onChange={() => onToggle(g.shown.map(r => r.id), !allOn)} />
+                Select all {g.shown.length} shown
+              </label>
+              <button className="sp-button" disabled={working} onClick={() => onSend(g.all, noun)}>
+                {sendLabel(g.all, `Send ${passes(g.all.length, noun)}`)}
+              </button>
             </div>
             <ul className="og-pass-rows">
-              {shown.map(r => (
+              {g.shown.map(r => (
                 <li key={r.id}>
                   <label className={`og-pass-row${selected.has(r.id) ? " selected" : ""}`}>
                     <input type="checkbox" checked={selected.has(r.id)} disabled={working} onChange={e => onToggle([r.id], e.target.checked)} aria-label={`Select ${fullName(r)}`} />
                     <Who r={r} showRole={g.type === "hybrid" || !!query} />
                     <span className="og-pass-email">{r.email}</span>
                     <span className="og-pass-school">{affiliation(r)}</span>
-                    <span className="og-pass-tag-cell" />
+                    <span className="og-pass-tag-cell">{acceptedNotReleased(r) && <span className="og-badge accepted">Not released</span>}</span>
                   </label>
-                </li>
-              ))}
-              {waiting.map(r => (
-                <li key={r.id}>
-                  <div className="og-pass-row waiting">
-                    <input type="checkbox" disabled aria-label={`${fullName(r)}: release decisions first`} />
-                    <Who r={r} showRole={g.type === "hybrid" || !!query} />
-                    <span className="og-pass-email">{r.email}</span>
-                    <span className="og-pass-school">{affiliation(r)}</span>
-                    <span className="og-pass-tag-cell"><span className="og-pass-tag">Release first</span></span>
-                  </div>
                 </li>
               ))}
             </ul>

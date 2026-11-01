@@ -9,11 +9,11 @@ import OrganizersPanel from "./OrganizersPanel";
 import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
 import EmailComposer from "./EmailComposer";
-import ReleaseDialog from "./ReleaseDialog";
+import ReleaseDialog, { type PassPick } from "./ReleaseDialog";
 import PassesPage from "./PassesPage";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
-import { isStaged, kindOf, needsPass, unsentDecisionRows } from "./types";
+import { isStaged, kindOf, passDue, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
@@ -54,6 +54,9 @@ export default function OrganizerConsole() {
   const [dialog, setDialog] = useState<"release" | "retry" | null>(null);
   // Who "Send pass" was pressed for in a table, to select on the Passes page; null when it was opened any other way.
   const [passPick, setPassPick] = useState<{ ids: string[]; n: number } | null>(null);
+  // Set when the Passes page opens the Release dialog to release and then send passes.
+  const [releasePick, setReleasePick] = useState<PassPick | undefined>(undefined);
+  const openRelease = (pick?: PassPick) => { setReleasePick(pick); setDialog("release"); };
   const goTo = (s: Section) => { setPassPick(null); setSection(s); };
   const openPasses = (ids: string[]) => { setPassPick(prev => ({ ids, n: (prev?.n ?? 0) + 1 })); setSection("passes"); };
 
@@ -73,8 +76,8 @@ export default function OrganizerConsole() {
   const rows = apps.data ?? [];
   const staged = rows.filter(isStaged).length;
   const unsent = unsentDecisionRows(rows).length;
-  // Released acceptances without a pass, minus anyone picked for a different decision since.
-  const passesDue = rows.filter(needsPass).length;
+  // Everyone accepted without a pass, released or not, minus anyone picked for a different decision since.
+  const passesDue = rows.filter(passDue).length;
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
@@ -119,7 +122,7 @@ export default function OrganizerConsole() {
             {unsent > 0 && (
               <button className="sp-button" onClick={() => setDialog("retry")}><Send size={15} aria-hidden /> Send {unsent} unsent decision email{unsent === 1 ? "" : "s"}</button>
             )}
-            <button className="sp-button og-danger" disabled={staged === 0} onClick={() => setDialog("release")}>
+            <button className="sp-button og-danger" disabled={staged === 0} onClick={() => openRelease()}>
               Release decisions ({staged} staged)
             </button>
           </div>
@@ -137,7 +140,7 @@ export default function OrganizerConsole() {
                 rows={rows}
                 initialSelected={passPick?.ids}
                 onChanged={refresh}
-                onRelease={() => setDialog("release")}
+                onReleaseAndSend={openRelease}
               />
             : section === "email"
             ? <EmailComposer eventId={event.data} rows={rows} />
@@ -152,7 +155,7 @@ export default function OrganizerConsole() {
       </main>
 
       {(dialog === "release" || dialog === "retry") && event.data && (
-        <ReleaseDialog mode={dialog} eventId={event.data} rows={rows} onClose={() => setDialog(null)} onChanged={refresh} />
+        <ReleaseDialog mode={dialog} eventId={event.data} rows={rows} passPick={dialog === "release" ? releasePick : undefined} onClose={() => setDialog(null)} onChanged={refresh} />
       )}
     </div>
   );

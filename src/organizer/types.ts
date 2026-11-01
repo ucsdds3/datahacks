@@ -169,35 +169,21 @@ export const ROLE_NOUN: Record<ApplicantType, string> = {
   hybrid: "mentor & judge",
 };
 
-export type PassGroup<T> = { type: ApplicantType; label: string; send: T[]; notReleased: T[] };
-
-/**
- * Splits who'd get a pass (send) and who's waiting on a release (notReleased)
- * by role, in PASS_ROLES order, leaving out roles with nobody in either.
- */
-export function passGroups<T extends Pick<Row, "applicant_type">>(send: T[], notReleased: T[] = []): PassGroup<T>[] {
-  return PASS_ROLES
-    .map(type => ({
-      type,
-      label: ROLE_PLURAL[type],
-      send: send.filter(r => r.applicant_type === type),
-      notReleased: notReleased.filter(r => r.applicant_type === type),
-    }))
-    .filter(g => g.send.length > 0 || g.notReleased.length > 0);
-}
+/** Accepted without a pass yet: released (with a code), or picked to accept and waiting on a release. */
+export const passDue = (r: Row) => needsPass(r) || acceptedNotReleased(r);
 
 /**
  * The Passes page's two tabs.
- *   toSend        released as accepted, on the check-in roster, no pass yet
- *   releaseFirst  picked to accept but not released, so no code yet; listed, never sent
- *   sent          has a pass (attendees.emailed_at) and is still accepted
- * Anyone picked for reject or waitlist is in none of them, even if they were
+ *   toSend  everyone accepted without a pass: released with a code, or picked
+ *           to accept and not released yet (no code until release, so sending
+ *           to them releases decisions first)
+ *   sent    has a pass (attendees.emailed_at) and is still accepted
+ * Anyone picked for reject or waitlist is in neither, even if they were
  * released as accepted earlier.
  */
 export function passLists(rows: Row[]) {
   return {
-    toSend: rows.filter(needsPass),
-    releaseFirst: rows.filter(acceptedNotReleased),
+    toSend: rows.filter(passDue),
     sent: rows.filter(r => canGetPass(r) && !!r.passSentAt),
   };
 }

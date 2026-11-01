@@ -108,4 +108,38 @@ describe("ReleaseDialog wallet passes", () => {
     render(<ReleaseDialog mode="release" eventId="event-1" rows={[row("cy", "submitted", "rejected")]} onClose={() => {}} onChanged={() => {}} />);
     expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
   });
+  describe("from the Passes page", () => {
+    // ana and ben aren't released yet; dee was accepted earlier and has no pass.
+    const rows = [...before, row("dee", "accepted", "accepted", "DH-DEE")];
+    const open = (untick = false) => {
+      render(<ReleaseDialog mode="release" eventId="event-1" rows={rows} passPick={{ count: 3, releasedIds: ["dee"] }} onClose={() => {}} onChanged={() => {}} />);
+      const box = screen.getByRole("checkbox", { name: "Also send wallet passes to everyone newly accepted" });
+      expect(box).toBeChecked();
+      if (untick) fireEvent.click(box);
+      fireEvent.change(screen.getByRole("textbox", { name: /Type DH27BETA to confirm/ }), { target: { value: "DH27BETA" } });
+      fireEvent.click(screen.getByRole("button", { name: "Release 3 decisions" }));
+    };
+
+    it("says the release is for the whole event, and who gets a pass", () => {
+      render(<ReleaseDialog mode="release" eventId="event-1" rows={rows} passPick={{ count: 3, releasedIds: ["dee"] }} onClose={() => {}} onChanged={() => {}} />);
+      expect(screen.getByText(/From Passes: you picked 3 people/).textContent).toMatch(
+        /Releasing is for the whole event.*not only the people you picked\. The 1 you picked who was already released gets theirs right after\./s,
+      );
+      // What's being released stays on screen.
+      expect(screen.getAllByRole("listitem").map(li => li.textContent)).toEqual(["1 rejected hackers", "2 accepted hackers"]);
+    });
+
+    it("releases, sends the newly accepted their passes, then the already-released people picked", async () => {
+      open();
+      await waitFor(() => expect(screen.getByRole("button", { name: "Done" })).toBeInTheDocument());
+      expect(fake.passCalls).toEqual([{ applicationIds: ["ana", "ben"] }, { applicationIds: ["dee"] }]);
+      expect(screen.getByText(/already released;/).textContent).toMatch(/Sent 0 wallet passes to people you picked who were already released; 1 failed\./);
+    });
+
+    it("sends nothing when the box is unticked", async () => {
+      open(true);
+      await waitFor(() => expect(screen.getByRole("button", { name: "Done" })).toBeInTheDocument());
+      expect(fake.passCalls).toEqual([]);
+    });
+  });
 });

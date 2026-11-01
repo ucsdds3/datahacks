@@ -28,7 +28,7 @@ vi.mock("@/portal/event", () => ({ currentEventId: async () => "event-1" }));
 
 import { outsideEvent, parseApplicationIds } from "../../supabase/functions/send-wallet-passes/selection";
 import { sendWalletPasses } from "./data";
-import { needsPass, passGroups, passLists, passTargets, type Row } from "./types";
+import { needsPass, passLists, passTargets, type Row } from "./types";
 import PassesPage from "./PassesPage";
 import ApplicationsTable from "./ApplicationsTable";
 
@@ -168,7 +168,7 @@ describe("sendWalletPasses", () => {
 });
 
 describe("passLists", () => {
-  it("puts released acceptances without a pass in To send, picked-but-unreleased in Release first, and passes in Sent", () => {
+  it("puts everyone accepted without a pass in To send, released or not, and passes in Sent", () => {
     const rows = [
       row("due", "accepted", "DH-1"),
       row("had", "accepted", "DH-2", "2026-10-20T00:00:00Z"),
@@ -180,25 +180,8 @@ describe("passLists", () => {
       row("applied", "submitted", null),
     ];
     const l = passLists(rows);
-    expect(l.toSend.map(r => r.id)).toEqual(["due"]);
-    expect(l.releaseFirst.map(r => r.id)).toEqual(["picked"]);
+    expect(l.toSend.map(r => r.id)).toEqual(["due", "picked"]);
     expect(l.sent.map(r => r.id)).toEqual(["had"]);
-  });
-});
-
-describe("passGroups", () => {
-  it("groups by role in a fixed order and leaves out empty roles", () => {
-    const hana = row("hana", "accepted", "DH-H1");
-    const mia = row("mia", "accepted", "DH-M1", null, null, "mentor");
-    const kim = row("kim", "accepted", "DH-X1", null, null, "hybrid");
-    const lee = row("lee", "submitted", null, null, "accepted", "hybrid");
-    const g = passGroups([kim, hana, mia], [lee]);
-    expect(g.map(x => [x.label, x.send.map(r => r.id), x.notReleased.map(r => r.id)])).toEqual([
-      ["Hackers", ["hana"], []],
-      ["Mentors", ["mia"], []],
-      ["Mentors & judges", ["kim"], ["lee"]],
-    ]);
-    expect(passGroups([])).toEqual([]);
   });
 });
 
@@ -216,21 +199,21 @@ describe("PassesPage", () => {
     row("rej", "submitted", null, null, "rejected"),
     row("wl", "waitlisted", null),
   ];
-  const onRelease = vi.fn();
+  const onReleaseAndSend = vi.fn();
   const page = (r = rows, initialSelected?: string[]) =>
-    render(<PassesPage eventId="event-1" rows={r} initialSelected={initialSelected} onChanged={() => {}} onRelease={onRelease} />);
+    render(<PassesPage eventId="event-1" rows={r} initialSelected={initialSelected} onChanged={() => {}} onReleaseAndSend={onReleaseAndSend} />);
   const group = (name: string) => screen.getAllByRole("group").find(g => g.querySelector(".og-pass-role-name")?.textContent === name)!;
   const names = (el: HTMLElement) => within(el).queryAllByRole("listitem").map(li => li.querySelector("strong")!.textContent);
   const sendsTo = (ids: string[], resend = false) => expect(calls).toEqual([{ eventId: "event-1", applicationIds: ids, resend }]);
 
   beforeEach(() => {
-    onRelease.mockClear();
+    onReleaseAndSend.mockClear();
     respond = body => ({ sent: (body.applicationIds as string[]).length, failed: [], remaining: 0 });
   });
 
-  it("lists accepted people without a pass by name, role group and email, groups open, no codes", () => {
+  it("lists everyone accepted without a pass by name, role group and email, groups open, no codes", () => {
     page();
-    expect(screen.getByRole("tab", { name: "To send 5" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByRole("tab", { name: "To send 6" })).toHaveAttribute("aria-selected", "true");
     expect(screen.getByRole("tab", { name: "Sent 1" })).toBeInTheDocument();
     const groups = screen.getAllByRole("group");
     expect(groups.map(g => g.querySelector(".og-pass-role-name")!.textContent)).toEqual(["Hackers", "Mentors", "Judges", "Mentors & judges"]);
@@ -246,17 +229,29 @@ describe("PassesPage", () => {
     expect(screen.queryByText(/DH-/)).not.toBeInTheDocument();
   });
 
-  it("shows people waiting on a release as Release first, unselectable and left out of every count", () => {
+  it("shows people not released yet like everyone else, with a tag, selectable and counted", () => {
     page();
     const lee = screen.getByText("lee").closest("li")!;
-    expect(within(lee).getByText("Release first")).toBeInTheDocument();
-    expect(within(lee).getByRole("checkbox")).toBeDisabled();
-    expect(group("Mentors & judges").querySelector("summary")).toHaveTextContent("1 to send · 1 release first");
-    expect(screen.getByRole("button", { name: "Send all 5" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Send 1 mentor & judge pass" })).toBeInTheDocument();
-    expect(screen.getByText(/accepted but not released yet/).textContent).toMatch(/^1 accepted but not released yet/);
-    fireEvent.click(screen.getByRole("button", { name: "Release decisions" }));
-    expect(onRelease).toHaveBeenCalledTimes(1);
+    expect(within(lee).getByText("Not released")).toBeInTheDocument();
+    expect(within(lee).getByRole("checkbox", { name: "Select lee" })).toBeEnabled();
+    expect(within(screen.getByText("kim").closest("li")!).queryByText("Not released")).not.toBeInTheDocument();
+    expect(group("Mentors & judges").querySelector("summary")).toHaveTextContent("2 to send · 1 not released");
+    expect(screen.getByText(/isn't released yet/)).toHaveTextContent(/^1 of these isn't released yet/);
+  });
+
+  it("says Release decisions & send when a button would include someone not released, and opens the Release dialog", () => {
+    page();
+    expect(screen.getByRole("button", { name: "Send 2 hacker passes" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send 2 mentor & judge passes" }));
+    expect(onReleaseAndSend).toHaveBeenCalledWith({ count: 2, releasedIds: ["kim"] });
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send all 6" }));
+    expect(onReleaseAndSend).toHaveBeenLastCalledWith({ count: 6, releasedIds: ["hana", "hugo", "mia", "jo", "kim"] });
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select lee" }));
+    fireEvent.click(screen.getByRole("checkbox", { name: "Select hana" }));
+    fireEvent.click(screen.getByRole("button", { name: "Release decisions & send passes to 2 selected" }));
+    expect(onReleaseAndSend).toHaveBeenLastCalledWith({ count: 2, releasedIds: ["hana"] });
+    // Nothing is sent from the page itself; the Release dialog does it after releasing.
+    expect(calls).toEqual([]);
   });
 
   it("renders every row, however many, so find-in-page reaches them", () => {
@@ -281,7 +276,7 @@ describe("PassesPage", () => {
     expect(screen.getByText("Nobody matches that search.")).toBeInTheDocument();
   });
 
-  it("sends to exactly the selected people", async () => {
+  it("sends to exactly the selected people when they're all released", async () => {
     page();
     const send = () => screen.getByRole("button", { name: /^Send passes to \d+ selected$/ });
     expect(send()).toBeDisabled();
@@ -291,9 +286,10 @@ describe("PassesPage", () => {
     fireEvent.click(send());
     await waitFor(() => expect(screen.getByText("2 passes sent.")).toBeInTheDocument());
     sendsTo(["hugo", "kim"]);
+    expect(onReleaseAndSend).not.toHaveBeenCalled();
     // Not offered again before the list reloads.
     expect(screen.queryByText("hugo")).not.toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: "To send 3" })).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "To send 4" })).toBeInTheDocument();
   });
 
   it("selects a whole role, keeping selections hidden by search", () => {
@@ -310,14 +306,12 @@ describe("PassesPage", () => {
     sendsTo(["mia"]);
   });
 
-  it("sends to everyone due at once, still as a list, never the function's own pick", async () => {
-    page();
+  it("sends to everyone at once, still as a list, never the function's own pick", async () => {
+    page(rows.filter(r => r.id !== "lee"));
     fireEvent.click(screen.getByRole("button", { name: "Send all 5" }));
     await waitFor(() => expect(screen.getByText("5 passes sent.")).toBeInTheDocument());
     sendsTo(["hana", "hugo", "mia", "jo", "kim"]);
-    expect(screen.getByText("Everyone released as accepted has their pass.")).toBeInTheDocument();
-    // lee is still listed, waiting on a release.
-    expect(screen.getByText("lee")).toBeInTheDocument();
+    expect(screen.getByText("Everyone accepted has their pass.")).toBeInTheDocument();
   });
 
   it("says so when a send fails", async () => {
@@ -356,10 +350,11 @@ describe("PassesPage", () => {
   it("arrives from a table's Send pass with those people selected, and says about the rest", () => {
     page(rows, ["hana", "jay", "lee", "rej"]);
     expect(screen.getByRole("checkbox", { name: "Select hana" })).toBeChecked();
+    expect(screen.getByRole("checkbox", { name: "Select lee" })).toBeChecked();
     expect(screen.getByRole("checkbox", { name: "Select hugo" })).not.toBeChecked();
-    expect(screen.getByRole("button", { name: "Send passes to 1 selected" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Release decisions & send passes to 2 selected" })).toBeEnabled();
     expect(screen.getByText(/you picked in the table/).textContent).toBe(
-      "Selected 1 of the 4 you picked in the table. 1 already has a pass (see Sent). 1 needs decisions released first. 1 can't get one (not accepted).",
+      "Selected 2 of the 4 you picked in the table. 1 already has a pass (see Sent). 1 can't get one (not accepted).",
     );
   });
 

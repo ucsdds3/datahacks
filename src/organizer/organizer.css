@@ -217,15 +217,9 @@ td .og-badge { margin-left: 0; }
 /* Passes section */
 .og-passes .og-hint { margin: 10px 0 0; }
 .og-passes .og-search input:focus-visible { outline: none; }
-.og-pass-note { margin: 10px 0 0; padding: 8px 12px; border: 2px solid #9fb486; background: var(--sp-accent-soft); font-size: 14px; }
+.og-pass-note { margin: 14px 0 0; padding: 8px 12px; border: 2px solid #9fb486; background: var(--sp-accent-soft); font-size: 14px; }
 .og-pass-status:empty { display: none; }
 .og-pass-status p { margin: 10px 0 0; }
-.og-pass-release {
-  display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap;
-  margin-top: 14px; padding: 10px 12px; border: 2px solid #d9b98f; background: #f6ead9; color: #5a3410; font-size: 14px;
-}
-.og-pass-release > span { flex: 1 1 320px; }
-.og-pass-release .sp-button { padding: 6px 12px; }
 .og-pass-actions {
   position: sticky; top: 0; z-index: 5;
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -261,7 +255,6 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
   grid-template-columns: minmax(150px, 1.2fr) minmax(170px, 1.4fr) minmax(110px, auto) auto;
   grid-template-areas: "who email date action";
 }
-.og-pass-row.waiting { color: var(--sp-muted); }
 .og-pass-who { grid-area: who; display: flex; flex-direction: column; min-width: 0; }
 .og-pass-who strong { font-size: 15px; font-weight: 600; color: var(--sp-text); overflow-wrap: anywhere; }
 .og-pass-role-label { color: var(--sp-muted); font-size: 12px; }
@@ -269,9 +262,10 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
 .og-pass-school { grid-area: school; min-width: 0; color: var(--sp-muted); overflow-wrap: anywhere; }
 .og-pass-date { grid-area: date; color: var(--sp-muted); white-space: nowrap; }
 .og-pass-tag-cell { grid-area: tag; justify-self: end; }
-.og-pass-tag { display: inline-block; padding: 1px 6px 0; background: #f1dcc7; color: #8a4512; font: 400 15px/1.2 "VT323", monospace; letter-spacing: 0.05em; white-space: nowrap; }
+.og-pass-tag-cell .og-badge { white-space: nowrap; }
 .og-pass-resend-cell { grid-area: action; justify-self: end; }
 .og-pass-resend-cell .sp-button { padding: 4px 10px; }
+.og-pass-pick { margin-top: 10px; }
 .og-pass-confirm { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; font-size: 13px; }
 
 @media (max-width: 700px) {
