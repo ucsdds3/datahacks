@@ -31,7 +31,7 @@
   --mc-leaf: #4fd1bf;
   --mc-focus: #7ae6d6;
   /* The End's own. */
-  --end-glass: rgb(24 13 44 / 0.82);
+  --end-glass: rgb(24 13 44 / 0.78);
   --end-glass-edge: rgb(169 127 191 / 0.45);
   --end-stone-light: #fffbea;
   --end-stone-dark: #c2b78e;
@@ -59,7 +59,7 @@
   height: 100lvh;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgb(20 10 38 / 0.5) 0%, rgb(20 10 38 / 0.3) 45%, rgb(20 10 38 / 0.72) 100%),
+    linear-gradient(180deg, rgb(20 10 38 / 0.3) 0%, rgb(20 10 38 / 0.06) 40%, rgb(20 10 38 / 0.5) 100%),
     url("/images/minecraft/end/end-sky-wide.webp") 50% 42% / cover no-repeat,
     var(--mc-page);
 }
@@ -67,7 +67,7 @@
 @media (max-aspect-ratio: 4/5) {
   .sp-end-sky {
     background:
-      linear-gradient(180deg, rgb(20 10 38 / 0.55) 0%, rgb(20 10 38 / 0.35) 45%, rgb(20 10 38 / 0.75) 100%),
+      linear-gradient(180deg, rgb(20 10 38 / 0.35) 0%, rgb(20 10 38 / 0.1) 40%, rgb(20 10 38 / 0.55) 100%),
       url("/images/minecraft/end/end-sky-tall.webp") 50% 40% / cover no-repeat,
       var(--mc-page);
   }
@@ -144,6 +144,14 @@
   box-shadow: inset 2px 2px #9aeee2, inset -2px -2px #23897b, 0 3px #071a1a;
 }
 .sp-root.sp-end .sp-button.primary:hover:not(:disabled) { background: var(--end-pearl); color: #0b2224; }
+/* Unavailable: flat worn stone rather than a faded button, so its label still reads. */
+.sp-root.sp-end .sp-button:disabled {
+  border-color: #6c5d7d;
+  background: #ddd6b6;
+  color: #5a4b6b;
+  box-shadow: inset 2px 2px #ebe5c9, inset -2px -2px #bdb28c;
+  opacity: 1;
+}
 
 /* Run of show */
 .sp-root.sp-end .sp-tabs { border-color: var(--sp-border); background: var(--sp-bg); }
@@ -212,12 +220,17 @@
 .sp-root.sp-end :is(.sp-table th, .sp-table td) { border-bottom-color: #d3c9a3; }
 
 /* Waiver */
-.sp-root.sp-end .sp-steps li::before { background: #e2d3ee; color: #3e2858; }
+.sp-root.sp-end .sp-steps li::before { border: 2px solid var(--end-purpur-deep); background: #efe4f6; color: #3e2858; }
 .sp-root.sp-end :is(.sp-mock-signing, .sp-docusign.active) { border-color: var(--sp-border); }
 
 /* Loading and sign-in screens */
 .sp-root.sp-end.sp-gate { min-height: 100dvh; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
 .sp-root.sp-end.sp-gate .sp-card { padding: 28px 24px; }
+.sp-root.sp-end.sp-gate .sp-card > img { margin: 0 auto; }
+/* Phones: the card sits low, under the big island, and in reach of a thumb. */
+@media (max-aspect-ratio: 4/5) and (max-width: 600px) {
+  .sp-root.sp-end.sp-gate { justify-content: flex-end; padding-bottom: max(12svh, env(safe-area-inset-bottom)); }
+}
 .sp-root.sp-end.sp-gate h1 { color: var(--sp-text); }
 .sp-root.sp-end.sp-gate p { color: var(--sp-muted); }
 .sp-root.sp-end.sp-gate .sp-error { color: var(--sp-red); }
@@ -238,6 +251,12 @@
     padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
   }
   .sp-root.sp-end .sp-nav-link.active { box-shadow: inset 0 -3px var(--end-pearl); }
+  /* The tabs scroll sideways: fade the edge so it's clear there are more. */
+  .sp-root.sp-end .sp-nav {
+    padding-right: 28px;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  }
   .sp-root.sp-end .sp-main {
     padding: 20px max(16px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   }
