@@ -151,7 +151,34 @@ const isDate = (value: string) => {
   return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
 };
 
-const oneOf = (list: readonly string[], value: string | undefined) => value !== undefined && list.includes(value);
+/** How an answer compares with the options: dashes between numbers read as an en dash, case and spacing ignored. */
+const comparable = (value: string) =>
+  value
+    .replace(/(\d)\s*[-\u2010-\u2015\u2212]\s*(\d)/g, "$1\u2013$2")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+/**
+ * The option an answer means, written exactly as the option list (and the
+ * database) has it. Assistants type "1-2 hackathons" or "50 - 200 miles" with a
+ * hyphen where the option has an en dash ("1–2 hackathons"), or change the
+ * case; this maps those to the one option they match. Undefined when the answer
+ * matches no option, or more than one.
+ */
+export function matchOption<T extends string>(options: readonly T[], value: unknown): T | undefined {
+  if (typeof value !== "string") return undefined;
+  if ((options as readonly string[]).includes(value)) return value as T;
+  const wanted = comparable(value);
+  const matches = options.filter(option => comparable(option) === wanted);
+  return matches.length === 1 ? matches[0] : undefined;
+}
+
+/** Each answer of a pick-all-that-apply question as its option, without repeats; undefined if any matches no option. */
+const matchOptions = <T extends string>(options: readonly T[], values: readonly unknown[] | undefined) => {
+  const matched = (values ?? []).map(v => matchOption(options, v));
+  return matched.every((m): m is T => m !== undefined) ? [...new Set(matched)] : undefined;
+};
 
 /** A link as the forms save it: trimmed, and https:// within the form's length. */
 const link = (value: string | undefined) => {
@@ -252,21 +279,25 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
 
   const phone = toPhone(a.phone ?? "");
   if (!phone) problems.push("phone must be a 10-digit US number.");
-  if (!oneOf(GENDERS, a.gender)) problems.push(`gender must be one of: ${GENDERS.join(", ")}.`);
-  const races = [...new Set(a.race_ethnicity ?? [])];
-  if (races.length === 0 || !races.every(r => oneOf(RACES, r))) {
+  const gender = matchOption(GENDERS, a.gender);
+  if (!gender) problems.push(`gender must be one of: ${GENDERS.join(", ")}.`);
+  const races = matchOptions(RACES, a.race_ethnicity) ?? [];
+  if (races.length === 0) {
     problems.push(`race_ethnicity needs at least one of, and only: ${RACES.join(", ")}.`);
   }
   const { min, max } = birthdateBounds(now);
   if (!isDate(a.birthdate ?? "")) problems.push("birthdate must be a real date written YYYY-MM-DD.");
   else if (a.birthdate < min || a.birthdate > max) problems.push(`birthdate: DataHacks is for people 18 and over (born on or before ${max}).`);
-  const country = cleanLine(a.country_of_residence ?? "");
-  if (!oneOf(COUNTRIES, country)) {
+  const country = matchOption(COUNTRIES, cleanLine(a.country_of_residence ?? ""));
+  if (!country) {
     problems.push("country_of_residence must be the country's English name as the form lists it, e.g. United States, United Kingdom, South Korea, Türkiye.");
   }
-  if (!oneOf(LEVELS_OF_STUDY, a.level_of_study)) problems.push(`level_of_study must be one of: ${LEVELS_OF_STUDY.join(", ")}.`);
-  if (!oneOf(graduationYears(now), a.graduation_year)) problems.push(`graduation_year must be one of: ${graduationYears(now).join(", ")}.`);
-  if (!oneOf(HACKATHON_EXPERIENCE, a.hackathon_experience)) {
+  const levelOfStudy = matchOption(LEVELS_OF_STUDY, a.level_of_study);
+  if (!levelOfStudy) problems.push(`level_of_study must be one of: ${LEVELS_OF_STUDY.join(", ")}.`);
+  const graduationYear = matchOption(graduationYears(now), a.graduation_year);
+  if (!graduationYear) problems.push(`graduation_year must be one of: ${graduationYears(now).join(", ")}.`);
+  const hackathonExperience = matchOption(HACKATHON_EXPERIENCE, a.hackathon_experience);
+  if (!hackathonExperience) {
     problems.push(`hackathon_experience must be one of: ${HACKATHON_EXPERIENCE.join(", ")}.`);
   }
   const linkedin = link(a.linkedin_url);
@@ -277,13 +308,15 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
   if (!github.ok) problems.push("github_url must be a link to their GitHub profile starting with https://.");
   if (devpost.value && !devpost.ok) problems.push("devpost_url is optional, but when given it must start with https://.");
   if (!resume.ok) problems.push("resume_url must be a link to their resume that organizers can open, starting with https://.");
-  const heard = [...new Set(a.heard_about ?? [])];
-  if (heard.length === 0 || !heard.every(h => oneOf(HEARD_ABOUT, h))) {
+  const heard = matchOptions(HEARD_ABOUT, a.heard_about) ?? [];
+  if (heard.length === 0) {
     problems.push(`heard_about needs at least one of, and only: ${HEARD_ABOUT.join(", ")}.`);
   }
+  const travelMethod = matchOption(TRAVEL_METHODS, a.travel_method);
+  const travelDistance = matchOption(TRAVEL_DISTANCES, a.travel_distance);
   if (travel) {
-    if (!oneOf(TRAVEL_METHODS, a.travel_method)) problems.push(`travel_method must be one of: ${TRAVEL_METHODS.join(", ")}.`);
-    if (!oneOf(TRAVEL_DISTANCES, a.travel_distance)) problems.push(`travel_distance must be one of: ${TRAVEL_DISTANCES.join(", ")}.`);
+    if (!travelMethod) problems.push(`travel_method must be one of: ${TRAVEL_METHODS.join(", ")}.`);
+    if (!travelDistance) problems.push(`travel_distance must be one of: ${TRAVEL_DISTANCES.join(", ")}.`);
   }
   if (a.agreed_to_terms !== true) problems.push("agreed_to_terms: they must agree that the info is correct and to follow the code of conduct.");
   if (problems.length) return { problems };
@@ -294,16 +327,16 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
       first_name: t.first_name,
       last_name: t.last_name,
       phone,
-      gender: a.gender,
+      gender,
       race_ethnicity: races.join("; "),
       birthdate: a.birthdate,
       country_of_residence: country,
       city_of_residence: t.city_of_residence,
-      level_of_study: a.level_of_study,
+      level_of_study: levelOfStudy,
       school: t.school,
       major: t.major,
-      graduation_year: a.graduation_year,
-      hackathon_experience: a.hackathon_experience,
+      graduation_year: graduationYear,
+      hackathon_experience: hackathonExperience,
       attended_before: a.attended_before === true,
       linkedin_url: linkedin.value,
       github_url: github.value,
@@ -317,8 +350,8 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
       heard_about: heard,
       wants_travel_stipend: travel,
       travel_region: travel ? t.travel_region : null,
-      travel_method: travel ? a.travel_method : null,
-      travel_distance: travel ? a.travel_distance : null,
+      travel_method: travel ? travelMethod : null,
+      travel_distance: travel ? travelDistance : null,
       travel_stipend_reason: travel ? t.travel_stipend_reason || null : null,
       agreed_to_terms: true,
     },
@@ -328,8 +361,9 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
 /** The mentor/judge form's checks. */
 export function checkStaff(a: StaffAnswers): Checked {
   const problems: string[] = [];
-  const judging = a.applicant_type === "judge" || a.applicant_type === "hybrid";
-  const mentoring = a.applicant_type === "mentor" || a.applicant_type === "hybrid";
+  const applicantType = matchOption(STAFF_TYPES, a.applicant_type);
+  const judging = applicantType === "judge" || applicantType === "hybrid";
+  const mentoring = applicantType === "mentor" || applicantType === "hybrid";
   const t = texts(a, {
     first_name: line(MAX_LENGTH.name),
     last_name: line(MAX_LENGTH.name),
@@ -341,9 +375,11 @@ export function checkStaff(a: StaffAnswers): Checked {
   if (!phone) problems.push("phone must be a 10-digit US number.");
   const linkedin = link(a.linkedin_url);
   if (!linkedin.ok) problems.push("linkedin_url must be a link to their LinkedIn profile starting with https://.");
-  if (!oneOf(UCSD_AFFILIATIONS, a.ucsd_affiliation)) problems.push(`ucsd_affiliation must be one of: ${UCSD_AFFILIATIONS.join(", ")}.`);
-  if (!oneOf(STAFF_TYPES, a.applicant_type)) problems.push(`applicant_type must be one of: ${STAFF_TYPES.join(", ")}.`);
-  if (judging && !oneOf(JUDGING_TRACKS, a.judging_track)) {
+  const ucsdAffiliation = matchOption(UCSD_AFFILIATIONS, a.ucsd_affiliation);
+  if (!ucsdAffiliation) problems.push(`ucsd_affiliation must be one of: ${UCSD_AFFILIATIONS.join(", ")}.`);
+  if (!applicantType) problems.push(`applicant_type must be one of: ${STAFF_TYPES.join(", ")}.`);
+  const judgingTrack = matchOption(JUDGING_TRACKS, a.judging_track);
+  if (judging && !judgingTrack) {
     problems.push(`judging_track is required for judges, one of: ${JUDGING_TRACKS.join(", ")}.`);
   }
   const bio = t.bio;
@@ -363,15 +399,15 @@ export function checkStaff(a: StaffAnswers): Checked {
 
   return {
     row: {
-      applicant_type: a.applicant_type,
+      applicant_type: applicantType,
       first_name: t.first_name,
       last_name: t.last_name,
       phone,
       organization: t.organization,
       role_title: t.role_title,
       linkedin_url: linkedin.value,
-      ucsd_affiliation: a.ucsd_affiliation,
-      judging_track: judging ? a.judging_track : null,
+      ucsd_affiliation: ucsdAffiliation,
+      judging_track: judging ? judgingTrack : null,
       bio: mentoring && bio.length > 0 ? bio : null,
       acknowledged_in_person_judging: judging,
       acknowledged_onsite_mentoring: mentoring,
@@ -398,10 +434,45 @@ export function closedMessage(event: EventWindow, now = new Date()): string | nu
   return `Applications for ${event.name} aren't open right now.`;
 }
 
+export type DbError = { code?: string; message: string };
+type DbResult = PromiseLike<{ error: DbError | null }>;
+
+/** The two writes a submission makes, as the user-scoped Supabase client offers them. */
+export type ApplicationWriter = {
+  from(table: "profiles"): {
+    upsert(row: { id: string; email: string }, options: { onConflict: string; ignoreDuplicates: boolean }): DbResult;
+  };
+  from(table: "applications"): { insert(row: Record<string, unknown> & { applicant_type: string }): DbResult };
+};
+
+/**
+ * Saves a checked application as the signed-in person. applications.user_id
+ * references profiles(id), and only the site's sign-in (src/pages/AuthCallback.tsx)
+ * creates that row, so an account that hasn't been through it would get a
+ * foreign key error. This creates the profile first with the same columns, and
+ * leaves an existing one alone (profiles_insert_own lets a person insert their
+ * own). If that fails, the insert still runs and its error says what to do.
+ */
+export async function saveApplication(
+  db: ApplicationWriter,
+  userId: string,
+  email: string,
+  row: Record<string, unknown> & { applicant_type: string },
+): Promise<DbError | null> {
+  const profile = await db.from("profiles").upsert({ id: userId, email }, { onConflict: "id", ignoreDuplicates: true });
+  if (profile.error) console.error("Couldn't create the profile before submitting", profile.error.code, profile.error.message);
+  const { error } = await db.from("applications").insert(row);
+  return error;
+}
+
 /** What to tell the assistant when the database refuses the insert. */
 export function insertErrorMessage(error: { code?: string; message: string }): string {
   // 23505 = unique violation: one application per account per event (and one per staff email per event).
   if (error.code === "23505") return "Not submitted: there's already an application for this account or email in this event.";
+  // 23503 = foreign key violation: applications.user_id needs the account's profiles row.
+  if (error.code === "23503") {
+    return "Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3ucsd.com and try again.";
+  }
   if (error.code === "23514") {
     // The applications-open trigger raises a check violation with a message meant for people.
     if (error.message.startsWith("Applications for ")) return `Not submitted: ${error.message}`;
