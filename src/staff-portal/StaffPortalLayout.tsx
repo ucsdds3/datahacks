@@ -3,7 +3,7 @@ import {
   BookOpen, Bus, CalendarClock, ClipboardList, Cpu, FileSignature, Gavel, HandHelping, LayoutDashboard, Library, LogOut, Mail,
   Plane, Receipt, Send, Trophy, Users, UtensilsCrossed, Waypoints,
 } from "lucide-react";
-import { Suspense, type ReactNode } from "react";
+import { Suspense, useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { portal as paths } from "@/portal/paths";
 import { signOutEverywhere } from "@/portal/signIn";
@@ -62,6 +62,16 @@ export const signOutTo = (loginPath: string) => signOutEverywhere().finally(() =
 /** The sidebar's brand block and contact footer, shared with the Apply pages. */
 export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; signOutPath: string; children: ReactNode }) {
   const { session } = useAuth();
+  const { pathname } = useLocation();
+  const navRef = useRef<HTMLElement>(null);
+  // On phones the nav is a strip of tabs that scrolls sideways: keep the current page's tab in view.
+  useLayoutEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector<HTMLElement>(".active");
+    if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+    const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
+    nav.scrollLeft = Math.max(0, left - (nav.clientWidth - active.offsetWidth) / 2);
+  }, [pathname]);
   return (
     <div className="sp-root sp-end">
       <EndSky />
@@ -72,7 +82,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
             <img src="/datahacks-logo.png" alt="" />
             <div><strong>DataHacks</strong><span>Portal</span></div>
           </div>
-          <nav className="sp-nav" aria-label="Portal">
+          <nav className="sp-nav" aria-label="Portal" ref={navRef}>
             {nav}
           </nav>
           <div className="sp-sidebar-footer">

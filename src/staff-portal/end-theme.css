@@ -86,15 +86,15 @@
   --sheet-inset: 20px;
   --sheet-pad: 12px;
   --notch: 4px;
-  --glass-sheet: rgb(23 13 41 / 0.42);
-  --glass-pane: rgb(42 26 69 / 0.68);
-  --glass-tile: rgb(14 7 28 / 0.55);
-  --glass-blur: blur(22px) saturate(1.2);
+  --glass-sheet: rgb(23 13 41 / 0.38);
+  --glass-pane: rgb(52 34 90 / 0.7);
+  --glass-tile: rgb(14 7 28 / 0.58);
+  --glass-blur: blur(18px) saturate(1.35);
   --glass-edge: rgb(255 255 255 / 0.13);
   --glass-shine: rgb(255 255 255 / 0.2);
   --glass-shade: rgb(8 3 18 / 0.35);
   --glass-shadow: 0 24px 64px rgb(6 2 14 / 0.55), 0 2px 8px rgb(6 2 14 / 0.4);
-  --end-card: rgb(241 236 212 / 0.92);
+  --end-card: rgb(241 236 212 / 0.95);
 }
 /* Square corners with a one-pixel-block notch, like a game window. */
 .sp-root.sp-end :is(.sp-shell, .sp-gate-glass) {
@@ -283,7 +283,7 @@
 .sp-root.sp-end :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-mock-adopt input),
 .sp-root.sp-end :is(.sp-multiselect-button) {
   border: 2px solid #76678a;
-  background: #fbf8ea;
+  background-color: #fbf8ea;
   box-shadow: inset 2px 2px #ddd5b3;
   color: var(--sp-text);
 }
@@ -292,14 +292,24 @@
 .sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-mock-adopt input)::placeholder { color: #6c5d7d; opacity: 1; }
 .sp-root.sp-end .sp-placeholder { color: #6c5d7d; }
 /* Focus: a teal ring. The dark line carries the contrast; the pearl halo is the glow. */
-.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-mock-adopt input):focus-visible,
-.sp-root.sp-end .sp-multiselect-button:focus-visible {
+.sp-root.sp-end :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-mock-adopt input, .sp-multiselect-button):focus-visible {
   outline: 2px solid var(--end-pearl-deep);
   outline-offset: 0;
   border-color: var(--end-pearl-deep);
   box-shadow: inset 2px 2px #ddd5b3, 0 0 0 5px rgb(79 209 191 / 0.4);
 }
-.sp-root.sp-end .sp-form input[readonly] { background: #ebe4c3; color: var(--sp-muted); }
+/* Selects: the native arrow sat flush against the border; a chevron with room to breathe instead. */
+.sp-root.sp-end .sp-form select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2326173a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+/* Read-only (the email): worn stone. As specific as the input rule above, so it wins. */
+.sp-root.sp-end .sp-form input[readonly]:not([type="checkbox"]):not([type="radio"]):not([type="file"]) { background-color: #ebe4c3; color: var(--sp-muted); }
 .sp-root.sp-end .sp-check { border-color: var(--sp-border); background: #ebe5c6; }
 .sp-root.sp-end .sp-check input { accent-color: var(--end-pearl-deep); }
 .sp-root.sp-end .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]), textarea) { border-color: var(--sp-red); }
@@ -366,7 +376,13 @@
 
 /* Loading and sign-in screens: the stone card on a small sheet of the same glass. */
 .sp-root.sp-end.sp-gate { min-height: 100dvh; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
-.sp-root.sp-end .sp-gate-glass { width: 100%; max-width: 468px; padding: 12px; box-shadow: inset 1px 1px var(--glass-shine), inset -1px -1px var(--glass-shade); }
+/* A darker sheet than the portal's: here it's a frame, and it has to show over the brightest island. */
+.sp-root.sp-end .sp-gate-glass {
+  --glass-sheet: rgb(23 13 41 / 0.55);
+  width: 100%;
+  max-width: 472px;
+  padding: 14px;
+}
 .sp-root.sp-end.sp-gate .sp-card { max-width: none; padding: 32px 28px; }
 .sp-root.sp-end.sp-gate .sp-card > img { margin: 0 auto; }
 /* Phones: the card sits low, under the big island, and in reach of a thumb. */
@@ -386,6 +402,7 @@
   .sp-root.sp-end .sp-shell { flex-direction: column; }
   .sp-root.sp-end .sp-sidebar {
     position: static;
+    flex: none;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas: "brand footer" "nav nav";
@@ -423,19 +440,19 @@
   .sp-root.sp-end { --sheet-inset: 8px; }
   .sp-root.sp-end .sp-main { padding-inline: 0; }
   .sp-root.sp-end .sp-card { padding: 20px 16px; box-shadow: inset 3px 3px rgb(255 251 234 / 0.9), inset -3px -3px rgb(194 183 142 / 0.85), 0 6px 18px rgb(6 2 14 / 0.35); }
-  .sp-root.sp-end .sp-gate-glass { padding: 8px; }
+  .sp-root.sp-end .sp-gate-glass { padding: 10px; }
   .sp-root.sp-end.sp-gate .sp-card { padding: 28px 20px; }
 }
 
 /* No blur available: a near-solid sheet instead of a see-through one. */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .sp-root.sp-end { --glass-sheet: rgb(23 13 41 / 0.86); --glass-pane: rgb(42 26 69 / 0.9); }
+  .sp-root.sp-end, .sp-root.sp-end .sp-gate-glass { --glass-sheet: rgb(23 13 41 / 0.86); --glass-pane: rgb(52 34 90 / 0.9); }
 }
 /* Asked for less transparency: solid surfaces, no blur. */
 @media (prefers-reduced-transparency: reduce) {
-  .sp-root.sp-end {
+  .sp-root.sp-end, .sp-root.sp-end .sp-gate-glass {
     --glass-sheet: rgb(23 13 41 / 0.95);
-    --glass-pane: #2a1a45;
+    --glass-pane: #34225a;
     --glass-tile: #140b25;
     --end-card: #f2ecd0;
   }
