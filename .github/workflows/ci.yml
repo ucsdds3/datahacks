@@ -35,3 +35,36 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
+
+  # The npx installer (packages/datahacks-mcp) has its own tests and lockfile.
+  # 20 and 22: the bridge (mcp-remote) needs Node 20.18+.
+  mcp-package:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [20, 22]
+    defaults:
+      run:
+        working-directory: packages/datahacks-mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: packages/datahacks-mcp/package-lock.json
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Packs only what it should
+        run: |
+          npm pack --dry-run --json > /tmp/pack.json
+          node -e "
+            const files = require('/tmp/pack.json')[0].files.map(f => f.path).sort();
+            const bad = files.filter(f => !/^(bin\/|src\/|README\.md$|LICENSE$|package\.json$)/.test(f));
+            if (bad.length) { console.error('Unexpected files in the package:', bad); process.exit(1); }
+            console.log(files.join('\n'));
+          "

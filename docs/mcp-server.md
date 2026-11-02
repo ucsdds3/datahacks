@@ -45,6 +45,21 @@ Give applicants the production URL above.
 - **Claude Code:** `claude mcp add --transport http datahacks https://yrxjhrrphhbmqejresvy.supabase.co/functions/v1/mcp`, then `/mcp` to sign in.
 - **ChatGPT, Cursor, VS Code:** add a remote MCP server with that URL. Each signs in through the same consent page.
 - **Testing:** `npx -y @modelcontextprotocol/inspector`, transport "Streamable HTTP", with the staging URL.
+- **Apps that only run local (stdio) servers, or anyone who'd rather run one command:** the `datahacks-mcp` npm package (below).
+
+The public page **`/apply-with-ai`** (`src/pages/ApplyWithAi.tsx`, linked from the hacker and mentor/judge sign-in pages and both application forms) walks applicants through each of these, with copy buttons. Two switches in `src/pages/applyWithAiConfig.ts` control it:
+
+- `MCP_LIVE`: `false` shows a "coming soon" banner (and keeps the page out of search). Set it to `true` once production's OAuth server is on (step 1 above) and a sign-in has been tried end to end.
+- `NPM_PUBLISHED`: `false` hides every `npx` command (the "One command" tab, and the npx form of the Cursor snippet, which falls back to the server URL). **Don't advertise `npx datahacks-mcp` anywhere until the package is on npm:** an unpublished name can be registered by someone else, and every copied command would then run their code. Set it to `true` after the first publish.
+
+## The `datahacks-mcp` npm package
+
+`packages/datahacks-mcp` (plain ESM JavaScript, Node 18+, its only dependency [`mcp-remote`](https://www.npmjs.com/package/mcp-remote), pinned):
+
+- `npx -y datahacks-mcp` is a stdio bridge: it runs mcp-remote against the production URL (Streamable HTTP only). mcp-remote does the OAuth sign-in in the browser and keeps tokens in `~/.mcp-auth`. This is what Claude Desktop / Cursor configs run. The bridge needs Node 20.18.1+ (mcp-remote's `undici`). Hidden flags for testing: `--staging`, `--url <url>` (https, or http on localhost), `--debug`.
+- `npx -y datahacks-mcp install` adds a `datahacks` server to Claude Desktop, Cursor and Claude Code (`claude mcp add --transport http --scope user …`, or prints that command if `claude` isn't installed). It asks before each change, backs files up as `<file>.bak-<timestamp>`, merges without touching other servers, never replaces a different existing `datahacks` entry without a typed yes, and leaves invalid JSON alone. `--yes`, `--dry-run`, `--only`, `uninstall`, `--help`, `--version`.
+- Tests: `cd packages/datahacks-mcp && npm ci && npm test` (node:test, all on temp folders). CI runs them in the `mcp-package` job, on Node 20 and 22, and checks the packed file list. The site's `npm test` doesn't include them.
+- Publishing: `.github/workflows/publish-mcp.yml` publishes on a `datahacks-mcp-v<version>` tag, with provenance, using the `NPM_TOKEN` secret. The one-time npm account and token setup is in `packages/datahacks-mcp/README.md` ("Publishing").
 
 ## What it checks before submitting
 

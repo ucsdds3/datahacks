@@ -11,6 +11,7 @@ describe("portal tab titles", () => {
     expect(portalTitle("/portal/apply/hacker")).toBe("Hacker Application · DataHacks Application Portal");
     expect(portalTitle("/login/mentor")).toBe("Sign In · DataHacks Application Portal");
     expect(portalTitle("/oauth/consent")).toBe("Connect an AI Assistant · DataHacks Application Portal");
+    expect(portalTitle("/apply-with-ai")).toBe("Apply with AI · DataHacks");
   });
 
   it("names the organizer pages", () => {

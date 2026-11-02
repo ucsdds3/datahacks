@@ -1,0 +1,55 @@
+name: publish-mcp
+
+# Publishes packages/datahacks-mcp to npm when a tag datahacks-mcp-v<version> is
+# pushed. The tag has to match package.json's version. Needs the NPM_TOKEN repo
+# secret (a granular npm token with read/write and "bypass 2FA"), or npm Trusted
+# Publishing set up for this workflow. Setup: packages/datahacks-mcp/README.md.
+on:
+  push:
+    tags:
+      - "datahacks-mcp-v*"
+
+permissions:
+  contents: read
+  id-token: write # npm provenance (and Trusted Publishing)
+
+concurrency:
+  group: publish-mcp
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/datahacks-mcp
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      # Trusted Publishing needs npm 11.5.1 or newer; Node 22 ships npm 10.
+      - run: npm install -g npm@11
+
+      - name: Tag matches package.json
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "datahacks-mcp-v${version}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} doesn't match package.json version ${version} (expected datahacks-mcp-v${version})."
+            exit 1
+          fi
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Contents
+        run: npm pack --dry-run
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

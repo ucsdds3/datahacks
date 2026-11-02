@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Screen } from '@/staff-portal/StaffGate'
 import { startGoogleSignIn, type SignInAs } from '@/portal/signIn'
 
@@ -24,6 +25,7 @@ export default function SignIn({ as }: { as: SignInAs }) {
       <p>{text}</p>
       <button className="sp-button primary sp-signin-button" onClick={signIn}>Continue with Google</button>
       {error && <p className="sp-error" role="alert">{error}</p>}
+      {as !== 'organizer' && <p className="sp-signin-alt">Rather apply by chatting with an AI assistant? <Link to="/apply-with-ai">Apply with AI</Link></p>}
     </Screen>
   )
 }
