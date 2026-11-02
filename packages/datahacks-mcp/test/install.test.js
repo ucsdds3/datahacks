@@ -6,6 +6,7 @@ import { test } from "node:test";
 import { parseArgs } from "../src/args.js";
 import { PRODUCTION_URL, STAGING_URL } from "../src/constants.js";
 import { install, uninstall } from "../src/install.js";
+import { bridgeEntry, findExecutable, jsonClients } from "../src/clients.js";
 
 const ENTRY = { command: "npx", args: ["-y", "datahacks-mcp"] };
 const plain = s => s;
@@ -14,7 +15,7 @@ const plain = s => s;
  * A fake computer in a temp folder: nothing here touches the real home folder.
  * `claude`: false for no Claude Code CLI, or what `claude mcp get datahacks` prints (null: not set up).
  */
-function machine({ platform = "darwin", answers = [], claude = false, claudeAddFails = false } = {}) {
+function machine({ platform = process.platform === "win32" ? "win32" : "darwin", answers = [], claude = false, claudeAddFails = false } = {}) {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), "datahacks-mcp-home-"));
   const bin = path.join(home, "bin");
   fs.mkdirSync(bin);
@@ -76,12 +77,16 @@ test("Claude Desktop: an app folder with no config file yet gets a new file and 
   assert.deepEqual(m.backups(m.paths.claudeDesktop), []);
 });
 
-test("Claude Desktop (Windows): %APPDATA% path, and npx goes through cmd", async () => {
-  const m = machine({ platform: "win32" });
-  m.write(m.paths.claudeDesktop, {});
-  const results = await install(parseArgs(["install", "--yes", "--only", "claude-desktop"]), m.ctx);
-  assert.equal(status(results, "claude-desktop"), "added");
-  assert.deepEqual(m.read(m.paths.claudeDesktop).mcpServers.datahacks, { command: "cmd", args: ["/c", "npx", "-y", "datahacks-mcp"] });
+test("Claude Desktop (Windows): %APPDATA% path, and npx goes through cmd", () => {
+  // Paths only: a win32 path joined on macOS/Linux would be a stray file in the working folder.
+  const env = { APPDATA: "C:\\Users\\ana\\AppData\\Roaming" };
+  const [desktop, cursor] = jsonClients({ platform: "win32", home: "C:\\Users\\ana", env });
+  assert.equal(desktop.file, "C:\\Users\\ana\\AppData\\Roaming\\Claude\\claude_desktop_config.json");
+  assert.equal(cursor.file, "C:\\Users\\ana\\.cursor\\mcp.json");
+  assert.equal(jsonClients({ platform: "win32", home: "C:\\Users\\ana", env: {} })[0].file, "C:\\Users\\ana\\AppData\\Roaming\\Claude\\claude_desktop_config.json");
+  assert.deepEqual(bridgeEntry({ platform: "win32" }), { command: "cmd", args: ["/c", "npx", "-y", "datahacks-mcp"] });
+  assert.deepEqual(bridgeEntry({ platform: "win32", serverArgs: ["--staging"] }), { command: "cmd", args: ["/c", "npx", "-y", "datahacks-mcp", "--staging"] });
+  assert.equal(jsonClients({ platform: "linux", home: "/home/ana", env: { XDG_CONFIG_HOME: "/xdg" } })[0].file, "/xdg/Claude/claude_desktop_config.json");
 });
 
 test("Claude Desktop (Linux): ~/.config/Claude", async () => {
@@ -262,4 +267,13 @@ test("an old Node gets a warning when a desktop app is set up", async () => {
   m.ctx.nodeVersion = "v18.20.0";
   await install(parseArgs(["install", "--yes"]), m.ctx);
   assert.match(m.text(), /needs Node\.js 20\.18\.1 or newer/);
+});
+
+test("findExecutable looks on PATH and needs the file to be executable", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "datahacks-mcp-path-"));
+  fs.writeFileSync(path.join(dir, "claude"), "", { mode: 0o644 });
+  assert.equal(findExecutable("claude", { platform: "linux", env: { PATH: dir } }), null);
+  fs.chmodSync(path.join(dir, "claude"), 0o755);
+  assert.equal(findExecutable("claude", { platform: "linux", env: { PATH: `/nonexistent${path.delimiter}${dir}` } }), path.join(dir, "claude"));
+  assert.equal(findExecutable("claude", { platform: "linux", env: {} }), null);
 });
