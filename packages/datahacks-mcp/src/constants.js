@@ -1,5 +1,5 @@
 // The one place the DataHacks server's address lives in this package.
-// Keep in step with docs/mcp-server.md and src/pages/applyWithAi.ts in the site.
+// Keep in step with docs/mcp-server.md and src/pages/applyWithAiConfig.ts in the site.
 
 export const PRODUCTION_URL = "https://yrxjhrrphhbmqejresvy.supabase.co/functions/v1/mcp";
 export const STAGING_URL = "https://gpoqlosneoicpzrluilj.supabase.co/functions/v1/mcp";

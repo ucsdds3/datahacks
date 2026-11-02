@@ -79,9 +79,10 @@
   -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 }
-.awa-header img { display: block; width: 56px; height: 56px; margin-bottom: 12px; }
+/* The logo's dark letters need a light tile on the glass. */
+.awa-header img { display: block; width: 56px; height: 56px; margin-bottom: 14px; padding: 6px; border-radius: 12px; background: var(--awa-panel); }
 .awa-eyebrow { margin: 0; color: var(--awa-light-muted); font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.awa-header h1 { margin: 4px 0 8px; font-size: clamp(30px, 6vw, 40px); line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
+.awa-header h1 { margin: 4px 0 8px; font-weight: 700; font-size: clamp(30px, 6vw, 40px); line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
 .awa-lede { margin: 0; color: var(--awa-light); font-size: 17px; max-width: 60ch; }
 
 .awa-banner {
@@ -100,10 +101,13 @@
   background: var(--awa-panel);
   box-shadow: 0 10px 28px var(--awa-shadow);
 }
-.awa-card h2 { margin: 0 0 10px; font-size: 21px; line-height: 1.25; color: var(--awa-text); }
+.awa-card h2 { margin: 0 0 10px; font-size: 21px; font-weight: 700; line-height: 1.25; color: var(--awa-text); }
 .awa-card p { margin: 0 0 12px; }
 .awa-card p:last-child { margin-bottom: 0; }
-.awa-card ol, .awa-card ul { margin: 0 0 12px; padding-left: 22px; }
+/* The site's Tailwind reset takes list markers away; these lists need them. */
+.awa-card ol, .awa-card ul { margin: 0 0 12px; padding-left: 24px; }
+.awa-card ol { list-style: decimal; }
+.awa-card ul { list-style: disc; }
 .awa-card li { margin: 6px 0; }
 .awa-card li::marker { color: var(--awa-muted); font-weight: 700; }
 .awa-card a { color: var(--awa-accent); font-weight: 600; text-underline-offset: 2px; }
@@ -116,13 +120,12 @@
 @media (max-width: 640px) { .awa-split { grid-template-columns: 1fr; } }
 
 /* Tabs */
+/* Wraps rather than scrolls, so every assistant is in sight on a phone. */
 .awa-tablist {
   display: flex;
-  gap: 6px;
-  margin: 0 -4px 14px;
-  padding: 4px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+  margin: 0 0 14px;
 }
 .awa-tab {
   flex: 0 0 auto;
@@ -162,7 +165,7 @@
 }
 .awa-copy > code { overflow-wrap: anywhere; }
 .awa-copy-block { align-items: flex-start; }
-.awa-copy pre { padding: 6px 0; overflow-x: auto; white-space: pre; }
+.awa-copy pre { padding: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .awa-copy-button {
   flex: 0 0 auto;
   min-width: 72px;

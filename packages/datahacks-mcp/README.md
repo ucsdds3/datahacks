@@ -14,7 +14,7 @@ That adds a "datahacks" server to the AI apps it finds on your computer: **Claud
 
 The assistant goes through the application's questions with you, reads every answer back, and submits only when you say yes. The normal form is always there too: <https://datahacks.ds3ucsd.com/portal>.
 
-> **Maintainers:** don't advertise `npx datahacks-mcp` anywhere until the package is actually on npm (see [Publishing](#publishing-for-ds3-maintainers)). An unpublished name can be registered by someone else, and then every copied command would run their code. The site's Apply with AI page only shows the npx commands once `NPM_PUBLISHED` is `true` in `src/pages/applyWithAi.ts`.
+> **Maintainers:** don't advertise `npx datahacks-mcp` anywhere until the package is actually on npm (see [Publishing](#publishing-for-ds3-maintainers)). An unpublished name can be registered by someone else, and then every copied command would run their code. The site's Apply with AI page only shows the npx commands once `NPM_PUBLISHED` is `true` in `src/pages/applyWithAiConfig.ts`.
 
 ## Privacy and what the assistant can do
 
@@ -85,7 +85,7 @@ One-time setup:
    git push origin datahacks-mcp-v0.1.0
    ```
    Watch the "publish-mcp" run in the Actions tab, then check <https://www.npmjs.com/package/datahacks-mcp>.
-5. **Then** set `NPM_PUBLISHED = true` in `src/pages/applyWithAi.ts` so the site shows the npx commands.
+5. **Then** set `NPM_PUBLISHED = true` in `src/pages/applyWithAiConfig.ts` so the site shows the npx commands.
 
 Afterwards (optional, recommended): on the package's npm page → Settings → **Trusted Publisher**, add GitHub Actions with repository `ucsdds3/datahacks` and workflow `publish-mcp.yml`. Publishing then needs no token at all, and you can delete the `NPM_TOKEN` secret and the token.
 
