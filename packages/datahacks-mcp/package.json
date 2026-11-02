@@ -1,0 +1,45 @@
+{
+  "name": "datahacks-mcp",
+  "version": "0.1.0",
+  "description": "Apply to DataHacks (UC San Diego's data science hackathon) by chatting with your AI assistant. Connects Claude, Cursor and other MCP clients to the DataHacks applications server.",
+  "keywords": [
+    "datahacks",
+    "ds3",
+    "ucsd",
+    "hackathon",
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "cursor"
+  ],
+  "homepage": "https://datahacks.ds3ucsd.com/apply-with-ai",
+  "bugs": {
+    "url": "https://github.com/ucsdds3/datahacks/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ucsdds3/datahacks.git",
+    "directory": "packages/datahacks-mcp"
+  },
+  "license": "MIT",
+  "author": "DS3 at UC San Diego <info@ds3.club>",
+  "type": "module",
+  "bin": {
+    "datahacks-mcp": "bin/datahacks-mcp.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "dependencies": {
+    "mcp-remote": "0.15.2"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "datahacks": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "datahacks-mcp"
+      ]
+    }
+  }
+}
