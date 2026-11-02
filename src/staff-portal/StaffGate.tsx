@@ -3,11 +3,15 @@ import { useAuth } from "@/context/AuthContext";
 import { portal, type LoginRole } from "@/portal/paths";
 import { GENERAL_CONTACT_EMAIL } from "./config";
 import { useStaffAccess, type StaffAccess } from "./useStaffAccess";
+import { EndSky } from "./EndSky";
 import "./staff-portal.css";
+import "./end-theme.css";
 
+/** A single card on the End sky: loading, sign-in and error screens. */
 export function Screen({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
-    <div className="sp-root sp-gate">
+    <div className="sp-root sp-end sp-gate">
+      <EndSky />
       <section className="sp-card">
         <img src="/datahacks-logo.png" alt="" />
         <h1>{title}</h1>

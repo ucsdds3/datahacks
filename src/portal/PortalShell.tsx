@@ -3,10 +3,9 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { NoIndex } from "@/components/NoIndex";
 import { prefetchPortalPages } from "./pages";
+import { portal } from "./paths";
+import { ORGANIZER_BACKGROUND, PORTAL_BACKGROUND } from "./theme";
 import { portalTitle } from "./titles";
-
-/** The portal's dark page colour, behind everything while a portal page is open. */
-const PORTAL_BACKGROUND = "#26382f";
 
 /**
  * Everything that needs a signed-in user lives under this.
@@ -26,15 +25,18 @@ export default function PortalShell() {
   }, []);
   useEffect(() => { document.title = portalTitle(pathname); }, [pathname]);
 
-  // No white behind the portal: paint the page dark (overscroll, a page still loading),
-  // and fetch the other pages now so moving between them is instant.
+  // Fetch the other pages now so moving between them is instant.
+  useEffect(() => { prefetchPortalPages(); }, []);
+
+  // No white behind the portal: paint the page dark (overscroll, a page still loading).
+  // The End's purple, except in the organizer console, which keeps its green.
+  const organizer = pathname.startsWith(portal.organizer);
   useEffect(() => {
     const html = document.documentElement;
     const before = html.style.backgroundColor;
-    html.style.backgroundColor = PORTAL_BACKGROUND;
-    prefetchPortalPages();
+    html.style.backgroundColor = organizer ? ORGANIZER_BACKGROUND : PORTAL_BACKGROUND;
     return () => { html.style.backgroundColor = before; };
-  }, []);
+  }, [organizer]);
 
   return <AuthProvider><NoIndex /><Outlet /></AuthProvider>;
 }

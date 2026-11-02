@@ -294,7 +294,7 @@ export default function StaffApplication() {
               </div>
             </div>
 
-            {error && <p className="sp-form-note" style={{ color: '#c96b6b' }}>{error}</p>}
+            {error && <p className="sp-error" role="alert">{error}</p>}
 
             <div className="sp-form-actions">
               <button type="submit" className="sp-button primary" disabled={submitting}>

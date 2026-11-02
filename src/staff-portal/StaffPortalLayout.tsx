@@ -11,7 +11,9 @@ import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
 import { GENERAL_CONTACT_EMAIL, HACKER_GUIDE_PAGES, HANDBOOK_TITLE, hasJudgeAccess, type PortalRole } from "./config";
+import { EndSky } from "./EndSky";
 import "./staff-portal.css";
+import "./end-theme.css";
 
 type NavItem = { path: string; label: string; icon: ReactNode };
 
@@ -61,7 +63,8 @@ export const signOutTo = (loginPath: string) => signOutEverywhere().finally(() =
 export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; signOutPath: string; children: ReactNode }) {
   const { session } = useAuth();
   return (
-    <div className="sp-root">
+    <div className="sp-root sp-end">
+      <EndSky />
       <aside className="sp-sidebar">
         <div className="sp-brand">
           <img src="/datahacks-logo.png" alt="DataHacks" />

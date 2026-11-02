@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '@/lib/supabaseClient'
 import { applyPath, portal, rememberApplyAs } from '@/portal/paths'
 import { currentEventId } from '@/portal/event'
+import { Screen } from '@/staff-portal/StaffGate'
 
 export default function AuthCallback() {
   const navigate = useNavigate()
@@ -74,6 +75,6 @@ export default function AuthCallback() {
     finishLogin()
   }, [searchParams, navigate])
 
-  if (error) return <div>Something went wrong: {error}</div>
-  return <div>Signing you in...</div>
+  if (error) return <Screen title="Something went wrong"><p className="sp-error" role="alert">{error}</p></Screen>
+  return <Screen title="Signing you in…" />
 }

@@ -1,4 +1,4 @@
-import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
+import { Navigate, NavLink, Outlet, useLocation, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ClipboardList } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
@@ -14,11 +14,16 @@ import { useStaffAccess } from "./useStaffAccess";
  * only see their own form; anyone who already has an application goes to it.
  * While the event isn't taking applications (events.applications_open), the
  * form is replaced by when they open.
+ *
+ * In `npm run dev`, `?preview` shows the form without signing in (to look at it;
+ * submitting needs a session, so nothing is sent).
  */
 export function ApplyLayout() {
   const access = useStaffAccess();
   const { session, loading } = useAuth();
   const { pathname } = useLocation();
+  const [params] = useSearchParams();
+  const preview = import.meta.env.DEV && params.has("preview");
   const applications = useQuery({
     queryKey: ["application-window"],
     queryFn: fetchApplicationWindow,
@@ -27,14 +32,16 @@ export function ApplyLayout() {
   });
   const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
 
-  if (!loading && !session) {
-    return <Navigate to={portal.login(pathname.endsWith("mentor-judge") ? "mentor" : "hacker")} replace />;
+  if (!preview) {
+    if (!loading && !session) {
+      return <Navigate to={portal.login(pathname.endsWith("mentor-judge") ? "mentor" : "hacker")} replace />;
+    }
+    if (access.state === "ready") return <Navigate to={portal.home} replace />;
+    if (access.state === "loading" || access.state === "error") return <StaffGate access={access} loginRole="hacker" />;
+    // A failed read shows the form anyway: the database still refuses a closed event.
+    if (applications.isPending) return <StaffGate access={{ state: "loading" }} loginRole="hacker" />;
   }
-  if (access.state === "ready") return <Navigate to={portal.home} replace />;
-  if (access.state === "loading" || access.state === "error") return <StaffGate access={access} loginRole="hacker" />;
-  // A failed read shows the form anyway: the database still refuses a closed event.
-  if (applications.isPending) return <StaffGate access={{ state: "loading" }} loginRole="hacker" />;
-  const closed = applications.data?.open === false;
+  const closed = !preview && applications.data?.open === false;
 
   return (
     <PortalFrame

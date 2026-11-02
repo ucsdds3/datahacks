@@ -1,0 +1,270 @@
+/* ---------------------------------------------------------------------------
+   The End. The applicant-facing portal (sign-in, apply, hacker/mentor/judge
+   portals) on Mohak's End islands: end-stone cream panels for reading and
+   filling in, deep purple glass for the sidebar and page titles, purpur
+   accents, and ender-pearl teal for actions, links and focus.
+
+   Everything is scoped to `.sp-root.sp-end`, so the organizer console (plain
+   `.sp-root`) keeps the mossy theme in staff-portal.css. Every text colour here
+   is checked for WCAG AA by scripts/end-theme-contrast.py; run it after changing one.
+   --------------------------------------------------------------------------- */
+
+.sp-root.sp-end {
+  /* Text and controls on the cream end-stone panels. */
+  --sp-bg: #e6dfbb;
+  --sp-surface: #f2ecd0;
+  --sp-border: #c2b78e;
+  --sp-text: #26173a;
+  --sp-muted: #594a6b;
+  --sp-accent: #0c6a61;
+  --sp-accent-soft: #cfe8e0;
+  --sp-blue: #2a4b9b;
+  --sp-green: #22683a;
+  --sp-red: #a12c26;
+  --sp-orange: #8a4510;
+  /* On the purple glass (sidebar, page titles). */
+  --mc-page: #170d29;
+  --mc-sidebar: rgb(24 13 44 / 0.84);
+  --mc-ink: #1b1029;
+  --mc-light: #f6f1dc;
+  --mc-light-muted: #d4c8e8;
+  --mc-leaf: #4fd1bf;
+  --mc-focus: #7ae6d6;
+  /* The End's own. */
+  --end-glass: rgb(24 13 44 / 0.78);
+  --end-glass-edge: rgb(169 127 191 / 0.45);
+  --end-stone-light: #fffbea;
+  --end-stone-dark: #c2b78e;
+  --end-purpur: #a97fbf;
+  --end-purpur-deep: #6b4a8e;
+  --end-pearl: #4fd1bf;
+  --end-pearl-deep: #0c6a61;
+  --end-shadow: rgb(9 4 18 / 0.6);
+
+  position: relative;
+  isolation: isolate;
+  background: var(--mc-page);
+  /* The page itself never scrolls sideways; wide things (tables, the sidebar's tabs) scroll in place. */
+  overflow-x: clip;
+}
+
+/* The artwork, pinned to the viewport behind the page (see EndSky.tsx). */
+.sp-end-sky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100vh;
+  height: 100lvh;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgb(20 10 38 / 0.3) 0%, rgb(20 10 38 / 0.06) 40%, rgb(20 10 38 / 0.5) 100%),
+    url("/images/minecraft/end/end-sky-wide.webp") 50% 42% / cover no-repeat,
+    var(--mc-page);
+}
+/* Portrait screens: a crop centred on the big middle island. */
+@media (max-aspect-ratio: 4/5) {
+  .sp-end-sky {
+    background:
+      linear-gradient(180deg, rgb(20 10 38 / 0.35) 0%, rgb(20 10 38 / 0.1) 40%, rgb(20 10 38 / 0.55) 100%),
+      url("/images/minecraft/end/end-sky-tall.webp") 50% 40% / cover no-repeat,
+      var(--mc-page);
+  }
+}
+
+/* Links and focus rings already follow --sp-accent and --mc-focus; inside panels the ring is dark teal. */
+.sp-root.sp-end .sp-card :is(a, button, input, select, textarea, summary):focus-visible { outline-color: var(--end-pearl-deep); }
+
+/* Sidebar: purple glass */
+.sp-root.sp-end .sp-sidebar {
+  background: var(--mc-sidebar);
+  border-right: 3px solid var(--mc-ink);
+  box-shadow: inset -1px 0 var(--end-glass-edge);
+  -webkit-backdrop-filter: blur(10px) saturate(1.15);
+  backdrop-filter: blur(10px) saturate(1.15);
+}
+.sp-root.sp-end .sp-brand img { border-color: var(--mc-ink); background: var(--sp-surface); box-shadow: inset 2px 2px var(--end-stone-light), inset -2px -2px var(--end-stone-dark); }
+.sp-root.sp-end .sp-nav-link { color: var(--mc-light-muted); }
+.sp-root.sp-end .sp-nav-link:hover { background: rgb(169 127 191 / 0.16); color: var(--mc-light); }
+.sp-root.sp-end .sp-nav-link.active { background: rgb(169 127 191 / 0.26); color: var(--mc-light); box-shadow: inset 3px 0 var(--end-pearl); }
+.sp-root.sp-end .sp-nav-link.active svg { color: var(--end-pearl); }
+.sp-root.sp-end .sp-sidebar-footer { border-top-color: rgb(169 127 191 / 0.35); }
+.sp-root.sp-end .sp-sidebar-footer a, .sp-root.sp-end .sp-signout { color: var(--mc-light-muted); }
+.sp-root.sp-end .sp-sidebar-footer a:hover, .sp-root.sp-end .sp-signout:hover { color: var(--mc-light); }
+
+/* Page titles: a strip of purple glass, so they read over any part of the painting. */
+.sp-root.sp-end :is(.sp-greeting, .sp-page-header) {
+  padding: 16px 20px;
+  border: 3px solid var(--mc-ink);
+  background: var(--end-glass);
+  box-shadow: inset 0 0 0 1px var(--end-glass-edge), 6px 6px var(--end-shadow);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.sp-root.sp-end :is(.sp-greeting, .sp-page-header) h1 { color: var(--mc-light); text-shadow: 2px 2px #0d0618; }
+.sp-root.sp-end :is(.sp-page-header p, .sp-waiver-line) { color: var(--mc-light-muted); }
+.sp-root.sp-end :is(.sp-greeting, .sp-page-header) a { color: var(--mc-focus); }
+.sp-root.sp-end .sp-complete { color: #9fe3ad; }
+.sp-root.sp-end .sp-incomplete { color: #f5c27e; }
+
+/* End-stone panels */
+.sp-root.sp-end .sp-card {
+  border-color: var(--mc-ink);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  box-shadow: inset 3px 3px var(--end-stone-light), inset -3px -3px var(--end-stone-dark), 6px 6px var(--end-shadow);
+}
+.sp-root.sp-end .sp-card h2 { color: #2c1b42; }
+
+/* Status pill */
+.sp-root.sp-end .sp-status {
+  border-color: var(--mc-ink);
+  background: var(--sp-surface);
+  color: var(--sp-text);
+  box-shadow: inset 2px 2px var(--end-stone-light), inset -2px -2px var(--end-stone-dark);
+}
+.sp-root.sp-end .sp-status.pending .sp-dot { background: #4a72c9; }
+.sp-root.sp-end .sp-status.accepted .sp-dot { background: #2fa58f; }
+.sp-root.sp-end .sp-status.waitlisted .sp-dot { background: #d08a2c; }
+.sp-root.sp-end .sp-status.rejected .sp-dot { background: #c24a3c; }
+
+/* Buttons: end-stone blocks; the main action is ender-pearl teal */
+.sp-root.sp-end .sp-button {
+  border-color: var(--mc-ink);
+  background: #e6dfbb;
+  color: var(--sp-text);
+  box-shadow: inset 2px 2px var(--end-stone-light), inset -2px -2px #a39870, 0 3px #0e0818;
+}
+.sp-root.sp-end .sp-button:hover:not(:disabled) { border-color: var(--mc-ink); color: var(--sp-text); }
+.sp-root.sp-end .sp-button.primary {
+  border-color: #0b2a2a;
+  background: var(--end-pearl);
+  color: #0b2224;
+  box-shadow: inset 2px 2px #9aeee2, inset -2px -2px #23897b, 0 3px #071a1a;
+}
+.sp-root.sp-end .sp-button.primary:hover:not(:disabled) { background: var(--end-pearl); color: #0b2224; }
+/* Unavailable: flat worn stone rather than a faded button, so its label still reads. */
+.sp-root.sp-end .sp-button:disabled {
+  border-color: #6c5d7d;
+  background: #ddd6b6;
+  color: #5a4b6b;
+  box-shadow: inset 2px 2px #ebe5c9, inset -2px -2px #bdb28c;
+  opacity: 1;
+}
+
+/* Run of show */
+.sp-root.sp-end .sp-tabs { border-color: var(--sp-border); background: var(--sp-bg); }
+.sp-root.sp-end .sp-tabs button.active { box-shadow: inset 2px 2px var(--end-stone-light), inset -2px -2px var(--end-stone-dark); }
+.sp-root.sp-end .sp-timeline li { border-top-color: #d3c9a3; }
+.sp-root.sp-end .sp-tag.mentor { background: #dde0f6; color: #283f8c; }
+
+/* Avatars and the Mentors tab */
+.sp-root.sp-end .sp-avatar { background: var(--sp-accent-soft); color: #0a4d46; box-shadow: inset 2px 2px #e9f6f1, inset -2px -2px #9ccbbf; }
+.sp-root.sp-end .sp-mentors li + li { border-top-color: #d3c9a3; }
+.sp-root.sp-end .sp-checkin .sp-dot { background: #a59cb4; }
+.sp-root.sp-end .sp-checkin.in .sp-dot { background: #2fa58f; }
+.sp-root.sp-end .sp-mentor-bio { color: #3a2c4a; }
+
+/* Status timeline: purpur markers */
+.sp-root.sp-end .sp-progress li:not(:last-child)::before { background: #cfc4a0; }
+.sp-root.sp-end .sp-progress li.done:not(:last-child)::before { background: var(--end-purpur-deep); }
+.sp-root.sp-end .sp-step-marker { border-color: #a99f86; background: #fbf8ea; color: var(--sp-muted); }
+.sp-root.sp-end .sp-progress li.done .sp-step-marker { border-color: #3e2858; background: var(--end-purpur-deep); color: #faf5ff; }
+.sp-root.sp-end .sp-progress li.current .sp-step-marker { border-color: var(--end-purpur-deep); color: #4a3166; }
+
+/* Forms */
+.sp-root.sp-end :is(.sp-form-fields > label, .sp-form-fields > fieldset > label, .sp-form-fields label[id^="field-"], .sp-form-fields legend) { color: #3a2950; }
+.sp-root.sp-end :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-mock-adopt input),
+.sp-root.sp-end :is(.sp-multiselect-button) {
+  border: 2px solid #76678a;
+  background: #fbf8ea;
+  box-shadow: inset 2px 2px #ddd5b3;
+  color: var(--sp-text);
+}
+/* 16px so phones don't zoom in on focus. */
+.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-mock-adopt input) { font-size: 16px; }
+.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-mock-adopt input)::placeholder { color: #6c5d7d; opacity: 1; }
+.sp-root.sp-end .sp-placeholder { color: #6c5d7d; }
+.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select):focus-visible,
+.sp-root.sp-end .sp-multiselect-button:focus-visible { outline: 3px solid var(--end-pearl-deep); outline-offset: 1px; border-color: var(--end-pearl-deep); }
+.sp-root.sp-end .sp-form input[readonly] { background: #ebe4c3; color: var(--sp-muted); }
+.sp-root.sp-end .sp-check { border-color: var(--sp-border); background: #ebe5c6; }
+.sp-root.sp-end .sp-check input { accent-color: var(--end-pearl-deep); }
+.sp-root.sp-end .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]), textarea) { border-color: var(--sp-red); }
+.sp-root.sp-end .sp-req { color: var(--sp-red); }
+.sp-root.sp-end .sp-form-section { border-top-color: rgb(38 23 58 / 0.16); }
+.sp-root.sp-end :is(.sp-multiselect-menu, .sp-combobox-menu) {
+  border-color: #76678a;
+  background: #fbf8ea;
+  color: var(--sp-text);
+  box-shadow: 4px 4px 0 var(--end-shadow);
+}
+.sp-root.sp-end .sp-combobox-menu li.active { background: #e2d3ee; color: var(--sp-text); }
+.sp-root.sp-end .sp-combobox-menu li.sp-combobox-empty { color: #6c5d7d; }
+
+/* Handbook */
+.sp-root.sp-end .sp-toc {
+  padding: 14px 16px;
+  border: 3px solid var(--mc-ink);
+  background: var(--end-glass);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.sp-root.sp-end .sp-toc span { color: var(--mc-light-muted); }
+.sp-root.sp-end .sp-toc a { color: var(--mc-light-muted); }
+.sp-root.sp-end .sp-toc a:hover { color: var(--mc-light); }
+.sp-root.sp-end :is(.sp-prose p, .sp-prose ul, .sp-prose ol) { color: #3a2c4a; }
+.sp-root.sp-end .sp-prose section + section { border-top-color: #d3c9a3; }
+.sp-root.sp-end .sp-table-wrap { border-color: var(--sp-border); }
+.sp-root.sp-end :is(.sp-table th, .sp-table td) { border-bottom-color: #d3c9a3; }
+
+/* Waiver */
+.sp-root.sp-end .sp-steps li::before { border: 2px solid var(--end-purpur-deep); background: #efe4f6; color: #3e2858; }
+.sp-root.sp-end :is(.sp-mock-signing, .sp-docusign.active) { border-color: var(--sp-border); }
+
+/* Loading and sign-in screens */
+.sp-root.sp-end.sp-gate { min-height: 100dvh; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.sp-root.sp-end.sp-gate .sp-card { padding: 28px 24px; }
+.sp-root.sp-end.sp-gate .sp-card > img { margin: 0 auto; }
+/* Phones: the card sits low, under the big island, and in reach of a thumb. */
+@media (max-aspect-ratio: 4/5) and (max-width: 600px) {
+  .sp-root.sp-end.sp-gate { justify-content: flex-end; padding-bottom: max(12svh, env(safe-area-inset-bottom)); }
+}
+.sp-root.sp-end.sp-gate h1 { color: var(--sp-text); }
+/* No lone word on its own line ("Mentor & Judge Sign / In" on a small phone). */
+.sp-root.sp-end :is(.sp-gate h1, .sp-greeting h1, .sp-page-header h1) { text-wrap: balance; }
+.sp-root.sp-end.sp-gate p { color: var(--sp-muted); }
+.sp-root.sp-end.sp-gate .sp-error { color: var(--sp-red); }
+.sp-root.sp-end .sp-signin-button { justify-content: center; width: 100%; min-height: 48px; font-size: 15px; }
+
+/* Safe areas: the notch and home indicator, when the page runs under them. */
+.sp-root.sp-end .sp-main {
+  padding-right: max(48px, env(safe-area-inset-right));
+  padding-bottom: max(40px, env(safe-area-inset-bottom));
+}
+.sp-root.sp-end .sp-sidebar { padding-left: max(16px, env(safe-area-inset-left)); }
+
+@media (max-width: 860px) {
+  .sp-root.sp-end .sp-sidebar {
+    border-right: 0;
+    border-bottom: 3px solid var(--mc-ink);
+    box-shadow: inset 0 -1px var(--end-glass-edge);
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
+  }
+  .sp-root.sp-end .sp-nav-link.active { box-shadow: inset 0 -3px var(--end-pearl); }
+  /* The tabs scroll sideways: fade the edge so it's clear there are more. */
+  .sp-root.sp-end .sp-nav {
+    padding-right: 28px;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  }
+  .sp-root.sp-end .sp-main {
+    padding: 20px max(16px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+  .sp-root.sp-end :is(.sp-greeting, .sp-page-header) { padding: 14px 16px; }
+}
+@media (max-width: 520px) {
+  .sp-root.sp-end .sp-card { box-shadow: inset 3px 3px var(--end-stone-light), inset -3px -3px var(--end-stone-dark), 4px 4px var(--end-shadow); }
+  .sp-root.sp-end :is(.sp-greeting, .sp-page-header) { box-shadow: inset 0 0 0 1px var(--end-glass-edge), 4px 4px var(--end-shadow); }
+}

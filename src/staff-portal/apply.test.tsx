@@ -37,11 +37,11 @@ import { AuthProvider } from "@/context/AuthContext";
 import { closedTitle } from "@/portal/event";
 import { ApplyLayout } from "./Apply";
 
-function renderApply() {
-  render(
+function renderApply(path = "/portal/apply/hacker") {
+  return render(
     <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
       <AuthProvider>
-        <MemoryRouter initialEntries={["/portal/apply/hacker"]}>
+        <MemoryRouter initialEntries={[path]}>
           <Routes>
             <Route path="/portal/apply" element={<ApplyLayout />}>
               <Route path="hacker" element={<h1>hacker form</h1>} />
@@ -92,6 +92,21 @@ describe("apply pages and the applications-open switch", () => {
     db.applications = [{ first_name: "Jane", last_name: "Doe", applicant_type: "hacker", status: "submitted", submitted_at: null }];
     renderApply();
     expect(await screen.findByRole("heading", { name: "portal home" })).toBeTruthy();
+  });
+});
+
+describe("the apply page's frame", () => {
+  it("sits on the End sky", async () => {
+    const { container } = renderApply();
+    await screen.findByRole("heading", { name: "hacker form" });
+    expect(container.querySelector(".sp-root.sp-end > .sp-end-sky")).toBeTruthy();
+  });
+
+  it("dev ?preview shows the form even after applying, so it can be looked at", async () => {
+    db.event = { id: "event-1", applications_open: false, applications_open_at: null };
+    db.applications = [{ first_name: "Jane", last_name: "Doe", applicant_type: "hacker", status: "submitted", submitted_at: null }];
+    renderApply("/portal/apply/hacker?preview");
+    expect(await screen.findByRole("heading", { name: "hacker form" })).toBeTruthy();
   });
 });
 
