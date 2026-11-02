@@ -29,7 +29,7 @@ import { z } from "npm:zod@4.6.6";
 import {
   BIO_MIN_LENGTH, EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
   RACES, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
-  closedMessage, graduationYears, insertErrorMessage, isValidEmail, type Checked,
+  closedMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
 } from "./application.ts";
 import type { Database } from "./database.types.ts";
 
@@ -48,7 +48,9 @@ const statusLabel = (status: string) =>
 
 const TYPE_LABEL: Record<string, string> = { hacker: "hacker", mentor: "mentor", judge: "judge", hybrid: "mentor and judge" };
 
-const enumOf = (values: readonly string[]) => z.enum(values as [string, ...string[]]);
+/** One of a fixed list. "1-2 hackathons" for "1–2 hackathons" and other near misses become the option they mean (matchOption). */
+const enumOf = (values: readonly string[]) =>
+  z.preprocess(value => matchOption(values, value) ?? value, z.enum(values as [string, ...string[]]));
 
 Deno.serve(
   pipeline(
@@ -98,7 +100,7 @@ Deno.serve(
         if ("problems" in checked) {
           return failure(`Not submitted. Fix these with the applicant, then try again:\n- ${checked.problems.join("\n- ")}`);
         }
-        const { error } = await supabase.from("applications").insert({
+        const error = await saveApplication(supabase, userId, email, {
           ...checked.row,
           applicant_type: checked.row.applicant_type as string,
           user_id: userId,

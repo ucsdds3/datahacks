@@ -23,6 +23,12 @@ export type Database = {
         Update: Partial<Application>;
         Relationships: [];
       };
+      profiles: {
+        Row: { id: string; email: string; role: string; first_name: string | null; last_name: string | null; created_at: string | null };
+        Insert: { id: string; email: string; first_name?: string | null; last_name?: string | null };
+        Update: { email?: string; first_name?: string | null; last_name?: string | null };
+        Relationships: [];
+      };
       events: {
         Row: {
           id: string;

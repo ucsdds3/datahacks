@@ -165,6 +165,56 @@ describe("checkHacker", () => {
       .toEqual(["gender", "country_of_residence", "heard_about"]);
     expect(problemFields(mcp.checkHacker({ ...hacker, race_ethnicity: ["White; Asian"] }))).toEqual(["race_ethnicity"]);
   });
+
+  it("saves hyphens and loose case as the options' exact values", () => {
+    const result = mcp.checkHacker({
+      ...hacker, hackathon_experience: "3-5 hackathons", gender: "woman", race_ethnicity: ["white", "White"],
+      level_of_study: "undergraduate (3+ year: bachelor's)", country_of_residence: "united states", heard_about: ["instagram"],
+      wants_travel_stipend: true, travel_region: "Los Angeles", travel_method: "car", travel_distance: "50 - 200 miles",
+    });
+    expect("row" in result && result.row).toMatchObject({
+      hackathon_experience: "3–5 hackathons", gender: "Woman", race_ethnicity: "White", level_of_study: "Undergraduate (3+ year: bachelor's)",
+      country_of_residence: "United States", heard_about: ["Instagram"], travel_method: "Car", travel_distance: "50–200 miles",
+    });
+  });
+
+  it("still names a choice that matches no option", () => {
+    const result = mcp.checkHacker({ ...hacker, hackathon_experience: "1-3 hackathons", heard_about: ["Instagram", "TikTok"] });
+    expect(problemFields(result)).toEqual(["hackathon_experience", "heard_about"]);
+    expect("problems" in result && result.problems[0]).toBe(`hackathon_experience must be one of: ${mcp.HACKATHON_EXPERIENCE.join(", ")}.`);
+  });
+});
+
+describe("matchOption", () => {
+  it("takes an exact option as is", () => {
+    expect(mcp.matchOption(mcp.HACKATHON_EXPERIENCE, "1–2 hackathons")).toBe("1–2 hackathons");
+    expect(mcp.matchOption(mcp.GENDERS, "Non-binary")).toBe("Non-binary");
+  });
+
+  it("reads a hyphen or em dash between numbers as the en dash", () => {
+    expect(mcp.matchOption(mcp.HACKATHON_EXPERIENCE, "1-2 hackathons")).toBe("1–2 hackathons");
+    expect(mcp.matchOption(mcp.HACKATHON_EXPERIENCE, "3—5 hackathons")).toBe("3–5 hackathons");
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, "50-200 miles")).toBe("50–200 miles");
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, "200 - 500 miles")).toBe("200–500 miles");
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, "50 – 200 miles")).toBe("50–200 miles");
+  });
+
+  it("ignores case and spacing", () => {
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, "  over   500 MILES ")).toBe("Over 500 miles");
+    expect(mcp.matchOption(mcp.STAFF_TYPES, "Hybrid")).toBe("hybrid");
+    expect(mcp.matchOption(mcp.GENDERS, "non-binary")).toBe("Non-binary");
+  });
+
+  it("matches nothing it can't place", () => {
+    expect(mcp.matchOption(mcp.HACKATHON_EXPERIENCE, "1-2")).toBeUndefined();
+    expect(mcp.matchOption(mcp.GENDERS, "Nonbinary")).toBeUndefined();
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, undefined)).toBeUndefined();
+    expect(mcp.matchOption(mcp.TRAVEL_DISTANCES, 50)).toBeUndefined();
+  });
+
+  it("matches nothing when an answer fits more than one option", () => {
+    expect(mcp.matchOption(["1–2", "1-2"], "1 - 2")).toBeUndefined();
+  });
 });
 
 const mentor: mcp.StaffAnswers = {
@@ -191,6 +241,13 @@ describe("checkStaff", () => {
     expect(problemFields(mcp.checkStaff({ ...mentor, bio: "b".repeat(1501) }))).toEqual(["bio"]);
   });
 
+  it("saves loose case as the options' exact values", () => {
+    const result = mcp.checkStaff({
+      ...mentor, applicant_type: "Hybrid", ucsd_affiliation: "Alumni", judging_track: "Entertainment", acknowledged_in_person_judging: true,
+    });
+    expect("row" in result && result.row).toMatchObject({ applicant_type: "hybrid", ucsd_affiliation: "alumni", judging_track: "entertainment" });
+  });
+
   it("takes an https LinkedIn link only", () => {
     expect(problemFields(mcp.checkStaff({ ...mentor, linkedin_url: "linkedin.com/in/grace" }))).toEqual(["linkedin_url"]);
   });
@@ -209,5 +266,38 @@ describe("insertErrorMessage", () => {
 
   it("explains a second application", () => {
     expect(mcp.insertErrorMessage({ code: "23505", message: "duplicate key" })).toMatch(/already an application/);
+  });
+
+  it("explains an account without a profile", () => {
+    expect(mcp.insertErrorMessage({
+      code: "23503", message: 'insert or update on table "applications" violates foreign key constraint "applications_user_id_fkey"',
+    })).toBe("Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3ucsd.com and try again.");
+  });
+});
+
+describe("saveApplication", () => {
+  const writer = (results: { profiles?: mcp.DbError | null; applications?: mcp.DbError | null } = {}) => {
+    const calls: string[] = [];
+    const upsert = vi.fn(async () => { calls.push("profiles.upsert"); return { error: results.profiles ?? null }; });
+    const insert = vi.fn(async () => { calls.push("applications.insert"); return { error: results.applications ?? null }; });
+    const db = { from: (table: string) => (table === "profiles" ? { upsert } : { insert }) } as unknown as mcp.ApplicationWriter;
+    return { db, calls, upsert, insert };
+  };
+  const row = { applicant_type: "mentor", first_name: "Grace" };
+
+  it("creates the profile, keeping an existing one, before inserting the application", async () => {
+    const { db, calls, upsert, insert } = writer();
+    expect(await mcp.saveApplication(db, "user-1", "grace@navy.mil", row)).toBeNull();
+    expect(calls).toEqual(["profiles.upsert", "applications.insert"]);
+    expect(upsert).toHaveBeenCalledWith({ id: "user-1", email: "grace@navy.mil" }, { onConflict: "id", ignoreDuplicates: true });
+    expect(insert).toHaveBeenCalledWith(row);
+  });
+
+  it("still tries the insert if the profile can't be written, and returns its error", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const fk = { code: "23503", message: "violates foreign key constraint applications_user_id_fkey" };
+    const { db, calls } = writer({ profiles: { code: "42501", message: "permission denied" }, applications: fk });
+    expect(await mcp.saveApplication(db, "user-1", "grace@navy.mil", row)).toBe(fk);
+    expect(calls).toEqual(["profiles.upsert", "applications.insert"]);
   });
 });
