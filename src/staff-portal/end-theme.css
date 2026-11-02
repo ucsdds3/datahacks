@@ -232,6 +232,8 @@
   .sp-root.sp-end.sp-gate { justify-content: flex-end; padding-bottom: max(12svh, env(safe-area-inset-bottom)); }
 }
 .sp-root.sp-end.sp-gate h1 { color: var(--sp-text); }
+/* No lone word on its own line ("Mentor & Judge Sign / In" on a small phone). */
+.sp-root.sp-end :is(.sp-gate h1, .sp-greeting h1, .sp-page-header h1) { text-wrap: balance; }
 .sp-root.sp-end.sp-gate p { color: var(--sp-muted); }
 .sp-root.sp-end.sp-gate .sp-error { color: var(--sp-red); }
 .sp-root.sp-end .sp-signin-button { justify-content: center; width: 100%; min-height: 48px; font-size: 15px; }
