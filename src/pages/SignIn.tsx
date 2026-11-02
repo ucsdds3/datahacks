@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import MinecraftLayout from '@/components/MinecraftLayout'
+import { Screen } from '@/staff-portal/StaffGate'
 import { startGoogleSignIn, type SignInAs } from '@/portal/signIn'
 
 const COPY: Record<SignInAs, { title: string; text: string }> = {
@@ -20,15 +20,10 @@ export default function SignIn({ as }: { as: SignInAs }) {
   const signIn = () => startGoogleSignIn(as).catch(e => setError(e instanceof Error ? e.message : String(e)))
 
   return (
-    <MinecraftLayout>
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div className="mc-application-form" style={{ maxWidth: '380px', textAlign: 'center' }}>
-          <h2>{title}</h2>
-          <p className="mc-form-disclaimer">{text}</p>
-          <button className="mc-button" onClick={signIn} style={{ width: '100%' }}>Continue with Google</button>
-          {error && <p className="mc-form-disclaimer" style={{ color: '#c96b6b' }}>{error}</p>}
-        </div>
-      </div>
-    </MinecraftLayout>
+    <Screen title={title}>
+      <p>{text}</p>
+      <button className="sp-button primary sp-signin-button" onClick={signIn}>Continue with Google</button>
+      {error && <p className="sp-error" role="alert">{error}</p>}
+    </Screen>
   )
 }
