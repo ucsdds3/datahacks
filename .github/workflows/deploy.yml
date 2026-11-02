@@ -64,7 +64,7 @@ jobs:
                            '/login/hacker', '/login/judge', '/login/mentor', '/auth/callback',
                            '/organizer', '/portal/organizer',
                            '/dashboard/hacker', '/dashboard/judge', '/dashboard/mentor',
-                           '/apply', '/apply/mentor-judge', '/apply-with-ai', '/portal',
+                           '/apply', '/apply/mentor-judge', '/apply-with-ai', '/oauth/consent', '/portal',
                            '/portal/apply', '/portal/apply/hacker', '/portal/apply/mentor-judge',
                            ...['hacker', 'mentor', 'judge', 'hybrid'].flatMap(p => [
                              '/portal/' + p, '/portal/' + p + '/questions', '/portal/' + p + '/waiver',
