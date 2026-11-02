@@ -8,7 +8,7 @@ import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
 import { indexSchools, searchSchools } from './schoolSearch'
 import { MAX_LENGTH, applicationErrorMessage, birthdateBounds, cleanLine, cleanText, isHttpsLink } from '@/lib/applicantInput'
-import { Combobox, MultiSelect, PhoneInput, Req, Select, YesNo, isValidPhone } from './formFields'
+import { Combobox, DateInput, MultiSelect, PhoneInput, Req, Select, YesNo, isValidPhone } from './formFields'
 import {
   COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
   TRAVEL_DISTANCES, TRAVEL_METHODS,
@@ -152,7 +152,7 @@ export default function HackerApplication() {
             <MultiSelect options={RACES} value={form.race_ethnicity} onChange={v => update('race_ethnicity', v)} />
           </div>
           <label>Birthdate <Req />
-            <input type="date" required min={birthdateBounds().min} max={birthdateBounds().max} {...text('birthdate')} />
+            <DateInput min={birthdateBounds().min} max={birthdateBounds().max} value={form.birthdate} onChange={v => update('birthdate', v)} />
           </label>
           <label>Country of residence <Req />
             <Select options={COUNTRIES} value={form.country_of_residence} onChange={v => update('country_of_residence', v)} />
