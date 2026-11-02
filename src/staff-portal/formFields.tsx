@@ -40,6 +40,35 @@ export function PhoneInput({ value, onChange, id }: { value: string; onChange: (
   );
 }
 
+/**
+ * A native date input that looks empty until someone picks a date. Safari draws
+ * today's date in grey in an empty one, which reads as already filled in; while
+ * it's empty and not focused, its text is hidden behind a "MM/DD/YYYY" hint
+ * (styled in end-theme.css). The input itself is untouched: same picker, same
+ * value ("YYYY-MM-DD"), same validation.
+ */
+export function DateInput({ value, onChange, min, max, required = true, id }: {
+  value: string; onChange: (value: string) => void; min?: string; max?: string; required?: boolean; id?: string;
+}) {
+  // A half-typed date ("11/dd/yyyy") has no value yet but shouldn't be hidden behind the hint.
+  const [partial, setPartial] = useState(false);
+  return (
+    <span className="sp-date" data-empty={value || partial ? undefined : ""}>
+      <input
+        id={id}
+        type="date"
+        required={required}
+        min={min}
+        max={max}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onBlur={e => setPartial(e.currentTarget.validity.badInput)}
+      />
+      <span className="sp-date-hint" aria-hidden="true">MM/DD/YYYY</span>
+    </span>
+  );
+}
+
 /** A dropdown that allows picking several options. */
 export function MultiSelect({ options, value, onChange, placeholder = "Select all that apply", id }: {
   options: string[];

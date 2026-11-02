@@ -65,24 +65,28 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
   return (
     <div className="sp-root sp-end">
       <EndSky />
-      <aside className="sp-sidebar">
-        <div className="sp-brand">
-          <img src="/datahacks-logo.png" alt="DataHacks" />
-        </div>
-        <nav className="sp-nav" aria-label="Portal">
-          {nav}
-        </nav>
-        <div className="sp-sidebar-footer">
-          <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}><Mail size={14} aria-hidden /> {GENERAL_CONTACT_EMAIL}</a>
-          {session && (
-            <button className="sp-signout" onClick={() => signOutTo(signOutPath)}>
-              <LogOut size={14} aria-hidden /> Sign out
-            </button>
-          )}
-        </div>
-      </aside>
-      {/* Pages load on demand; while one does, the frame stays and the page area stays dark. */}
-      <main className="sp-main"><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
+      {/* The tempered-glass sheet over the painting; the sidebar is a second pane on it. */}
+      <div className="sp-shell">
+        <aside className="sp-sidebar">
+          <div className="sp-brand">
+            <img src="/datahacks-logo.png" alt="" />
+            <div><strong>DataHacks</strong><span>Portal</span></div>
+          </div>
+          <nav className="sp-nav" aria-label="Portal">
+            {nav}
+          </nav>
+          <div className="sp-sidebar-footer">
+            <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}><Mail size={14} aria-hidden /> {GENERAL_CONTACT_EMAIL}</a>
+            {session && (
+              <button className="sp-signout" onClick={() => signOutTo(signOutPath)}>
+                <LogOut size={14} aria-hidden /> Sign out
+              </button>
+            )}
+          </div>
+        </aside>
+        {/* Pages load on demand; while one does, the frame stays and the page area stays dark. */}
+        <main className="sp-main"><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
+      </div>
     </div>
   );
 }

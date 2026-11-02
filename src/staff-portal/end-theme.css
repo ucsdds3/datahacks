@@ -1,8 +1,9 @@
 /* ---------------------------------------------------------------------------
    The End. The applicant-facing portal (sign-in, apply, hacker/mentor/judge
-   portals) on Mohak's End islands: end-stone cream panels for reading and
-   filling in, deep purple glass for the sidebar and page titles, purpur
-   accents, and ender-pearl teal for actions, links and focus.
+   portals) on Mohak's End islands: a sheet of frosted glass over the painting
+   holding the whole app, a second glass pane for the sidebar, darker glass
+   tiles for page titles, end-stone cream panels for reading and filling in,
+   purpur accents, and ender-pearl teal for actions, links and focus.
 
    Everything is scoped to `.sp-root.sp-end`, so the organizer console (plain
    `.sp-root`) keeps the mossy theme in staff-portal.css. Every text colour here
@@ -24,15 +25,12 @@
   --sp-orange: #8a4510;
   /* On the purple glass (sidebar, page titles). */
   --mc-page: #170d29;
-  --mc-sidebar: rgb(24 13 44 / 0.84);
   --mc-ink: #1b1029;
   --mc-light: #f6f1dc;
   --mc-light-muted: #d4c8e8;
   --mc-leaf: #4fd1bf;
   --mc-focus: #7ae6d6;
   /* The End's own. */
-  --end-glass: rgb(24 13 44 / 0.78);
-  --end-glass-edge: rgb(169 127 191 / 0.45);
   --end-stone-light: #fffbea;
   --end-stone-dark: #c2b78e;
   --end-purpur: #a97fbf;
@@ -76,44 +74,148 @@
 /* Links and focus rings already follow --sp-accent and --mc-focus; inside panels the ring is dark teal. */
 .sp-root.sp-end .sp-card :is(a, button, input, select, textarea, summary):focus-visible { outline-color: var(--end-pearl-deep); }
 
-/* Sidebar: purple glass */
+/* ---------------------------------------------------------------------------
+   Tempered glass. The whole app shell sits on one flat sheet of frosted glass
+   floating over the painting (.sp-shell), inset from the window's edges, with
+   pixel-notched corners. The sidebar is a second, more opaque pane on top of it,
+   and page titles sit on darker glass tiles. Text never sits on the bare sheet:
+   every surface that carries text is checked over the brightest painting pixel,
+   ignoring the blur (scripts/end-theme-contrast.py).
+   --------------------------------------------------------------------------- */
+.sp-root.sp-end {
+  --sheet-inset: 20px;
+  --sheet-pad: 12px;
+  --notch: 4px;
+  --glass-sheet: rgb(23 13 41 / 0.42);
+  --glass-pane: rgb(42 26 69 / 0.68);
+  --glass-tile: rgb(14 7 28 / 0.55);
+  --glass-blur: blur(22px) saturate(1.2);
+  --glass-edge: rgb(255 255 255 / 0.13);
+  --glass-shine: rgb(255 255 255 / 0.2);
+  --glass-shade: rgb(8 3 18 / 0.35);
+  --glass-shadow: 0 24px 64px rgb(6 2 14 / 0.55), 0 2px 8px rgb(6 2 14 / 0.4);
+  --end-card: rgb(241 236 212 / 0.92);
+}
+/* Square corners with a one-pixel-block notch, like a game window. */
+.sp-root.sp-end :is(.sp-shell, .sp-gate-glass) {
+  clip-path: polygon(
+    0 var(--notch), var(--notch) var(--notch), var(--notch) 0,
+    calc(100% - var(--notch)) 0, calc(100% - var(--notch)) var(--notch), 100% var(--notch),
+    100% calc(100% - var(--notch)), calc(100% - var(--notch)) calc(100% - var(--notch)), calc(100% - var(--notch)) 100%,
+    var(--notch) 100%, var(--notch) calc(100% - var(--notch)), 0 calc(100% - var(--notch))
+  );
+}
+
+.sp-root.sp-end:not(.sp-gate) {
+  padding:
+    max(var(--sheet-inset), env(safe-area-inset-top)) max(var(--sheet-inset), env(safe-area-inset-right))
+    max(var(--sheet-inset), env(safe-area-inset-bottom)) max(var(--sheet-inset), env(safe-area-inset-left));
+}
+/* The sheet's soft shadow, on its own layer: the sheet's notched clip would cut a shadow of its own. */
+.sp-root.sp-end:not(.sp-gate)::before {
+  content: "";
+  position: absolute;
+  inset:
+    max(var(--sheet-inset), env(safe-area-inset-top)) max(var(--sheet-inset), env(safe-area-inset-right))
+    max(var(--sheet-inset), env(safe-area-inset-bottom)) max(var(--sheet-inset), env(safe-area-inset-left));
+  box-shadow: var(--glass-shadow);
+  pointer-events: none;
+}
+.sp-root.sp-end :is(.sp-shell, .sp-gate-glass) {
+  position: relative;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-sheet);
+  /* Light catching the top and left edges, a little shade on the others. */
+  box-shadow: inset 1px 1px var(--glass-shine), inset -1px -1px var(--glass-shade);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+.sp-root.sp-end .sp-shell {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: calc(100dvh - 2 * var(--sheet-inset));
+  padding: var(--sheet-pad);
+}
+
+/* Sidebar: a second pane of glass on the sheet */
 .sp-root.sp-end .sp-sidebar {
-  background: var(--mc-sidebar);
-  border-right: 3px solid var(--mc-ink);
-  box-shadow: inset -1px 0 var(--end-glass-edge);
-  -webkit-backdrop-filter: blur(10px) saturate(1.15);
-  backdrop-filter: blur(10px) saturate(1.15);
+  top: calc(var(--sheet-inset) + var(--sheet-pad));
+  flex: 0 0 240px;
+  height: calc(100dvh - 2 * (var(--sheet-inset) + var(--sheet-pad)));
+  padding: 16px 12px 14px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-pane);
+  box-shadow: inset 1px 1px var(--glass-shine), inset -1px -1px var(--glass-shade), 0 12px 32px rgb(6 2 14 / 0.35);
+}
+.sp-root.sp-end .sp-brand {
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 4px 8px 16px;
+  border-bottom: 1px solid rgb(255 255 255 / 0.1);
 }
 .sp-root.sp-end .sp-brand img { border-color: var(--mc-ink); background: var(--sp-surface); box-shadow: inset 2px 2px var(--end-stone-light), inset -2px -2px var(--end-stone-dark); }
-.sp-root.sp-end .sp-nav-link { color: var(--mc-light-muted); }
-.sp-root.sp-end .sp-nav-link:hover { background: rgb(169 127 191 / 0.16); color: var(--mc-light); }
-.sp-root.sp-end .sp-nav-link.active { background: rgb(169 127 191 / 0.26); color: var(--mc-light); box-shadow: inset 3px 0 var(--end-pearl); }
+.sp-root.sp-end .sp-brand strong { color: var(--mc-light); font-size: 14px; }
+.sp-root.sp-end .sp-brand span { color: var(--mc-light-muted); font: 400 17px/1 "VT323", monospace; letter-spacing: 0.06em; }
+.sp-root.sp-end .sp-nav { gap: 2px; }
+.sp-root.sp-end .sp-nav-link {
+  padding: 8px 12px;
+  color: var(--mc-light-muted);
+  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.sp-root.sp-end .sp-nav-link svg { flex: none; }
+.sp-root.sp-end .sp-nav-link:hover { background: rgb(255 255 255 / 0.07); color: var(--mc-light); }
+/* Where you are: a pearl bar on the left and a little of its glow. */
+.sp-root.sp-end .sp-nav-link.active {
+  background: rgb(79 209 191 / 0.13);
+  color: var(--mc-light);
+  box-shadow: inset 3px 0 var(--end-pearl), inset 0 0 0 1px rgb(79 209 191 / 0.22), 0 0 18px -6px rgb(79 209 191 / 0.6);
+}
 .sp-root.sp-end .sp-nav-link.active svg { color: var(--end-pearl); }
-.sp-root.sp-end .sp-sidebar-footer { border-top-color: rgb(169 127 191 / 0.35); }
+.sp-root.sp-end .sp-sidebar-footer {
+  gap: 10px;
+  padding: 14px 8px 0;
+  border-top: 1px solid rgb(255 255 255 / 0.1);
+}
 .sp-root.sp-end .sp-sidebar-footer a, .sp-root.sp-end .sp-signout { color: var(--mc-light-muted); }
 .sp-root.sp-end .sp-sidebar-footer a:hover, .sp-root.sp-end .sp-signout:hover { color: var(--mc-light); }
+.sp-root.sp-end .sp-signout {
+  align-self: flex-start;
+  padding: 5px 10px;
+  border: 1px solid rgb(255 255 255 / 0.16);
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 1px 1px rgb(255 255 255 / 0.1);
+  transition: background 0.15s, color 0.15s;
+}
+.sp-root.sp-end .sp-signout:hover { background: rgb(255 255 255 / 0.1); }
 
-/* Page titles: a strip of purple glass, so they read over any part of the painting. */
+/* Content: centred in the sheet, at a width that's comfortable to read and fill in. */
+.sp-root.sp-end .sp-main { padding: 32px 40px 48px; }
+.sp-root.sp-end .sp-page { gap: 24px; max-width: 820px; margin-inline: auto; }
+.sp-root.sp-end .sp-page:has(.sp-handbook) { max-width: 1040px; }
+
+/* Page titles: a darker glass tile on the sheet. */
 .sp-root.sp-end :is(.sp-greeting, .sp-page-header) {
-  padding: 16px 20px;
-  border: 3px solid var(--mc-ink);
-  background: var(--end-glass);
-  box-shadow: inset 0 0 0 1px var(--end-glass-edge), 6px 6px var(--end-shadow);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  padding: 20px 24px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-tile);
+  box-shadow: inset 1px 1px rgb(255 255 255 / 0.12), inset 0 -2px rgb(169 127 191 / 0.35);
 }
 .sp-root.sp-end :is(.sp-greeting, .sp-page-header) h1 { color: var(--mc-light); text-shadow: 2px 2px #0d0618; }
+.sp-root.sp-end .sp-page-header p { margin-top: 8px; }
 .sp-root.sp-end :is(.sp-page-header p, .sp-waiver-line) { color: var(--mc-light-muted); }
 .sp-root.sp-end :is(.sp-greeting, .sp-page-header) a { color: var(--mc-focus); }
 .sp-root.sp-end .sp-complete { color: #9fe3ad; }
 .sp-root.sp-end .sp-incomplete { color: #f5c27e; }
 
 /* End-stone panels */
+/* Slightly translucent end-stone, so the panels belong to the glass. */
 .sp-root.sp-end .sp-card {
-  border-color: var(--mc-ink);
-  background: var(--sp-surface);
+  padding: 32px;
+  border: 2px solid var(--mc-ink);
+  background: var(--end-card);
   color: var(--sp-text);
-  box-shadow: inset 3px 3px var(--end-stone-light), inset -3px -3px var(--end-stone-dark), 6px 6px var(--end-shadow);
+  box-shadow: inset 3px 3px rgb(255 251 234 / 0.9), inset -3px -3px rgb(194 183 142 / 0.85), 0 10px 28px rgb(6 2 14 / 0.35);
 }
 .sp-root.sp-end .sp-card h2 { color: #2c1b42; }
 
@@ -143,7 +245,10 @@
   color: #0b2224;
   box-shadow: inset 2px 2px #9aeee2, inset -2px -2px #23897b, 0 3px #071a1a;
 }
-.sp-root.sp-end .sp-button.primary:hover:not(:disabled) { background: var(--end-pearl); color: #0b2224; }
+.sp-root.sp-end .sp-button.primary:hover:not(:disabled) { background: #5cdac8; color: #0b2224; }
+/* Pressed: the block sinks onto its shadow. */
+.sp-root.sp-end .sp-button:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 2px 2px #a39870, inset -2px -2px var(--end-stone-light), 0 1px #0e0818; }
+.sp-root.sp-end .sp-button.primary:active:not(:disabled) { box-shadow: inset 2px 2px #23897b, inset -2px -2px #9aeee2, 0 1px #071a1a; }
 /* Unavailable: flat worn stone rather than a faded button, so its label still reads. */
 .sp-root.sp-end .sp-button:disabled {
   border-color: #6c5d7d;
@@ -186,14 +291,50 @@
 .sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-mock-adopt input) { font-size: 16px; }
 .sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-mock-adopt input)::placeholder { color: #6c5d7d; opacity: 1; }
 .sp-root.sp-end .sp-placeholder { color: #6c5d7d; }
-.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select):focus-visible,
-.sp-root.sp-end .sp-multiselect-button:focus-visible { outline: 3px solid var(--end-pearl-deep); outline-offset: 1px; border-color: var(--end-pearl-deep); }
+/* Focus: a teal ring. The dark line carries the contrast; the pearl halo is the glow. */
+.sp-root.sp-end :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-mock-adopt input):focus-visible,
+.sp-root.sp-end .sp-multiselect-button:focus-visible {
+  outline: 2px solid var(--end-pearl-deep);
+  outline-offset: 0;
+  border-color: var(--end-pearl-deep);
+  box-shadow: inset 2px 2px #ddd5b3, 0 0 0 5px rgb(79 209 191 / 0.4);
+}
 .sp-root.sp-end .sp-form input[readonly] { background: #ebe4c3; color: var(--sp-muted); }
 .sp-root.sp-end .sp-check { border-color: var(--sp-border); background: #ebe5c6; }
 .sp-root.sp-end .sp-check input { accent-color: var(--end-pearl-deep); }
 .sp-root.sp-end .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]), textarea) { border-color: var(--sp-red); }
 .sp-root.sp-end .sp-req { color: var(--sp-red); }
-.sp-root.sp-end .sp-form-section { border-top-color: rgb(38 23 58 / 0.16); }
+/* Section headings, with a purpur rule running out to the right. */
+.sp-root.sp-end .sp-form-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 0;
+  padding: 0;
+  border: 0;
+  color: #2c1b42;
+}
+.sp-root.sp-end .sp-form-section::after { content: ""; flex: 1; height: 2px; background: rgb(107 74 142 / 0.32); }
+.sp-root.sp-end .sp-form-fields { gap: 20px; }
+
+/* Birthdate: empty looks empty (see DateInput in formFields.tsx). */
+.sp-root.sp-end .sp-date { position: relative; display: block; margin-top: 6px; }
+.sp-root.sp-end .sp-date input { display: block; min-height: 46px; }
+.sp-root.sp-end .sp-date-hint { display: none; }
+@supports selector(::-webkit-datetime-edit) {
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) .sp-date-hint {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    display: block;
+    color: #6c5d7d;
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
 .sp-root.sp-end :is(.sp-multiselect-menu, .sp-combobox-menu) {
   border-color: #76678a;
   background: #fbf8ea;
@@ -205,11 +346,11 @@
 
 /* Handbook */
 .sp-root.sp-end .sp-toc {
-  padding: 14px 16px;
-  border: 3px solid var(--mc-ink);
-  background: var(--end-glass);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  top: calc(var(--sheet-inset) + var(--sheet-pad) + 16px);
+  padding: 16px;
+  border: 1px solid var(--glass-edge);
+  background: var(--glass-tile);
+  box-shadow: inset 1px 1px rgb(255 255 255 / 0.12);
 }
 .sp-root.sp-end .sp-toc span { color: var(--mc-light-muted); }
 .sp-root.sp-end .sp-toc a { color: var(--mc-light-muted); }
@@ -223,9 +364,10 @@
 .sp-root.sp-end .sp-steps li::before { border: 2px solid var(--end-purpur-deep); background: #efe4f6; color: #3e2858; }
 .sp-root.sp-end :is(.sp-mock-signing, .sp-docusign.active) { border-color: var(--sp-border); }
 
-/* Loading and sign-in screens */
+/* Loading and sign-in screens: the stone card on a small sheet of the same glass. */
 .sp-root.sp-end.sp-gate { min-height: 100dvh; padding: max(24px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
-.sp-root.sp-end.sp-gate .sp-card { padding: 28px 24px; }
+.sp-root.sp-end .sp-gate-glass { width: 100%; max-width: 468px; padding: 12px; box-shadow: inset 1px 1px var(--glass-shine), inset -1px -1px var(--glass-shade); }
+.sp-root.sp-end.sp-gate .sp-card { max-width: none; padding: 32px 28px; }
 .sp-root.sp-end.sp-gate .sp-card > img { margin: 0 auto; }
 /* Phones: the card sits low, under the big island, and in reach of a thumb. */
 @media (max-aspect-ratio: 4/5) and (max-width: 600px) {
@@ -238,33 +380,68 @@
 .sp-root.sp-end.sp-gate .sp-error { color: var(--sp-red); }
 .sp-root.sp-end .sp-signin-button { justify-content: center; width: 100%; min-height: 48px; font-size: 15px; }
 
-/* Safe areas: the notch and home indicator, when the page runs under them. */
-.sp-root.sp-end .sp-main {
-  padding-right: max(48px, env(safe-area-inset-right));
-  padding-bottom: max(40px, env(safe-area-inset-bottom));
-}
-.sp-root.sp-end .sp-sidebar { padding-left: max(16px, env(safe-area-inset-left)); }
-
+/* Phones and small tablets: the sidebar becomes a glass bar across the top of the sheet. */
 @media (max-width: 860px) {
+  .sp-root.sp-end { --sheet-inset: 10px; --sheet-pad: 8px; --notch: 3px; }
+  .sp-root.sp-end .sp-shell { flex-direction: column; }
   .sp-root.sp-end .sp-sidebar {
-    border-right: 0;
-    border-bottom: 3px solid var(--mc-ink);
-    box-shadow: inset 0 -1px var(--end-glass-edge);
-    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) 12px max(16px, env(safe-area-inset-left));
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand footer" "nav nav";
+    align-items: center;
+    gap: 10px 12px;
+    height: auto;
+    padding: 10px 10px 8px;
   }
-  .sp-root.sp-end .sp-nav-link.active { box-shadow: inset 0 -3px var(--end-pearl); }
-  /* The tabs scroll sideways: fade the edge so it's clear there are more. */
+  .sp-root.sp-end .sp-brand { grid-area: brand; margin: 0; padding: 0 0 0 2px; border: 0; }
+  .sp-root.sp-end .sp-sidebar-footer {
+    grid-area: footer;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .sp-root.sp-end .sp-signout { align-self: flex-end; padding: 3px 8px; }
   .sp-root.sp-end .sp-nav {
-    padding-right: 28px;
+    grid-area: nav;
+    gap: 4px;
+    padding: 8px 28px 0 0;
+    border-top: 1px solid rgb(255 255 255 / 0.1);
+    /* The tabs scroll sideways: fade the edge so it's clear there are more. */
     -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
     mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
   }
-  .sp-root.sp-end .sp-main {
-    padding: 20px max(16px, env(safe-area-inset-right)) max(32px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-  }
-  .sp-root.sp-end :is(.sp-greeting, .sp-page-header) { padding: 14px 16px; }
+  .sp-root.sp-end .sp-nav-link.active { box-shadow: inset 0 -3px var(--end-pearl), inset 0 0 0 1px rgb(79 209 191 / 0.22); }
+  .sp-root.sp-end .sp-main { padding: 16px 4px 24px; }
+  .sp-root.sp-end :is(.sp-greeting, .sp-page-header) { padding: 16px; }
+  .sp-root.sp-end .sp-card { padding: 24px; }
 }
 @media (max-width: 520px) {
-  .sp-root.sp-end .sp-card { box-shadow: inset 3px 3px var(--end-stone-light), inset -3px -3px var(--end-stone-dark), 4px 4px var(--end-shadow); }
-  .sp-root.sp-end :is(.sp-greeting, .sp-page-header) { box-shadow: inset 0 0 0 1px var(--end-glass-edge), 4px 4px var(--end-shadow); }
+  .sp-root.sp-end { --sheet-inset: 8px; }
+  .sp-root.sp-end .sp-main { padding-inline: 0; }
+  .sp-root.sp-end .sp-card { padding: 20px 16px; box-shadow: inset 3px 3px rgb(255 251 234 / 0.9), inset -3px -3px rgb(194 183 142 / 0.85), 0 6px 18px rgb(6 2 14 / 0.35); }
+  .sp-root.sp-end .sp-gate-glass { padding: 8px; }
+  .sp-root.sp-end.sp-gate .sp-card { padding: 28px 20px; }
+}
+
+/* No blur available: a near-solid sheet instead of a see-through one. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sp-root.sp-end { --glass-sheet: rgb(23 13 41 / 0.86); --glass-pane: rgb(42 26 69 / 0.9); }
+}
+/* Asked for less transparency: solid surfaces, no blur. */
+@media (prefers-reduced-transparency: reduce) {
+  .sp-root.sp-end {
+    --glass-sheet: rgb(23 13 41 / 0.95);
+    --glass-pane: #2a1a45;
+    --glass-tile: #140b25;
+    --end-card: #f2ecd0;
+  }
+  .sp-root.sp-end :is(.sp-shell, .sp-gate-glass) { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-root.sp-end :is(.sp-nav-link, .sp-signout, .sp-button) { transition: none; }
+  .sp-root.sp-end .sp-button:active:not(:disabled) { transform: none; }
 }

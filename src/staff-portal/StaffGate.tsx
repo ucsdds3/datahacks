@@ -12,11 +12,13 @@ export function Screen({ title, children }: { title: string; children?: React.Re
   return (
     <div className="sp-root sp-end sp-gate">
       <EndSky />
-      <section className="sp-card">
-        <img src="/datahacks-logo.png" alt="" />
-        <h1>{title}</h1>
-        {children}
-      </section>
+      <div className="sp-gate-glass">
+        <section className="sp-card">
+          <img src="/datahacks-logo.png" alt="" />
+          <h1>{title}</h1>
+          {children}
+        </section>
+      </div>
     </div>
   );
 }
