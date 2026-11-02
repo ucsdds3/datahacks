@@ -40,6 +40,8 @@ const HackerGuide = lazy(portalPages.hackerGuide);
 const JudgingPortal = lazy(portalPages.judging);
 const OrganizerConsole = lazy(portalPages.organizer);
 const OAuthConsent = lazy(portalPages.oauthConsent);
+// Public: how to apply through an AI assistant. Outside the portal shell, so no Supabase client.
+const ApplyWithAi = lazy(() => import("./pages/ApplyWithAi"));
 // Dev only: sign tabs in as dummy applicants. Left out of production builds.
 const TestAccounts = import.meta.env.DEV ? lazy(() => import("./dev/TestAccountsPage")) : null;
 
@@ -69,6 +71,7 @@ const App = () => (
           <Route path="/press" element={<><NoIndex /><Press /></>} />
           <Route path="/groove" element={<><NoIndex /><Groove /></>} />
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
+          <Route path="/apply-with-ai" element={<Suspense fallback={<PortalLoading />}><ApplyWithAi /></Suspense>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={<PortalLoading />}><PortalShell /></Suspense></PortalBoundary>}>
             <Route path={portal.login("hacker")} element={<SignIn as="hacker" />} />

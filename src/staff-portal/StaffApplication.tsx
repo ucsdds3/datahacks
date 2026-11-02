@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
@@ -162,6 +162,7 @@ export default function StaffApplication() {
         <p>Apply to mentor, judge, or both. We will be giving priority to people who sign up as both. All fields are required.</p>
       </header>
           <form className="sp-card sp-form" onSubmit={handleSubmit} noValidate>
+            <p className="sp-form-note">Rather answer by chatting? You can also <Link to="/apply-with-ai">apply with an AI assistant</Link>.</p>
 
             <div className="sp-form-fields">
               <label id="field-first_name" className={cls('first_name')}>First name <Req />

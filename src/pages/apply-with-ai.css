@@ -1,0 +1,212 @@
+/* ---------------------------------------------------------------------------
+   /apply-with-ai. The End look of the applicant portal (end-theme.css): the
+   islands artwork behind, purple glass for the title, end-stone cream panels
+   for reading, ender-pearl teal for actions. Self-contained on purpose: every
+   rule is under .awa-root and uses its own tokens, so restyling the portal
+   shell doesn't move this page and this page can't move the portal.
+   Text colours are the portal's AA-checked pairs (scripts/end-theme-contrast.py).
+   --------------------------------------------------------------------------- */
+
+.awa-root {
+  --awa-page: #170d29;
+  --awa-glass: rgb(24 13 44 / 0.8);
+  --awa-glass-edge: rgb(169 127 191 / 0.45);
+  --awa-light: #f6f1dc;
+  --awa-light-muted: #d4c8e8;
+  --awa-panel: #f2ecd0;
+  --awa-panel-edge: #c2b78e;
+  --awa-text: #26173a;
+  --awa-muted: #594a6b;
+  --awa-accent: #0c6a61;
+  --awa-accent-hover: #09524b;
+  --awa-focus-light: #7ae6d6;
+  --awa-code: #26173a;
+  --awa-banner: #fff3c4;
+  --awa-banner-text: #3f2c00;
+  --awa-purpur: #a97fbf;
+  --awa-shadow: rgb(9 4 18 / 0.55);
+
+  position: relative;
+  isolation: isolate;
+  min-height: 100dvh;
+  background: var(--awa-page);
+  color: var(--awa-text);
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: clip;
+}
+.awa-root *, .awa-root *::before, .awa-root *::after { box-sizing: border-box; }
+
+.awa-sky {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  height: 100vh;
+  height: 100lvh;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgb(20 10 38 / 0.35) 0%, rgb(20 10 38 / 0.15) 40%, rgb(20 10 38 / 0.6) 100%),
+    url("/images/minecraft/end/end-sky-wide.webp") 50% 42% / cover no-repeat,
+    var(--awa-page);
+}
+@media (max-aspect-ratio: 4/5) {
+  .awa-sky {
+    background:
+      linear-gradient(180deg, rgb(20 10 38 / 0.4) 0%, rgb(20 10 38 / 0.2) 40%, rgb(20 10 38 / 0.65) 100%),
+      url("/images/minecraft/end/end-sky-tall.webp") 50% 40% / cover no-repeat,
+      var(--awa-page);
+  }
+}
+
+.awa-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: max(32px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(48px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
+
+.awa-header {
+  padding: 28px 24px;
+  border: 1px solid var(--awa-glass-edge);
+  border-radius: 14px;
+  background: var(--awa-glass);
+  color: var(--awa-light);
+  box-shadow: 0 12px 32px var(--awa-shadow);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.awa-header img { display: block; width: 56px; height: 56px; margin-bottom: 12px; }
+.awa-eyebrow { margin: 0; color: var(--awa-light-muted); font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.awa-header h1 { margin: 4px 0 8px; font-size: clamp(30px, 6vw, 40px); line-height: 1.1; letter-spacing: -0.01em; text-wrap: balance; }
+.awa-lede { margin: 0; color: var(--awa-light); font-size: 17px; max-width: 60ch; }
+
+.awa-banner {
+  padding: 14px 18px;
+  border-left: 6px solid var(--awa-purpur);
+  border-radius: 10px;
+  background: var(--awa-banner);
+  color: var(--awa-banner-text);
+}
+.awa-banner a { color: var(--awa-banner-text); font-weight: 700; }
+
+.awa-card {
+  padding: 22px 24px;
+  border: 1px solid var(--awa-panel-edge);
+  border-radius: 14px;
+  background: var(--awa-panel);
+  box-shadow: 0 10px 28px var(--awa-shadow);
+}
+.awa-card h2 { margin: 0 0 10px; font-size: 21px; line-height: 1.25; color: var(--awa-text); }
+.awa-card p { margin: 0 0 12px; }
+.awa-card p:last-child { margin-bottom: 0; }
+.awa-card ol, .awa-card ul { margin: 0 0 12px; padding-left: 22px; }
+.awa-card li { margin: 6px 0; }
+.awa-card li::marker { color: var(--awa-muted); font-weight: 700; }
+.awa-card a { color: var(--awa-accent); font-weight: 600; text-underline-offset: 2px; }
+.awa-card q { font-weight: 700; }
+.awa-card :not(pre) > code { padding: 1px 5px; border-radius: 4px; background: rgb(38 23 58 / 0.08); font-family: "Space Mono", ui-monospace, monospace; font-size: 0.88em; overflow-wrap: anywhere; }
+.awa-note { color: var(--awa-muted); font-size: 15px; }
+
+.awa-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 28px; }
+.awa-split ul { margin-bottom: 0; }
+@media (max-width: 640px) { .awa-split { grid-template-columns: 1fr; } }
+
+/* Tabs */
+.awa-tablist {
+  display: flex;
+  gap: 6px;
+  margin: 0 -4px 14px;
+  padding: 4px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+.awa-tab {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--awa-panel-edge);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--awa-text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.awa-tab:hover { border-color: var(--awa-text); }
+.awa-tab[aria-selected="true"] { border-color: var(--awa-code); background: var(--awa-code); color: var(--awa-light); }
+.awa-panel ol { margin-top: 12px; }
+
+/* Copy boxes */
+.awa-copy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 8px 0 12px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 10px;
+  background: var(--awa-code);
+  color: var(--awa-light);
+}
+.awa-copy > code, .awa-copy pre {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.awa-copy > code { overflow-wrap: anywhere; }
+.awa-copy-block { align-items: flex-start; }
+.awa-copy pre { padding: 6px 0; overflow-x: auto; white-space: pre; }
+.awa-copy-button {
+  flex: 0 0 auto;
+  min-width: 72px;
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--awa-accent);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.awa-copy-button:hover { background: var(--awa-accent-hover); }
+
+/* Buttons */
+.awa-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.awa-root a.awa-button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 2px solid var(--awa-accent);
+  border-radius: 10px;
+  background: var(--awa-accent);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.awa-root a.awa-button:hover { background: var(--awa-accent-hover); border-color: var(--awa-accent-hover); }
+.awa-root a.awa-button-quiet { background: transparent; color: var(--awa-accent); }
+.awa-root a.awa-button-quiet:hover { background: rgb(12 106 97 / 0.1); color: var(--awa-accent-hover); }
+
+/* Focus: dark teal on the cream, light teal on the dark */
+.awa-root :is(a, button, [tabindex]):focus-visible { outline: 3px solid var(--awa-accent); outline-offset: 2px; }
+.awa-root :is(.awa-header, .awa-copy) :is(a, button):focus-visible { outline-color: var(--awa-focus-light); }
+.awa-panel:focus-visible { border-radius: 6px; }
+
+.awa-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+@media (max-width: 480px) {
+  .awa-header, .awa-card { padding: 20px 16px; }
+  .awa-copy { flex-wrap: wrap; }
+  .awa-copy > code, .awa-copy pre { flex-basis: 100%; }
+  .awa-copy-button { width: 100%; }
+}

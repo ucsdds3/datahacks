@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
@@ -132,6 +132,7 @@ export default function HackerApplication() {
       </header>
       <form className="sp-card sp-form" onSubmit={handleSubmit}>
         <p className="sp-form-note">Fields marked <Req /> are required. You can't change your answers after submitting.</p>
+        <p className="sp-form-note">Rather answer by chatting? You can also <Link to="/apply-with-ai">apply with an AI assistant</Link>.</p>
 
         <div className="sp-form-fields">
           <h2 className="sp-form-section">About you</h2>
