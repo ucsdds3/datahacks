@@ -133,7 +133,7 @@ export default function Waiver() {
     <div className="sp-page">
       <header className="sp-page-header">
         <h1>Liability Waiver</h1>
-        <p>Every mentor and judge needs a signed waiver on file before the event.</p>
+        <p>Everyone taking part (hackers, mentors and judges) needs a signed waiver on file before the event.</p>
         <p className="sp-waiver-line">
           Waiver submission:{" "}
           <span className={waiverSubmitted ? "sp-complete" : "sp-incomplete"}>{waiverSubmitted ? "Completed" : "Incomplete"}</span>
