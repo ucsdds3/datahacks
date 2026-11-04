@@ -14,7 +14,7 @@ export const MCP_LIVE = false;
  * an npx command: a name we haven't published could be registered by someone else,
  * and every copied command would run their code.
  */
-export const NPM_PUBLISHED = false;
+export const NPM_PUBLISHED = true;
 
 /** The production MCP server. Same as PRODUCTION_URL in packages/datahacks-mcp/src/constants.js. */
 export const MCP_URL = "https://yrxjhrrphhbmqejresvy.supabase.co/functions/v1/mcp";

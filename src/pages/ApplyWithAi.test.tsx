@@ -41,9 +41,9 @@ describe("Apply with AI page", () => {
     expect(document.querySelector('meta[name="robots"]')).toBeNull();
   });
 
-  it("ships with the banner on and the npx commands hidden", () => {
+  it("ships with the banner on, and the npx commands on now that datahacks-mcp is on npm", () => {
     expect(MCP_LIVE).toBe(false);
-    expect(NPM_PUBLISHED).toBe(false);
+    expect(NPM_PUBLISHED).toBe(true);
   });
 
   it("never shows an npx command before the package is published", () => {
