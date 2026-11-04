@@ -1,6 +1,6 @@
 {
   "name": "datahacks-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Apply to DataHacks (UC San Diego's data science hackathon) by chatting with your AI assistant. Connects Claude, Cursor and other MCP clients to the DataHacks applications server.",
   "keywords": [
     "datahacks",
