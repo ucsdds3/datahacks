@@ -59,6 +59,26 @@ function navItems(portal: PortalRole, accepted: boolean): NavItem[] {
 /** Signs out, clears this browser, and reloads onto a sign-in page so nothing is left on screen. */
 export const signOutTo = (loginPath: string) => signOutEverywhere().finally(() => window.location.replace(loginPath));
 
+/**
+ * Who this browser is signed in as, next to Sign out. The whole site shares one
+ * session per browser, so this is how someone spots that another tab switched it.
+ */
+export function SignedInAs({ email, onSignOut, signOut = true }: { email: string; onSignOut: () => void; signOut?: boolean }) {
+  return (
+    <div className="sp-account">
+      <p className="sp-account-who">
+        <span className="sp-account-label">Signed in as</span>
+        <span className="sp-account-email" title={email}>{email || "an account without an email"}</span>
+      </p>
+      {signOut && (
+        <button className="sp-signout" onClick={onSignOut}>
+          <LogOut size={14} aria-hidden /> Sign out
+        </button>
+      )}
+    </div>
+  );
+}
+
 /** The sidebar's brand block and contact footer, shared with the Apply pages. */
 export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; signOutPath: string; children: ReactNode }) {
   const { session } = useAuth();
@@ -86,12 +106,11 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
             {nav}
           </nav>
           <div className="sp-sidebar-footer">
-            <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}><Mail size={14} aria-hidden /> {GENERAL_CONTACT_EMAIL}</a>
-            {session && (
-              <button className="sp-signout" onClick={() => signOutTo(signOutPath)}>
-                <LogOut size={14} aria-hidden /> Sign out
-              </button>
-            )}
+            {/* The organizers' inbox, not the account: labelled so nobody mistakes it for who's signed in. */}
+            <a className="sp-contact" href={`mailto:${GENERAL_CONTACT_EMAIL}`} title="Email the organizers">
+              <Mail size={14} aria-hidden /> <span>Questions? <span className="sp-contact-email">{GENERAL_CONTACT_EMAIL}</span></span>
+            </a>
+            {session && <SignedInAs email={session.user.email ?? ""} onSignOut={() => signOutTo(signOutPath)} />}
           </div>
         </aside>
         {/* Pages load on demand; while one does, the frame stays and the page area stays dark. */}

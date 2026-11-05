@@ -1,7 +1,8 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 import { WorldLink } from "./WorldTravel";
+import { AccountNotice } from "@/portal/AccountNotice";
+import { useAccountGuard } from "@/portal/useAccountGuard";
 
 export function TrialEntrance() {
   return <section className="mc-trial-entrance" id="mentors" aria-labelledby="mc-trial-title">
@@ -24,13 +25,10 @@ export function TrialEntrance() {
 /** `/datacraft/mentors`: the mentor and judge entrance, the counterpart of the End page for hackers. */
 export default function TrialChambersPage() {
   const reduce = useReducedMotion();
-  const [signInError, setSignInError] = useState<string | null>(null);
-  // Straight to Google, then the mentor/judge application. Loaded on click so
-  // the Supabase client stays out of the site's own bundle.
-  const signIn = () =>
-    import("@/portal/signIn")
-      .then(m => m.startGoogleSignIn("staff"))
-      .catch(error => setSignInError(error instanceof Error ? error.message : String(error)));
+  // Straight to Google, then the mentor/judge application, unless this browser
+  // is already signed in: then it asks first. Loaded on click so the Supabase
+  // client stays out of the site's own bundle.
+  const guard = useAccountGuard("staff");
 
   return <div className="mc-trial-page mc-dimension-page">
     <img className="mc-dimension-art" src="/images/minecraft/dimensions/trial-chamber-interest.webp" alt="" width="1536" height="1024" {...{ fetchpriority: "high" }} />
@@ -50,12 +48,19 @@ export default function TrialChambersPage() {
         <p className="mc-form-disclaimer">
           Sign in with Google to apply as a mentor, a judge, or both, or to check on an application you've already sent.
         </p>
-        <div className="mc-form-actions">
-          <button type="button" className="mc-button" onClick={signIn} style={{ width: "100%", justifyContent: "center" }}>
-            Apply to mentor or judge →
-          </button>
+        <div aria-live="polite">
+          {guard.account !== null && (
+            <AccountNotice theme="mc" email={guard.account} busy={guard.busy} onContinue={guard.continueAsCurrent} onSwitch={guard.switchAccount} />
+          )}
         </div>
-        {signInError && <p className="mc-form-help" style={{ color: "#c96b6b" }}>{signInError}</p>}
+        {guard.account === null && (
+          <div className="mc-form-actions">
+            <button type="button" className="mc-button" onClick={guard.signIn} style={{ width: "100%", justifyContent: "center" }}>
+              Apply to mentor or judge →
+            </button>
+          </div>
+        )}
+        {guard.error && <p className="mc-form-help" style={{ color: "#c96b6b" }}>{guard.error}</p>}
         <p className="mc-form-help">Questions? <a href="mailto:info@ds3.club">Talk to the organizers ↗</a></p>
       </motion.div>
     </div>

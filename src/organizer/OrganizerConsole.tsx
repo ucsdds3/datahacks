@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { ClipboardCheck, DoorOpen, FileSignature, LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
+import { ClipboardCheck, DoorOpen, FileSignature, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
-import { signOutTo } from "@/staff-portal/StaffPortalLayout";
+import { SignedInAs, signOutTo } from "@/staff-portal/StaffPortalLayout";
+import { switchGoogleAccount } from "@/portal/signIn";
 import OrganizersPanel from "./OrganizersPanel";
 import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
@@ -73,7 +74,7 @@ export default function OrganizerConsole() {
       <Gate title="Organizers only">
         <p><strong>{session.user.email}</strong> isn't an organizer for {EVENT_CODE}.</p>
         <p>If it should be, ask an organizer to add you, or email <a href={`mailto:${GENERAL_CONTACT_EMAIL}`}>{GENERAL_CONTACT_EMAIL}</a>.</p>
-        <button className="sp-button" onClick={() => signOutTo(portal.organizerLogin)}>Use a different account</button>
+        <button className="sp-button" onClick={() => switchGoogleAccount("organizer").catch(() => signOutTo(portal.organizerLogin))}>Use a different account</button>
       </Gate>
     );
   }
@@ -107,12 +108,7 @@ export default function OrganizerConsole() {
         <div className="og-sidebar-footer">
           <span>Event</span>
           <strong>{EVENT_CODE}{preview && " · preview"}</strong>
-          <span>{session.user.email}</span>
-          {!preview && (
-            <button className="sp-signout" onClick={() => signOutTo(portal.organizerLogin)}>
-              <LogOut size={14} aria-hidden /> Sign out
-            </button>
-          )}
+          <SignedInAs email={session.user.email ?? ""} signOut={!preview} onSignOut={() => signOutTo(portal.organizerLogin)} />
         </div>
       </aside>
 

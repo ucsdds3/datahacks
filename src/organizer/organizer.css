@@ -11,6 +11,7 @@
 .og-nav-count { margin-left: auto; color: var(--sp-muted); font-size: 12px; font-weight: 600; }
 .og-sidebar-footer { display: flex; flex-direction: column; gap: 2px; margin-top: auto; padding: 16px 8px 0; border-top: 1px solid var(--sp-border); font-size: 12px; color: var(--sp-muted); }
 .og-sidebar-footer strong { color: var(--sp-text); font-size: 14px; }
+.og-sidebar-footer .sp-account { margin-top: 10px; }
 
 /* Top bar with the release button, on every section */
 .og-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -122,7 +123,10 @@ td .og-badge { margin-left: 0; }
 .og-success { margin: 0; color: var(--sp-green); font-weight: 600; }
 
 @media (max-width: 860px) {
-  .og-sidebar-footer { display: none; }
+  /* Phones: just who's signed in and Sign out, on one line under the tabs. */
+  .og-sidebar-footer { margin-top: 10px; padding-top: 10px; }
+  .og-sidebar-footer > :not(.sp-account) { display: none; }
+  .og-sidebar-footer .sp-account { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; margin: 0; }
   .og-search input { width: 140px; }
 }
 

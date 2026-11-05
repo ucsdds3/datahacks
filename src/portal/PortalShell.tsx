@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { NoIndex } from "@/components/NoIndex";
+import { AccountWatcher } from "./AccountWatcher";
 import { prefetchPortalPages } from "./pages";
 import { portal } from "./paths";
 import { ORGANIZER_BACKGROUND, PORTAL_BACKGROUND } from "./theme";
@@ -38,5 +39,5 @@ export default function PortalShell() {
     return () => { html.style.backgroundColor = before; };
   }, [organizer]);
 
-  return <AuthProvider><NoIndex /><Outlet /></AuthProvider>;
+  return <AuthProvider><NoIndex /><AccountWatcher /><Outlet /></AuthProvider>;
 }
