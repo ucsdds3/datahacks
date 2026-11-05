@@ -116,3 +116,13 @@
 @media (prefers-reduced-motion: reduce) {
   .og-ci-live.live .og-ci-live-dot { animation: none; }
 }
+
+/* Feed: scanned offline, sent later */
+.og-ci-feed-offline { margin-left: 6px; padding: 0 5px; border: 1px solid #8a7a3c; color: #6b5a14; font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Meals & swag counts */
+.og-ci-scans-wrap { width: fit-content; max-width: 100%; }
+.og-checkin .og-ci-scans { width: 100%; min-width: min(100%, 560px); }
+.og-checkin .og-ci-scans td:first-child { white-space: normal; min-width: 180px; }
+.og-checkin .og-ci-scans tr.og-ci-off td { color: var(--sp-muted); }
+.og-ci-feed .og-ci-undone { margin: 0 6px 0 0; }

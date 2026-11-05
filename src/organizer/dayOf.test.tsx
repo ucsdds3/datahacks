@@ -39,12 +39,20 @@ vi.mock("@/lib/supabaseClient", () => ({
     },
     from: (table: string) => {
       const record = { table, value: undefined as unknown, in: undefined as unknown[] | undefined, eq: [] as [string, unknown][] };
+      let read = false;
       const builder = {
+        // Reads (the Meals & swag card's scan_types) answer as a database without that table.
+        select: () => { read = true; return builder; },
+        order: () => builder,
         update: (value: unknown) => { record.value = value; return builder; },
         upsert: (value: unknown) => { record.value = value; return builder; },
         in: (_c: string, values: unknown[]) => { record.in = values; return builder; },
         eq: (c: string, v: unknown) => { record.eq.push([c, v]); return builder; },
-        then: (resolve: (v: unknown) => unknown) => { fake.updates.push(record); return Promise.resolve({ data: null, error: null }).then(resolve); },
+        then: (resolve: (v: unknown) => unknown) => {
+          if (read) return Promise.resolve({ data: null, error: { code: "PGRST205", message: `Could not find the table 'public.${table}'` } }).then(resolve);
+          fake.updates.push(record);
+          return Promise.resolve({ data: null, error: null }).then(resolve);
+        },
       };
       return builder;
     },

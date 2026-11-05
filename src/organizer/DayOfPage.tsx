@@ -6,6 +6,7 @@ import {
   openAfterMarking, phaseOf, saveSettings, toEventInput, unemailedOffers, unmarkNoShows, useOverview, withDeadline,
   type DaySettings, type OfferEmailOutcome, type Overview,
 } from "./dayOf";
+import ScanTypesCard from "./ScanTypesCard";
 import { PLACEHOLDERS, SPOT_OFFER_TEMPLATE, type Template } from "./templates";
 
 /**
@@ -13,7 +14,8 @@ import { PLACEHOLDERS, SPOT_OFFER_TEMPLATE, type Template } from "./templates";
  * mark them as no-shows (frees their spots, reversible), and offer the open
  * spots to waitlisted hackers who asked to be emailed, in the order they
  * applied. Each offer moves them to accepted (check-in code), emails them a
- * "come check in by HH:MM" note, then their wallet pass.
+ * "come check in by HH:MM" note, then their wallet pass. Last, the meal
+ * and swag scans the check-in desk can switch to.
  */
 export default function DayOfPage({ eventId, onChanged }: { eventId: string; onChanged: () => void }) {
   const overview = useOverview(eventId);
@@ -39,6 +41,7 @@ export default function DayOfPage({ eventId, onChanged }: { eventId: string; onC
           <OffersCard eventId={eventId} o={o} onChanged={reload} />
         </>
       )}
+      <ScanTypesCard eventId={eventId} />
     </div>
   );
 }

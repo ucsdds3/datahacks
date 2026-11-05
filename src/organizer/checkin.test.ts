@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  activityFeed, arrivalBuckets, buildPeople, checkinsByOrganizer, findUndos, groupBySchool, isUcsd, noShows,
+  activityFeed, activityFromLog, arrivalBuckets, arrivalsFromLog, scanCounts, buildPeople, checkinsByOrganizer, findUndos, groupBySchool, isUcsd, noShows,
   NO_SCHOOL, roleTallies, tally, travelRequests, ucsdSplit, waiverStats,
-  type CheckinApplication, type RosterEntry,
+  type CheckinApplication, type LogEvent, type RosterEntry,
 } from "./checkin";
 
 const at = (hhmm: string) => `2027-04-10T${hhmm}:00Z`;
@@ -175,5 +175,57 @@ describe("travel, waivers and activity", () => {
       entry("e"),
     ], []);
     expect(checkinsByOrganizer(people)).toEqual([{ by: "org-1", count: 2 }, { by: "org-2", count: 1 }, { by: null, count: 1 }]);
+  });
+});
+
+let logId = 0;
+const ev = (attendee: string, kind: LogEvent["kind"], hhmm: string, extra: Partial<LogEvent> = {}): LogEvent => ({
+  id: ++logId, attendee_id: attendee, code: `DH-${attendee}`, kind, scan_type_id: kind === "scan" ? "lunch" : null,
+  by_user: "org-1", scanned_at: at(hhmm), source: "online", not_checked_in: false, ...extra,
+});
+
+describe("the check-in log", () => {
+  const people = buildPeople([entry("a", { checked_in_at: at("10:05") }), entry("b"), entry("m", { roles: ["mentor"] })], [app("a"), app("b")]);
+  const byId = new Map(people.map(p => [p.id, p]));
+
+  it("feeds check-ins and undos newest first, with who did them (undos too), named from the roster", () => {
+    const log = [
+      ev("a", "check_in", "10:00"), ev("a", "undo", "10:02", { by_user: "org-2" }), ev("a", "check_in", "10:05", { source: "offline" }),
+      ev("a", "scan", "12:00"), ev("gone", "check_in", "09:00"),
+    ];
+    const feed = activityFromLog(log, byId);
+    expect(feed.map(f => [f.kind, f.at.slice(11, 16), f.by, f.source])).toEqual([
+      ["checkin", "10:05", "org-1", "offline"], ["undo", "10:02", "org-2", "online"], ["checkin", "10:00", "org-1", "online"], ["checkin", "09:00", "org-1", "online"],
+    ]);
+    expect(feed[0].person).toEqual({ id: "a", name: "Person a", code: "DH-a", type: "hacker" });
+    // No longer on the roster: the log still knows their code.
+    expect(feed[3].person).toEqual({ id: "gone", name: "DH-gone", code: "DH-gone", type: null });
+  });
+
+  it("orders by scan time, so an offline check-in sent late lands where it happened", () => {
+    const log = [ev("a", "check_in", "10:30"), ev("b", "check_in", "10:10", { source: "offline" })];
+    expect(activityFromLog(log, byId).map(f => f.person.id)).toEqual(["a", "b"]);
+  });
+
+  it("arrival is the latest check-in not undone since", () => {
+    const log = [
+      ev("a", "check_in", "10:00"), ev("a", "undo", "10:02"), ev("a", "check_in", "10:05"),
+      ev("b", "check_in", "10:10"), ev("b", "undo", "10:20"),
+      ev("m", "scan", "12:00", { not_checked_in: true }),
+    ];
+    expect([...arrivalsFromLog(log)]).toEqual([["a", at("10:05")]]);
+  });
+
+  it("counts scans per type, flags the ones before check-in, and a share of who's here", () => {
+    const log = [
+      ev("a", "scan", "12:00"), ev("b", "scan", "12:01", { not_checked_in: true }), ev("m", "scan", "12:02"),
+      ev("a", "scan", "12:03", { scan_type_id: "shirt" }), ev("a", "check_in", "10:00"), ev("x", "scan", "12:04", { scan_type_id: "elsewhere" }),
+    ];
+    expect(scanCounts(log, ["lunch", "shirt", "dinner"], 4)).toEqual([
+      { scanTypeId: "lunch", scanned: 3, notCheckedIn: 1, percentOfHere: 75 },
+      { scanTypeId: "shirt", scanned: 1, notCheckedIn: 0, percentOfHere: 25 },
+      { scanTypeId: "dinner", scanned: 0, notCheckedIn: 0, percentOfHere: 0 },
+    ]);
+    expect(scanCounts(log, ["lunch"], 0)[0].percentOfHere).toBeNull();
   });
 });
