@@ -13,7 +13,7 @@ import { PLACEHOLDERS, SPOT_OFFER_TEMPLATE, type Template } from "./templates";
  * The console's Day-of section. After check-in closes: see who didn't come,
  * mark them as no-shows (frees their spots, reversible), and offer the open
  * spots to waitlisted hackers who asked to be emailed, in the order they
- * applied. Each offer moves them to accepted (check-in code), emails them a
+ * asked. Each offer moves them to accepted (check-in code), emails them a
  * "come check in by HH:MM" note, then their wallet pass. Last, the meal
  * and swag scans the check-in desk can switch to.
  */
@@ -291,7 +291,7 @@ function WaitlistCard({ eventId, o, onChanged }: { eventId: string; o: Overview;
         {o.open_spots === 0 ? <>No open spots right now. </> : <><strong>{plural(o.open_spots ?? 0, "open spot")}</strong>. </>}
         {o.queue.length === 0
           ? <>Nobody on the waitlist has asked for a spot yet.</>
-          : <>{plural(o.queue.length, "waitlisted hacker")} asked to be emailed. They're offered spots in the order they applied.</>}
+          : <>{plural(o.queue.length, "waitlisted hacker")} asked to be emailed. They're offered spots in the order they asked for a spot.</>}
       </p>
       {next.length > 0 && (
         <>

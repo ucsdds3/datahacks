@@ -61,7 +61,8 @@ insert into public.event_roles (event_id, user_id, role) values
 
 -- Hacker applications (inserted as the SQL editor would, so no open-event check).
 --   u01-u06 accepted (u01 and u02 at UCSD), u07-u12 waitlisted, u13 rejected, u14 at the other event.
---   Waitlist submission order: u09 first, then u07, u08, u10, u11, u12.
+--   Waitlist submission order: u09 first, then u07, u08, u10, u11, u12. The queue
+--   goes by when they asked for a spot instead (set in section 3).
 create function pg_temp.app(n int) returns uuid language sql as $$
   select id from public.applications where user_id = ('33333333-0000-0000-0000-0000000000' || lpad(n::text, 2, '0'))::uuid $$;
 insert into public.applications (user_id, event_id, applicant_type, status, decision, first_name, last_name, school, submitted_at)
@@ -125,9 +126,23 @@ create function pg_temp.u(n int) returns uuid language sql as $$
 select pg_temp.expect('waitlisted hacker opts in',
   pg_temp.val_as(pg_temp.u(7), 'authenticated', format($q$select (set_waitlist_opt_in(%L, true) is not null)::text$q$, :'ev')), 'true');
 select pg_temp.as_req(pg_temp.u(n), 'authenticated', format($q$select set_waitlist_opt_in(%L, true)$q$, :'ev')) from generate_series(8, 11) n;
+select pg_temp.expect('opting in stamps the time they asked',
+  (select (waitlist_opt_in_at = now())::text from applications where id = pg_temp.app(8)), 'true');
+-- Everyone above opted in within this one transaction (same now()), so spread
+-- the times out as the SQL editor would: u09 asked first, then u08 and u10 at
+-- the same moment (a tie, so submission order: u08 before u10), then u07.
+update applications set waitlist_opt_in_at = now() - case user_id
+    when pg_temp.u(9) then interval '40 minutes' when pg_temp.u(7) then interval '20 minutes'
+    else interval '30 minutes' end
+ where id in (pg_temp.app(7), pg_temp.app(8), pg_temp.app(9), pg_temp.app(10));
 select pg_temp.expect('opting in twice keeps the first time',
-  (select (waitlist_opt_in_at = (select waitlist_opt_in_at from applications where id = pg_temp.app(7)))::text
-     from applications where id = pg_temp.app(7)), 'true');
+  pg_temp.val_as(pg_temp.u(7), 'authenticated', format($q$select (set_waitlist_opt_in(%L, true) = now() - interval '20 minutes')::text$q$, :'ev')), 'true');
+-- u07 changes their mind and back: that's a new request, at the back of the line.
+select pg_temp.as_req(pg_temp.u(7), 'authenticated', format($q$select set_waitlist_opt_in(%L, false)$q$, :'ev'));
+select pg_temp.expect('opting out clears the time',
+  (select coalesce(waitlist_opt_in_at::text, 'null') from applications where id = pg_temp.app(7)), 'null');
+select pg_temp.expect('opting back in stamps a new time',
+  pg_temp.val_as(pg_temp.u(7), 'authenticated', format($q$select (set_waitlist_opt_in(%L, true) = now())::text$q$, :'ev')), 'true');
 select pg_temp.expect('u11 opts out again',
   pg_temp.val_as(pg_temp.u(11), 'authenticated', format($q$select coalesce(set_waitlist_opt_in(%L, false)::text, 'null')$q$, :'ev')), 'null');
 select pg_temp.expect('accepted hacker can''t opt in',
@@ -160,9 +175,9 @@ select pg_temp.expect('overview counts',
 select pg_temp.expect('only UCSD hackers are past their (earlier) cutoff',
   pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(x->>'name', ',' order by x->>'name') from waitlist_overview(%L) o, jsonb_array_elements(o->'absent') x where (x->>'past_deadline')::boolean$q$, :'ev')),
   'U01 Test,U02 Test');
-select pg_temp.expect('queue is in submission order; opted-out u11 and silent u12 left out',
+select pg_temp.expect('queue goes by when they asked (u10 before u07, who re-asked; u08/u10 tie by submission); opted-out u11 and silent u12 left out',
   pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(x->>'name', ',' order by n) from waitlist_overview(%L) o, jsonb_array_elements(o->'queue') with ordinality q(x, n)$q$, :'ev')),
-  'U09 Test,U07 Test,U08 Test,U10 Test');
+  'U09 Test,U08 Test,U10 Test,U07 Test');
 select pg_temp.expect('no open spot: offering gives nobody a spot',
   pg_temp.val_as(:org, 'authenticated', format($q$select count(*)::text from offer_waitlist_spots(%L, 3)$q$, :'ev')), '0');
 
@@ -203,8 +218,8 @@ select pg_temp.expect('still accepted', (select status from applications where i
 
 -- More room: two offered at once go to the next two in order.
 update event_day_settings set hacker_capacity = 7 where event_id = :'ev';
-select pg_temp.expect('two more spots go to u07 then u08',
-  pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(name, ',') from offer_waitlist_spots(%L, 5)$q$, :'ev')), 'U07 Test,U08 Test');
+select pg_temp.expect('two more spots go to u08 then u10',
+  pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(name, ',') from offer_waitlist_spots(%L, 5)$q$, :'ev')), 'U08 Test,U10 Test');
 select pg_temp.expect('capacity full: 2 in + 5 expected = 7',
   pg_temp.val_as(:org, 'authenticated', format($q$select (o->>'checked_in') || '/' || (o->>'expected') || '/' || (o->>'open_spots') from waitlist_overview(%L) o$q$, :'ev')), '2/5/0');
 select pg_temp.expect('offer list has the three', pg_temp.val_as(:org, 'authenticated', format($q$select jsonb_array_length(o->'offers')::text from waitlist_overview(%L) o$q$, :'ev')), '3');
@@ -214,7 +229,7 @@ update applications set waitlist_offer_expires_at = now() - interval '1 minute' 
 select pg_temp.expect('the expired offer is marked a no-show',
   pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(name, ',') from mark_no_shows(%L)$q$, :'ev')), 'U09 Test');
 select pg_temp.expect('its spot goes to the next opted-in waitlister',
-  pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(name, ',') from offer_waitlist_spots(%L, 1)$q$, :'ev')), 'U10 Test');
+  pg_temp.val_as(:org, 'authenticated', format($q$select string_agg(name, ',') from offer_waitlist_spots(%L, 1)$q$, :'ev')), 'U07 Test');
 select pg_temp.expect('queue now empty (u11 opted out, u12 never opted in)',
   pg_temp.val_as(:org, 'authenticated', format($q$select jsonb_array_length(o->'queue')::text from waitlist_overview(%L) o$q$, :'ev')), '0');
 select pg_temp.expect('nothing left to offer',

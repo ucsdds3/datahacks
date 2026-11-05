@@ -33,7 +33,7 @@ let noShows: NoShow[] = [];
 
 const queue: QueuedHacker[] = [
   "Chloe Nguyen", "Dev Patel", "Grace Kim", "Hugo Silva", "Isha Rao", "Jonah Weiss", "Lena Park", "Marco Diaz", "Nora Ali",
-].map((name, i) => ({ ...person(20 + i, name), submitted_at: `2026-12-0${1 + Math.floor(i / 3)}T1${i}:00:00-08:00`, opted_in_at: "2027-01-10T09:00:00-08:00" }));
+].map((name, i) => ({ ...person(20 + i, name), submitted_at: `2026-12-0${1 + Math.floor(i / 3)}T1${i}:00:00-08:00`, opted_in_at: `2027-01-10T0${i}:30:00-08:00` }));
 
 const CHECKED_IN = 452;
 

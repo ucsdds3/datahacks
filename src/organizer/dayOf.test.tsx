@@ -89,9 +89,9 @@ const overview = (extra: Partial<Overview> = {}): Overview => ({
   ],
   no_shows: [],
   queue: [
-    { application_id: "w1", name: "First Inline", email: "w1@x.edu", submitted_at: "2026-12-01T00:00:00Z", opted_in_at: "2027-01-10T00:00:00Z" },
-    { application_id: "w2", name: "Second Inline", email: "w2@x.edu", submitted_at: "2026-12-02T00:00:00Z", opted_in_at: "2027-01-01T00:00:00Z" },
-    { application_id: "w3", name: "Third Inline", email: "w3@x.edu", submitted_at: "2026-12-03T00:00:00Z", opted_in_at: "2027-01-02T00:00:00Z" },
+    { application_id: "w1", name: "First Inline", email: "w1@x.edu", submitted_at: "2026-12-03T00:00:00Z", opted_in_at: "2027-01-01T00:00:00Z" },
+    { application_id: "w2", name: "Second Inline", email: "w2@x.edu", submitted_at: "2026-12-01T00:00:00Z", opted_in_at: "2027-01-02T00:00:00Z" },
+    { application_id: "w3", name: "Third Inline", email: "w3@x.edu", submitted_at: "2026-12-02T00:00:00Z", opted_in_at: "2027-01-10T00:00:00Z" },
   ],
   offers: [],
   ...extra,
