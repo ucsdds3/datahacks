@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
 import { TIMELINE, applicationBatch, type ApplicationStatus } from "./config";
+import WaitlistOptIn from "./WaitlistOptIn";
 
 export const STATUS_LABEL: Record<ApplicationStatus, string> = {
   pending: "Under review",
@@ -24,7 +25,7 @@ type Step = { title: string; detail: string; done: boolean };
 
 /** The portal's home page: where the application stands and what happens next. */
 export default function Dashboard() {
-  const { basePath, fullName, status, submittedAt, portal, waiverSubmitted } = useStaffPortal();
+  const { basePath, fullName, status, submittedAt, portal, waiverSubmitted, preview } = useStaffPortal();
   const { search } = useLocation();
   const decided = status !== "pending";
   const batch = applicationBatch(submittedAt);
@@ -61,6 +62,8 @@ export default function Dashboard() {
           </p>
         )}
       </header>
+
+      {portal === "hacker" && status === "waitlisted" && <WaitlistOptIn preview={preview} />}
 
       <section className="sp-card" aria-labelledby="sp-status-heading">
         <div className="sp-card-header">

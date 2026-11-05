@@ -68,10 +68,10 @@ select pg_temp.expect('applicant submits to DH27 (closed) is refused',
 select pg_temp.expect('applicant draft to DH26 (closed) is refused',
   pg_temp.as_req(:hacker, 'authenticated', format($q$insert into applications (user_id, event_id, applicant_type, status) values (%L, %L, 'hacker', 'draft')$q$, :hacker, :'dh26')),
   '23514: %aren''t open right now.');
-update events set applications_open_at = '2026-11-03 09:00-08' where code = 'DH27';
+update events set applications_open_at = '2099-11-03 09:00-08' where code = 'DH27';
 select pg_temp.expect('closed with a future open date names the date',
   pg_temp.as_req(:hacker, 'authenticated', format($q$insert into applications (user_id, event_id, applicant_type, status) values (%L, %L, 'hacker', 'submitted')$q$, :hacker, :'dh27')),
-  '23514: Applications for DataHacks 2027 aren''t open yet. They open on November 3, 2026.');
+  '23514: Applications for DataHacks 2027 aren''t open yet. They open on November 3, 2099.');
 update events set applications_open_at = now() - interval '1 day' where code = 'DH27';
 select pg_temp.expect('a past open date alone does not open it',
   pg_temp.as_req(:hacker, 'authenticated', format($q$insert into applications (user_id, event_id, applicant_type, status) values (%L, %L, 'hacker', 'submitted')$q$, :hacker, :'dh27')),
