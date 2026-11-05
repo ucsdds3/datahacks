@@ -224,9 +224,12 @@ export type Activity = {
   key: string;
   at: string;
   kind: "checkin" | "undo";
-  person: Pick<Person, "id" | "name" | "type" | "code">;
-  /** Organizer's profile id (check-ins only; undo_check_in clears it). */
+  /** type is null for someone no longer on the roster (only the check-in log knows them). */
+  person: Pick<Person, "id" | "name" | "code"> & { type: ApplicantType | null };
+  /** Organizer's profile id: from the log for both kinds; from the roster, check-ins only (undo_check_in clears it). */
   by: string | null;
+  /** From the log: "offline" when it reached the server from a phone's queue. */
+  source?: string;
 };
 
 /** A check-in that was there before and isn't now: undo_check_in clears checked_in_at and checked_in_by. */
@@ -267,4 +270,82 @@ export function checkinsByOrganizer(people: Person[]): { by: string | null; coun
   const counts = new Map<string | null, number>();
   for (const p of people.filter(isCheckedIn)) counts.set(p.checkedInBy, (counts.get(p.checkedInBy) ?? 0) + 1);
   return [...counts].map(([by, count]) => ({ by, count })).sort((a, b) => b.count - a.count);
+}
+
+// --- The check-in log (public.checkin_events) ----------------------------------
+// Since the batch-2 migration every check-in, undo and meal/swag scan is a row
+// here, written by the RPCs. Where the database has it, the feed, arrivals and
+// scan counts read it; without it they fall back to the roster above.
+
+/** One public.checkin_events row, as the Check-in section loads it. */
+export type LogEvent = {
+  id: number;
+  attendee_id: string;
+  code: string;
+  kind: "check_in" | "undo" | "scan";
+  scan_type_id: string | null;
+  by_user: string | null;
+  /** When the desk scanned (offline scans keep their time). */
+  scanned_at: string;
+  source: "online" | "offline" | "backfill";
+  /** Scans only: they hadn't checked in yet. */
+  not_checked_in: boolean;
+};
+
+const logOrder = (a: LogEvent, b: LogEvent) => Date.parse(a.scanned_at) - Date.parse(b.scanned_at) || a.id - b.id;
+
+/** Newest first: every check-in and undo in the log, named from the roster. */
+export function activityFromLog(log: LogEvent[], people: Map<string, Pick<Person, "id" | "name" | "type" | "code">>): Activity[] {
+  return log
+    .filter(e => e.kind === "check_in" || e.kind === "undo")
+    .sort((a, b) => logOrder(b, a))
+    .map(e => {
+      const p = people.get(e.attendee_id);
+      return {
+        key: `log-${e.id}`,
+        at: e.scanned_at,
+        kind: e.kind === "undo" ? "undo" as const : "checkin" as const,
+        person: p ? { id: p.id, name: p.name, code: p.code, type: p.type } : { id: e.attendee_id, name: e.code, code: e.code, type: null },
+        by: e.by_user,
+        source: e.source,
+      };
+    });
+}
+
+/**
+ * Arrival time per person still checked in, from the log: the scan time of
+ * their latest check-in, unless an undo came after it. Keyed by attendee id.
+ */
+export function arrivalsFromLog(log: LogEvent[]): Map<string, string> {
+  const latest = new Map<string, LogEvent>();
+  for (const e of [...log].filter(e => e.kind !== "scan").sort(logOrder)) latest.set(e.attendee_id, e);
+  const out = new Map<string, string>();
+  for (const [id, e] of latest) if (e.kind === "check_in") out.set(id, e.scanned_at);
+  return out;
+}
+
+export type ScanCount = {
+  scanTypeId: string;
+  /** People scanned for it (one each, the database makes sure). */
+  scanned: number;
+  /** Of those, scanned before they'd checked in (recorded anyway). */
+  notCheckedIn: number;
+  /** Share of the people checked in now (null when nobody is). */
+  percentOfHere: number | null;
+};
+
+/** Scans per scan type, for every type given (zero when none yet), in the order given. */
+export function scanCounts(log: LogEvent[], typeIds: string[], checkedIn: number): ScanCount[] {
+  const counts = new Map(typeIds.map(id => [id, { scanned: 0, notCheckedIn: 0 }]));
+  for (const e of log) {
+    if (e.kind !== "scan" || !e.scan_type_id) continue;
+    const c = counts.get(e.scan_type_id);
+    if (!c) continue;
+    c.scanned++;
+    if (e.not_checked_in) c.notCheckedIn++;
+  }
+  return typeIds.map(id => {
+    const c = counts.get(id)!;
+    return { scanTypeId: id, ...c, percentOfHere: checkedIn ? Math.round((c.scanned / checkedIn) * 100) : null };
+  });
 }

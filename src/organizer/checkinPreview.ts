@@ -1,4 +1,5 @@
-import type { CheckinApplication, RosterEntry } from "./checkin";
+import type { CheckinApplication, LogEvent, RosterEntry } from "./checkin";
+import type { ScanType, ScanTypePatch } from "./scanTypes";
 import type { ApplicantType } from "./types";
 
 /**
@@ -33,7 +34,7 @@ const ORGANIZERS = [
   { id: "org-3", email: "lead@example.com", first_name: null, last_name: null },
 ];
 
-type Fixture = { roster: RosterEntry[]; apps: CheckinApplication[] };
+type Fixture = { roster: RosterEntry[]; apps: CheckinApplication[]; log: LogEvent[]; scanTypes: ScanType[] };
 
 let fixture: Fixture | null = null;
 let reloads = 0;
@@ -77,7 +78,30 @@ function build(now: number): Fixture {
   add(18, "mentor", ["mentor"], "m", 0.6);
   add(10, "judge", ["judge"], "j", 0.5);
   add(4, "hybrid", ["mentor", "judge"], "x", 0.75);
-  return { roster, apps };
+
+  // The log: everyone's check-in (a few of them sent later from a phone that
+  // was offline), then lunch for most people here and shirts for some.
+  const scanTypes: ScanType[] = [
+    { id: "st-lunch", event_id: "preview-event", label: "Lunch · Sat", kind: "meal", active: true, sort: 10, opens_at: new Date(now - 60 * 60_000).toISOString(), closes_at: new Date(now + 60 * 60_000).toISOString() },
+    { id: "st-shirt", event_id: "preview-event", label: "T-shirt", kind: "swag", active: true, sort: 20, opens_at: null, closes_at: null },
+    { id: "st-dinner", event_id: "preview-event", label: "Dinner · Sat", kind: "meal", active: false, sort: 30, opens_at: null, closes_at: null },
+  ];
+  const log: LogEvent[] = [];
+  const push = (e: Omit<LogEvent, "id">) => log.push({ id: log.length + 1, ...e });
+  for (const r of roster.filter(r => r.checked_in_at).sort((a, b) => Date.parse(a.checked_in_at!) - Date.parse(b.checked_in_at!))) {
+    push({ attendee_id: r.id, code: r.code, kind: "check_in", scan_type_id: null, by_user: r.checked_in_by, scanned_at: r.checked_in_at!, source: rand() < 0.08 ? "offline" : "online", not_checked_in: false });
+  }
+  for (const r of roster) {
+    const here = !!r.checked_in_at;
+    const scan = (type: string, share: number) => {
+      if (rand() >= share) return;
+      const at = here ? Math.max(Date.parse(r.checked_in_at!), now - 50 * 60_000) + Math.floor(rand() * 40) * 60_000 : now - Math.floor(rand() * 40) * 60_000;
+      push({ attendee_id: r.id, code: r.code, kind: "scan", scan_type_id: type, by_user: pick(ORGANIZERS).id, scanned_at: new Date(Math.min(at, now)).toISOString(), source: "online", not_checked_in: !here });
+    };
+    scan("st-lunch", here ? 0.72 : 0.03);
+    scan("st-shirt", here ? 0.45 : 0);
+  }
+  return { roster, apps, log, scanTypes };
 }
 
 const get = () => (fixture ??= build(Date.now()));
@@ -86,14 +110,20 @@ export function previewCheckinRoster(): RosterEntry[] {
   const f = get();
   if (reloads++ > 0) {
     const latest = f.roster.filter(e => e.checked_in_at).sort((a, b) => Date.parse(b.checked_in_at!) - Date.parse(a.checked_in_at!))[0];
+    const by = ORGANIZERS[reloads % ORGANIZERS.length].id;
+    const at = new Date().toISOString();
+    const log = (e: RosterEntry, kind: "check_in" | "undo") =>
+      f.log.push({ id: f.log.length + 1, attendee_id: e.id, code: e.code, kind, scan_type_id: null, by_user: by, scanned_at: at, source: "online", not_checked_in: false });
     if (reloads % 5 === 0 && latest) {
       latest.checked_in_at = null;
       latest.checked_in_by = null;
+      log(latest, "undo");
     } else {
       const next = f.roster.find(e => !e.checked_in_at);
       if (next) {
-        next.checked_in_at = new Date().toISOString();
-        next.checked_in_by = ORGANIZERS[reloads % ORGANIZERS.length].id;
+        next.checked_in_at = at;
+        next.checked_in_by = by;
+        log(next, "check_in");
       }
     }
   }
@@ -103,3 +133,18 @@ export function previewCheckinRoster(): RosterEntry[] {
 export const previewCheckinApplications = () => get().apps.map(a => ({ ...a }));
 
 export const previewOrganizers = () => ORGANIZERS;
+
+export const previewCheckinLog = () => get().log.map(e => ({ ...e }));
+
+export const previewScanTypes = () => get().scanTypes.map(t => ({ ...t })).sort((a, b) => a.sort - b.sort || a.label.localeCompare(b.label));
+
+export function previewAddScanType(row: Pick<ScanType, "event_id" | "label" | "kind" | "sort" | "active">) {
+  const f = get();
+  if (f.scanTypes.some(t => t.label.toLowerCase() === row.label.toLowerCase())) throw new Error("There's already one with that name.");
+  f.scanTypes.push({ ...row, id: `st-${f.scanTypes.length + 1}-${Date.now()}`, opens_at: null, closes_at: null });
+}
+
+export function previewUpdateScanType(id: string, patch: ScanTypePatch) {
+  const t = get().scanTypes.find(x => x.id === id);
+  if (t) Object.assign(t, patch);
+}

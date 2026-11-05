@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Download, RefreshCw, Search } from "lucide-react";
 import ArrivalsChart from "./ArrivalsChart";
 import {
-  activityFeed, arrivalBuckets, buildPeople, checkinsByOrganizer, findUndos, groupBySchool, isCheckedIn, isUcsd,
-  noShows, roleTallies, travelRequests, ucsdSplit, waiverStats,
-  type Activity, type CheckinRole, type Person, type RosterEntry, type Tally, type Undo,
+  activityFeed, activityFromLog, arrivalBuckets, arrivalsFromLog, buildPeople, checkinsByOrganizer, findUndos, groupBySchool,
+  isCheckedIn, isUcsd, noShows, roleTallies, scanCounts, travelRequests, ucsdSplit, waiverStats,
+  type Activity, type CheckinRole, type LogEvent, type Person, type RosterEntry, type Tally, type Undo,
 } from "./checkin";
-import { organizerName, useCheckinApplications, useCheckinRoster, useOrganizers, type Organizer } from "./checkinData";
+import { organizerName, useCheckinApplications, useCheckinLog, useCheckinRoster, useOrganizers, type Organizer } from "./checkinData";
+import { SCAN_KIND_LABEL, useScanTypes, type ScanType } from "./scanTypes";
 import { csvFilename, downloadCsv } from "./csv";
 import { isPreview } from "./preview";
 import { TYPE_LABEL } from "./types";
@@ -18,8 +19,10 @@ import "./checkin.css";
  * not), travel reimbursement requests, waivers, and who checked whom in.
  *
  * It only reads. Check-ins happen in the check-in app (check_in_by_code),
- * which writes public.attendees; this section follows that table over
- * Realtime, or reloads it every 30 seconds when Realtime isn't connected.
+ * which writes public.attendees and the check-in log (public.checkin_events);
+ * this section follows both over Realtime, or reloads them every 30 seconds
+ * when Realtime isn't connected. The feed, arrivals and meal/swag counts read
+ * the log; on a database without it they fall back to the roster.
  */
 
 type RoleFilter = "all" | CheckinRole;
@@ -41,7 +44,11 @@ const hasRole = (p: Person, role: RoleFilter) => role === "all" || p.roles.inclu
 export default function CheckinPage({ eventId }: { eventId: string }) {
   const roster = useCheckinRoster(eventId);
   const apps = useCheckinApplications(eventId);
+  const log = useCheckinLog(eventId);
+  const scanTypes = useScanTypes(eventId);
   const entries = roster.data?.entries;
+  // null: no log on this database (or not loaded yet) -> the roster-based fallbacks.
+  const logEvents = Array.isArray(log.data) ? log.data : null;
 
   const people = useMemo(() => buildPeople(entries ?? [], apps.data ?? []), [entries, apps.data]);
   const byId = useMemo(() => new Map(people.map(p => [p.id, p])), [people]);
@@ -75,21 +82,24 @@ export default function CheckinPage({ eventId }: { eventId: string }) {
           {roster.live === "live" ? "Live" : roster.live === "connecting" ? "Connecting…" : isPreview() ? "Preview (sample data)" : "Updating every 30 s"}
         </span>
         <span>Updated {updated}</span>
-        <button className="sp-button" onClick={() => { roster.refetch(); apps.refetch(); }} disabled={roster.isFetching}>
+        <button className="sp-button" onClick={() => { roster.refetch(); apps.refetch(); log.refetch(); scanTypes.refetch(); }} disabled={roster.isFetching}>
           <RefreshCw size={14} aria-hidden /> Refresh
         </button>
       </div>
       {apps.isError && <p className="sp-error">Couldn't load schools and travel answers: {(apps.error as Error).message}</p>}
+      {log.isError && <p className="sp-error">Couldn't load the check-in log: {(log.error as Error).message}</p>}
 
       <Headline people={people} />
 
       <div className="og-ci-grid">
         <section className="sp-card og-ci-card">
           <h2>Arrivals</h2>
-          <Arrivals people={people} />
+          <Arrivals people={people} log={logEvents} />
         </section>
-        <Feed people={people} undos={undos} organizers={organizerById} loadingNames={organizers.isPending && checkerIds.length > 0} />
+        <Feed people={people} byId={byId} log={logEvents} undos={undos} organizers={organizerById} loadingNames={organizers.isPending && checkerIds.length > 0} />
       </div>
+
+      {Array.isArray(scanTypes.data) && logEvents && <Scans types={scanTypes.data} log={logEvents} people={people} />}
 
       <div className="og-ci-grid">
         <UcsdSplit people={people} />
@@ -131,7 +141,7 @@ function Headline({ people }: { people: Person[] }) {
   );
 }
 
-function Arrivals({ people }: { people: Person[] }) {
+function Arrivals({ people, log }: { people: Person[]; log: LogEvent[] | null }) {
   const [role, setRole] = useState<RoleFilter>("all");
   // Re-render each minute so the axis reaches "now" while the doors are open.
   const [now, setNow] = useState(() => Date.now());
@@ -139,7 +149,8 @@ function Arrivals({ people }: { people: Person[] }) {
     const timer = setInterval(() => setNow(Date.now()), 60_000);
     return () => clearInterval(timer);
   }, []);
-  const times = people.filter(p => hasRole(p, role)).map(p => p.checkedInAt);
+  const fromLog = useMemo(() => (log ? arrivalsFromLog(log) : null), [log]);
+  const times = people.filter(p => hasRole(p, role)).map(p => (fromLog ? fromLog.get(p.id) ?? null : p.checkedInAt));
   const latest = Math.max(...times.map(t => (t ? Date.parse(t) : 0)));
   // Only stretch to now if the last check-in was within the last 3 hours (not for a finished event).
   const { buckets, minutes } = arrivalBuckets(times, { until: now - latest < 3 * 3_600_000 ? now : undefined });
@@ -165,9 +176,11 @@ function RoleTabs({ value, onChange, label, counts }: { value: RoleFilter; onCha
 
 const FEED_STEP = 20;
 
-function Feed({ people, undos, organizers, loadingNames }: { people: Person[]; undos: Undo[]; organizers: Map<string, Organizer>; loadingNames: boolean }) {
+function Feed({ people, byId, log, undos, organizers, loadingNames }: {
+  people: Person[]; byId: Map<string, Person>; log: LogEvent[] | null; undos: Undo[]; organizers: Map<string, Organizer>; loadingNames: boolean;
+}) {
   const [shown, setShown] = useState(FEED_STEP);
-  const feed = useMemo(() => activityFeed(people, undos), [people, undos]);
+  const feed = useMemo(() => (log ? activityFromLog(log, byId) : activityFeed(people, undos)), [log, byId, people, undos]);
   const byOrganizer = useMemo(() => checkinsByOrganizer(people), [people]);
   const who = (id: string | null) =>
     !id ? "unknown" : organizerName(organizers.get(id)) ?? (loadingNames ? "…" : `organizer ${id.slice(0, 8)}`);
@@ -191,10 +204,14 @@ function Feed({ people, undos, organizers, loadingNames }: { people: Person[]; u
                 <time dateTime={a.at}>{clock(a.at)}</time>
                 <span className="og-ci-feed-who">
                   <strong>{a.person.name}</strong>
-                  <span className="og-ci-feed-role">{TYPE_LABEL[a.person.type]}</span>
+                  <span className="og-ci-feed-role">
+                    {a.kind === "undo" && <span className="og-badge rejected og-ci-undone">Undone</span>}
+                    {a.person.type ? TYPE_LABEL[a.person.type] : `${a.person.code} · not on the roster now`}
+                  </span>
                 </span>
                 <span className="og-ci-feed-by">
-                  {a.kind === "undo" ? <span className="og-badge rejected">Undone</span> : <>by {who(a.by)}</>}
+                  {a.kind === "undo" && !a.by ? null : <>by {who(a.by)}</>}
+                  {a.source === "offline" && <span className="og-ci-feed-offline" title="Scanned while the phone was offline; this is the scan time">offline</span>}
                 </span>
               </li>
             ))}
@@ -202,7 +219,47 @@ function Feed({ people, undos, organizers, loadingNames }: { people: Person[]; u
           {feed.length > shown && (
             <button className="sp-button og-ci-more" onClick={() => setShown(s => s + 50)}>Show more ({feed.length - shown} older)</button>
           )}
-          <p className="og-hint">Undos only show if they happened while this page was open; the database doesn't keep them.</p>
+          {log
+            ? <p className="og-hint">Times are when the desk scanned; a phone that was offline sends its check-ins when it reconnects.</p>
+            : <p className="og-hint">Undos only show if they happened while this page was open; the database doesn't keep them.</p>}
+        </>
+      )}
+    </section>
+  );
+}
+
+function Scans({ types, log, people }: { types: ScanType[]; log: LogEvent[]; people: Person[] }) {
+  const here = useMemo(() => people.filter(isCheckedIn).length, [people]);
+  const counts = useMemo(() => scanCounts(log, types.map(t => t.id), here), [log, types, here]);
+  return (
+    <section className="sp-card og-ci-card" aria-labelledby="og-ci-scans">
+      <h2 id="og-ci-scans">Meals &amp; swag</h2>
+      {types.length === 0 ? (
+        <p className="og-empty">No meal or swag scans set up. Add them under Day of; the check-in desk can then switch to them.</p>
+      ) : (
+        <>
+          <div className="sp-table-wrap og-ci-scans-wrap">
+            <table className="sp-table og-ci-plain og-ci-scans">
+              <thead><tr><th>Scan</th><th>Scanned</th><th><abbr title="Of the people checked in now">% here</abbr></th><th>Before check-in</th></tr></thead>
+              <tbody>
+                {types.map((t, i) => {
+                  const c = counts[i];
+                  return (
+                    <tr key={t.id} className={t.active ? "" : "og-ci-off"}>
+                      <td>
+                        {t.label}
+                        <span className="og-ci-feed-role">{SCAN_KIND_LABEL[t.kind]}{!t.active && " · switched off"}</span>
+                      </td>
+                      <td>{c.scanned}</td>
+                      <td>{c.percentOfHere === null ? "–" : `${c.percentOfHere}%`}</td>
+                      <td>{c.notCheckedIn}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="og-hint">One scan per person per type. “Before check-in” were scanned before they'd checked in (recorded anyway). Add, rename or switch them off under Day of.</p>
         </>
       )}
     </section>

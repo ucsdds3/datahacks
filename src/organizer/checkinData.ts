@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
-import type { CheckinApplication, RosterEntry } from "./checkin";
+import type { CheckinApplication, LogEvent, RosterEntry } from "./checkin";
 import { fetchAllPages } from "./data";
 import { isPreview } from "./preview";
-import { previewCheckinApplications, previewCheckinRoster, previewOrganizers } from "./checkinPreview";
+import { previewCheckinApplications, previewCheckinLog, previewCheckinRoster, previewOrganizers } from "./checkinPreview";
+import { isMissingTable } from "./scanTypes";
 
 type Page<T> = PromiseLike<{ data: T[] | null; error: unknown }>;
 
@@ -130,4 +131,71 @@ export function useOrganizers(ids: string[]) {
     enabled: key.length > 0,
     staleTime: 10 * 60_000,
   });
+}
+
+const LOG_COLUMNS = "id, attendee_id, code, kind, scan_type_id, by_user, scanned_at, source, not_checked_in";
+
+/**
+ * The event's check-in log (public.checkin_events; organizers only, by RLS),
+ * oldest first. null when the database doesn't have the log yet, so the
+ * section falls back to reading the roster.
+ */
+export async function fetchCheckinLog(eventId: string): Promise<LogEvent[] | null> {
+  if (isPreview()) return previewCheckinLog();
+  try {
+    return await fetchAllPages<LogEvent>((from, to) =>
+      supabase.from("checkin_events").select(LOG_COLUMNS).eq("event_id", eventId)
+        .order("id", { ascending: true }).range(from, to) as unknown as Page<LogEvent>);
+  } catch (error) {
+    if (isMissingTable(error)) return null;
+    throw error;
+  }
+}
+
+/**
+ * The log, kept current like the roster: Realtime inserts reload it (meal
+ * scans don't touch attendees, so the roster subscription wouldn't see them),
+ * with a 30-second reload when Realtime isn't connected. No log, no subscription.
+ */
+export function useCheckinLog(eventId: string) {
+  const client = useQueryClient();
+  const preview = isPreview();
+  const [live, setLive] = useState(false);
+
+  const query = useQuery({
+    queryKey: ["organizer-checkin-log", eventId],
+    queryFn: () => fetchCheckinLog(eventId),
+    refetchInterval: q => (q.state.data === null ? false : preview ? 4_000 : live ? false : POLL_MS),
+    refetchIntervalInBackground: false,
+  });
+  const hasLog = Array.isArray(query.data);
+
+  useEffect(() => {
+    if (preview || !hasLog) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const reload = () => {
+      if (timer) return;
+      timer = setTimeout(() => {
+        timer = null;
+        client.invalidateQueries({ queryKey: ["organizer-checkin-log", eventId] });
+      }, 2_000);
+    };
+    const channel = supabase
+      .channel(`organizer-checkin-log-${eventId}`)
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "checkin_events", filter: `event_id=eq.${eventId}` }, reload)
+      .subscribe(status => {
+        if (status === "SUBSCRIBED") {
+          setLive(true);
+          reload();
+        } else if (status === "CHANNEL_ERROR" || status === "TIMED_OUT" || status === "CLOSED") {
+          setLive(false);
+        }
+      });
+    return () => {
+      if (timer) clearTimeout(timer);
+      supabase.removeChannel(channel);
+    };
+  }, [client, eventId, preview, hasLog]);
+
+  return query;
 }
