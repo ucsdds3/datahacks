@@ -12,7 +12,8 @@ import { previewMarkNoShows, previewOverview, previewSaveSettings, previewUnmark
  *
  *   open spots   capacity - hackers checked in - accepted hackers still expected
  *   no-show      accepted, not checked in, past their deadline, marked by an organizer
- *   queue        waitlisted hackers who opted in, in the order they submitted their application
+ *   queue        waitlisted hackers who opted in, in the order they asked for a spot
+ *                (waitlist_opt_in_at; ties by when they submitted their application)
  */
 
 export const EVENT_TIME_ZONE = "America/Los_Angeles";

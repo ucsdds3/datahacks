@@ -8,8 +8,8 @@ import { currentEventId } from "@/portal/event";
  * On a waitlisted hacker's dashboard: ask to be emailed if a spot opens on the
  * event day, after check-in closes. Saved on their application
  * (applications.waitlist_opt_in_at, through set_waitlist_opt_in). Spots go to
- * people who asked, in the order they applied, so when you switch it on
- * doesn't change your place.
+ * people who asked, earliest first, so switching it off and on again puts
+ * you at the back.
  */
 
 async function fetchOptIn(userId: string): Promise<boolean> {
@@ -66,7 +66,7 @@ export default function WaitlistOptIn({ preview = false }: { preview?: boolean }
         />
         <span>Email me if a spot opens</span>
       </label>
-      {on && <p className="sp-waitlist-note">You're on the list. Spots go out in the order people applied, and the email will say when to check in by.</p>}
+      {on && <p className="sp-waitlist-note">You're on the list. Spots go out in the order people asked for one, and the email will say when to check in by.</p>}
       {mutation.isError && <p className="sp-error" role="alert">Couldn't save that: {mutation.error.message}</p>}
     </section>
   );
