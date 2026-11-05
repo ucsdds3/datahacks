@@ -30,8 +30,9 @@ export const DOCUSIGN: DocuSignConfig = {
   mode: "powerform",
   // PowerForm "DataHacks 2027 Liability Waiver" on UC San Diego's DocuSign (account 6371e373…, na1).
   powerFormUrl: "https://www.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=bed6ac13-bb24-44ef-84b1-1ede0ce183c1&env=na1&acct=6371e373-11ff-4359-aa24-bf2ccbddc944&v=2",
-  // The template's PDF is still the draft ("DRAFT FOR TESTING"). Flip to true once the final wording is in.
-  waiverPublished: false,
+  // Open for signing. The template's PDF is still the draft ("DRAFT FOR TESTING"): swap in the final
+  // wording in DocuSign before real acceptances go out.
+  waiverPublished: true,
   roleName: "Participant",
   idFieldLabel: "datahacks_id",
   clientId: "24c6a289-a194-46f9-a5f3-3a13fd5aa71a",
