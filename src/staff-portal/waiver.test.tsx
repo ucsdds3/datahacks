@@ -55,6 +55,7 @@ describe("PowerForm waiver page", () => {
   beforeEach(() => { Object.assign(DOCUSIGN, shipped); });
 
   it("says the waiver opens soon while it isn't published, even with a link set", async () => {
+    DOCUSIGN.waiverPublished = false;
     renderWaiver();
     expect(await screen.findByRole("button", { name: "Waiver opens soon" })).toBeDisabled();
     expect(screen.queryByRole("link", { name: /Sign the waiver/ })).not.toBeInTheDocument();

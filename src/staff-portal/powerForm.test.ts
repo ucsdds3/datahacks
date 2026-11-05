@@ -73,11 +73,11 @@ describe("powerFormOpen", () => {
     expect(powerFormOpen({ mode: "embedded", powerFormUrl: BASE, waiverPublished: true })).toBe(false);
   });
 
-  it("ships in PowerForm mode with the UC San Diego link, held until the wording is final", () => {
+  it("ships in PowerForm mode with the UC San Diego link, open for signing", () => {
     expect(DOCUSIGN.mode).toBe("powerform");
     expect(DOCUSIGN.powerFormUrl).toBe(BASE);
     expect(DOCUSIGN.roleName).toBe("Participant");
     expect(DOCUSIGN.idFieldLabel).toBe("datahacks_id");
-    expect(DOCUSIGN.waiverPublished).toBe(false);
+    expect(DOCUSIGN.waiverPublished).toBe(true);
   });
 });
