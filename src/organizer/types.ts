@@ -67,8 +67,10 @@ export type ListApplication = Pick<Application, (typeof LIST_FIELDS)[number]>;
 /**
  * One table row: the list columns plus what the check-in roster knows.
  * passSentAt: when the check-in pass was emailed (attendees.emailed_at).
+ * waiverSignedAt: when their liability waiver was recorded (attendees.waiver_signed_at,
+ * copied from public.waivers). Only accepted people are on the roster, so it's null for the rest.
  */
-export type Row = ListApplication & { code: string | null; checkedIn: boolean; passSentAt: string | null };
+export type Row = ListApplication & { code: string | null; checkedIn: boolean; passSentAt: string | null; waiverSignedAt: string | null };
 
 export const kindOf = (type: ApplicantType): Kind => (type === "hacker" ? "hacker" : "staff");
 
