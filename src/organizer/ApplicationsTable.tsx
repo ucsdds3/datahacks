@@ -20,6 +20,8 @@ const COMMON_START: Column[] = [
 const COMMON_END: Column[] = [
   { header: "Batch", value: r => (applicationBatch(r.submitted_at) === "priority" ? "Priority" : "Regular") },
   { header: "Submitted", value: r => shortDate(r.submitted_at) },
+  // Signed liability waiver (from the check-in roster, so accepted people only).
+  { header: "Waiver", value: r => (r.waiverSignedAt ? "Signed" : "") },
   { header: "Checked in", value: r => (r.checkedIn ? "Yes" : "") },
 ];
 const COLUMNS: Record<Kind, Column[]> = {
@@ -176,7 +178,9 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
                   </td>
                   {columns.slice(1).map(c => (
                     <td key={c.header}>
-                      {c.header === "Checked in" ? (r.checkedIn ? <Check size={15} className="og-check" aria-label="Checked in" /> : "") : c.value(r)}
+                      {c.header === "Checked in" ? (r.checkedIn ? <Check size={15} className="og-check" aria-label="Checked in" /> : "")
+                        : c.header === "Waiver" ? (r.waiverSignedAt ? <Check size={15} className="og-check" aria-label="Waiver signed" /> : "")
+                        : c.value(r)}
                     </td>
                   ))}
                 </tr>

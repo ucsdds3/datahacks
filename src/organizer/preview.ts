@@ -21,14 +21,14 @@ const base: Omit<Application, "id" | "applicant_type" | "status" | "first_name" 
 };
 
 /** A whole sample application plus its roster fields; the tables only get the list columns of it. */
-type Sample = Application & Pick<Row, "code" | "checkedIn" | "passSentAt">;
+type Sample = Application & Pick<Row, "code" | "checkedIn" | "passSentAt" | "waiverSignedAt">;
 
 const hacker = (id: number, first: string, last: string, school: string, extra: Partial<Sample> = {}): Sample => ({
   ...base, id: `h${id}`, applicant_type: "hacker", status: "submitted", first_name: first, last_name: last,
   email: `${first.toLowerCase()}@example.edu`, school, level_of_study: "Undergraduate", major: "Data Science",
   graduation_year: "2028", essay_proudest_project: "A model that predicts campus shuttle delays from GPS pings.",
   essay_unique_thing: "I've run three workshops on data visualization.", essay_goal: "Ship something end to end in a weekend.",
-  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, ...extra,
+  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
 });
 
 const staff = (id: number, first: string, last: string, type: Application["applicant_type"], org: string, extra: Partial<Sample> = {}): Sample => ({
@@ -36,14 +36,14 @@ const staff = (id: number, first: string, last: string, type: Application["appli
   email: `${first.toLowerCase()}@example.com`, organization: org, role_title: "Engineer",
   resume_url: "https://drive.google.com/file/d/example/view",
   bio: type === "judge" ? null : "I build data pipelines and love helping teams get unstuck on modelling questions.",
-  judging_track: type === "mentor" ? null : "healthcare_health_tech", code: null, checkedIn: false, passSentAt: null, ...extra,
+  judging_track: type === "mentor" ? null : "healthcare_health_tech", code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
 });
 
 let rows: Sample[] = [
   hacker(1, "Ava", "Chen", "UC San Diego", { submitted_at: "2026-11-02T10:00:00-08:00" }),
   hacker(2, "Ben", "Ortiz", "UC Irvine", { decision: "accepted" }),
   hacker(3, "Chloe", "Nguyen", "UC San Diego", { submitted_at: "2026-12-05T09:00:00-08:00", decision: "waitlisted" }),
-  hacker(4, "Dev", "Patel", "SDSU", { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z", decision_emailed_at: "2026-12-01T00:01:00Z", code: "DH27-H001", checkedIn: true, passSentAt: "2026-12-01T00:05:00Z" }),
+  hacker(4, "Dev", "Patel", "SDSU", { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z", decision_emailed_at: "2026-12-01T00:01:00Z", code: "DH27-H001", checkedIn: true, passSentAt: "2026-12-01T00:05:00Z", waiverSignedAt: "2026-12-02T18:00:00Z" }),
   hacker(5, "Ema", "Rossi", "UCLA", { status: "rejected", decision: "rejected", decision_released_at: "2026-12-01T00:00:00Z", decision_emailed_at: "2026-12-01T00:01:00Z" }),
   hacker(6, "Farah", "Haddad", "UC San Diego", { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z", decision_emailed_at: "2026-12-01T00:01:00Z", code: "DH27-H002" }),
   staff(1, "Jane", "Doe", "mentor", "Qualcomm"),
@@ -53,14 +53,14 @@ let rows: Sample[] = [
 
 export const previewRows = (): Row[] => rows.map(r => ({
   ...(Object.fromEntries(LIST_FIELDS.map(f => [f, r[f]])) as ListApplication),
-  code: r.code, checkedIn: r.checkedIn, passSentAt: r.passSentAt,
+  code: r.code, checkedIn: r.checkedIn, passSentAt: r.passSentAt, waiverSignedAt: r.waiverSignedAt,
 }));
 
 /** The whole sample application, as the detail drawer loads it. */
 export function previewApplication(id: string): Application | null {
   const found = rows.find(r => r.id === id);
   if (!found) return null;
-  const { code, checkedIn, passSentAt, ...app } = found;
+  const { code, checkedIn, passSentAt, waiverSignedAt, ...app } = found;
   return app;
 }
 
