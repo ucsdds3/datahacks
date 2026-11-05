@@ -99,3 +99,19 @@ export const DEFAULT_TEMPLATES: Record<`${Decision}:${Kind}`, Template> = {
       SIGN_OFF,
   },
 };
+
+/**
+ * Event day: sent to each waitlisted hacker given a spot that opened up (the
+ * console's Day-of page), just before their wallet pass. {{deadline}} is the
+ * time they have to check in by, filled by the console (dayOf.ts withDeadline).
+ */
+export const SPOT_OFFER_TEMPLATE: Template = {
+  subject: "A spot opened up at DataHacks 2027: check in by {{deadline}}",
+  body:
+    "Hi {{first_name}},\n\n" +
+    "A spot just opened up at DataHacks 2027, and it's yours if you can come today.\n\n" +
+    "Please check in by {{deadline}}. After that, we'll give the spot to the next person on the waitlist.\n\n" +
+    "Your check-in code is {{code}}. Your wallet pass is on its way in a separate email. Show it (or the code) at the check-in desk.\n\n" +
+    "Can't make it? Reply to this email so we can offer the spot to someone else." +
+    SIGN_OFF,
+};

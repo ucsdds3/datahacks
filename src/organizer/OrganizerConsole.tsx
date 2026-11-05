@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
+import { DoorOpen, LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
@@ -11,13 +11,14 @@ import ApplicationsTable from "./ApplicationsTable";
 import EmailComposer from "./EmailComposer";
 import ReleaseDialog, { type PassPick } from "./ReleaseDialog";
 import PassesPage from "./PassesPage";
+import DayOfPage from "./DayOfPage";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
 import { isStaged, kindOf, passDue, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
-type Section = "hackers" | "staff" | "passes" | "email" | "organizers";
+type Section = "hackers" | "staff" | "passes" | "dayof" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
@@ -35,6 +36,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: stri
   { id: "hackers", label: "Hackers", icon: <Users size={18} />, title: "Hacker applications" },
   { id: "staff", label: "Mentors & judges", icon: <UserCog size={18} />, title: "Mentor & judge applications" },
   { id: "passes", label: "Passes", icon: <Ticket size={18} />, title: "Wallet passes" },
+  { id: "dayof", label: "Day of", icon: <DoorOpen size={18} />, title: "Event day: no-shows & waitlist" },
   { id: "email", label: "Email", icon: <Mail size={18} />, title: "Email" },
   { id: "organizers", label: "Organizers", icon: <ShieldCheck size={18} />, title: "Organizers" },
 ];
@@ -142,6 +144,8 @@ export default function OrganizerConsole() {
                 onChanged={refresh}
                 onReleaseAndSend={openRelease}
               />
+            : section === "dayof"
+            ? <DayOfPage eventId={event.data} onChanged={refresh} />
             : section === "email"
             ? <EmailComposer eventId={event.data} rows={rows} />
             : <ApplicationsTable
