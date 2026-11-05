@@ -16,7 +16,9 @@ export async function startGoogleSignIn(as: SignInAs, next?: string) {
   if (next) params.set("next", next);
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${window.location.origin}${portal.callback}?${params}` },
+    // Always show Google's account picker, so people signed in to a personal
+    // Google account can choose their school or organizer account instead.
+    options: { redirectTo: `${window.location.origin}${portal.callback}?${params}`, queryParams: { prompt: "select_account" } },
   });
   if (error) throw error;
 }
