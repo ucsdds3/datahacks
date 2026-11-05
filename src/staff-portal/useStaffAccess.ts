@@ -5,7 +5,17 @@ import { supabase } from "@/lib/supabaseClient";
 import { currentEventId } from "@/portal/event";
 import { MOCK_APPLICATION, type ApplicationStatus, type PortalRole } from "./config";
 
-export type StaffApplication = { firstName: string; lastName: string; type: PortalRole; status: ApplicationStatus; submittedAt: string | null };
+export type StaffApplication = {
+  firstName: string;
+  lastName: string;
+  type: PortalRole;
+  status: ApplicationStatus;
+  submittedAt: string | null;
+  /** The application's id: the waiver's DataHacksID field, which the CSV import matches on. */
+  id?: string;
+  /** The email on the application (the waiver is prefilled with it). */
+  email?: string | null;
+};
 
 export type StaffAccess =
   | { state: "loading" }
@@ -21,14 +31,14 @@ const STATUSES: ApplicationStatus[] = ["pending", "accepted", "waitlisted", "rej
 const toStatus = (value: string | null): ApplicationStatus =>
   value === "accepted" || value === "waitlisted" || value === "rejected" ? value : "pending";
 
-type ApplicationRow = { first_name: string | null; last_name: string | null; applicant_type: string; status: string | null; submitted_at: string | null };
+type ApplicationRow = { id: string; email: string | null; first_name: string | null; last_name: string | null; applicant_type: string; status: string | null; submitted_at: string | null };
 
 async function fetchApplication(userId: string): Promise<StaffApplication | null> {
   // Row-level security only returns the signed-in person's own applications.
   const eventId = await currentEventId();
   const { data, error } = await supabase
     .from("applications")
-    .select("first_name, last_name, applicant_type, status, submitted_at")
+    .select("id, email, first_name, last_name, applicant_type, status, submitted_at")
     .eq("user_id", userId)
     .eq("event_id", eventId)
     .in("applicant_type", PORTALS)
@@ -43,6 +53,8 @@ async function fetchApplication(userId: string): Promise<StaffApplication | null
     type: row.applicant_type as PortalRole,
     status: toStatus(row.status),
     submittedAt: row.submitted_at,
+    id: row.id,
+    email: row.email,
   };
 }
 
@@ -75,6 +87,8 @@ export function useStaffAccess(portal?: PortalRole): StaffAccess {
         type: portal ?? "mentor",
         status: status && STATUSES.includes(status) ? status : MOCK_APPLICATION.status,
         submittedAt: "2026-11-02T18:00:00-08:00",
+        id: "00000000-0000-4000-8000-00000000d0e1",
+        email: "jane.doe@example.com",
       },
     };
   }

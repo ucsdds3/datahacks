@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { ClipboardCheck, DoorOpen, LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
+import { ClipboardCheck, DoorOpen, FileSignature, LogOut, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
@@ -13,13 +13,14 @@ import EmailComposer from "./EmailComposer";
 import ReleaseDialog, { type PassPick } from "./ReleaseDialog";
 import PassesPage from "./PassesPage";
 import DayOfPage from "./DayOfPage";
+import WaiversPage from "./WaiversPage";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
 import { isStaged, kindOf, passDue, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
-type Section = "hackers" | "staff" | "passes" | "checkin" | "dayof" | "email" | "organizers";
+type Section = "hackers" | "staff" | "passes" | "waivers" | "checkin" | "dayof" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
   return (
@@ -37,6 +38,7 @@ const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: stri
   { id: "hackers", label: "Hackers", icon: <Users size={18} />, title: "Hacker applications" },
   { id: "staff", label: "Mentors & judges", icon: <UserCog size={18} />, title: "Mentor & judge applications" },
   { id: "passes", label: "Passes", icon: <Ticket size={18} />, title: "Wallet passes" },
+  { id: "waivers", label: "Waivers", icon: <FileSignature size={18} />, title: "Liability waivers" },
   { id: "checkin", label: "Check-in", icon: <ClipboardCheck size={18} />, title: "Check-in" },
   { id: "dayof", label: "Day of", icon: <DoorOpen size={18} />, title: "Event day: no-shows & waitlist" },
   { id: "email", label: "Email", icon: <Mail size={18} />, title: "Email" },
@@ -146,6 +148,8 @@ export default function OrganizerConsole() {
                 onChanged={refresh}
                 onReleaseAndSend={openRelease}
               />
+            : section === "waivers"
+            ? <WaiversPage eventId={event.data} rows={rows} onChanged={refresh} />
             : section === "checkin"
             ? <CheckinPage eventId={event.data} />
             : section === "dayof"

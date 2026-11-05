@@ -1,16 +1,17 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { afterEach, describe, expect, it, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-// Waiver page in dev ?preview mode, with the simulated DocuSign.
+// Waiver page in dev ?preview mode: the PowerForm link, and (embedded mode) the simulated DocuSign.
+const invoke = vi.hoisted(() => vi.fn(async () => ({ data: null, error: null })));
 vi.mock("@/lib/supabaseClient", () => ({
   supabase: {
     auth: {
       getSession: async () => ({ data: { session: null } }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     },
-    functions: { invoke: async () => ({ data: null, error: null }) },
+    functions: { invoke },
   },
 }));
 
@@ -20,12 +21,13 @@ import Dashboard from "./Dashboard";
 import Waiver from "./Waiver";
 import { waiverKey } from "./StaffPortalContext";
 import { EVENT_CODE } from "@/portal/event";
+import { DOCUSIGN } from "./config";
 
-function renderWaiver() {
+function renderWaiver(query = "") {
   render(
     <QueryClientProvider client={new QueryClient()}>
       <AuthProvider>
-        <MemoryRouter initialEntries={["/portal/mentor/waiver?preview"]}>
+        <MemoryRouter initialEntries={[`/portal/mentor/waiver?preview${query}`]}>
           <Routes>
             <Route path="/portal/mentor" element={<StaffPortalLayout portal="mentor" />}>
               <Route index element={<Dashboard />} />
@@ -40,7 +42,64 @@ function renderWaiver() {
 
 const submit = () => screen.getByRole("button", { name: "Submit waiver" });
 
-beforeEach(() => localStorage.clear());
+const shipped = { ...DOCUSIGN };
+beforeEach(() => {
+  localStorage.clear();
+  invoke.mockClear();
+  // The simulated-signing tests below are for embedded mode.
+  DOCUSIGN.mode = "embedded";
+});
+afterEach(() => { Object.assign(DOCUSIGN, shipped); });
+
+describe("PowerForm waiver page", () => {
+  beforeEach(() => { Object.assign(DOCUSIGN, shipped); });
+
+  it("says the waiver opens soon while it isn't published, even with a link set", async () => {
+    renderWaiver();
+    expect(await screen.findByRole("button", { name: "Waiver opens soon" })).toBeDisabled();
+    expect(screen.queryByRole("link", { name: /Sign the waiver/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Not on file yet")).toBeInTheDocument();
+  });
+
+  it("says it opens soon without a link, even once published", async () => {
+    Object.assign(DOCUSIGN, { waiverPublished: true, powerFormUrl: "" });
+    renderWaiver();
+    expect(await screen.findByRole("button", { name: "Waiver opens soon" })).toBeDisabled();
+  });
+
+  it("links to the prefilled PowerForm in a new tab once published, and never calls the edge function", async () => {
+    DOCUSIGN.waiverPublished = true;
+    renderWaiver();
+    const link = await screen.findByRole("link", { name: /Sign the waiver/ });
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", expect.stringContaining("noopener"));
+    const href = new URL(link.getAttribute("href")!);
+    expect(href.origin + href.pathname).toBe("https://www.docusign.net/Member/PowerFormSigning.aspx");
+    expect(href.searchParams.get("Participant_UserName")).toBe("Jane Doe");
+    expect(href.searchParams.get("Participant_Email")).toBe("jane.doe@example.com");
+    expect(href.searchParams.get("datahacks_id")).toMatch(/^[0-9a-f-]{36}$/);
+    expect(screen.getByText(/Signed\? It shows here within a day once we sync with DocuSign/)).toBeInTheDocument();
+    // Nothing on the page can mark it signed except the preview-only stand-in for a sync.
+    expect(screen.queryByRole("button", { name: /I signed|Submit/ })).not.toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("shows Signed from the database (preview: a pretend sync), and the dashboard agrees", async () => {
+    DOCUSIGN.waiverPublished = true;
+    renderWaiver();
+    fireEvent.click(await screen.findByRole("button", { name: /Pretend DocuSign synced/ }));
+    expect(await screen.findByText("Waiver on file")).toBeInTheDocument();
+    expect(screen.getByText("Signed")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("link", { name: "Back to dashboard" }));
+    expect(await screen.findByText("Completed")).toBeInTheDocument();
+    expect(invoke).not.toHaveBeenCalled();
+  });
+
+  it("preview's &waiver=ready shows the live button before publishing", async () => {
+    renderWaiver("&waiver=ready");
+    expect(await screen.findByRole("link", { name: /Sign the waiver/ })).toBeInTheDocument();
+  });
+});
 
 describe("simulated waiver signing", () => {
   it("only lets them submit once a signature is detected", async () => {

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
-import { CheckCircle2, PenLine } from "lucide-react";
+import { CheckCircle2, ExternalLink, PenLine } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
 import { DOCUSIGN } from "./config";
 import { EVENT_CODE } from "@/portal/event";
 import MockSigning, { type MockSessionEnd } from "./MockSigning";
 import { callWaiverFunction, type WaiverStatus } from "./waiverFunction";
+import { powerFormLink, powerFormOpen } from "./powerForm";
 
 // DocuSign's embedding script ("focused view"), which mounts the signing session in the page.
 const BUNDLE_URL = { demo: "https://js-d.docusign.com/bundle.js", production: "https://js.docusign.com/bundle.js" };
@@ -45,7 +46,86 @@ const END_MESSAGES: Record<string, string> = {
   ttl_expired: "The signing link expired. Start again to continue.",
 };
 
+/**
+ * The waiver page. DOCUSIGN.mode picks how people sign: a PowerForm link on UC San
+ * Diego's DocuSign (organizers import who signed), or embedded signing through the
+ * docusign-waiver edge function. Either way, "signed" comes from public.waivers.
+ */
 export default function Waiver() {
+  return DOCUSIGN.mode === "embedded" ? <EmbeddedWaiver /> : <PowerFormWaiver />;
+}
+
+function PowerFormWaiver() {
+  const { basePath, status, waiverSubmitted, signer, preview, submitWaiver, resetWaiver } = useStaffPortal();
+  const { search } = useLocation();
+  if (status !== "accepted") return <Navigate to={{ pathname: basePath, search }} replace />;
+
+  // Dev `?preview&waiver=ready` shows the live button before the waiver is published.
+  const open = powerFormOpen(preview && new URLSearchParams(search).get("waiver") === "ready" ? { ...DOCUSIGN, waiverPublished: true } : DOCUSIGN);
+  const link = open ? powerFormLink(signer) : null;
+
+  return (
+    <div className="sp-page">
+      <header className="sp-page-header">
+        <h1>Liability Waiver</h1>
+        <p>Everyone taking part (hackers, mentors and judges) needs a signed waiver on file before the event.</p>
+        <p className="sp-waiver-line">
+          Waiver:{" "}
+          <span className={waiverSubmitted ? "sp-complete" : "sp-incomplete"}>{waiverSubmitted ? "Signed" : "Not on file yet"}</span>
+        </p>
+      </header>
+
+      <section className="sp-card">
+        {waiverSubmitted ? (
+          <div className="sp-done">
+            <CheckCircle2 size={36} aria-hidden />
+            <h2>Waiver on file</h2>
+            <p>Thanks, you're all set. <Link to={{ pathname: basePath, search }}>Back to dashboard</Link></p>
+            {preview && (
+              <button className="sp-link-button" onClick={resetWaiver}>Reset waiver (preview only)</button>
+            )}
+          </div>
+        ) : (
+          <ol className="sp-steps">
+            <li>
+              <h2>Sign on DocuSign</h2>
+              {link ? (
+                <>
+                  <p>
+                    The waiver opens on UC San Diego's DocuSign in a new tab, with your name and email filled in.
+                    DocuSign emails you a code to confirm that email, then you sign. Keep the email as it is so we
+                    can match your signature to you.
+                  </p>
+                  <a className="sp-button primary" href={link} target="_blank" rel="noopener noreferrer">
+                    <PenLine size={16} aria-hidden /> Sign the waiver <ExternalLink size={14} aria-hidden />
+                  </a>
+                </>
+              ) : (
+                <>
+                  <p>The waiver isn't open for signing yet. Check back here soon.</p>
+                  <button className="sp-button" disabled>Waiver opens soon</button>
+                </>
+              )}
+            </li>
+            <li>
+              <h2>It shows up here</h2>
+              <p>
+                Signed? It shows here within a day once we sync with DocuSign. DocuSign also emails you a copy when
+                you finish; if it isn't showing by the event, show that email at check-in.
+              </p>
+              {preview && link && (
+                <button className="sp-link-button" onClick={() => submitWaiver(null)}>Pretend DocuSign synced (preview only)</button>
+              )}
+            </li>
+          </ol>
+        )}
+      </section>
+    </div>
+  );
+}
+
+/** DocuSign signing embedded in the page, through the docusign-waiver edge function. */
+function EmbeddedWaiver() {
   const { basePath, status, waiverSubmitted, submitWaiver, preview, resetWaiver } = useStaffPortal();
   const { search } = useLocation();
   const [phase, setPhase] = useState<Phase>("idle");

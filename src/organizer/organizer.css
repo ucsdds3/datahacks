@@ -359,3 +359,19 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
   .og-scantype-time { flex: 1 1 140px; }
   .og-scantype-time input { width: 100%; }
 }
+
+/* Waivers section (DocuSign PowerForm import and desk marks). */
+.og-waiver-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.og-waiver-stats dd span { font-size: 18px; color: #3d4836; }
+.og-waiver-file { margin: 0; overflow-wrap: anywhere; }
+.og-waiver-tabs { margin: 12px 0 4px; flex-wrap: wrap; }
+.og-waiver-table { margin-top: 8px; }
+.og-hint-inline { color: var(--sp-muted); font-size: 13px; }
+.og-waiver-missing-head { display: flex; align-items: center; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; }
+.og-waiver-missing-head h2 { margin: 0; }
+.og-waiver-missing .og-success { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+.og-mark-signed { padding: 5px 10px !important; white-space: nowrap; }
+@media (max-width: 640px) {
+  .og-waiver-stats { grid-template-columns: 1fr; }
+  .og-waiver-missing-head .og-search input { width: 100%; }
+}

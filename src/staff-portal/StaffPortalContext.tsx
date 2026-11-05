@@ -15,6 +15,8 @@ type StaffPortalState = {
   submittedAt: string | null;
   /** A signed waiver is on file (public.waivers). */
   waiverSubmitted: boolean;
+  /** Who signs the waiver: name, email and application id for the PowerForm link. */
+  signer: { name: string; email: string; id: string };
   /**
    * Asks the server to check the envelope with DocuSign and record it. Throws with a
    * message to show if DocuSign has no signature, or it couldn't be recorded.
@@ -94,8 +96,13 @@ export function StaffPortalProvider({ application, preview, children }: { applic
   }, [key]);
 
   const portal = application.type;
+  const signer = {
+    name: `${application.firstName} ${application.lastName}`.trim() || ((session?.user?.user_metadata?.full_name as string | undefined)?.trim() ?? ""),
+    email: application.email?.trim() || session?.user?.email || "",
+    id: application.id ?? "",
+  };
   return (
-    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, submittedAt: application.submittedAt, waiverSubmitted, submitWaiver, preview, resetWaiver }}>
+    <StaffPortalContext.Provider value={{ portal, basePath: `/portal/${portal}`, fullName, status: application.status, submittedAt: application.submittedAt, waiverSubmitted, signer, submitWaiver, preview, resetWaiver }}>
       {children}
     </StaffPortalContext.Provider>
   );
