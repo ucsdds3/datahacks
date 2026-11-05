@@ -4,7 +4,7 @@ import type { OAuthAuthorizationDetails } from '@supabase/supabase-js'
 import MinecraftLayout from '@/components/MinecraftLayout'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabaseClient'
-import { signOutEverywhere, startGoogleSignIn } from '@/portal/signIn'
+import { startGoogleSignIn, switchGoogleAccount } from '@/portal/signIn'
 
 type State =
   | { step: 'loading' }
@@ -77,9 +77,11 @@ export default function OAuthConsent() {
     window.location.href = data.redirect_url
   }
 
-  const switchAccount = async () => {
-    await signOutEverywhere()
-    setState({ step: 'sign-in' })
+  // Not the account they meant: sign out here and straight to Google's account
+  // picker, back to this same request.
+  const switchAccount = () => {
+    setBusy(true)
+    switchGoogleAccount('hacker', `${pathname}${search}`).catch(e => { setBusy(false); setState({ step: 'error', message: message(e) }) })
   }
 
   return (
@@ -122,7 +124,8 @@ export default function OAuthConsent() {
                 <button className="mc-button" onClick={() => decide(true)} disabled={busy} style={{ flex: 1 }}>Allow</button>
               </div>
               <p className="mc-form-disclaimer">
-                Not you? <button type="button" onClick={switchAccount} disabled={busy} style={{ textDecoration: 'underline' }}>Use another account</button>
+                Not you?{' '}
+                <button type="button" onClick={switchAccount} disabled={busy} style={{ textDecoration: 'underline' }}>Use a different account</button>
               </p>
             </>
           )}

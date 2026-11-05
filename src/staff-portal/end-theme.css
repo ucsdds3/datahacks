@@ -404,24 +404,22 @@
     position: static;
     flex: none;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas: "brand footer" "nav nav";
+    /* Who's signed in sits top right in whatever room the brand leaves (a long address
+       ends in an ellipsis); the contact link gets its own line under the tabs. */
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "brand account" "nav nav" "contact contact";
     align-items: center;
     gap: 10px 12px;
     height: auto;
     padding: 10px 10px 8px;
   }
   .sp-root.sp-end .sp-brand { grid-area: brand; margin: 0; padding: 0 0 0 2px; border: 0; }
-  .sp-root.sp-end .sp-sidebar-footer {
-    grid-area: footer;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 4px;
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
+  .sp-root.sp-end .sp-sidebar-footer { display: contents; }
   .sp-root.sp-end .sp-signout { align-self: flex-end; padding: 3px 8px; }
+  .sp-root.sp-end .sp-account { grid-area: account; align-items: flex-end; gap: 4px; min-width: 0; text-align: right; }
+  .sp-root.sp-end .sp-account-who { align-items: flex-end; max-width: 100%; }
+  .sp-root.sp-end .sp-account-email { max-width: 100%; }
+  .sp-root.sp-end .sp-sidebar-footer a.sp-contact { grid-area: contact; justify-self: start; padding: 0 2px; font-size: 12px; }
   .sp-root.sp-end .sp-nav {
     grid-area: nav;
     gap: 4px;

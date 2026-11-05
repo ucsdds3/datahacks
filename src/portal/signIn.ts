@@ -39,3 +39,31 @@ export async function signOutEverywhere() {
     sessionStorage.clear();
   } catch { /* storage blocked */ }
 }
+
+/**
+ * The account this browser is already signed in to, or null. The whole site
+ * (hacker portal, mentor/judge portal, organizer console) shares one session per
+ * browser, so a new sign-in replaces it everywhere: sign-in buttons check this
+ * first and ask before starting Google.
+ */
+export async function signedInAccount(): Promise<{ email: string } | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session ? { email: data.session.user.email ?? "" } : null;
+}
+
+/** "Use a different account": signs this browser out, then straight to Google's account picker. */
+export async function switchGoogleAccount(as: SignInAs, next?: string) {
+  await signOutEverywhere();
+  await startGoogleSignIn(as, next);
+}
+
+/**
+ * "Continue as …": where the sign-in callback would have sent them. Organizers
+ * go to the console; everyone else to /portal, which opens their application or
+ * the form for the button they used.
+ */
+export function continuePath(as: SignInAs): string {
+  if (as === "organizer") return portal.organizer;
+  rememberApplyAs(as);
+  return portal.home;
+}

@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { AccountNotice } from "@/portal/AccountNotice";
+import { useAccountGuard } from "@/portal/useAccountGuard";
 
 
 const initial = { name: "", email: "", school: "", experience: "First hackathon", team: "Looking for teammates", motivation: "" };
@@ -19,13 +21,10 @@ export default function ApplicationPage() {
   useEffect(() => { if (mounted.current) heading.current?.focus(); mounted.current = true; }, [step, complete]);
   const set = (key: keyof typeof initial, value: string) => setDetails(previous => ({ ...previous, [key]: value }));
   const next = (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); setStep(value => Math.min(value + 1, 2)); };
-  const [signInError, setSignInError] = useState<string | null>(null);
-  // Straight to Google's account picker, no separate sign-in page. Loaded on
-  // click so the Supabase client stays out of the site's own bundle.
-  const signIn = () =>
-    import("@/portal/signIn")
-      .then(m => m.startGoogleSignIn("hacker"))
-      .catch(error => setSignInError(error instanceof Error ? error.message : String(error)));
+  // Straight to Google's account picker, no separate sign-in page, unless this
+  // browser is already signed in: then it asks first. Loaded on click so the
+  // Supabase client stays out of the site's own bundle.
+  const guard = useAccountGuard("hacker");
 
   return (
   <div className="mc-application-form">
@@ -40,21 +39,28 @@ export default function ApplicationPage() {
         your hacker application, or to check on one you've already sent.
       </p>
 
-      <div className="mc-form-actions">
-        <button
-          type="button"
-          className="mc-button"
-          onClick={signIn}
-          style={{
-            width: "100%",
-            justifyContent: "center",
-          }}
-        >
-          Apply as a hacker <ArrowRight size={17} />
-        </button>
+      <div aria-live="polite">
+        {guard.account !== null && (
+          <AccountNotice theme="mc" email={guard.account} busy={guard.busy} onContinue={guard.continueAsCurrent} onSwitch={guard.switchAccount} />
+        )}
       </div>
+      {guard.account === null && (
+        <div className="mc-form-actions">
+          <button
+            type="button"
+            className="mc-button"
+            onClick={guard.signIn}
+            style={{
+              width: "100%",
+              justifyContent: "center",
+            }}
+          >
+            Apply as a hacker <ArrowRight size={17} />
+          </button>
+        </div>
+      )}
 
-      {signInError && <p className="mc-form-help" style={{ color: "#c96b6b" }}>{signInError}</p>}
+      {guard.error && <p className="mc-form-help" style={{ color: "#c96b6b" }}>{guard.error}</p>}
       </div>
 );
 }

@@ -320,6 +320,14 @@
 }
 .sp-signout:hover { color: var(--sp-text); }
 
+/* Who's signed in, next to Sign out (on the dark sidebar). Long emails end in an ellipsis; the title has the whole thing. */
+.sp-account { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.sp-account-who { display: flex; flex-direction: column; min-width: 0; margin: 0; color: var(--mc-light-muted); font-size: 12px; line-height: 1.35; }
+.sp-account-email { overflow: hidden; color: var(--mc-light); font-size: 13px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.sp-root .sp-sidebar-footer a.sp-contact { align-items: flex-start; }
+.sp-contact svg { flex: none; margin-top: 3px; }
+.sp-contact-email { text-decoration: underline; text-underline-offset: 2px; }
+
 .sp-status.waitlisted .sp-dot { background: var(--sp-orange); box-shadow: 0 0 0 3px rgb(232 116 44 / 0.18); }
 .sp-muted { color: var(--sp-muted); }
 
