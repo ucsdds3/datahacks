@@ -1,4 +1,10 @@
-# DocuSign waiver
+# DocuSign waiver (embedded, not in use)
+
+> The portal now uses a PowerForm on UC San Diego's DocuSign instead
+> (`docs/docusign-powerform-setup.md`). This embedded flow is kept behind
+> `DOCUSIGN.mode = "embedded"` in `src/staff-portal/config.ts`, and the
+> `docusign-waiver` edge function still deploys, but the portal doesn't call it
+> in PowerForm mode.
 
 Mentors and judges sign the liability waiver inside the portal
 (`/portal/<role>/waiver`). DocuSign's "focused view" runs in an iframe on our

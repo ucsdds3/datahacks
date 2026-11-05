@@ -1,13 +1,39 @@
 // Portal content that isn't stored in Supabase (schedule, contacts, DocuSign setup).
 // Swap the values here; no component needs to change.
 
-/**
- * DocuSign embedded signing for the liability waiver. The waiver file itself lives in
- * DocuSign as a template; the server side is supabase/functions/docusign-waiver (setup
- * steps are in docs/docusign-waiver.md). clientId is the app's integration key, which is
- * public. While it's empty the waiver page says the document isn't ready yet.
- */
-export const DOCUSIGN: { clientId: string; environment: "demo" | "production" } = {
+export type DocuSignConfig = {
+  /**
+   * "powerform": the waiver page links to a PowerForm on UC San Diego's DocuSign
+   * account, and organizers import who signed from DocuSign's CSV export (setup:
+   * docs/docusign-powerform-setup.md). "embedded": DocuSign signing inside the page
+   * through the docusign-waiver edge function (docs/docusign-waiver.md).
+   */
+  mode: "powerform" | "embedded";
+  /** The PowerForm link ("Copy PowerForm URL" in DocuSign). Empty: the page says the waiver opens soon. */
+  powerFormUrl: string;
+  /**
+   * False until the waiver's final wording is in the DocuSign template. While false
+   * the Sign button says "Waiver opens soon" even though the link is set.
+   */
+  waiverPublished: boolean;
+  /** The template's signer role, spelled exactly as in DocuSign: the link fills <Role>_UserName and <Role>_Email. */
+  roleName: string;
+  /** Data label of the template's read-only text field that carries the application id (what the CSV import matches on). */
+  idFieldLabel: string;
+  /** Embedded mode only: the app's integration key (public). */
+  clientId: string;
+  /** Embedded mode only. */
+  environment: "demo" | "production";
+};
+
+export const DOCUSIGN: DocuSignConfig = {
+  mode: "powerform",
+  // PowerForm "DataHacks 2027 Liability Waiver" on UC San Diego's DocuSign (account 6371e373…, na1).
+  powerFormUrl: "https://www.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=bed6ac13-bb24-44ef-84b1-1ede0ce183c1&env=na1&acct=6371e373-11ff-4359-aa24-bf2ccbddc944&v=2",
+  // The template's PDF is still the draft ("DRAFT FOR TESTING"). Flip to true once the final wording is in.
+  waiverPublished: false,
+  roleName: "Participant",
+  idFieldLabel: "datahacks_id",
   clientId: "24c6a289-a194-46f9-a5f3-3a13fd5aa71a",
   environment: "demo",
 };

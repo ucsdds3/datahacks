@@ -74,3 +74,19 @@ export class PreviewOnlyError extends Error {
     this.name = "PreviewOnlyError";
   }
 }
+
+/** Preview: record waivers for these sample applications (accepted ones without one). Returns how many were new. */
+export function previewRecordWaivers(ids: string[], signedAt: string): { recorded: number; already: number; skipped: string[] } {
+  let recorded = 0;
+  let already = 0;
+  const skipped: string[] = [];
+  for (const id of ids) {
+    const r = rows.find(x => x.id === id);
+    if (!r || r.status !== "accepted") { skipped.push(id); continue; }
+    if (r.waiverSignedAt) { already++; continue; }
+    r.waiverSignedAt = signedAt;
+    recorded++;
+  }
+  rows = [...rows];
+  return { recorded, already, skipped };
+}
