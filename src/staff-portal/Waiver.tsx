@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Navigate, useLocation } from "react-router-dom";
 import { CheckCircle2, PenLine } from "lucide-react";
-import { supabase } from "@/lib/supabaseClient";
 import { useStaffPortal } from "./StaffPortalContext";
 import { DOCUSIGN } from "./config";
 import { EVENT_CODE } from "@/portal/event";
 import MockSigning, { type MockSessionEnd } from "./MockSigning";
+import { callWaiverFunction, type WaiverStatus } from "./waiverFunction";
 
 // DocuSign's embedding script ("focused view"), which mounts the signing session in the page.
 const BUNDLE_URL = { demo: "https://js-d.docusign.com/bundle.js", production: "https://js.docusign.com/bundle.js" };
@@ -36,15 +36,6 @@ const ENVELOPE_KEY = `datahacks.staffPortal.waiverEnvelope.${EVENT_CODE}`;
 const storedEnvelope = () => { try { return sessionStorage.getItem(ENVELOPE_KEY); } catch { return null; } };
 const storeEnvelope = (id: string) => { try { sessionStorage.setItem(ENVELOPE_KEY, id); } catch { /* storage blocked */ } };
 
-async function callWaiverFunction<T>(body: Record<string, unknown>): Promise<T> {
-  const { data, error } = await supabase.functions.invoke("docusign-waiver", { body });
-  if (error) {
-    const message = await error.context?.json?.().then((b: { error?: string }) => b.error).catch(() => undefined);
-    throw new Error(message ?? "Something went wrong talking to DocuSign.");
-  }
-  return data as T;
-}
-
 type Phase = "idle" | "loading" | "signing" | "verifying" | "signed";
 
 const END_MESSAGES: Record<string, string> = {
@@ -70,11 +61,12 @@ export default function Waiver() {
     if (!signed) setMessage(m => m ?? "No signature detected on the waiver yet.");
   }, []);
 
-  // Asks the server, which asks DocuSign; the browser's word isn't enough.
+  // Asks the server, which asks DocuSign; the browser's word isn't enough. A completed
+  // envelope is also recorded in the database then, so the check-in desk can see it.
   const verify = useCallback(async (envelopeId: string) => {
     setPhase("verifying");
     try {
-      const { signed } = await callWaiverFunction<{ signed: boolean }>({ action: "status", envelopeId });
+      const { signed } = await callWaiverFunction<WaiverStatus>({ action: "status", envelopeId });
       settle(signed);
     } catch (e) {
       setPhase("idle");
@@ -121,9 +113,15 @@ export default function Waiver() {
     }
   };
 
+  // Submit re-checks with the server (which records the waiver), rather than trusting this page.
   const handleSubmit = async () => {
     setSubmitting(true);
-    await submitWaiver();
+    setMessage(null);
+    try {
+      await submitWaiver(storedEnvelope());
+    } catch (e) {
+      setMessage((e as Error).message);
+    }
     setSubmitting(false);
   };
 
@@ -182,6 +180,7 @@ export default function Waiver() {
               <button className="sp-button primary" disabled={!signed || submitting} onClick={handleSubmit}>
                 {submitting ? "Submitting…" : "Submit waiver"}
               </button>
+              {signed && message && <p className="sp-error" role="alert">{message}</p>}
             </li>
           </ol>
         )}

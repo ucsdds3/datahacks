@@ -18,6 +18,8 @@ const fake = vi.hoisted(() => ({
   calls: [] as Call[],
   tables: {} as Record<string, unknown[]>,
   rpc: { data: [] as unknown[], error: null as unknown },
+  /** Act like a database from before the waivers migration (no attendees.waiver_signed_at). */
+  noWaiverColumn: false,
 }));
 
 vi.mock("@/lib/supabaseClient", () => {
@@ -26,6 +28,9 @@ vi.mock("@/lib/supabaseClient", () => {
     const rows = (fake.tables[call.table] ?? []).filter(row =>
       call.eq.every(([column, value]) => (row as Record<string, unknown>)[column] === value));
     if (call.update !== undefined) return { data: null, error: null };
+    if (fake.noWaiverColumn && call.select?.includes("waiver_signed_at")) {
+      return { data: null, error: { code: "42703", message: "column attendees.waiver_signed_at does not exist" } };
+    }
     if (call.single) return { data: rows[0] ?? null, error: null };
     const [from, to] = call.range ?? [0, rows.length - 1];
     return { data: rows.slice(from, Math.min(to + 1, from + MAX_ROWS)), error: null };
@@ -126,6 +131,27 @@ describe("fetchApplicationRows", () => {
     expect(appCalls[0].order).toEqual(["created_at", "id"]);
     expect(appCalls[0].select).not.toMatch(/essay|bio|gender/);
     expect(fake.calls.filter(c => c.table === "attendees").map(c => c.range)).toEqual([[0, 999], [1000, 1999]]);
+  });
+
+  it("shows who has a waiver on file, and still loads the roster on a database without the column", async () => {
+    fake.tables.applications = [application(1), application(2)];
+    fake.tables.attendees = [
+      { event_id: "event-1", application_id: id(1), code: "DH-1", checked_in_at: null, emailed_at: null, waiver_signed_at: "2026-11-04T18:00:00Z" },
+      { event_id: "event-1", application_id: id(2), code: "DH-2", checked_in_at: null, emailed_at: null, waiver_signed_at: null },
+    ];
+    const rows = await fetchApplicationRows("event-1");
+    expect(rows.map(r => r.waiverSignedAt)).toEqual(["2026-11-04T18:00:00Z", null]);
+
+    fake.noWaiverColumn = true;
+    fake.tables.attendees = fake.tables.attendees.map(a => { const { waiver_signed_at: _, ...rest } = a as Record<string, unknown>; return rest; });
+    fake.calls.length = 0;
+    try {
+      const older = await fetchApplicationRows("event-1");
+      expect(older.map(r => [r.code, r.waiverSignedAt])).toEqual([["DH-1", null], ["DH-2", null]]);
+      expect(fake.calls.filter(c => c.table === "attendees").map(c => c.select?.includes("waiver_signed_at"))).toEqual([true, false]);
+    } finally {
+      fake.noWaiverColumn = false;
+    }
   });
 
   it("puts the earliest submissions first and drafts last", async () => {

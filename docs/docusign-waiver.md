@@ -18,6 +18,22 @@ function has asked DocuSign whether the signer finished.
    `DocuSign.loadDocuSign(clientId)`. It mounts the signing session with
    `displayFormat: "focused"` and, when the session ends, calls the function
    with `action: "status"`.
+4. When `status` finds the caller's envelope `completed`, the function records
+   it in `public.waivers` (event + user, signed time, envelope id) with the
+   service role, and answers `recorded: true`. Submit on the waiver page runs
+   the same check again, so the portal's "Completed" comes from the database,
+   not the browser. Nobody signed in can write `public.waivers`; applicants
+   read their own row and organizers read their event's rows.
+5. A trigger copies the signed time onto the check-in roster
+   (`attendees.waiver_signed_at`), and `check_in_by_code` returns it, so the
+   check-in app shows "Waiver ✓" or "No waiver" at the desk. The organizer
+   console's tables have a Waiver column from the same field.
+
+There's no backfill: before migration `20261104200000_waivers_on_file`, a
+signed waiver was only remembered in the signer's browser. Someone who signed
+earlier gets recorded the next time their waiver page re-checks the envelope
+(same browser session) or when they sign again. DocuSign Connect (webhooks)
+isn't set up; see the TODO in the function.
 
 ## Demo setup (done October 2026)
 

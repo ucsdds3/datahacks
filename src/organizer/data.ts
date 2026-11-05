@@ -47,7 +47,15 @@ export function useEventId() {
   return useQuery({ queryKey: ["current-event"], queryFn: () => (isPreview() ? PREVIEW_EVENT_ID : currentEventId()), staleTime: Infinity });
 }
 
-type RosterEntry = { application_id: string | null; code: string | null; checked_in_at: string | null; emailed_at: string | null };
+type RosterEntry = { application_id: string | null; code: string | null; checked_in_at: string | null; emailed_at: string | null; waiver_signed_at?: string | null };
+
+const ROSTER_COLUMNS = "application_id, code, checked_in_at, emailed_at";
+
+/** The check-in roster, a page at a time; `withWaiver` adds attendees.waiver_signed_at. */
+const fetchRoster = (eventId: string, withWaiver: boolean) =>
+  fetchAllPages<RosterEntry>((from, to) =>
+    supabase.from("attendees").select(withWaiver ? `${ROSTER_COLUMNS}, waiver_signed_at` : ROSTER_COLUMNS).eq("event_id", eventId)
+      .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<RosterEntry>);
 
 /** Drafts (no submitted_at) sort last. Array sort is stable, so ties keep their created order. */
 const submittedTime = (app: ListApplication) => (app.submitted_at ? Date.parse(app.submitted_at) : Infinity);
@@ -71,15 +79,15 @@ export async function fetchApplicationRows(eventId: string): Promise<Row[]> {
       supabase.from("applications").select(LIST_COLUMNS).eq("event_id", eventId)
         .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<ListApplication>),
     // The roster is a nice-to-have here: a failure leaves codes and check-ins blank.
-    fetchAllPages<RosterEntry>((from, to) =>
-      supabase.from("attendees").select("application_id, code, checked_in_at, emailed_at").eq("event_id", eventId)
-        .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<RosterEntry>)
+    // A database without the waiver column yet (it's added by a migration) still loads the rest.
+    fetchRoster(eventId, true)
+      .catch(() => fetchRoster(eventId, false))
       .catch(() => [] as RosterEntry[]),
   ]);
   const roster = new Map(attendees.filter(a => a.application_id).map(a => [a.application_id!, a]));
   return apps.sort(bySubmitted).map(app => {
     const entry = roster.get(app.id);
-    return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null };
+    return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null, waiverSignedAt: entry?.waiver_signed_at ?? null };
   });
 }
 

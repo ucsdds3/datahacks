@@ -298,3 +298,37 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
 .og-organizer-list li > span:first-child { flex: 1; overflow-wrap: anywhere; }
 .og-organizer-status { font-size: 13px; color: #5f6b5a; }
 .og-organizer-status.active { color: #3c7a2e; }
+
+/* Day-of section: no-shows and the waitlist */
+.og-dayof { display: flex; flex-direction: column; gap: 18px; max-width: 980px; }
+.og-dayof .sp-card > p { margin: 10px 0 0; }
+.og-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0; }
+.og-stats div { padding: 10px 12px; border: 2px solid #b0b9a3; background: #ecede2; }
+.og-stats dt { font: 400 16px/1.3 "VT323", monospace; letter-spacing: 0.05em; text-transform: uppercase; color: #3d4836; }
+.og-stats dd { margin: 2px 0 0; font: 400 34px/1 "VT323", monospace; color: var(--sp-text); }
+.og-stats dd span { margin-left: 4px; font: 400 14px/1 "DM Sans", system-ui, sans-serif; color: var(--sp-muted); }
+.og-dayof-settings > summary { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; cursor: pointer; list-style: none; }
+.og-dayof-settings > summary::-webkit-details-marker { display: none; }
+.og-dayof-settings > summary .og-hint { margin: 0; }
+.og-dayof-form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 16px; margin-top: 14px; }
+.og-dayof-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; font-weight: 500; color: #394531; }
+.og-dayof-form input {
+  padding: 8px 10px; border: 2px solid #6d7a64; border-radius: 0; background: #f1f2e7;
+  box-shadow: inset 2px 2px #c4ccb9; color: #2a3527; font: inherit; font-size: 14px; font-weight: 400;
+}
+.og-dayof-form-actions { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.og-dayof-form-actions .og-success, .og-dayof-form-actions .sp-error { margin: 0; }
+.og-dayof-sub { margin: 16px 0 0; font: 400 20px/1.2 "VT323", monospace; letter-spacing: 0.02em; }
+.og-dayof-people { margin-top: 8px; border: 2px solid #b0b9a3; }
+.og-dayof-marked, .og-dayof-later { margin-top: 14px; }
+.og-dayof-marked .og-pass-rows .og-pass-row:first-child, .og-dayof-later .og-pass-rows { border-top: 0; }
+.og-dayof-names { margin: 8px 0 0; padding-left: 20px; max-height: 220px; overflow-y: auto; }
+.og-dayof-names .og-hint { margin-left: 6px; }
+.og-dayof-outcome p { margin: 10px 0 0; }
+.og-dayof-undo { margin-left: 8px; padding: 2px 10px; }
+.og-dayof .og-success, .og-dayof .sp-error { margin-top: 10px; }
+
+@media (max-width: 700px) {
+  .og-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+.og-dayof .sp-card .og-empty { margin: 12px 0 0; color: var(--sp-muted); }
