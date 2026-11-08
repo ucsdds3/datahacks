@@ -264,7 +264,7 @@ app=$(restq "select a.id from public.applications a join public.events e on e.id
              where e.code = 'DH27BETA' order by a.created_at desc, a.id limit 1")
 if [ -n "$app" ]; then
   fields="set timezone = 'UTC'; select key || ' ' || md5(coalesce(value, '<null>'))
-          from public.applications a, jsonb_each_text(to_jsonb(a)) where a.id = '$app' order by key"
+          from public.applications a, jsonb_each_text(to_jsonb(a)) where a.id = '$app' order by key collate \"C\""
   diffkeys=$(diff <(restq "$fields" | grep -v '^SET$') <(prodq "$fields" | grep -v '^SET$') \
              | grep -E '^[<>]' | awk '{print $2}' | sort -u | tr '\n' ' ' || true)
   nfields=$(restq "select count(*) from public.applications a, jsonb_each(to_jsonb(a)) where a.id = '$app'")
