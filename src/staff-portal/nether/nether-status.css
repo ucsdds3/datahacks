@@ -381,6 +381,11 @@
   .sp-root.sp-nether .sp-status-card[data-status="waitlisted"] .sp-progress li:nth-child(3) .sp-step-marker { animation: ns-ember 2.6s ease-in-out infinite; }
   .sp-root.sp-nether .sp-status-card .sp-nether-art-chest { animation: ns-glint 3.2s ease-in-out infinite; }
   .sp-root.sp-nether .sp-nether-art-dyno .sp-nether-dyno-blink { animation: ns-blink 5s steps(1, end) infinite; }
+  /* Hover or tap: a real blink. */
+  .sp-root.sp-nether .sp-nether-art-dyno:is(:hover, :active) .sp-nether-dyno-blink { animation: ns-blink-once 0.32s steps(1, end) 1; }
+  /* Just submitted: Dyno hops into its corner, wiggles, blinks twice, then settles into the usual loop. */
+  .sp-root.sp-nether .sp-nether-art-dyno.is-celebrating { animation: ns-dyno-hop 1.5s cubic-bezier(0.22, 1.2, 0.36, 1) both; transform-origin: 50% 100%; }
+  .sp-root.sp-nether .sp-nether-art-dyno.is-celebrating .sp-nether-dyno-blink { animation: ns-blink-twice 1.5s steps(1, end) 1, ns-blink 5s steps(1, end) 1.5s infinite; }
   .sp-root.sp-nether .sp-nether-art-strider { animation: ns-sway 3.6s ease-in-out infinite; transform-origin: 50% 100%; }
   .sp-root.sp-nether :is(.sp-nether-art-ghast, .sp-nether-art-dyno-diamond) { animation: ns-bob 4s ease-in-out infinite; }
 }
@@ -397,6 +402,28 @@
   0%, 93% { opacity: 0; }
   94%, 97% { opacity: 1; }
   98% { opacity: 0; }
+}
+@keyframes ns-blink-once {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes ns-blink-twice {
+  0%, 62% { opacity: 0; }
+  64%, 70% { opacity: 1; }
+  72%, 80% { opacity: 0; }
+  82%, 88% { opacity: 1; }
+  90% { opacity: 0; }
+}
+@keyframes ns-dyno-hop {
+  0% { opacity: 0; transform: translateY(70px) scale(0.6); }
+  30% { opacity: 1; transform: translateY(-26px) scale(1.06, 0.96); }
+  44% { transform: translateY(0) scale(1.08, 0.9); }
+  54% { transform: translateY(-10px) scale(0.98, 1.03); }
+  64% { transform: translateY(0) rotate(0deg); }
+  72% { transform: rotate(-6deg); }
+  80% { transform: rotate(5deg); }
+  88% { transform: rotate(-2deg); }
+  100% { opacity: 1; transform: none; }
 }
 @keyframes ns-sway {
   0%, 100% { transform: rotate(0deg); }
