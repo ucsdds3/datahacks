@@ -11,7 +11,7 @@ import Pop from "./themes/pop";
 import Press from "./themes/press";
 import Minecraft from "./themes/minecraft";
 import { NoIndex } from "./components/NoIndex";
-import Renovation from "./pages/Renovation";
+import Home from "./pages/Home";
 import { PortalBoundary } from "./portal/PortalBoundary";
 import { portal } from "./portal/paths";
 import { portalPages } from "./portal/pages";
@@ -64,9 +64,9 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Production is the holding page. The world being built lives under
-              /datacraft and is kept out of search until it ships. */}
-          <Route path="/" element={<Renovation />} />
+          {/* The homepage is the DataCraft site, a static build the deploy serves at "/" (public/home/).
+              Landing here inside the app loads it. The older world under /datacraft stays out of search. */}
+          <Route path="/" element={<Home />} />
           <Route path="/datacraft/*" element={<><NoIndex /><Minecraft /></>} />
           {/* Anything still pointing at the old path follows along. */}
           <Route path="/minecraft/*" element={<Navigate to="/datacraft" replace />} />
