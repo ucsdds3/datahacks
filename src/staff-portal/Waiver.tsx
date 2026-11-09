@@ -5,6 +5,7 @@ import { useStaffPortal } from "./StaffPortalContext";
 import { DOCUSIGN } from "./config";
 import { EVENT_CODE } from "@/portal/event";
 import MockSigning, { type MockSessionEnd } from "./MockSigning";
+import { NetherArt } from "./nether/NetherArt";
 import { callWaiverFunction, type WaiverStatus } from "./waiverFunction";
 import { powerFormLink, powerFormOpen } from "./powerForm";
 
@@ -75,7 +76,7 @@ function PowerFormWaiver() {
         </p>
       </header>
 
-      <section className="sp-card">
+      <section className="sp-card sp-waiver-card">
         {waiverSubmitted ? (
           <div className="sp-done">
             <CheckCircle2 size={36} aria-hidden />
@@ -84,6 +85,7 @@ function PowerFormWaiver() {
             {preview && (
               <button className="sp-link-button" onClick={resetWaiver}>Reset waiver (preview only)</button>
             )}
+            <NetherArt name="dyno-diamond" />
           </div>
         ) : (
           <ol className="sp-steps">
@@ -218,7 +220,7 @@ function EmbeddedWaiver() {
         </p>
       </header>
 
-      <section className="sp-card">
+      <section className="sp-card sp-waiver-card">
         {waiverSubmitted ? (
           <div className="sp-done">
             <CheckCircle2 size={36} aria-hidden />
@@ -229,6 +231,7 @@ function EmbeddedWaiver() {
                 Reset waiver (preview only)
               </button>
             )}
+            <NetherArt name="dyno-diamond" />
           </div>
         ) : (
           <ol className="sp-steps">

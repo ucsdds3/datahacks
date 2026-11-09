@@ -1,0 +1,347 @@
+/* Nether theme: forms. See nether-theme.css for tokens.
+   The application forms (HackerApplication, StaffApplication), the Apply pages and the
+   Application tab after submitting (Questions), after the Figma frames "Q1 About you" to
+   "Q4 Review", "Q1 Error", "Submitted" and "Message card": dark inset fields on the
+   basalt board, Nunito Bold labels, lava orange for focus and the section being filled
+   in, warped teal for what's done, and #ff6b5a for anything that needs fixing. */
+
+.sp-root.sp-nether {
+  --nf-field: #141216; /* inset fields and cards, a step below the board */
+  --nf-field-edge: #4a4450;
+  --nf-field-edge-hover: #6a616f;
+  --nf-placeholder: #a8998c;
+  --nf-idle: #ae9b8e; /* a section not started yet */
+  --nf-error-text: #ff8a7b;
+  --nf-error-bg: #2a1214;
+  --nf-lava-glow: 0 0 0 1px var(--nether-lava), 0 0 14px rgb(242 134 47 / 0.35);
+}
+
+/* ---------------------------------------------------------------------------
+   The form on the board
+   --------------------------------------------------------------------------- */
+/* The design puts the questions straight on the board (the page panel), not in a card of their own. */
+.sp-root.sp-nether .sp-card:is(.sp-form, .sp-submitted) {
+  padding: 8px 0 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.sp-root.sp-nether .sp-form {
+  container: sp-form / inline-size;
+  gap: 24px;
+  color: var(--nether-text);
+  font-family: var(--nether-font-body);
+}
+
+/* The notes at the top ("Fields marked * are required…"): the design's message card.
+   Two in a row read as one card. */
+.sp-root.sp-nether .sp-form > .sp-form-note {
+  padding: 16px 22px;
+  border: 3px solid var(--nether-card-edge);
+  background: var(--nether-card);
+  color: var(--nether-text);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.sp-root.sp-nether .sp-form > .sp-form-note:has(+ .sp-form-note) { padding-bottom: 4px; border-bottom: 0; }
+.sp-root.sp-nether .sp-form > .sp-form-note + .sp-form-note { margin-top: -24px; padding-top: 4px; border-top: 0; }
+.sp-root.sp-nether .sp-form-note { color: var(--nether-muted); }
+
+/* Fields: one column, two side by side once the form has the room (design: 2 x 479px). */
+.sp-root.sp-nether .sp-form-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+  gap: 26px 24px;
+}
+@container sp-form (min-width: 600px) {
+  .sp-root.sp-nether .sp-form-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Headings, long answers, pick-several lists, radio groups and checkboxes take the whole row. */
+  .sp-root.sp-nether .sp-form-fields > :is(.sp-form-section, fieldset, .sp-check, label:has(textarea), .sp-field:has(.sp-multiselect)) {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Labels: Nunito Bold 15. */
+.sp-root.sp-nether :is(.sp-form-fields > label, .sp-form-fields > fieldset > label, .sp-form-fields label[id^="field-"], .sp-form-fields legend, .sp-field-label) {
+  color: var(--nether-text);
+  font: 700 15px/1.35 var(--nether-font-body);
+}
+.sp-root.sp-nether .sp-form-fields legend { margin-bottom: 12px; }
+.sp-root.sp-nether .sp-form-fields label > span { color: var(--nether-muted); font-weight: 600; }
+.sp-root.sp-nether .sp-form-fields label[id^="field-"] > span:last-child:not(.sp-req) { margin-top: 8px; font-size: 13px; }
+.sp-root.sp-nether .sp-form-fields label:not(.sp-check) > :is(input, select, textarea) { margin-top: 8px; }
+.sp-root.sp-nether .sp-field { gap: 8px; }
+.sp-root.sp-nether :is(.sp-req, .sp-form-fields label > .sp-req) { margin-left: 2px; color: var(--nether-lava); font-weight: 800; }
+
+/* Section headings in Silkscreen. The form is one long scroll; every section after the first starts below a seam. */
+.sp-root.sp-nether .sp-form-fields .sp-form-section {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--nether-text);
+  font: 400 24px/1.25 var(--nether-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 2px 2px var(--nether-edge);
+  overflow-wrap: anywhere;
+}
+.sp-root.sp-nether .sp-form-fields .sp-form-section::after { content: none; }
+.sp-root.sp-nether .sp-form-fields .sp-form-section:not(:first-child) {
+  margin-top: 14px;
+  padding-top: 34px;
+  border-top: 2px solid var(--nether-blackstone);
+  box-shadow: inset 0 1px var(--nether-edge);
+}
+
+
+/* ---------------------------------------------------------------------------
+   Fields: dark inset wells with a 1px edge; focus is a lava rim and glow.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-multiselect-button) {
+  min-height: 46px;
+  padding: 10px 14px;
+  border: 1px solid var(--nf-field-edge);
+  border-radius: 0;
+  background-color: var(--nf-field);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3);
+  color: var(--nether-text);
+  color-scheme: dark;
+  font: 400 16px/1.45 var(--nether-font-body); /* 16px so phones don't zoom in on focus */
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sp-root.sp-nether .sp-form textarea { resize: vertical; }
+.sp-root.sp-nether :is(.sp-form input, .sp-form textarea)::placeholder { color: var(--nf-placeholder); opacity: 1; }
+.sp-root.sp-nether .sp-placeholder { color: var(--nf-placeholder); }
+.sp-root.sp-nether :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-multiselect-button):hover {
+  border-color: var(--nf-field-edge-hover);
+}
+/* Focus: the rim and a glow carry it; a transparent outline still shows in forced-colors mode. */
+.sp-root.sp-nether :is(.sp-form input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), .sp-form textarea, .sp-form select, .sp-multiselect-button):focus-visible,
+.sp-root.sp-nether .sp-form .sp-multiselect > button.sp-multiselect-button[aria-expanded="true"] { /* as specific as the well's rule above */
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  border-color: var(--nether-lava);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3), var(--nf-lava-glow);
+}
+/* Browser autofill would paint the well pale. */
+.sp-root.sp-nether .sp-form input:-webkit-autofill {
+  -webkit-box-shadow: inset 0 0 0 100px #1d1a22;
+  -webkit-text-fill-color: var(--nether-text);
+  caret-color: var(--nether-text);
+}
+/* Read-only (the mentor/judge email): a locked well, dashed like the design's locked items. */
+.sp-root.sp-nether .sp-form input[readonly]:not([type="checkbox"]):not([type="radio"]):not([type="file"]) {
+  border-style: dashed;
+  background-color: var(--nether-ledge);
+  box-shadow: none;
+  color: var(--nether-muted);
+}
+
+/* Selects: a light chevron with room to breathe. */
+.sp-root.sp-nether .sp-form select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 42px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f4ebdd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  cursor: pointer;
+}
+/* Nothing picked yet ("Select…"): placeholder grey. As specific as the well rule, so it wins. */
+.sp-root.sp-nether .sp-form .sp-form-fields select:invalid:not([multiple]) { color: var(--nf-placeholder); }
+.sp-root.sp-nether .sp-form option { background: var(--nf-field); color: var(--nether-text); }
+
+/* Birthdate: empty looks empty (see DateInput in formFields.tsx). */
+.sp-root.sp-nether .sp-date { position: relative; display: block; margin-top: 8px; }
+.sp-root.sp-nether .sp-date input { display: block; }
+.sp-root.sp-nether .sp-date input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.85; }
+.sp-root.sp-nether .sp-date-hint { display: none; }
+@supports selector(::-webkit-datetime-edit) {
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) .sp-date-hint {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    display: block;
+    color: var(--nf-placeholder);
+    font-size: 16px;
+    letter-spacing: 0.04em;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+}
+
+/* Pick-several dropdown and the school search: the button is a well; the menu a dark card. */
+.sp-root.sp-nether .sp-multiselect-button { cursor: pointer; }
+.sp-root.sp-nether .sp-multiselect-button svg { flex: none; color: var(--nether-text); }
+.sp-root.sp-nether :is(.sp-multiselect-menu, .sp-combobox-menu) {
+  top: calc(100% + 6px);
+  border: 2px solid var(--nether-card-edge);
+  border-radius: 0;
+  background: var(--nf-field);
+  color: var(--nether-text);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 0.55), 0 0 0 1px var(--nether-edge);
+  scrollbar-color: var(--nf-field-edge) transparent;
+}
+.sp-root.sp-nether .sp-multiselect-menu { gap: 2px; padding: 6px; }
+.sp-root.sp-nether .sp-combobox-menu { padding: 6px; }
+.sp-root.sp-nether .sp-combobox-menu li { padding: 9px 12px; font-size: 15px; }
+.sp-root.sp-nether .sp-combobox-menu li.active { background: rgb(242 134 47 / 0.16); color: var(--nether-text); box-shadow: inset 3px 0 var(--nether-lava); }
+.sp-root.sp-nether .sp-combobox-menu li.sp-combobox-empty { color: var(--nf-placeholder); }
+.sp-root.sp-nether .sp-form-fields .sp-multiselect-menu .sp-check {
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+.sp-root.sp-nether .sp-multiselect-menu .sp-check:hover { background: rgb(255 255 255 / 0.05); }
+
+/* ---------------------------------------------------------------------------
+   Checkboxes and radios: square wells that light up lava orange.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"]) {
+  -webkit-appearance: none;
+  appearance: none;
+  display: grid;
+  place-content: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 1px 0 0;
+  border: 1px solid var(--nf-field-edge-hover);
+  background: var(--nf-field);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.35);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.sp-root.sp-nether .sp-form input[type="radio"] { border-radius: 50%; }
+.sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"])::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: #1a0b06;
+  transform: scale(0);
+  transition: transform 0.12s;
+}
+.sp-root.sp-nether .sp-form input[type="checkbox"]::before { clip-path: polygon(14% 44%, 0 62%, 42% 100%, 100% 22%, 84% 6%, 40% 66%); }
+.sp-root.sp-nether .sp-form input[type="radio"]::before { width: 8px; height: 8px; border-radius: 50%; }
+.sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"]):checked {
+  border-color: #ffc24a;
+  background: var(--nether-lava);
+  box-shadow: inset 0 -2px #ab531b;
+}
+.sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"]):checked::before { transform: scale(1); }
+.sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"]):focus-visible { outline: 2px solid var(--nether-lava); outline-offset: 3px; }
+
+/* A choice is a tile you can see is picked (Yes / No, the radio groups, the agreements). */
+.sp-root.sp-nether .sp-form-fields .sp-check {
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--nf-field-edge);
+  background: var(--nf-field);
+  color: var(--nether-text);
+  font-size: 15px;
+  line-height: 1.45;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.sp-root.sp-nether .sp-form-fields .sp-check:hover { border-color: var(--nf-field-edge-hover); }
+.sp-root.sp-nether .sp-form-fields .sp-check:has(input:checked) { border-color: rgb(242 134 47 / 0.7); background: rgb(242 134 47 / 0.08); }
+.sp-root.sp-nether .sp-form-fields .sp-check :is(label, span:not(.sp-req)) { color: var(--nether-text); font-weight: 400; }
+.sp-root.sp-nether .sp-form-fields .sp-check label { flex: 1; cursor: pointer; }
+.sp-root.sp-nether .sp-form-fields label.sp-check { cursor: pointer; }
+.sp-root.sp-nether .sp-form-fields fieldset { gap: 0; }
+.sp-root.sp-nether .sp-yesno { gap: 12px; }
+.sp-root.sp-nether .sp-yesno .sp-check { min-width: 112px; font-weight: 700; }
+.sp-root.sp-nether .sp-yesno .sp-check span { font-weight: 700; }
+.sp-root.sp-nether .sp-agree { margin-top: 6px; }
+
+/* ---------------------------------------------------------------------------
+   Errors (design "Q1 Error"): #ff6b5a rims on the fields and a box saying what to fix.
+   --------------------------------------------------------------------------- */
+/* The mentor/judge form marks what's missing after a submit: the label and the rim turn red.
+   (Selectors as specific as the label and well rules above, so these win.) */
+.sp-root.sp-nether .sp-form-fields :is(label.sp-field-error, .sp-field-error > legend, .sp-check.sp-field-error label) { color: var(--nf-error-text); }
+.sp-root.sp-nether .sp-form .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select) {
+  border-color: var(--nether-error);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3), 0 0 0 1px rgb(255 107 90 / 0.35);
+}
+.sp-root.sp-nether .sp-form-fields :is(.sp-check.sp-field-error, .sp-field-error .sp-check) { border-color: var(--nether-error); }
+/* The hacker form uses the browser's own checks: a field that fails one after you've touched it. */
+.sp-root.sp-nether .sp-form :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):user-invalid { border-color: var(--nether-error); }
+.sp-root.sp-nether .sp-form-fields .sp-check:has(input:user-invalid) { border-color: var(--nether-error); }
+/* The message under the form. */
+.sp-root.sp-nether .sp-form .sp-error {
+  margin: 0;
+  padding: 14px 18px;
+  border: 2px solid var(--nether-error);
+  background: var(--nf-error-bg);
+  color: var(--nf-error-text);
+  font: 700 15px/1.45 var(--nether-font-body);
+}
+
+/* The submit button sits bottom right, at the design's size (48px tall). */
+.sp-root.sp-nether .sp-form-actions { justify-content: flex-end; gap: 16px; padding-top: 4px; }
+.sp-root.sp-nether .sp-form-actions .sp-button { min-height: 48px; }
+
+/* ---------------------------------------------------------------------------
+   The Application tab after submitting (design "Submitted"): centred on the board.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-submitted {
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 360px;
+  color: var(--nether-warped);
+  text-align: center;
+}
+.sp-root.sp-nether .sp-submitted > svg { width: 40px; height: 40px; filter: drop-shadow(0 0 10px rgb(47 181 166 / 0.45)); }
+.sp-root.sp-nether .sp-submitted h2 {
+  margin: 4px 0 0;
+  color: var(--nether-text);
+  font: 400 28px/1.3 var(--nether-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 2px 2px var(--nether-edge);
+  text-wrap: balance;
+}
+.sp-root.sp-nether .sp-submitted p { max-width: 520px; margin: 0; color: var(--nether-text); font-size: 16px; line-height: 1.5; }
+.sp-root.sp-nether .sp-submitted p.sp-muted { color: var(--nether-muted); font-size: 15px; }
+/* Its one button is the page's main action: lava, like .sp-button.primary in nether-shell.css
+   (the markup can't say "primary" without changing the End). */
+.sp-root.sp-nether .sp-submitted .sp-button {
+  min-height: 48px;
+  margin-top: 12px;
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px var(--nether-lava-top), inset 0 -5px var(--nether-lava-bottom);
+}
+.sp-root.sp-nether .sp-submitted .sp-button:hover:not(:disabled) {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava-hot);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px #ffd27a, inset 0 -5px #c7682a, 0 0 18px rgb(255 158 74 / 0.55);
+}
+.sp-root.sp-nether .sp-submitted .sp-button:active:not(:disabled) { box-shadow: inset 0 3px var(--nether-lava-bottom), inset 0 -2px var(--nether-lava-top); }
+
+/* ---------------------------------------------------------------------------
+   Phones
+   --------------------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .sp-root.sp-nether .sp-form-fields { row-gap: 22px; }
+  .sp-root.sp-nether .sp-form-fields .sp-form-section { font-size: 20px; }
+  .sp-root.sp-nether .sp-form-fields .sp-form-section:not(:first-child) { margin-top: 8px; padding-top: 26px; }
+  .sp-root.sp-nether .sp-form > .sp-form-note { padding-inline: 16px; }
+  .sp-root.sp-nether .sp-yesno .sp-check { flex: 1; min-width: 0; }
+  .sp-root.sp-nether .sp-form-actions .sp-button { flex: 1; justify-content: center; }
+  .sp-root.sp-nether .sp-submitted { min-height: 0; padding-block: 12px; }
+  .sp-root.sp-nether .sp-submitted h2 { font-size: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sp-root.sp-nether :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-multiselect-button, .sp-form-fields .sp-check) { transition: none; }
+  .sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"])::before { transition: none; }
+}

@@ -6,6 +6,10 @@ import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
 import { SignedInAs, signOutTo } from "@/staff-portal/StaffPortalLayout";
 import { switchGoogleAccount } from "@/portal/signIn";
+import { usePortalTheme } from "@/portal/portalTheme";
+import { Screen } from "@/staff-portal/StaffGate";
+import { ThemeToggle } from "@/staff-portal/ThemeToggle";
+import { NetherSky } from "@/staff-portal/nether/NetherSky";
 import OrganizersPanel from "./OrganizersPanel";
 import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import ApplicationsTable from "./ApplicationsTable";
@@ -24,6 +28,9 @@ import "./organizer.css";
 type Section = "hackers" | "staff" | "passes" | "waivers" | "checkin" | "dayof" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
+  // The Nether uses the portal's own sign-in screen (wall, lava, the switch); the End keeps the console's card.
+  const nether = usePortalTheme() === "nether";
+  if (nether) return <Screen title={title}>{children}</Screen>;
   return (
     <div className="sp-root sp-gate">
       <section className="sp-card">
@@ -49,6 +56,8 @@ const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: stri
 /** `/portal/organizer`: review applications, release decisions and email people. */
 export default function OrganizerConsole() {
   const auth = useAuth();
+  // The End is the console's own green look (organizer.css); the Nether adds `og-nether` (nether-organizer.css).
+  const nether = usePortalTheme() === "nether";
   const preview = isPreview();
   // Dev ?preview: sample applicants, no sign-in needed.
   const { session, isOrganizer, loading } = preview
@@ -88,11 +97,14 @@ export default function OrganizerConsole() {
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
-    <div className="sp-root og-root">
+    <div className={`sp-root og-root${nether ? " og-nether" : ""}`}>
+      {nether && <NetherSky />}
       <aside className="sp-sidebar og-sidebar">
         <div className="sp-brand">
           <img src="/datahacks-logo.png" alt="DataHacks" />
           <div>
+            {/* The Nether hides the logo and spells the name out across its top bar. */}
+            {nether && <strong>DataHacks</strong>}
             <span>Organizer console</span>
           </div>
         </div>
@@ -106,6 +118,7 @@ export default function OrganizerConsole() {
           ))}
         </nav>
         <div className="og-sidebar-footer">
+          <ThemeToggle className="og-theme-toggle" />
           <span>Event</span>
           <strong>{EVENT_CODE}{preview && " · preview"}</strong>
           <SignedInAs email={session.user.email ?? ""} signOut={!preview} onSignOut={() => signOutTo(portal.organizerLogin)} />

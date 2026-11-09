@@ -12,6 +12,8 @@
 .og-sidebar-footer { display: flex; flex-direction: column; gap: 2px; margin-top: auto; padding: 16px 8px 0; border-top: 1px solid var(--sp-border); font-size: 12px; color: var(--sp-muted); }
 .og-sidebar-footer strong { color: var(--sp-text); font-size: 14px; }
 .og-sidebar-footer .sp-account { margin-top: 10px; }
+/* The End | Nether switch (ThemeToggle), at the top of the footer. The Nether moves it to its top bar. */
+.og-sidebar-footer .og-theme-toggle { align-self: flex-start; margin-bottom: 12px; }
 
 /* Top bar with the release button, on every section */
 .og-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
@@ -127,6 +129,8 @@ td .og-badge { margin-left: 0; }
   .og-sidebar-footer { margin-top: 10px; padding-top: 10px; }
   .og-sidebar-footer > :not(.sp-account) { display: none; }
   .og-sidebar-footer .sp-account { flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; margin: 0; }
+  /* ...and the theme switch above them. */
+  .og-root .og-sidebar-footer > .og-theme-toggle { display: inline-flex; margin-bottom: 10px; }
   .og-search input { width: 140px; }
 }
 

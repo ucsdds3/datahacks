@@ -7,13 +7,16 @@ import { Suspense, useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { portal as paths } from "@/portal/paths";
 import { signOutEverywhere } from "@/portal/signIn";
+import { usePortalTheme } from "@/portal/portalTheme";
 import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
 import { GENERAL_CONTACT_EMAIL, HACKER_GUIDE_PAGES, HANDBOOK_TITLE, hasJudgeAccess, type PortalRole } from "./config";
-import { EndSky } from "./EndSky";
+import { PortalBackdrop, useThemeClass } from "./PortalBackdrop";
+import { ThemeToggle } from "./ThemeToggle";
 import "./staff-portal.css";
 import "./end-theme.css";
+import "./nether/nether-theme.css";
 
 type NavItem = { path: string; label: string; icon: ReactNode };
 
@@ -84,6 +87,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
   const { session } = useAuth();
   const { pathname } = useLocation();
   const navRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   // On phones the nav is a strip of tabs that scrolls sideways: keep the current page's tab in view.
   useLayoutEffect(() => {
     const nav = navRef.current;
@@ -92,9 +96,15 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
     const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
     nav.scrollLeft = Math.max(0, left - (nav.clientWidth - active.offsetWidth) / 2);
   }, [pathname]);
+  // On a desktop the Nether board scrolls on its own rather than the window: open each page at its top.
+  // (Anywhere the board doesn't scroll, this does nothing.)
+  useLayoutEffect(() => {
+    if (mainRef.current) mainRef.current.scrollTop = 0;
+  }, [pathname]);
+  const themeClass = useThemeClass();
   return (
-    <div className="sp-root sp-end">
-      <EndSky />
+    <div className={`sp-root ${themeClass}`}>
+      <PortalBackdrop />
       {/* The tempered-glass sheet over the painting; the sidebar is a second pane on it. */}
       <div className="sp-shell">
         <aside className="sp-sidebar">
@@ -106,6 +116,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
             {nav}
           </nav>
           <div className="sp-sidebar-footer">
+            <ThemeToggle />
             {/* The organizers' inbox, not the account: labelled so nobody mistakes it for who's signed in. */}
             <a className="sp-contact" href={`mailto:${GENERAL_CONTACT_EMAIL}`} title="Email the organizers">
               <Mail size={14} aria-hidden /> <span>Questions? <span className="sp-contact-email">{GENERAL_CONTACT_EMAIL}</span></span>
@@ -114,23 +125,41 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
           </div>
         </aside>
         {/* Pages load on demand; while one does, the frame stays and the page area stays dark. */}
-        <main className="sp-main"><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
+        <main className="sp-main" ref={mainRef}><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
       </div>
     </div>
   );
 }
 
+/** The pages about someone's own application; the Nether sidebar heads them "Application" and the rest "Event info". */
+const APPLICATION_PAGES = ["", "/questions"];
+
 function Sidebar() {
   const { portal, basePath, status } = useStaffPortal();
   // Keep a dev `?preview` while moving between pages.
   const { search } = useLocation();
+  const nether = usePortalTheme() === "nether";
   const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
+  const items = navItems(portal, status === "accepted");
+  const links = (list: NavItem[]) => list.map(item => (
+    <NavLink key={item.path} to={{ pathname: basePath + item.path, search }} end={item.path === ""} className={linkClass}>
+      {item.icon} {item.label}
+    </NavLink>
+  ));
+  if (!nether) return <>{links(items)}</>;
+  // The Nether design hangs the signs in two labelled groups. Same links, same order: the
+  // application pages come first in navItems, so splitting them off leaves the order alone.
+  const groups = [
+    { label: "Application", items: items.filter(item => APPLICATION_PAGES.includes(item.path)) },
+    { label: "Event info", items: items.filter(item => !APPLICATION_PAGES.includes(item.path)) },
+  ];
   return (
     <>
-      {navItems(portal, status === "accepted").map(item => (
-        <NavLink key={item.path} to={{ pathname: basePath + item.path, search }} end={item.path === ""} className={linkClass}>
-          {item.icon} {item.label}
-        </NavLink>
+      {groups.filter(group => group.items.length > 0).map(group => (
+        <div key={group.label} className="sp-nav-group" role="group" aria-label={group.label}>
+          <span className="sp-nav-group-label" aria-hidden="true">{group.label}</span>
+          {links(group.items)}
+        </div>
       ))}
     </>
   );

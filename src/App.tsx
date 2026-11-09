@@ -16,7 +16,8 @@ import Renovation from "./pages/Renovation";
 import { PortalBoundary } from "./portal/PortalBoundary";
 import { portal } from "./portal/paths";
 import { portalPages } from "./portal/pages";
-import { PORTAL_BACKGROUND } from "./portal/theme";
+import { THEME_BACKGROUND } from "./portal/theme";
+import { getPortalTheme } from "./portal/portalTheme";
 import { HACKER_GUIDE_SLUGS } from "./staff-portal/config";
 
 // The application portal. Lazy so the Supabase client stays out of the bundle the
@@ -47,8 +48,8 @@ const TestAccounts = import.meta.env.DEV ? lazy(() => import("./dev/TestAccounts
 
 const PORTALS = ["hacker", "mentor", "judge", "hybrid"] as const;
 
-/** Shown while the portal's first chunks load: the portal's dark page, never a white one. */
-const PortalLoading = () => <div style={{ minHeight: "100dvh", background: PORTAL_BACKGROUND }} aria-busy="true" />;
+/** Shown while the portal's first chunks load: the current theme's dark page, never a white one. */
+const PortalLoading = () => <div style={{ minHeight: "100dvh", background: THEME_BACKGROUND[getPortalTheme()] }} aria-busy="true" />;
 
 const queryClient = new QueryClient();
 

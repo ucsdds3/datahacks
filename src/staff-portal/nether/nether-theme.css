@@ -1,0 +1,41 @@
+/* The Nether theme for the applicant portal (Figma: "applicants-portal", page "Applicant Portal").
+   Everything is scoped to `.sp-root.sp-nether`, exactly like end-theme.css is to `.sp-end`,
+   so switching theme is a class swap (see PortalBackdrop.tsx / portalTheme.ts). */
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Silkscreen:wght@400;700&display=swap");
+@import "./nether-shell.css";
+@import "./nether-forms.css";
+@import "./nether-status.css";
+@import "./nether-guide.css";
+@import "./nether-organizer.css";
+
+/* Design tokens, named as in the Figma variables. */
+.sp-root.sp-nether {
+  --nether-netherrack: #2a0f10; /* page / sky */
+  --nether-nav: #120708;
+  --nether-blackstone: #2e2a30; /* "wood": buttons, pills */
+  --nether-edge: #0e0c0f; /* "wood-dark": outlines, insets */
+  --nether-basalt: #1e1c22; /* "board": the main panel */
+  --nether-ledge: #1a171c;
+  --nether-warped: #2fb5a6; /* done / success */
+  --nether-lava: #f2862f; /* active / primary */
+  --nether-glowstone: #f4c95d; /* highlights, notes */
+  --nether-text: #f4ebdd;
+  --nether-error: #ff6b5a;
+  --nether-font-display: "Silkscreen", "VT323", monospace; /* H1 32, H2 20 */
+  --nether-font-body: "Nunito", system-ui, sans-serif; /* labels Bold 15, body Regular 16 */
+
+  background: var(--nether-netherrack);
+  color: var(--nether-text);
+  font-family: var(--nether-font-body);
+}
+
+/* Toasts render outside the portal frame (at the app root), so they key off the theme flag PortalShell puts on <html>. */
+html[data-portal-theme="nether"] .toaster [data-sonner-toast] {
+  border: 3px solid #0e0c0f !important;
+  border-radius: 0 !important;
+  background: #1e1c22 !important;
+  color: #f4ebdd !important;
+  font-family: "Nunito", system-ui, sans-serif;
+  box-shadow: 0 0 0 1px #6b2a16, 0 10px 30px rgb(0 0 0 / 0.5) !important;
+}
+html[data-portal-theme="nether"] .toaster [data-sonner-toast] [data-description] { color: rgb(244 235 221 / 0.75) !important; }

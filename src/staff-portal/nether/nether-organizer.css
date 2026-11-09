@@ -1,0 +1,1164 @@
+/* Nether theme: the organizer console (/portal/organizer, src/organizer/).
+   In the End the console keeps its own green look (organizer.css, checkin.css). With the
+   switch on Nether its root becomes `sp-root og-root og-nether` and this file applies: the
+   applicant portal's Nether language (nether-brick wall, lava, "DATAHACKS …" across the top,
+   blackstone signs, a basalt board, lava and blackstone buttons, dark wells, teal links,
+   glowstone notes) fitted to a dense data console.
+
+   Scoped to `.sp-root.og-root.og-nether`, never `.sp-nether`: none of the applicant portal's
+   Nether rules reach the console and none of these reach the portal, so the tokens and the
+   backdrop (NetherSky.tsx) are restated here. organizer.css and checkin.css load after this
+   file, so every rule starts with all three classes to outrank theirs.
+
+   Layers, inside the root's own stacking context:
+     50  dialogs (.og-overlay)        40  the applicant drawer (.og-drawer)
+     30  the lava                       4  the sidebar, and the top bar's account and switch
+      0  the board (.og-main)          -1  the wall and its embers
+
+   Desktop (861px+ wide, 600px+ tall): the window never scrolls. The frame holds still and
+   each page scrolls inside the board: the applications table in its own panel under a
+   sticky header, the long pages (check-in, day of, email…) as a whole under the title bar.
+   Phones and short windows scroll the page as before. */
+
+.sp-root.og-root.og-nether {
+  --nether-netherrack: #2a0f10;
+  --nether-nav: #120708;
+  --nether-blackstone: #2e2a30;
+  --nether-edge: #0e0c0f;
+  --nether-basalt: #1e1c22;
+  --nether-ledge: #1a171c;
+  --nether-warped: #2fb5a6;
+  --nether-lava: #f2862f;
+  --nether-glowstone: #f4c95d;
+  --nether-text: #f4ebdd;
+  --nether-error: #ff6b5a;
+  --nether-font-display: "Silkscreen", "VT323", monospace;
+  --nether-font-body: "Nunito", system-ui, sans-serif;
+  --nether-muted: #b3aaa1; /* secondary text: 7:1 on the board */
+  --nether-link: #4fd8e0;
+  --nether-link-hover: #a5f0f3;
+  --nether-card: rgb(14 12 15 / 0.55);
+  --nether-card-edge: #3a363e;
+  --nether-ring: #6b2a16;
+  --nether-ember: #ffb13b;
+  --nether-sign-top: #4a4450;
+  --nether-sign-bottom: #1a171c;
+  --nether-lava-hot: #ff9e4a;
+  --nether-lava-top: #ffc24a;
+  --nether-lava-bottom: #b85a1c;
+  --nether-lava-rim: #7a2e0c;
+  --nether-bricks: url("/images/portal-nether/shell/nether-bricks.webp");
+
+  /* The console's own. */
+  --og-well: #141216; /* fields, tab strips, a step below a panel */
+  --og-well-edge: #4a4450;
+  --og-well-edge-hover: #6a616f;
+  --og-placeholder: #a8998c;
+  --og-rule: #2f2a31; /* lines between rows */
+  --og-teal-text: #5fd6c6; /* warped teal that reads as text */
+  --og-error-text: #ff8a7b;
+  --og-error-bg: #2a1214;
+  --og-row-hover: rgb(242 134 47 / 0.07);
+  --og-row-picked: rgb(242 134 47 / 0.14);
+
+  /* The frame. */
+  --bar-h: 56px;
+  --lava-h: 84px;
+  --side-w: 220px;
+  --frame-left: 32px;
+  --frame-right: 24px;
+  --frame-gap: 16px;
+  --board-top: 16px; /* from the top bar to the board */
+  --board-bottom: 14px; /* from the board to the lava */
+
+  /* The base stylesheet's colours, for anything not restyled below. */
+  --sp-bg: var(--nether-basalt);
+  --sp-surface: var(--nether-ledge);
+  --sp-border: var(--nether-card-edge);
+  --sp-text: var(--nether-text);
+  --sp-muted: var(--nether-muted);
+  --sp-accent: var(--nether-lava);
+  --sp-accent-soft: #3b2418;
+  --sp-blue: var(--nether-link);
+  --sp-green: var(--og-teal-text);
+  --sp-red: var(--og-error-text);
+  --sp-orange: var(--nether-lava);
+  --mc-page: var(--nether-netherrack);
+  --mc-sidebar: var(--nether-nav);
+  --mc-ink: var(--nether-edge);
+  --mc-light: var(--nether-text);
+  --mc-light-muted: var(--nether-muted);
+  --mc-leaf: var(--nether-warped);
+  --mc-focus: var(--nether-glowstone);
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  background: var(--nether-netherrack);
+  color: var(--nether-text);
+  color-scheme: dark;
+  scrollbar-color: var(--og-well-edge) transparent;
+  font-family: var(--nether-font-body);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Backdrop (NetherSky.tsx): the wall, embers, the lava and its heat haze
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .sp-nether-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--nether-bricks) 0 0 / 192px 240px repeat, var(--nether-netherrack);
+  image-rendering: pixelated;
+}
+.sp-root.og-root.og-nether .sp-nether-lava {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  height: var(--lava-h);
+  pointer-events: none;
+  background:
+    url("/images/portal-nether/shell/lava.webp") 50% 100% / auto 100% repeat-x,
+    var(--nether-bricks) 0 calc(var(--lava-h) - 100dvh) / 192px 240px repeat,
+    var(--nether-netherrack);
+  image-rendering: pixelated;
+}
+.sp-root.og-root.og-nether .sp-nether-lava::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 380px;
+  background:
+    radial-gradient(ellipse 265px 135px at 17% calc(100% + 30px), rgb(255 140 40 / 0.18), rgb(255 140 40 / 0.11) 45%, transparent),
+    radial-gradient(ellipse 285px 145px at 84% calc(100% + 22px), rgb(255 140 40 / 0.16), rgb(255 140 40 / 0.1) 45%, transparent),
+    radial-gradient(ellipse 360px 130px at 49% calc(100% + 60px), rgb(255 177 59 / 0.1), rgb(255 177 59 / 0.06) 45%, transparent);
+}
+.sp-root.og-root.og-nether .sp-nether-ember {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--nether-ember);
+  box-shadow: 0 0 6px 1px rgb(255 177 59 / 0.55);
+}
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(1) { top: 220px; left: 98.4%; width: 8px; height: 8px; }
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(2) { top: 460px; left: 99%; }
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(3) { bottom: calc(var(--lava-h) - 6px); left: 20.1%; }
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(4) { top: 30px; left: 46%; }
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(5) { top: 62%; left: 0.8%; width: 4px; height: 4px; }
+.sp-root.og-root.og-nether .sp-nether-ember:nth-child(6) { bottom: calc(var(--lava-h) + 4px); left: 63%; width: 4px; height: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sp-root.og-root.og-nether .sp-nether-lava { background-image: url("/images/portal-nether/shell/lava-flow.webp"), var(--nether-bricks); }
+  .sp-root.og-root.og-nether .sp-nether-lava::before { animation: og-nether-haze 6s ease-in-out infinite alternate; }
+  .sp-root.og-root.og-nether .sp-nether-ember { animation: og-nether-ember 9s linear infinite; }
+  .sp-root.og-root.og-nether .sp-nether-ember:nth-child(2) { animation-duration: 11s; animation-delay: -4s; }
+  .sp-root.og-root.og-nether .sp-nether-ember:nth-child(3) { animation-duration: 7s; animation-delay: -2s; }
+  .sp-root.og-root.og-nether .sp-nether-ember:nth-child(4) { animation-duration: 13s; animation-delay: -9s; }
+  .sp-root.og-root.og-nether .sp-nether-ember:nth-child(5) { animation-duration: 10s; animation-delay: -6s; }
+  .sp-root.og-root.og-nether .sp-nether-ember:nth-child(6) { animation-duration: 8s; animation-delay: -1s; }
+}
+@keyframes og-nether-ember {
+  0% { opacity: 0; transform: translate(0, 48px); }
+  15% { opacity: 1; }
+  70% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, -150px); }
+}
+@keyframes og-nether-haze {
+  from { opacity: 0.75; }
+  to { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+   The frame: "DATAHACKS ORGANIZER CONSOLE" across the top bar, signs on chains for
+   the sections, the event, switch and account at the top right, and the board
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-sidebar {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--nether-text);
+}
+.sp-root.og-root.og-nether .sp-brand {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: var(--bar-h);
+  margin: 0;
+  padding: 0 0 0 4px;
+  white-space: nowrap;
+}
+.sp-root.og-root.og-nether .sp-brand img { display: none; }
+.sp-root.og-root.og-nether .sp-brand > div { display: flex; gap: 0.6em; }
+.sp-root.og-root.og-nether .sp-brand :is(strong, span) {
+  display: inline;
+  color: var(--nether-text);
+  font: 400 20px/1 var(--nether-font-display);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* A section is a blackstone sign; where you are glows lava orange. The count sits on the sign's right. */
+.sp-root.og-root.og-nether .sp-nav { gap: 8px; scrollbar-width: thin; }
+.sp-root.og-root.og-nether .sp-nav-link.og-nav-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 100%;
+  min-height: 38px;
+  padding: 9px 34px 10px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 30px;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 3px var(--nether-sign-top), inset 0 -5px var(--nether-sign-bottom);
+  font: 400 12px/1.2 var(--nether-font-display);
+  letter-spacing: 0.03em;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform-origin: 50% 0;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.sp-root.og-root.og-nether .og-nav-button svg { display: none; }
+.sp-root.og-root.og-nether .sp-nav-link.og-nav-button:hover { background: #3a353d; color: var(--nether-text); }
+.sp-root.og-root.og-nether .sp-nav-link.og-nav-button.active {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px var(--nether-lava-top), inset 0 -5px var(--nether-lava-bottom), 0 0 16px rgb(242 134 47 / 0.55);
+}
+.sp-root.og-root.og-nether .sp-nav-link.og-nav-button.active:hover { background: var(--nether-lava-hot); }
+.sp-root.og-root.og-nether .og-nav-count {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  min-width: 24px;
+  padding: 2px 6px 3px;
+  border-radius: 10px;
+  background: var(--nether-edge);
+  color: var(--nether-glowstone);
+  font: 800 12px/1.1 var(--nether-font-body);
+  letter-spacing: 0;
+  text-align: center;
+  translate: 0 -50%;
+}
+.sp-root.og-root.og-nether .og-nav-button.active .og-nav-count { background: rgb(18 7 8 / 0.82); color: var(--nether-lava-top); }
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .sp-root.og-root.og-nether .sp-nav-link.og-nav-button:hover { animation: og-nether-sway 0.8s ease-out; }
+}
+@keyframes og-nether-sway {
+  0% { rotate: 0deg; }
+  25% { rotate: -2deg; }
+  55% { rotate: 1.2deg; }
+  80% { rotate: -0.5deg; }
+  100% { rotate: 0deg; }
+}
+
+/* The footer's pieces: the event as a glowstone plaque, the switch, and who's signed in. */
+.sp-root.og-root.og-nether .og-sidebar-footer { margin: 0; padding: 0; border: 0; color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-sidebar-footer > span { font: 400 10px/1 var(--nether-font-display); letter-spacing: 0.1em; text-transform: uppercase; }
+.sp-root.og-root.og-nether .og-sidebar-footer strong {
+  padding: 6px 12px 5px;
+  border: 2px solid #3a1a14;
+  border-radius: 30px;
+  background: var(--nether-nav);
+  color: var(--nether-glowstone);
+  font: 400 11px/1.2 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sp-root.og-root.og-nether .og-theme-toggle {
+  align-self: center;
+  gap: 3px;
+  margin: 0;
+  padding: 3px;
+  border-radius: 30px;
+  background: var(--nether-nav);
+  box-shadow: inset 0 0 0 2px #3a1a14;
+}
+.sp-root.og-root.og-nether .og-theme-toggle button {
+  padding: 6px 12px 5px;
+  border-radius: 30px;
+  color: var(--nether-muted);
+  font: 400 11px/1.2 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-theme-toggle button:hover { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-theme-toggle button[aria-pressed="true"] {
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -3px var(--nether-lava-bottom);
+}
+.sp-root.og-root.og-nether .og-sidebar-footer .sp-account { flex-direction: row; align-items: center; gap: 10px; min-width: 0; margin: 0; }
+.sp-root.og-root.og-nether .sp-account-who { min-width: 0; color: var(--nether-muted); font-size: 12px; line-height: 1.3; text-align: right; }
+.sp-root.og-root.og-nether .sp-account-email { max-width: 240px; color: var(--nether-text); font-size: 13px; font-weight: 700; }
+.sp-root.og-root.og-nether .sp-signout {
+  flex: none;
+  gap: 6px;
+  padding: 6px 12px 8px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 30px;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -3px var(--nether-sign-bottom);
+  font: 700 13px/1 var(--nether-font-body);
+}
+.sp-root.og-root.og-nether .sp-signout:hover { background: #3a353d; color: var(--nether-text); }
+
+/* The board: dark basalt with a warm rim. */
+.sp-root.og-root.og-nether .sp-main.og-main {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 24px 24px 26px;
+  border: 6px solid var(--nether-edge);
+  border-radius: 30px;
+  background: rgb(30 28 34 / 0.9);
+  color: var(--nether-text);
+  box-shadow: 0 0 0 3px var(--nether-ring), 0 0 30px 2px rgb(242 134 47 / 0.14), 0 20px 50px rgb(8 2 3 / 0.4);
+}
+
+/* Wide screens: the frame around the board. */
+@media (min-width: 861px) {
+  .sp-root.og-root.og-nether {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--frame-gap);
+    min-height: 100dvh;
+    padding: 0 var(--frame-right) 0 var(--frame-left);
+  }
+  .sp-root.og-root.og-nether .og-sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 var(--side-w);
+    width: var(--side-w);
+    height: calc(100dvh - var(--lava-h));
+  }
+  /* The signs hang on two chains that run down into the lava. */
+  .sp-root.og-root.og-nether .og-sidebar::before,
+  .sp-root.og-root.og-nether .og-sidebar::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: calc(var(--bar-h) - 6px);
+    bottom: calc(-1 * var(--lava-h));
+    width: 8px;
+    background: repeating-linear-gradient(180deg, #5a5560 0 12px, #2c2830 12px 18px);
+  }
+  .sp-root.og-root.og-nether .og-sidebar::before { left: 34px; }
+  .sp-root.og-root.og-nether .og-sidebar::after { right: 34px; }
+  /* Level with the board; the padding leaves room for the current sign's glow. */
+  .sp-root.og-root.og-nether .sp-nav {
+    flex: 0 1 auto;
+    margin: calc(var(--board-top) - 8px) -10px 12px;
+    padding: 8px 10px;
+    overscroll-behavior: contain;
+  }
+  /* The footer becomes the right end of the top bar. */
+  .sp-root.og-root.og-nether .og-sidebar-footer {
+    position: fixed;
+    top: 0;
+    right: var(--frame-right);
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+    height: var(--bar-h);
+  }
+  .sp-root.og-root.og-nether .og-sidebar-footer > span { order: 1; margin-right: -6px; }
+  .sp-root.og-root.og-nether .og-sidebar-footer > strong { order: 1; }
+  .sp-root.og-root.og-nether .og-sidebar-footer > .og-theme-toggle { order: 2; }
+  .sp-root.og-root.og-nether .og-sidebar-footer > .sp-account { order: 3; }
+  .sp-root.og-root.og-nether .sp-main.og-main { margin: calc(var(--bar-h) + var(--board-top)) 0 calc(var(--lava-h) + var(--board-bottom)); }
+}
+
+/* Desktop fit: the window doesn't scroll; the board fills the frame and its page scrolls inside it. */
+@media (min-width: 861px) and (min-height: 600px) {
+  .sp-root.og-root.og-nether { height: 100dvh; overflow: hidden; }
+  .sp-root.og-root.og-nether .sp-main.og-main {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - var(--bar-h) - var(--board-top) - var(--lava-h) - var(--board-bottom));
+    min-height: 0;
+    overflow: hidden;
+  }
+  .sp-root.og-root.og-nether .og-main > * { flex: none; }
+  /* The page under the title bar: shrinks to the room left and scrolls. */
+  .sp-root.og-root.og-nether .og-main > :not(.og-topbar) {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  /* Pages that are a column of panels scroll as one, with the scrollbar out at the board's edge. */
+  .sp-root.og-root.og-nether .og-main > :is(.og-checkin, .og-dayof, .og-email, .og-organizers) {
+    margin-right: -20px;
+    padding-right: 14px;
+    scrollbar-gutter: stable;
+  }
+  .sp-root.og-root.og-nether .og-main > :is(.og-email, .og-organizers) { max-width: none; }
+  .sp-root.og-root.og-nether .og-main > :is(.og-email, .og-organizers) > * { max-width: 880px; }
+  .sp-root.og-root.og-nether .og-main > :is(.og-email, .og-organizers) > .og-send-row { max-width: 880px; }
+  /* The applications and passes panels keep their tabs and search; only the list under them scrolls. */
+  .sp-root.og-root.og-nether .og-main > :is(.og-table-card, .og-passes) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sp-root.og-root.og-nether .og-main > :is(.og-table-card, .og-passes) > * { flex: none; }
+  .sp-root.og-root.og-nether .og-table-card > .sp-table-wrap,
+  .sp-root.og-root.og-nether .og-passes > [role="tabpanel"] {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  .sp-root.og-root.og-nether .og-passes > [role="tabpanel"] { margin-right: -12px; padding-right: 8px; }
+  .sp-root.og-root.og-nether .og-table-card .og-table thead th { position: sticky; top: 0; z-index: 1; }
+}
+
+/* Wide but short windows: the page scrolls, under a strip of wall along the top bar. */
+@media (min-width: 861px) and (max-height: 599px) {
+  .sp-root.og-root.og-nether::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: var(--bar-h);
+    background: var(--nether-bricks) 0 0 / 192px 240px repeat, var(--nether-netherrack);
+    image-rendering: pixelated;
+  }
+  .sp-root.og-root.og-nether .og-pass-actions { top: calc(var(--bar-h) + 6px); }
+}
+
+/* Laptops (1366 x 768, 1280 x 720): a lower lava line and a tighter board. */
+@media (min-width: 861px) and (max-height: 880px) {
+  .sp-root.og-root.og-nether { --lava-h: 70px; --bar-h: 52px; --board-top: 12px; --board-bottom: 12px; }
+  .sp-root.og-root.og-nether .sp-main.og-main { padding: 20px 24px 22px; }
+  .sp-root.og-root.og-nether .sp-nav { gap: 6px; }
+  .sp-root.og-root.og-nether .sp-nav-link.og-nav-button {
+    min-height: 34px;
+    padding: 7px 34px 9px;
+    box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -4px var(--nether-sign-bottom);
+  }
+  .sp-root.og-root.og-nether .sp-nav-link.og-nav-button.active {
+    box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -4px var(--nether-lava-bottom), 0 0 14px rgb(242 134 47 / 0.55);
+  }
+}
+@media (min-width: 861px) and (max-width: 1180px) {
+  .sp-root.og-root.og-nether { --frame-left: 20px; --frame-right: 20px; --side-w: 216px; }
+  .sp-root.og-root.og-nether .sp-main.og-main { padding-inline: 20px; }
+}
+/* The top bar runs short of room: the event plaque goes, then the address shortens. */
+@media (min-width: 861px) and (max-width: 1100px) {
+  .sp-root.og-root.og-nether .og-sidebar-footer > :is(span, strong) { display: none; }
+  .sp-root.og-root.og-nether .sp-account-email { max-width: 160px; }
+}
+@media (min-width: 861px) and (max-width: 960px) {
+  .sp-root.og-root.og-nether .sp-brand :is(strong, span) { font-size: 16px; }
+  .sp-root.og-root.og-nether .sp-account-label { display: none; }
+}
+
+/* ---------------------------------------------------------------------------
+   Shared pieces on the board
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether a { color: var(--nether-link); text-underline-offset: 3px; }
+.sp-root.og-root.og-nether a:hover { color: var(--nether-link-hover); }
+.sp-root.og-root.og-nether :is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: 2px; }
+
+/* The title bar: the section's name and the actions for every section. */
+.sp-root.og-root.og-nether .og-topbar { gap: 12px 16px; margin-bottom: 18px; }
+.sp-root.og-root.og-nether .og-topbar h1 {
+  color: var(--nether-text);
+  font: 400 24px/1.2 var(--nether-font-display);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.sp-root.og-root.og-nether .og-topbar-actions { gap: 10px; }
+
+/* Panels: darker basalt in a square blackstone edge. */
+.sp-root.og-root.og-nether .sp-card {
+  padding: 18px 20px 20px;
+  border: 3px solid var(--nether-card-edge);
+  border-radius: 0;
+  background: var(--nether-card);
+  color: var(--nether-text);
+  box-shadow: none;
+}
+.sp-root.og-root.og-nether .sp-card h2,
+.sp-root.og-root.og-nether .og-ci-card h2 {
+  color: var(--nether-lava);
+  font: 400 16px/1.3 var(--nether-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .sp-card h2 .og-count { margin-left: 6px; color: var(--nether-glowstone); font: inherit; }
+
+/* Buttons: blackstone blocks; the main action is lava, releasing is red-hot. */
+.sp-root.og-root.og-nether .sp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 8px 14px 10px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 0;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -4px var(--nether-sign-bottom);
+  font: 400 12px/1.2 var(--nether-font-display);
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.sp-root.og-root.og-nether .sp-button svg { flex: none; }
+.sp-root.og-root.og-nether .sp-button:hover:not(:disabled) {
+  border-color: var(--nether-edge);
+  background: #3a353d;
+  color: var(--nether-text);
+  filter: none;
+  transform: none;
+}
+.sp-root.og-root.og-nether .sp-button:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 3px var(--nether-sign-bottom), inset 0 -1px var(--nether-sign-top);
+}
+.sp-root.og-root.og-nether .sp-button.primary {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -4px var(--nether-lava-bottom);
+}
+.sp-root.og-root.og-nether .sp-button.primary:hover:not(:disabled) {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava-hot);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px #ffd27a, inset 0 -4px #c7682a, 0 0 16px rgb(255 158 74 / 0.5);
+}
+.sp-root.og-root.og-nether .sp-button.og-danger {
+  border-color: #3d0d08;
+  background: #b0362a;
+  color: #fff4ec;
+  box-shadow: inset 0 2px #e0705c, inset 0 -4px #6e1d14;
+}
+.sp-root.og-root.og-nether .sp-button.og-danger:hover:not(:disabled) {
+  border-color: #3d0d08;
+  background: #c8443a;
+  color: #fff;
+  box-shadow: inset 0 2px #f08a74, inset 0 -4px #7e2318, 0 0 16px rgb(255 107 90 / 0.45);
+}
+.sp-root.og-root.og-nether .sp-button:disabled,
+.sp-root.og-root.og-nether .sp-button.og-danger:disabled {
+  border-color: #2c2830;
+  background: #1c1a1f;
+  color: #8a8290;
+  box-shadow: none;
+  opacity: 1;
+}
+/* Smaller blocks inside rows and bars. */
+.sp-root.og-root.og-nether :is(.og-bulk, .og-pass-actions, .og-pass-role-bar, .og-pass-resend-cell, .og-pass-confirm, .og-ci-status, .og-ci-row-actions, .og-decide, .og-dayof-outcome, .og-waiver-missing) .sp-button,
+.sp-root.og-root.og-nether :is(.og-ci-more, .og-dayof-undo, .og-mark-signed) {
+  min-height: 32px;
+  padding: 6px 11px 8px;
+  font-size: 11px;
+}
+
+/* Small square icon buttons (close, move up/down, remove). */
+.sp-root.og-root.og-nether .og-icon-button {
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 0;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -3px var(--nether-sign-bottom);
+}
+.sp-root.og-root.og-nether .og-icon-button:hover:not(:disabled) { background: #3a353d; color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-icon-button:disabled { background: #1c1a1f; color: #8a8290; box-shadow: none; opacity: 1; }
+
+/* Tabs: a dark strip; the open one is a raised blackstone tab with a lava edge. */
+.sp-root.og-root.og-nether .sp-tabs {
+  gap: 3px;
+  padding: 3px;
+  border: 2px solid var(--nether-card-edge);
+  border-radius: 0;
+  background: var(--og-well);
+}
+.sp-root.og-root.og-nether .sp-tabs button {
+  padding: 6px 12px 7px;
+  border-radius: 0;
+  color: var(--nether-muted);
+  font: 700 14px/1.3 var(--nether-font-body);
+}
+.sp-root.og-root.og-nether .sp-tabs button:hover { background: rgb(255 255 255 / 0.04); color: var(--nether-text); }
+.sp-root.og-root.og-nether .sp-tabs button.active {
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -3px var(--nether-lava);
+}
+.sp-root.og-root.og-nether .og-count { color: inherit; font-weight: 800; }
+.sp-root.og-root.og-nether .sp-tabs button.active .og-count { color: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .og-count-unreleased { color: var(--nether-muted); font-weight: 600; }
+
+/* Search: a dark well that lights up lava when typing in it. */
+.sp-root.og-root.og-nether .og-search {
+  min-height: 38px;
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3);
+  color: var(--nether-muted);
+}
+.sp-root.og-root.og-nether .og-search:hover { border-color: var(--og-well-edge-hover); }
+.sp-root.og-root.og-nether .og-search:focus-within {
+  outline: 2px solid transparent;
+  border-color: var(--nether-lava);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3), 0 0 0 1px var(--nether-lava), 0 0 14px rgb(242 134 47 / 0.3);
+}
+.sp-root.og-root.og-nether .og-search input { padding: 8px 0; color: var(--nether-text); font: 400 14px/1.3 var(--nether-font-body); }
+.sp-root.og-root.og-nether .og-search input:focus-visible { outline: none; }
+.sp-root.og-root.og-nether :is(input, textarea)::placeholder { color: var(--og-placeholder); opacity: 1; }
+
+/* Fields: dark inset wells; focus is a lava rim and glow. */
+.sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm, .og-filters, .og-add-organizer, .og-dayof-form, .og-scantypes) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select) {
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background-color: var(--og-well);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3);
+  color: var(--nether-text);
+  font-family: var(--nether-font-body);
+  font-size: 15px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm, .og-filters, .og-add-organizer, .og-dayof-form, .og-scantypes) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):hover { border-color: var(--og-well-edge-hover); }
+.sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm, .og-filters, .og-add-organizer, .og-dayof-form, .og-scantypes) :is(input:not([type="checkbox"]):not([type="radio"]), textarea, select):focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 0;
+  border-color: var(--nether-lava);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3), 0 0 0 1px var(--nether-lava), 0 0 14px rgb(242 134 47 / 0.3);
+}
+.sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm) :is(input, textarea):disabled { color: var(--nether-muted); }
+.sp-root.og-root.og-nether :is(.og-filters, .og-scantypes) select {
+  -webkit-appearance: none;
+  appearance: none;
+  padding-right: 36px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f4ebdd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+.sp-root.og-root.og-nether option { background: var(--og-well); color: var(--nether-text); }
+.sp-root.og-root.og-nether :is(.og-template label, .og-compose label, .og-confirm, .og-filters label, .og-add-organizer label, .og-dayof-form label) {
+  color: var(--nether-text);
+  font-family: var(--nether-font-body);
+  font-size: 14px;
+  font-weight: 700;
+}
+.sp-root.og-root.og-nether .og-scantypes label { color: var(--nether-muted); font-weight: 700; }
+/* Its time fields are a fixed width: keep the base size so the whole date and time fit. */
+.sp-root.og-root.og-nether .og-scantypes :is(input:not([type="checkbox"]), select) { font-size: 14px; }
+.sp-root.og-root.og-nether .og-scantypes input[aria-invalid="true"] { border-color: var(--nether-error); }
+
+/* Checkboxes: square wells that light up lava orange. */
+.sp-root.og-root.og-nether input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 1px solid var(--og-well-edge-hover);
+  border-radius: 0;
+  background: var(--og-well);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.35);
+  vertical-align: middle;
+  cursor: pointer;
+}
+.sp-root.og-root.og-nether input[type="checkbox"]::before {
+  content: "";
+  width: 11px;
+  height: 11px;
+  background: #1a0b06;
+  clip-path: polygon(14% 44%, 0 62%, 42% 100%, 100% 22%, 84% 6%, 40% 66%);
+  transform: scale(0);
+  transition: transform 0.12s;
+}
+.sp-root.og-root.og-nether input[type="checkbox"]:checked {
+  border-color: var(--nether-lava-top);
+  background: var(--nether-lava);
+  box-shadow: inset 0 -2px #ab531b;
+}
+.sp-root.og-root.og-nether input[type="checkbox"]:checked::before { transform: scale(1); }
+.sp-root.og-root.og-nether input[type="checkbox"]:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Text on the board. */
+.sp-root.og-root.og-nether :is(.og-hint, .og-hint-inline, .og-pass-skip, .og-recipient-count, .og-was) { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-empty { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-check { color: var(--og-teal-text); }
+.sp-root.og-root.og-nether .sp-error { color: var(--og-error-text); }
+.sp-root.og-root.og-nether .og-success { color: var(--og-teal-text); font-weight: 700; }
+.sp-root.og-root.og-nether .og-progress { color: var(--nether-glowstone); font-weight: 700; }
+/* Messages that stand alone on the board get a box: red for problems, teal when it worked. */
+.sp-root.og-root.og-nether :is(.og-main > .sp-error, .og-email > .sp-error, .og-email > .og-success) {
+  margin: 0;
+  padding: 10px 14px;
+  border: 2px solid var(--nether-error);
+  background: var(--og-error-bg);
+  color: var(--og-error-text);
+  font-weight: 700;
+}
+.sp-root.og-root.og-nether .og-email > .og-success { border-color: var(--nether-warped); background: rgb(47 181 166 / 0.1); color: var(--og-teal-text); }
+/* A glowstone note. */
+.sp-root.og-root.og-nether .og-pass-note {
+  border: 2px solid rgb(244 201 93 / 0.65);
+  background: rgb(244 201 93 / 0.07);
+  color: var(--nether-text);
+}
+/* A warning before something that can't be undone. */
+.sp-root.og-root.og-nether .og-warning {
+  border: 2px solid var(--nether-error);
+  border-radius: 0;
+  background: var(--og-error-bg);
+  color: #ffd6cf;
+}
+.sp-root.og-root.og-nether .og-warning svg { color: var(--nether-error); }
+
+/* Status tags ("Not released", "Checked in", "No-show"…): a dark tag with a square ember. */
+.sp-root.og-root.og-nether .og-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 7px 2px 6px;
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well);
+  color: var(--nether-text);
+  font: 800 11px/1.35 var(--nether-font-body);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+.sp-root.og-root.og-nether .og-badge::before { content: ""; flex: none; width: 6px; height: 6px; background: currentColor; }
+.sp-root.og-root.og-nether .og-badge.accepted { border-color: var(--nether-warped); background: rgb(47 181 166 / 0.12); color: var(--og-teal-text); }
+.sp-root.og-root.og-nether .og-badge.waitlisted { border-color: var(--nether-lava); background: rgb(242 134 47 / 0.12); color: #ffb067; }
+.sp-root.og-root.og-nether .og-badge.rejected { border-color: var(--nether-error); background: rgb(255 107 90 / 0.1); color: var(--og-error-text); }
+
+/* ---------------------------------------------------------------------------
+   Tables: dense dark rows, Silkscreen headings, lava where your pointer is
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .sp-table-wrap {
+  border: 2px solid var(--nether-card-edge);
+  border-radius: 0;
+  background: rgb(14 12 15 / 0.45);
+}
+.sp-root.og-root.og-nether .sp-table { color: var(--nether-text); font: 400 14px/1.35 var(--nether-font-body); }
+.sp-root.og-root.og-nether .sp-table :is(th, td) { padding: 8px; border-bottom: 1px solid var(--og-rule); color: var(--nether-text); }
+.sp-root.og-root.og-nether .sp-table th {
+  background: var(--nether-ledge);
+  box-shadow: inset 0 -1px var(--nether-card-edge);
+  color: var(--nether-lava);
+  font: 400 11px/1.3 var(--nether-font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .sp-table td:first-child { font-weight: 400; }
+.sp-root.og-root.og-nether .sp-table tbody tr:nth-child(even) td { background: rgb(255 255 255 / 0.025); }
+.sp-root.og-root.og-nether .sp-table tr:last-child td { border-bottom: 0; }
+.sp-root.og-root.og-nether .og-table td:nth-child(2) { font-weight: 700; white-space: nowrap; }
+.sp-root.og-root.og-nether .og-table tbody tr:hover td { background: var(--og-row-hover); }
+.sp-root.og-root.og-nether .og-table tbody tr.open td { background: var(--og-row-picked); }
+.sp-root.og-root.og-nether .og-table tbody tr.open td:first-child { box-shadow: inset 3px 0 var(--nether-lava); }
+.sp-root.og-root.og-nether .sp-table-wrap { scrollbar-width: thin; }
+
+/* ---------------------------------------------------------------------------
+   Applications: toolbar, the bar for what's selected, decisions
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-table-card .sp-table-wrap { margin-top: 14px; }
+.sp-root.og-root.og-nether .og-bulk {
+  gap: 8px;
+  padding: 8px 10px;
+  border: 2px solid var(--nether-lava-rim);
+  border-radius: 0;
+  background: rgb(242 134 47 / 0.08);
+  color: var(--nether-glowstone);
+  font: 700 14px/1.3 var(--nether-font-body);
+}
+/* Decisions read by colour: teal accept, lava waitlist, red reject; picked, the block takes it on. */
+.sp-root.og-root.og-nether .sp-button.og-decide-accepted { color: var(--og-teal-text); }
+.sp-root.og-root.og-nether .sp-button.og-decide-waitlisted { color: #ffb067; }
+.sp-root.og-root.og-nether .sp-button.og-decide-rejected { color: var(--og-error-text); }
+.sp-root.og-root.og-nether .sp-button.og-decide-accepted:hover:not(:disabled) { color: var(--og-teal-text); }
+.sp-root.og-root.og-nether .sp-button.og-decide-waitlisted:hover:not(:disabled) { color: #ffb067; }
+.sp-root.og-root.og-nether .sp-button.og-decide-rejected:hover:not(:disabled) { color: var(--og-error-text); }
+.sp-root.og-root.og-nether .sp-button.og-decide-accepted.selected,
+.sp-root.og-root.og-nether .sp-button.og-decide-accepted.selected:hover:not(:disabled) {
+  border-color: #0d3a35;
+  background: var(--nether-warped);
+  color: #04201c;
+  box-shadow: inset 0 2px #74e3d6, inset 0 -4px #1c7a70;
+}
+.sp-root.og-root.og-nether .sp-button.og-decide-waitlisted.selected,
+.sp-root.og-root.og-nether .sp-button.og-decide-waitlisted.selected:hover:not(:disabled) {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -4px var(--nether-lava-bottom);
+}
+.sp-root.og-root.og-nether .sp-button.og-decide-rejected.selected,
+.sp-root.og-root.og-nether .sp-button.og-decide-rejected.selected:hover:not(:disabled) {
+  border-color: #3d0d08;
+  background: #b0362a;
+  color: #fff4ec;
+  box-shadow: inset 0 2px #e0705c, inset 0 -4px #6e1d14;
+}
+
+/* The applicant drawer: a basalt panel that hangs over the right of the frame. */
+.sp-root.og-root.og-nether .og-drawer {
+  top: calc(var(--bar-h) + 4px);
+  right: max(12px, var(--frame-right) - 12px);
+  bottom: calc(var(--lava-h) + 8px);
+  width: min(500px, calc(100vw - 24px));
+  height: auto;
+  padding: 22px 24px 24px;
+  border: 6px solid var(--nether-edge);
+  border-radius: 24px;
+  background: rgb(30 28 34 / 0.98);
+  color: var(--nether-text);
+  box-shadow: 0 0 0 3px var(--nether-ring), 0 0 36px 4px rgb(242 134 47 / 0.18), -24px 0 60px rgb(8 2 3 / 0.55);
+  scrollbar-width: thin;
+  overscroll-behavior: contain;
+}
+.sp-root.og-root.og-nether .og-drawer-header h2 {
+  color: var(--nether-text);
+  font: 400 20px/1.25 var(--nether-font-display);
+  letter-spacing: 0.02em;
+  overflow-wrap: anywhere;
+}
+.sp-root.og-root.og-nether .og-drawer-header p { margin-top: 8px; color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-drawer-header .og-badge { margin: 4px 0 0; }
+.sp-root.og-root.og-nether .og-decide { margin-top: 16px; }
+.sp-root.og-root.og-nether .og-field { padding: 10px 0; border-top: 1px solid var(--og-rule); }
+.sp-root.og-root.og-nether .og-field dt {
+  color: var(--nether-lava);
+  font: 400 11px/1.4 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-field dd { margin-top: 4px; color: var(--nether-text); font-size: 15px; line-height: 1.5; }
+
+/* ---------------------------------------------------------------------------
+   Dialogs (release decisions, send unsent emails, day-of confirmations)
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-overlay { background: rgb(12 4 5 / 0.72); }
+.sp-root.og-root.og-nether .og-modal {
+  border: 6px solid var(--nether-edge);
+  border-radius: 24px;
+  background: var(--nether-basalt);
+  color: var(--nether-text);
+  box-shadow: 0 0 0 3px var(--nether-ring), 0 0 40px 4px rgb(242 134 47 / 0.18), 0 24px 60px rgb(8 2 3 / 0.55);
+  scrollbar-width: thin;
+}
+.sp-root.og-root.og-nether .og-modal-header { padding: 16px 22px; border-bottom: 2px solid var(--og-rule); }
+.sp-root.og-root.og-nether .og-modal-header h2 { color: var(--nether-text); font: 400 20px/1.25 var(--nether-font-display); letter-spacing: 0.02em; }
+.sp-root.og-root.og-nether .og-modal-body { padding: 18px 22px 22px; }
+.sp-root.og-root.og-nether .og-modal-body h3 {
+  margin-top: 20px;
+  color: var(--nether-lava);
+  font: 400 14px/1.3 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-modal-body strong { color: #fff6e8; font-weight: 800; }
+.sp-root.og-root.og-nether .og-group-counts strong { color: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .og-template {
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well);
+}
+.sp-root.og-root.og-nether .og-template[open] { border-color: var(--og-well-edge-hover); }
+.sp-root.og-root.og-nether .og-template summary { color: var(--nether-text); font-weight: 700; }
+.sp-root.og-root.og-nether .og-template summary em { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-template :is(input, textarea) { background-color: #0c0b0d; }
+.sp-root.og-root.og-nether .og-confirm code {
+  padding: 2px 7px;
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well);
+  color: var(--nether-glowstone);
+  font: 700 14px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.sp-root.og-root.og-nether .og-pass-resend { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-modal-actions { gap: 10px; }
+
+/* ---------------------------------------------------------------------------
+   Email
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-email { gap: 14px; }
+.sp-root.og-root.og-nether :is(.og-email, .og-organizers) .sp-card-header + * { margin-top: 12px; }
+.sp-root.og-root.og-nether .og-recipient-count strong { color: var(--nether-glowstone); font: 400 24px/1 var(--nether-font-display); }
+.sp-root.og-root.og-nether .og-preview {
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well);
+  color: var(--nether-text);
+}
+.sp-root.og-root.og-nether .og-preview pre { color: #e3d8ca; font-family: var(--nether-font-body); font-size: 15px; line-height: 1.5; }
+.sp-root.og-root.og-nether .og-send-row > span { color: var(--nether-text); }
+
+/* ---------------------------------------------------------------------------
+   Passes, and the people lists on Day of and Check-in that share its rows
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-pass-actions {
+  border: 2px solid var(--nether-lava-rim);
+  background: #24150f; /* solid: rows scroll under it */
+  color: var(--nether-text);
+}
+.sp-root.og-root.og-nether .og-pass-selected { color: var(--nether-glowstone); font-weight: 700; }
+.sp-root.og-root.og-nether .og-pass-role {
+  border: 2px solid var(--nether-card-edge);
+  background: rgb(14 12 15 / 0.5);
+}
+.sp-root.og-root.og-nether .og-pass-role > summary { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-pass-role > summary:hover { background: rgb(255 255 255 / 0.03); }
+.sp-root.og-root.og-nether .og-pass-chevron { color: var(--nether-lava); }
+.sp-root.og-root.og-nether .og-pass-role-name { color: var(--nether-text); font: 400 14px/1.3 var(--nether-font-display); letter-spacing: 0.06em; text-transform: uppercase; }
+.sp-root.og-root.og-nether .og-pass-count { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-pass-all { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-pass-rows { background: transparent; }
+.sp-root.og-root.og-nether .og-pass-row { border-top: 1px solid var(--og-rule); color: var(--nether-text); }
+.sp-root.og-root.og-nether label.og-pass-row:hover { background: var(--og-row-hover); }
+.sp-root.og-root.og-nether .og-pass-row.selected { background: var(--og-row-picked); box-shadow: inset 3px 0 var(--nether-lava); }
+.sp-root.og-root.og-nether .og-pass-who strong { color: var(--nether-text); font-weight: 700; }
+.sp-root.og-root.og-nether :is(.og-pass-role-label, .og-pass-school, .og-pass-date) { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-pass-confirm { color: var(--nether-text); }
+
+/* ---------------------------------------------------------------------------
+   Organizers
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-organizer-list li { border-top-color: var(--og-rule); }
+.sp-root.og-root.og-nether .og-organizer-list li:first-child { border-top: 0; }
+.sp-root.og-root.og-nether .og-organizer-status { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-organizer-status.active { color: var(--og-teal-text); }
+
+/* ---------------------------------------------------------------------------
+   Day of and Waivers: number tiles, settings, meals & swag
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-dayof { gap: 16px; }
+.sp-root.og-root.og-nether .og-stats div {
+  padding: 10px 12px 12px;
+  border: 2px solid var(--nether-card-edge);
+  background: var(--og-well);
+}
+.sp-root.og-root.og-nether .og-stats dt {
+  color: var(--nether-lava);
+  font: 400 11px/1.4 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-stats dd {
+  margin-top: 6px;
+  color: var(--nether-text);
+  font: 400 28px/1 var(--nether-font-display);
+  font-variant-numeric: tabular-nums;
+}
+.sp-root.og-root.og-nether .og-stats dd span { color: var(--nether-muted); font: 600 14px/1 var(--nether-font-body); }
+/* The waiver tables start with the name. */
+.sp-root.og-root.og-nether .og-waivers .og-table td:first-child { font-weight: 700; }
+.sp-root.og-root.og-nether .og-waivers .og-table td:nth-child(2) { font-weight: 400; }
+.sp-root.og-root.og-nether .og-waiver-stats dd span { color: var(--nether-muted); font-size: 16px; }
+.sp-root.og-root.og-nether .og-dayof-sub {
+  color: var(--nether-glowstone);
+  font: 400 14px/1.3 var(--nether-font-display);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-dayof-people { border: 2px solid var(--nether-card-edge); }
+.sp-root.og-root.og-nether .og-dayof-names li::marker { color: var(--nether-lava); }
+.sp-root.og-root.og-nether .og-dayof-form label { font-size: 13px; }
+.sp-root.og-root.og-nether .og-dayof-form input { min-height: 40px; }
+
+.sp-root.og-root.og-nether .og-scantypes-list { border: 2px solid var(--nether-card-edge); }
+.sp-root.og-root.og-nether .og-scantype { border-top: 1px solid var(--og-rule); background: rgb(14 12 15 / 0.4); }
+.sp-root.og-root.og-nether .og-scantype:first-child { border-top: 0; }
+.sp-root.og-root.og-nether .og-scantype.off { background: rgb(0 0 0 / 0.35); }
+.sp-root.og-root.og-nether .og-scantype.off .og-scantype-label input { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-scantypes label.og-ci-check { color: var(--nether-text); }
+
+/* ---------------------------------------------------------------------------
+   Check-in: live status, tiles, the arrivals chart, the feed and people lists
+   --------------------------------------------------------------------------- */
+.sp-root.og-root.og-nether .og-checkin { gap: 14px; }
+.sp-root.og-root.og-nether .og-ci-status { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-ci-live { font: 400 13px/1 var(--nether-font-display); letter-spacing: 0.08em; text-transform: uppercase; }
+.sp-root.og-root.og-nether .og-ci-live-dot { background: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-ci-live.live .og-ci-live-dot { background: var(--nether-warped); box-shadow: 0 0 0 3px rgb(47 181 166 / 0.3); animation-name: og-nether-pulse; }
+.sp-root.og-root.og-nether .og-ci-live.polling .og-ci-live-dot { background: var(--nether-glowstone); }
+@keyframes og-nether-pulse { 50% { box-shadow: 0 0 0 6px rgb(47 181 166 / 0); } }
+
+.sp-root.og-root.og-nether .og-ci-tile { padding: 14px 16px; }
+.sp-root.og-root.og-nether .og-ci-tile-label {
+  color: var(--nether-lava);
+  font: 400 12px/1.3 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.og-root.og-nether .og-ci-big { color: var(--nether-text); font: 400 34px/1.05 var(--nether-font-display); font-variant-numeric: tabular-nums; }
+.sp-root.og-root.og-nether .og-ci-of { color: var(--nether-muted); font-size: 20px; }
+.sp-root.og-root.og-nether :is(.og-ci-sub, .og-ci-note, .og-ci-by, .og-ci-card .og-hint) { color: var(--nether-muted); }
+.sp-root.og-root.og-nether :is(.og-ci-sub, .og-ci-by, .og-ci-stat) strong { color: var(--nether-text); font-weight: 800; }
+.sp-root.og-root.og-nether .og-ci-meter { border: 1px solid var(--og-well-edge); background: var(--og-well); }
+.sp-root.og-root.og-nether .og-ci-meter > span { background: var(--nether-warped); box-shadow: inset 0 2px #74e3d6; }
+.sp-root.og-root.og-nether .og-ci-check { color: var(--nether-text); }
+
+/* Arrivals: lava bars (glowstone for the one you're on), a teal line for the running total. */
+.sp-root.og-root.og-nether .og-ci-readout { color: var(--nether-text); }
+.sp-root.og-root.og-nether .og-ci-readout strong { color: var(--nether-glowstone); font-weight: 800; }
+.sp-root.og-root.og-nether .og-ci-swatch.bars { background: #d9772b; }
+.sp-root.og-root.og-nether .og-ci-swatch.line { background: var(--nether-link); }
+.sp-root.og-root.og-nether .og-ci-gridline { stroke: var(--nether-card-edge); }
+.sp-root.og-root.og-nether .og-ci-axis { fill: var(--nether-muted); font: 600 12px var(--nether-font-body); font-variant-numeric: tabular-nums; }
+.sp-root.og-root.og-nether .og-ci-axis.line { fill: var(--nether-link); }
+.sp-root.og-root.og-nether .og-ci-bar { fill: #d9772b; }
+.sp-root.og-root.og-nether .og-ci-bar.active { fill: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .og-ci-line { stroke: var(--nether-link); }
+.sp-root.og-root.og-nether .og-ci-dot { fill: var(--nether-basalt); stroke: var(--nether-link); }
+.sp-root.og-root.og-nether .og-ci-table-toggle summary { color: var(--nether-link); }
+
+.sp-root.og-root.og-nether .og-ci-feed { scrollbar-width: thin; }
+.sp-root.og-root.og-nether .og-ci-feed li { border-top-color: var(--og-rule); }
+.sp-root.og-root.og-nether .og-ci-feed li:first-child { border-top: 0; }
+.sp-root.og-root.og-nether :is(.og-ci-feed time, .og-ci-feed-role, .og-ci-feed-by) { color: var(--nether-muted); }
+.sp-root.og-root.og-nether .og-ci-feed-who strong { color: var(--nether-text); font-weight: 700; }
+.sp-root.og-root.og-nether .og-ci-feed-offline { border: 1px dashed rgb(244 201 93 / 0.7); color: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .og-ci-group .sp-table-wrap { background: rgb(14 12 15 / 0.45); }
+.sp-root.og-root.og-nether .og-checkin .og-ci-people td strong { font-weight: 700; }
+.sp-root.og-root.og-nether .og-ci-code { color: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .og-ci-not { color: var(--og-error-text); font-weight: 800; }
+.sp-root.og-root.og-nether .og-checkin .og-ci-scans tr.og-ci-off td { color: var(--nether-muted); }
+
+/* Laptop heights: more rows of data on screen, with a smaller title and tighter panels. */
+@media (min-width: 861px) and (max-height: 880px) {
+  /* More rows of data on screen: a smaller title, tighter panels. */
+  .sp-root.og-root.og-nether .og-topbar { margin-bottom: 14px; }
+  .sp-root.og-root.og-nether .og-topbar h1 { font-size: 21px; }
+  .sp-root.og-root.og-nether .sp-card { padding: 14px 16px 16px; }
+  .sp-root.og-root.og-nether .og-table-card .sp-table-wrap { margin-top: 12px; }
+}
+
+/* ---------------------------------------------------------------------------
+   Phones and small tablets: the title across the top, the signs in a strip that
+   scrolls sideways, the switch and account, then the board. All of it scrolls with
+   the page; only the lava stays.
+   --------------------------------------------------------------------------- */
+@media (max-width: 860px) {
+  .sp-root.og-root.og-nether {
+    --lava-h: 56px;
+    padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left));
+  }
+  .sp-root.og-root.og-nether .og-sidebar { position: relative; flex: none; width: auto; height: auto; }
+  /* One chain across, behind the strip of signs. */
+  .sp-root.og-root.og-nether .og-sidebar::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    top: calc(var(--bar-h) + 24px);
+    right: -10px;
+    left: -10px;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, #5a5560 0 12px, #2c2830 12px 18px);
+  }
+  .sp-root.og-root.og-nether .sp-brand { padding-left: 2px; }
+  .sp-root.og-root.og-nether .sp-brand :is(strong, span) { font-size: 15px; }
+  .sp-root.og-root.og-nether .sp-nav {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0 -10px 4px;
+    padding: 8px 32px 12px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  }
+  .sp-root.og-root.og-nether .sp-nav::-webkit-scrollbar { display: none; }
+  .sp-root.og-root.og-nether .sp-nav-link.og-nav-button { gap: 8px; width: auto; padding: 9px 14px 10px; white-space: nowrap; }
+  .sp-root.og-root.og-nether .og-nav-count { position: static; translate: none; min-width: 0; padding: 1px 6px 2px; }
+  .sp-root.og-root.og-nether .og-sidebar-footer {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 12px;
+    padding: 2px 0 10px;
+  }
+  .sp-root.og-root.og-nether .og-sidebar-footer > .og-theme-toggle { margin: 0; }
+  .sp-root.og-root.og-nether .og-sidebar-footer .sp-account { flex: 1 1 auto; justify-content: flex-end; }
+  .sp-root.og-root.og-nether .sp-account-email { max-width: 100%; }
+  .sp-root.og-root.og-nether .sp-main.og-main {
+    margin: 4px 0 calc(var(--lava-h) + 20px);
+    padding: 20px 14px 22px;
+    border-width: 4px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 2px var(--nether-ring), 0 0 24px rgb(242 134 47 / 0.14);
+  }
+  .sp-root.og-root.og-nether .og-topbar h1 { font-size: 20px; }
+  .sp-root.og-root.og-nether .sp-card { padding: 16px 14px 18px; }
+  .sp-root.og-root.og-nether .og-search input { font-size: 16px; } /* so phones don't zoom in */
+  .sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm, .og-filters, .og-add-organizer, .og-dayof-form) :is(input:not([type="checkbox"]), textarea, select) { font-size: 16px; }
+  /* The drawer takes the whole screen. */
+  .sp-root.og-root.og-nether .og-drawer {
+    inset: 0;
+    width: 100vw;
+    height: 100dvh;
+    padding: 20px 16px calc(var(--lava-h) + 20px);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .sp-root.og-root.og-nether .og-modal { border-width: 4px; border-radius: 18px; }
+  /* Check-in's people tables become one card per person (checkin.css): stripe the card, not each line. */
+  .sp-root.og-root.og-nether .og-checkin .og-ci-people tr { border-top-color: var(--og-rule); }
+  .sp-root.og-root.og-nether .og-checkin .og-ci-people tbody tr:nth-child(even) { background: rgb(255 255 255 / 0.025); }
+  .sp-root.og-root.og-nether .og-checkin .og-ci-people td,
+  .sp-root.og-root.og-nether .og-checkin .og-ci-people tbody tr:nth-child(even) td { padding: 1px 0; border: 0; background: none; }
+  .sp-root.og-root.og-nether .og-ci-big { font-size: 26px; }
+  .sp-root.og-root.og-nether .og-ci-of { font-size: 16px; }
+  .sp-root.og-root.og-nether .og-checkin .og-ci-people td[data-label]:not(:first-child)::before { color: var(--nether-muted); }
+}
+@media (max-width: 420px) {
+  .sp-root.og-root.og-nether .sp-brand :is(strong, span) { font-size: 13px; }
+  .sp-root.og-root.og-nether .og-topbar h1 { font-size: 18px; }
+}
+
+/* Asked for less transparency: solid panels. */
+@media (prefers-reduced-transparency: reduce) {
+  .sp-root.og-root.og-nether :is(.sp-main.og-main, .og-drawer) { background: var(--nether-basalt); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-root.og-root.og-nether :is(.og-nav-button, .sp-button, .og-search, input, textarea, select, .sp-signout) { transition: none; }
+  .sp-root.og-root.og-nether input[type="checkbox"]::before { transition: none; }
+  .sp-root.og-root.og-nether .sp-button:active:not(:disabled) { transform: none; }
+  .sp-root.og-root.og-nether .og-ci-live.live .og-ci-live-dot { animation: none; }
+}
