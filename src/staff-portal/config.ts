@@ -30,8 +30,7 @@ export const DOCUSIGN: DocuSignConfig = {
   mode: "powerform",
   // PowerForm "DataHacks 2027 Liability Waiver" on UC San Diego's DocuSign (account 6371e373…, na1).
   powerFormUrl: "https://www.docusign.net/Member/PowerFormSigning.aspx?PowerFormId=bed6ac13-bb24-44ef-84b1-1ede0ce183c1&env=na1&acct=6371e373-11ff-4359-aa24-bf2ccbddc944&v=2",
-  // Open for signing. The template's PDF is still the draft ("DRAFT FOR TESTING"): swap in the final
-  // wording in DocuSign before real acceptances go out.
+  // Open for signing. The template holds UC San Diego's official waiver (swapped in on 2026-11-05).
   waiverPublished: true,
   roleName: "Participant",
   idFieldLabel: "datahacks_id",
@@ -146,6 +145,19 @@ export const SCHEDULE: ScheduleDay[] = [
   },
 ];
 
+/** The mentor office-hours block in the run of show: the one time mentors have to be there. */
+const MENTOR_BLOCK = SCHEDULE[0].events.find(e => e.audience === "mentor" && e.required)!;
+const DOORS_OPEN = SCHEDULE[0].events[0];
+
+/**
+ * What mentors tick on the application, from the run of show above so the two can't
+ * disagree. The MCP server (supabase/functions/mcp) repeats the hours in its own
+ * words; src/portal/mcpApplication.test.ts checks they match.
+ */
+export const MENTOR_HOURS = `${MENTOR_BLOCK.start.replace(" PM", "")}–${MENTOR_BLOCK.end}`;
+export const MENTOR_ONSITE_ACKNOWLEDGEMENT =
+  `I understand that mentors must be onsite from ${MENTOR_HOURS} on ${SCHEDULE[0].date}th, with check-in opening at ${DOORS_OPEN.start}.`;
+
 export type Contact = { initials: string; name: string; role: string; email: string; phone?: string };
 
 /** Lead organizers. Shared with their OK (Mohak, 2026-10-23); roles as in the 2026 Hacker Handbook. */
@@ -170,7 +182,7 @@ export const TIMELINE = {
   /** When each role is needed: mentors only on Saturday, judges only on Sunday. */
   eventDates: {
     hacker: "Saturday–Sunday, January 16–17, 2027",
-    mentor: "Saturday, January 16, 2027 · mentoring 12:30–4:30 PM",
+    mentor: `Saturday, January 16, 2027 · mentoring ${MENTOR_HOURS}`,
     judge: "Sunday, January 17, 2027",
     hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
   } satisfies Record<PortalRole, string>,

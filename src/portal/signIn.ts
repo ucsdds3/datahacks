@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { portal, rememberApplyAs } from "./paths";
+import { allowLeaving } from "./formDraft";
 
 /** Who a sign-in is for: picks where the callback sends them. It never grants anything. */
 export type SignInAs = "hacker" | "staff" | "organizer";
@@ -29,6 +30,9 @@ export async function startGoogleSignIn(as: SignInAs, next?: string) {
  * so the next person on the same computer starts clean.
  */
 export async function signOutEverywhere() {
+  // Signing out deletes any application draft (datahacks.draft.*) below: an open form
+  // mustn't write it back, or ask "leave this page?" on the way to the sign-in page.
+  allowLeaving();
   await supabase.auth.signOut();
   try {
     // Dev test tabs keep their login in this tab only: leave the organizer's alone.

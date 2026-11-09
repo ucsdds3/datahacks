@@ -209,7 +209,7 @@ Deno.serve(
                 judging_track: enumOf(JUDGING_TRACKS).optional().describe("Judges and hybrids only: the track they'd like to judge"),
                 bio: z.string().optional().describe(`Mentors and hybrids only, optional: a short blurb shown to hackers on the mentor calendar, ${BIO_MIN_LENGTH} to ${MAX_LENGTH.bio} characters, in their own words. Leave it out and organizers write one`),
                 acknowledged_in_person_judging: z.boolean().optional().describe("Judges and hybrids: they understand online judging isn't allowed, judges must be there in person"),
-                acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 12:30–3:30 PM on Saturday, January 16th, with check-in from 11:30 AM"),
+                acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 12:30–4:30 PM on Saturday, January 16th, with check-in opening at 12:00 PM"),
                 acknowledged_both_priority: z.boolean().describe("They understand people who both mentor and judge get priority"),
               }),
             },

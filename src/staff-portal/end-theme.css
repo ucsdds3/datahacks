@@ -312,7 +312,15 @@
 .sp-root.sp-end .sp-form input[readonly]:not([type="checkbox"]):not([type="radio"]):not([type="file"]) { background-color: #ebe4c3; color: var(--sp-muted); }
 .sp-root.sp-end .sp-check { border-color: var(--sp-border); background: #ebe5c6; }
 .sp-root.sp-end .sp-check input { accent-color: var(--end-pearl-deep); }
-.sp-root.sp-end .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]), textarea) { border-color: var(--sp-red); }
+/* A missing or wrong answer: red border and label. As specific as the input and label rules above
+   (0,6,1 and 0,4,1) plus one, or they win and nothing changes colour. */
+.sp-root.sp-end .sp-form .sp-field-error :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select, .sp-multiselect-button),
+.sp-root.sp-end .sp-form :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, .sp-multiselect-button)[aria-invalid="true"] {
+  border-color: var(--sp-red);
+  box-shadow: inset 2px 2px #ddd5b3, 0 0 0 2px rgb(168 55 43 / 0.35);
+}
+.sp-root.sp-end .sp-form-fields :is(label.sp-field-error, .sp-field-error > legend, .sp-field-error > .sp-field-label, .sp-check.sp-field-error label, .sp-check.sp-field-error > span) { color: var(--sp-red); }
+.sp-root.sp-end .sp-form-fields .sp-check.sp-field-error { border-color: var(--sp-red); }
 .sp-root.sp-end .sp-req { color: var(--sp-red); }
 /* Section headings, with a purpur rule running out to the right. */
 .sp-root.sp-end .sp-form-section {
@@ -332,7 +340,16 @@
 .sp-root.sp-end .sp-date input { display: block; min-height: 46px; }
 .sp-root.sp-end .sp-date-hint { display: none; }
 @supports selector(::-webkit-datetime-edit) {
-  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; }
+  /* Safari draws today's date in grey sub-fields with their own colour: hide every part, or
+     it shows through the hint as "11M/09D/2026Y". */
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input { -webkit-text-fill-color: transparent; }
+  /* One rule per part: a pseudo-element can't go inside :is(). */
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-fields-wrapper { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-month-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-day-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-year-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-text { color: transparent; -webkit-text-fill-color: transparent; }
   .sp-root.sp-end .sp-date[data-empty]:not(:focus-within) .sp-date-hint {
     position: absolute;
     top: 50%;
@@ -460,3 +477,6 @@
   .sp-root.sp-end :is(.sp-nav-link, .sp-signout, .sp-button) { transition: none; }
   .sp-root.sp-end .sp-button:active:not(:disabled) { transform: none; }
 }
+
+/* Application forms (see staff-portal.css): the signed-out notice on the stone card. */
+.sp-root.sp-end .sp-signed-out { border-color: var(--sp-red); background: #fbeee6; color: #3a1d18; box-shadow: 0 3px 0 rgb(26 15 44 / 0.25); }

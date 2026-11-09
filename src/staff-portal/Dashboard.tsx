@@ -4,6 +4,7 @@ import { useStaffPortal } from "./StaffPortalContext";
 import { TIMELINE, applicationBatch, type ApplicationStatus } from "./config";
 import WaitlistOptIn from "./WaitlistOptIn";
 import { NetherStatusArt } from "./nether/NetherArt";
+import { formatPacificDate } from "@/lib/pacificTime";
 
 export const STATUS_LABEL: Record<ApplicationStatus, string> = {
   pending: "Under review",
@@ -12,8 +13,8 @@ export const STATUS_LABEL: Record<ApplicationStatus, string> = {
   rejected: "Not accepted",
 };
 
-const formatDate = (value: Date | string) =>
-  new Date(value).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+// Pacific time, wherever the applicant is: the priority deadline is 11:59 PM Pacific on Nov 29.
+const formatDate = (value: Date | string) => formatPacificDate(value);
 
 const DECISION_TEXT: Record<ApplicationStatus, string> = {
   pending: "We'll email you when your decision is out.",

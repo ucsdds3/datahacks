@@ -40,7 +40,11 @@ export function useAccountGuard(as: SignInAs, options: { next?: string; signedIn
       .catch(fail);
   };
 
-  const continueAsCurrent = () => loadSignIn().then(m => navigate(m.continuePath(as))).catch(fail);
+  const continueAsCurrent = () =>
+    loadSignIn().then(m => {
+      const path = m.continuePath(as);
+      navigate(options.next ?? path);
+    }).catch(fail);
 
   const switchAccount = () => {
     setBusy(true);

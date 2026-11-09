@@ -43,7 +43,10 @@ import HackerGuide from "./HackerGuide";
 import { HACKER_GUIDE_SLUGS } from "./config";
 import JudgingPortal from "./JudgingPortal";
 
-const Where = () => <div data-testid="where">{useLocation().pathname}</div>;
+const Where = () => {
+  const { pathname, search } = useLocation();
+  return <><div data-testid="where">{pathname}</div><div data-testid="search">{search}</div></>;
+};
 
 function renderAt(path: string) {
   render(
@@ -55,6 +58,7 @@ function renderAt(path: string) {
             <Route path="/login/hacker" element={<h1>hacker login</h1>} />
             <Route path="/login/mentor" element={<h1>mentor login</h1>} />
             <Route path="/portal/apply" element={<h1>apply</h1>} />
+            <Route path="/portal/apply/mentor-judge" element={<h1>mentor-judge form</h1>} />
             <Route path="/login/judge" element={<h1>judge login</h1>} />
             <Route path="/portal" element={<PortalHome />} />
             {(["hacker", "mentor", "judge", "hybrid"] as const).map(portal => (
@@ -244,5 +248,30 @@ describe("people who can't open a portal", () => {
     supabase.queryError = { message: "boom" };
     renderAt("/portal");
     expect(await screen.findByText("We couldn't load your portal")).toBeInTheDocument();
+    expect(screen.queryByText("boom")).toBeNull();
+    expect(screen.getByRole("button", { name: "Try again" })).toBeInTheDocument();
+  });
+
+  it("can't reach Supabase: plain English, not 'TypeError: Failed to fetch'", async () => {
+    signedIn("mentor");
+    supabase.queryError = { message: "TypeError: Failed to fetch" };
+    renderAt("/portal");
+    expect(await screen.findByText(/couldn't reach DataHacks/)).toBeInTheDocument();
+    expect(screen.queryByText(/TypeError/)).toBeNull();
+  });
+
+  it("a deep link comes back after sign-in", async () => {
+    supabase.session = null;
+    renderAt("/portal/mentor/handbook");
+    await waitFor(() => expect(at()).toBe("/login/mentor"));
+    expect(new URLSearchParams(screen.getByTestId("search").textContent!).get("next")).toBe("/portal/mentor/handbook");
+  });
+
+  it("a mentor or judge link with no application yet opens the mentor/judge form", async () => {
+    signedIn("mentor");
+    supabase.rows = [];
+    localStorage.removeItem("datahacks.applyAs");
+    renderAt("/portal/judge");
+    await waitFor(() => expect(at()).toBe("/portal/apply/mentor-judge"));
   });
 });

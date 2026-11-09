@@ -158,7 +158,15 @@
 .sp-root.sp-nether .sp-date input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.85; }
 .sp-root.sp-nether .sp-date-hint { display: none; }
 @supports selector(::-webkit-datetime-edit) {
-  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; }
+  /* Every part of Safari's grey placeholder date, or it shows through the hint. */
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input { -webkit-text-fill-color: transparent; }
+  /* One rule per part: a pseudo-element can't go inside :is(). */
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-fields-wrapper { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-month-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-day-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-year-field { color: transparent; -webkit-text-fill-color: transparent; }
+  .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) input::-webkit-datetime-edit-text { color: transparent; -webkit-text-fill-color: transparent; }
   .sp-root.sp-nether .sp-date[data-empty]:not(:focus-within) .sp-date-hint {
     position: absolute;
     top: 50%;
@@ -345,3 +353,10 @@
   .sp-root.sp-nether :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-multiselect-button, .sp-form-fields .sp-check) { transition: none; }
   .sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"])::before { transition: none; }
 }
+
+/* Application forms (see staff-portal.css): counts, a problem under its field, the signed-out notice. */
+.sp-root.sp-nether .sp-form-fields .sp-counter { color: var(--nf-placeholder); }
+.sp-root.sp-nether .sp-form-fields .sp-counter.near { color: inherit; }
+.sp-root.sp-nether .sp-form-fields .sp-field-message { color: var(--nf-error-text); }
+.sp-root.sp-nether .sp-form :is(input:not([type="checkbox"]):not([type="radio"]), textarea, .sp-multiselect-button)[aria-invalid="true"] { border-color: var(--nether-error); }
+.sp-root.sp-nether .sp-signed-out { border-color: var(--nether-error); background: var(--nf-error-bg); color: var(--nf-error-text); font-family: var(--nether-font-body); }

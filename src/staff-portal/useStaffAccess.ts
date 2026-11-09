@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
 import { currentEventId } from "@/portal/event";
+import { friendlyError } from "@/lib/friendlyError";
 import { MOCK_APPLICATION, type ApplicationStatus, type PortalRole } from "./config";
 
 export type StaffApplication = {
@@ -20,7 +21,7 @@ export type StaffApplication = {
 export type StaffAccess =
   | { state: "loading" }
   | { state: "signed-out" }
-  | { state: "error"; message: string }
+  | { state: "error"; message: string; retry?: () => void }
   | { state: "no-application"; email: string }
   | { state: "ready"; application: StaffApplication; preview: boolean };
 
@@ -95,7 +96,7 @@ export function useStaffAccess(portal?: PortalRole): StaffAccess {
   if (loading) return { state: "loading" };
   if (!session) return { state: "signed-out" };
   if (query.isPending) return { state: "loading" };
-  if (query.isError) return { state: "error", message: query.error.message };
+  if (query.isError) return { state: "error", message: friendlyError(query.error), retry: () => void query.refetch() };
   if (!query.data) return { state: "no-application", email: session.user.email ?? "" };
   return { state: "ready", application: query.data, preview: false };
 }
