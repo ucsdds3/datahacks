@@ -2,9 +2,10 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { currentEventId } from "@/portal/event";
 import { errorText, functionErrorMessage } from "./errors";
-import { LIST_FIELDS, NO_REVIEW, type Application, type Decision, type ListApplication, type Review, type Row } from "./types";
+import { LIST_FIELDS, NO_REVIEW, type Application, type Decision, type ListApplication, type MlhConsent, type Review, type Row } from "./types";
+import { MLH_EXPORT_COLUMNS, type MlhExportApp } from "./mlhExport";
 import {
-  PREVIEW_EVENT_ID, isPreview, previewApplication, previewQuota, previewRelease, previewRows, previewSendEmails,
+  PREVIEW_EVENT_ID, isPreview, previewApplication, previewMlhExport, previewQuota, previewRelease, previewRows, previewSendEmails,
   previewSendPasses, previewStage,
 } from "./preview";
 
@@ -86,6 +87,34 @@ async function fetchReviews(eventId: string): Promise<Map<string, Review>> {
   }]));
 }
 
+type MlhRow = { id: string; mlh_code_of_conduct_at: string | null; mlh_data_sharing_at: string | null; mlh_emails_opt_in: boolean | null };
+
+/**
+ * Hackers' MLH agreements (docs/mlh.md), by application id. Empty on a
+ * database from before MLH's columns (or if the read fails): the console
+ * then just shows no MLH consent.
+ */
+async function fetchMlhConsent(eventId: string): Promise<Map<string, MlhConsent>> {
+  try {
+    const rows = await fetchAllPages<MlhRow>((from, to) =>
+      supabase.from("applications").select("id, mlh_code_of_conduct_at, mlh_data_sharing_at, mlh_emails_opt_in")
+        .eq("event_id", eventId).eq("applicant_type", "hacker")
+        .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<MlhRow>);
+    return new Map(rows.map(r => [r.id, { codeOfConductAt: r.mlh_code_of_conduct_at, dataSharingAt: r.mlh_data_sharing_at, emailsOptIn: r.mlh_emails_opt_in === true }]));
+  } catch {
+    return new Map();
+  }
+}
+
+/** What the MLH export needs for every hacker who agreed to share their data with MLH. */
+export async function fetchMlhExport(eventId: string): Promise<MlhExportApp[]> {
+  if (isPreview()) return previewMlhExport();
+  return fetchAllPages<MlhExportApp>((from, to) =>
+    supabase.from("applications").select(MLH_EXPORT_COLUMNS)
+      .eq("event_id", eventId).eq("applicant_type", "hacker").eq("mlh_data_sharing", true)
+      .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<MlhExportApp>);
+}
+
 /** Drafts (no submitted_at) sort last. Array sort is stable, so ties keep their created order. */
 const submittedTime = (app: ListApplication) => (app.submitted_at ? Date.parse(app.submitted_at) : Infinity);
 const bySubmitted = (a: ListApplication, b: ListApplication) => {
@@ -103,7 +132,7 @@ const bySubmitted = (a: ListApplication, b: ListApplication) => {
  */
 export async function fetchApplicationRows(eventId: string): Promise<Row[]> {
   if (isPreview()) return previewRows();
-  const [apps, reviews, attendees] = await Promise.all([
+  const [apps, reviews, attendees, mlh] = await Promise.all([
     fetchAllPages<Omit<ListApplication, keyof Review>>((from, to) =>
       supabase.from("applications").select(LIST_COLUMNS).eq("event_id", eventId)
         .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<Omit<ListApplication, keyof Review>>),
@@ -113,11 +142,16 @@ export async function fetchApplicationRows(eventId: string): Promise<Row[]> {
     fetchRoster(eventId, true)
       .catch(() => fetchRoster(eventId, false))
       .catch(() => [] as RosterEntry[]),
+    fetchMlhConsent(eventId),
   ]);
   const roster = new Map(attendees.filter(a => a.application_id).map(a => [a.application_id!, a]));
   return apps.map(app => ({ ...app, ...(reviews.get(app.id) ?? NO_REVIEW) }) as ListApplication).sort(bySubmitted).map(app => {
     const entry = roster.get(app.id);
-    return { ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null, waiverSignedAt: entry?.waiver_signed_at ?? null };
+    const consent = mlh.get(app.id);
+    return {
+      ...app, code: entry?.code ?? null, checkedIn: !!entry?.checked_in_at, passSentAt: entry?.emailed_at ?? null, waiverSignedAt: entry?.waiver_signed_at ?? null,
+      ...(consent ? { mlh: consent } : {}),
+    };
   });
 }
 

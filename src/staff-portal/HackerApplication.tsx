@@ -9,6 +9,7 @@ import { useFormDraft } from '@/portal/formDraft'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { formatPacificDate } from '@/lib/pacificTime'
 import { TIMELINE } from './config'
+import { MLH_REQUIRED_KEY, MLH_REQUIRED_MESSAGE, MlhCheckboxes, PrivacyNotice, isMlhRefusal, mlhInputId, mlhProblem, useMlhOn, type MlhField } from './mlh'
 import { indexSchools, searchSchools } from './schoolSearch'
 import { MAX_LENGTH, applicationErrorMessage, birthdateBounds, cleanLine, cleanText, isHttpsLink } from '@/lib/applicantInput'
 import { Combobox, DateInput, LimitedTextarea, MultiSelect, PhoneInput, Req, Select, YesNo, phoneProblem } from './formFields'
@@ -34,6 +35,8 @@ const blank = {
   heard_about: [] as string[],
   wants_travel_stipend: null as boolean | null, travel_region: '', travel_method: '', travel_distance: '', travel_stipend_reason: '',
   agreed_to_terms: false,
+  // MLH's checkboxes (mlh.tsx): only shown, checked and saved while MLH is on.
+  mlh_code_of_conduct: false, mlh_data_sharing: false, mlh_emails_opt_in: false,
 }
 type Form = typeof blank
 
@@ -43,12 +46,13 @@ const FIELD_ID: Partial<Record<keyof Form, string>> = {
   linkedin_url: 'hk-linkedin', github_url: 'hk-github', devpost_url: 'hk-devpost', resume_url: 'hk-resume',
   heard_about: 'hk-heard', wants_travel_stipend: 'hk-travel', travel_region: 'hk-travel-region',
   travel_method: 'hk-travel-method', travel_distance: 'hk-travel-distance', agreed_to_terms: 'hk-agree',
+  mlh_code_of_conduct: mlhInputId('hk', 'mlh_code_of_conduct'), mlh_data_sharing: mlhInputId('hk', 'mlh_data_sharing'),
 }
 
 type Problem = { field: keyof Form; message: string }
 
-/** What the browser's own checks can't catch: dropdown pickers, links and yes/no answers. */
-export function formProblem(form: Form, today = new Date()): Problem | null {
+/** What the browser's own checks can't catch: dropdown pickers, links and yes/no answers (and MLH's boxes while it's on). */
+export function formProblem(form: Form, today = new Date(), mlh = false): Problem | null {
   const phone = phoneProblem(form.phone)
   if (phone) return { field: 'phone', message: phone }
   if (form.race_ethnicity.length === 0) return { field: 'race_ethnicity', message: 'Choose at least one option for race/ethnicity.' }
@@ -65,6 +69,10 @@ export function formProblem(form: Form, today = new Date()): Problem | null {
     const missing = !form.travel_region.trim() ? 'travel_region' : !form.travel_method ? 'travel_method' : !form.travel_distance ? 'travel_distance' : null
     if (missing) return { field: missing, message: 'Fill in where and how you\'re traveling from.' }
   }
+  if (mlh) {
+    const missing = mlhProblem(form)
+    if (missing) return { field: missing, message: MLH_REQUIRED_MESSAGE[missing]! }
+  }
   if (!form.agreed_to_terms) return { field: 'agreed_to_terms', message: 'You must agree to the terms.' }
   return null
 }
@@ -78,6 +86,7 @@ export default function HackerApplication() {
   const [invalid, setInvalid] = useState<keyof Form | null>(null)
   // The submit found the sign-in had expired (the session can look fine until a request is refused).
   const [expired, setExpired] = useState(false)
+  const mlh = useMlhOn()
   const draft = useFormDraft({ form: 'hacker', eventCode: EVENT_CODE, userId: session?.user.id, blank })
   const { form, setForm } = draft
   // Signed out, or another tab switched this browser to a different account, since the form opened.
@@ -104,7 +113,7 @@ export default function HackerApplication() {
     setError(null)
     setInvalid(null)
     if (!session || signedOut) return setExpired(true)
-    const issue = formProblem(form)
+    const issue = formProblem(form, new Date(), mlh)
     if (issue) {
       setInvalid(issue.field)
       setError(issue.message)
@@ -130,6 +139,8 @@ export default function HackerApplication() {
     }
 
     const travel = form.wants_travel_stipend
+    // MLH's answers only go in while it's on (a database from before the switch has no such columns).
+    const { mlh_code_of_conduct, mlh_data_sharing, mlh_emails_opt_in, ...answers } = form
     const { error: insertError } = await supabase.from('applications').insert({
       applicant_type: 'hacker',
       event_id: eventId,
@@ -137,7 +148,8 @@ export default function HackerApplication() {
       email: session.user.email,
       status: 'submitted',
       submitted_at: new Date().toISOString(),
-      ...form,
+      ...answers,
+      ...(mlh ? { mlh_code_of_conduct, mlh_data_sharing, mlh_emails_opt_in } : {}),
       first_name: cleanLine(form.first_name),
       last_name: cleanLine(form.last_name),
       city_of_residence: cleanLine(form.city_of_residence),
@@ -164,6 +176,15 @@ export default function HackerApplication() {
     setSubmitting(false)
     if (insertError) {
       if (errorKind(insertError) === 'session') return setExpired(true)
+      // The event needs MLH's boxes but this page didn't know yet: show them and point at the first.
+      if (isMlhRefusal(insertError)) {
+        await queryClient.invalidateQueries({ queryKey: MLH_REQUIRED_KEY })
+        const missing = mlhProblem(form) ?? 'mlh_code_of_conduct'
+        setInvalid(missing)
+        setError(MLH_REQUIRED_MESSAGE[missing]!)
+        focusField(FIELD_ID[missing])
+        return
+      }
       const message = applicationErrorMessage(insertError)
       setError(insertError.code === '23505' ? message : `${message} Your answers are saved on this device.`)
       return
@@ -312,6 +333,19 @@ export default function HackerApplication() {
             </>
           )}
 
+          {mlh && (
+            <>
+              <h2 className="sp-form-section">Major League Hacking (MLH)</h2>
+              <MlhCheckboxes
+                idPrefix="hk"
+                value={form}
+                onChange={(field: MlhField, checked) => update(field, checked)}
+                invalid={invalid === 'mlh_code_of_conduct' || invalid === 'mlh_data_sharing' ? invalid : null}
+                error={error}
+              />
+            </>
+          )}
+
           <label className={errorClass('agreed_to_terms', 'sp-check sp-agree')}>
             <input id="hk-agree" type="checkbox" required checked={form.agreed_to_terms} onChange={e => update('agreed_to_terms', e.target.checked)} {...mark('agreed_to_terms')} />
             <span>I agree that all info above is correct and I'll abide by the code of conduct. <Req /></span>
@@ -320,6 +354,8 @@ export default function HackerApplication() {
         </div>
 
         {error && !invalid && <p className="sp-error" role="alert">{error}</p>}
+
+        <PrivacyNotice mlh={mlh} />
 
         <div className="sp-form-actions">
           <button type="submit" className="sp-button primary" disabled={submitting || signedOut}>

@@ -3,9 +3,10 @@ import { Check, Download, Search, Ticket } from "lucide-react";
 import { applicationBatch } from "@/staff-portal/config";
 import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
-import { stageDecision, stageProblems } from "./data";
+import { fetchMlhExport, stageDecision, stageProblems } from "./data";
+import { mlhExportRows } from "./mlhExport";
 import { errorText } from "./errors";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isDraft, isStaged, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isDraft, isStaged, mlhAgreed, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
 /** The table's tabs: the four decision tabs, plus drafts (started, never submitted) on their own. */
 type View = Tab | "draft";
@@ -50,14 +51,29 @@ const CSV_EXTRA: Column[] = [
   { header: "Check-in code", value: r => r.code ?? "" },
 ];
 
+/**
+ * While MLH is on (docs/mlh.md), hackers get an "MLH consent" column and
+ * filter, the agreements in the CSV, and an MLH export.
+ */
+const MLH_COLUMN: Column = { header: "MLH consent", value: r => (mlhAgreed(r) ? "Agreed" : "Not yet") };
+const MLH_CSV: Column[] = [
+  { header: "MLH Code of Conduct (agreed at)", value: r => r.mlh?.codeOfConductAt ?? "" },
+  { header: "MLH data sharing (agreed at)", value: r => r.mlh?.dataSharingAt ?? "" },
+  { header: "MLH emails opt-in", value: r => (r.mlh?.emailsOptIn ? "Yes" : "No") },
+];
+type MlhFilter = "all" | "agreed" | "not-yet";
+
 const TABLE_SLUG: Record<Kind, string> = { hacker: "hackers", staff: "mentors-judges" };
 
-export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses }: {
+export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses, mlhOn = false, eventId }: {
   kind: Kind;
   rows: Row[];
   onChanged: () => void;
   /** Opens the Passes page with these application ids selected. */
   onSendPasses?: (ids: string[]) => void;
+  /** MLH is on (useMlhOn): the hackers table shows MLH consent and offers the MLH export, for this event. */
+  mlhOn?: boolean;
+  eventId?: string;
 }) {
   const [tab, setTab] = useState<View>("applied");
   const [query, setQuery] = useState("");
@@ -65,8 +81,15 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const mlh = mlhOn && kind === "hacker";
+  const [mlhFilter, setMlhFilter] = useState<MlhFilter>("all");
 
-  const columns = COLUMNS[kind];
+  const columns = useMemo(() => {
+    if (!mlh) return COLUMNS[kind];
+    const cols = [...COLUMNS[kind]];
+    cols.splice(cols.findIndex(c => c.header === "Batch"), 0, MLH_COLUMN);
+    return cols;
+  }, [kind, mlh]);
   const [counts, unreleased] = useMemo(() => {
     const c: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
     const u: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
@@ -81,8 +104,9 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
     return rows.filter(r => viewOf(r) === tab
+      && (!mlh || mlhFilter === "all" || (mlhFilter === "agreed") === mlhAgreed(r))
       && (!q || [fullName(r), r.email, r.phone, r.school, r.organization].some(v => v?.toLowerCase().includes(q))));
-  }, [rows, tab, query]);
+  }, [rows, tab, query, mlh, mlhFilter]);
   // Drafts can't be decided, so they're never selectable (select all included).
   const selectable = useMemo(() => visible.filter(r => !isDraft(r)), [visible]);
 
@@ -112,8 +136,24 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   };
 
   const exportCsv = () => {
-    const cols = [...columns, ...CSV_EXTRA];
+    const cols = [...columns, ...CSV_EXTRA, ...(mlh ? MLH_CSV : [])];
     downloadCsv(csvFilename(TABLE_SLUG[kind], tab), [cols.map(c => c.header), ...visible.map(r => cols.map(c => c.value(r)))]);
+  };
+
+  /** MLH's registration (and check-in) data for the people in this list who agreed to share it. */
+  const exportMlh = async () => {
+    if (!eventId) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const csv = mlhExportRows(await fetchMlhExport(eventId), visible);
+      if (csv.length === 1) setError("Nobody in this list has agreed to share their data with MLH, so there's nothing to export.");
+      else downloadCsv(csvFilename("mlh-hackers", tab), csv);
+    } catch (e) {
+      setError(errorText(e));
+    } finally {
+      setBusy(false);
+    }
   };
 
   const open = rows.find(r => r.id === openId);
@@ -138,9 +178,24 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
             <Search size={15} aria-hidden />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name, email, school…" aria-label="Search" />
           </label>
+          {mlh && (
+            <label className="og-mlh-filter">
+              <span>MLH consent</span>
+              <select value={mlhFilter} onChange={e => setMlhFilter(e.target.value as MlhFilter)}>
+                <option value="all">All</option>
+                <option value="agreed">Agreed</option>
+                <option value="not-yet">Not yet</option>
+              </select>
+            </label>
+          )}
           <button className="sp-button" onClick={exportCsv} disabled={visible.length === 0}>
             <Download size={15} aria-hidden /> CSV
           </button>
+          {mlh && (
+            <button className="sp-button" onClick={exportMlh} disabled={busy || visible.length === 0 || !eventId}>
+              <Download size={15} aria-hidden /> MLH export
+            </button>
+          )}
         </div>
       </div>
 
@@ -164,7 +219,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
       )}
 
       {visible.length === 0 ? (
-        <p className="og-empty">{query ? "Nobody matches that search." : tab === "draft" ? "No drafts." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
+        <p className="og-empty">{query || (mlh && mlhFilter !== "all") ? "Nobody matches that search." : tab === "draft" ? "No drafts." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
       ) : (
         <div className="sp-table-wrap">
           <table className="sp-table og-table">

@@ -22,6 +22,8 @@ const fake = vi.hoisted(() => ({
   rpcCalls: [] as { fn: string; args: Record<string, unknown> }[],
   /** Act like a database from before the waivers migration (no attendees.waiver_signed_at). */
   noWaiverColumn: false,
+  /** Act like a database from before the MLH migration (no applications.mlh_* columns). */
+  noMlhColumns: false,
 }));
 
 vi.mock("@/lib/supabaseClient", () => {
@@ -32,6 +34,9 @@ vi.mock("@/lib/supabaseClient", () => {
     if (call.update !== undefined) return { data: null, error: null };
     if (fake.noWaiverColumn && call.select?.includes("waiver_signed_at")) {
       return { data: null, error: { code: "42703", message: "column attendees.waiver_signed_at does not exist" } };
+    }
+    if (fake.noMlhColumns && call.select?.includes("mlh_")) {
+      return { data: null, error: { code: "42703", message: "column applications.mlh_data_sharing_at does not exist" } };
     }
     if (call.single) return { data: rows[0] ?? null, error: null };
     const [from, to] = call.range ?? [0, rows.length - 1];
@@ -136,11 +141,36 @@ describe("fetchApplicationRows", () => {
     expect(rows[5]).toMatchObject({ id: id(5), code: "DH-5", checkedIn: true });
     expect(rows[1500]).toMatchObject({ code: null, checkedIn: false });
 
-    const appCalls = fake.calls.filter(c => c.table === "applications");
+    // The list (MLH consent is a read of its own, below).
+    const appCalls = fake.calls.filter(c => c.table === "applications" && !c.select?.includes("mlh_"));
     expect(appCalls.map(c => c.range)).toEqual([[0, 999], [1000, 1999], [2000, 2999]]);
     expect(appCalls[0].order).toEqual(["created_at", "id"]);
     expect(appCalls[0].select).not.toMatch(/essay|bio|gender/);
     expect(fake.calls.filter(c => c.table === "attendees").map(c => c.range)).toEqual([[0, 999], [1000, 1999]]);
+  });
+
+  it("adds hackers' MLH consent, and loads without it on a database from before MLH", async () => {
+    fake.tables.applications = [
+      application(1, { applicant_type: "hacker", mlh_code_of_conduct_at: "2027-01-02T00:00:00Z", mlh_data_sharing_at: "2027-01-02T00:00:00Z", mlh_emails_opt_in: true }),
+      application(2, { applicant_type: "hacker", mlh_code_of_conduct_at: null, mlh_data_sharing_at: null, mlh_emails_opt_in: false }),
+    ];
+    fake.tables.attendees = [];
+    const rows = await fetchApplicationRows("event-1");
+    expect(rows.map(r => r.mlh)).toEqual([
+      { codeOfConductAt: "2027-01-02T00:00:00Z", dataSharingAt: "2027-01-02T00:00:00Z", emailsOptIn: true },
+      { codeOfConductAt: null, dataSharingAt: null, emailsOptIn: false },
+    ]);
+    const mlhCall = fake.calls.find(c => c.table === "applications" && c.select?.includes("mlh_"))!;
+    expect(mlhCall.eq).toEqual([["event_id", "event-1"], ["applicant_type", "hacker"]]);
+
+    fake.noMlhColumns = true;
+    try {
+      const older = await fetchApplicationRows("event-1");
+      expect(older).toHaveLength(2);
+      expect(older.map(r => r.mlh)).toEqual([undefined, undefined]);
+    } finally {
+      fake.noMlhColumns = false;
+    }
   });
 
   it("shows who has a waiver on file, and still loads the roster on a database without the column", async () => {

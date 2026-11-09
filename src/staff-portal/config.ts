@@ -171,6 +171,26 @@ export const CONTACTS: Contact[] = [
 export const GENERAL_CONTACT_EMAIL = "info@ds3.club";
 
 /**
+ * MLH Member Event switch (docs/mlh.md). Flip to `true` the day MLH approves
+ * DataHacks as a Member Event, and in Supabase run
+ * `update events set mlh_required = true where code = 'DH27';`
+ * Either one on shows MLH's three checkboxes on the hacker application, the
+ * "agree to MLH's terms" card on hackers' portals, and the MLH columns and
+ * export in the organizer console. The database setting is what enforces it.
+ */
+export const MLH_ENABLED = false;
+
+/**
+ * Only while the MLH application is pending and the checkboxes are already on:
+ * shows MLH's "We have applied to be a Major League Hacking (MLH) Member
+ * Event…" note above them. Leave false once approved.
+ */
+export const MLH_APPLICATION_PENDING = false;
+
+/** How long application data is kept, as the privacy notice above Submit says it. */
+export const DATA_RETENTION = "until one year after the event, then we delete it";
+
+/**
  * Application timeline (confirmed 2026-10-22). Applications submitted by the
  * priority deadline (the Sunday after Thanksgiving) are in the priority batch.
  */
@@ -186,6 +206,8 @@ export const TIMELINE = {
     judge: "Sunday, January 17, 2027",
     hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
   } satisfies Record<PortalRole, string>,
+  /** Doors open on day 1: the date the MLH export works out each hacker's age on. */
+  eventStart: new Date("2027-01-16T12:00:00-08:00"),
   /**
    * Meant to be when the hacker Mentors tab appears (the morning of the event). Not
    * applied while organizers test the tab; re-enable it in StaffPortalLayout's navItems.

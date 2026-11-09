@@ -83,7 +83,21 @@ export type ListApplication = Pick<Application, (typeof LIST_FIELDS)[number]> & 
  * waiverSignedAt: when their liability waiver was recorded (attendees.waiver_signed_at,
  * copied from public.waivers). Only accepted people are on the roster, so it's null for the rest.
  */
-export type Row = ListApplication & { code: string | null; checkedIn: boolean; passSentAt: string | null; waiverSignedAt: string | null };
+export type Row = ListApplication & {
+  code: string | null; checkedIn: boolean; passSentAt: string | null; waiverSignedAt: string | null;
+  /** Hackers' MLH agreements (docs/mlh.md). Missing when they couldn't be read (a database from before MLH). */
+  mlh?: MlhConsent;
+};
+
+/** A hacker's answers to MLH's checkboxes, with when each was given (null: not given). */
+export type MlhConsent = {
+  codeOfConductAt: string | null;
+  dataSharingAt: string | null;
+  emailsOptIn: boolean;
+};
+
+/** Agreed to both of MLH's required checkboxes. */
+export const mlhAgreed = (r: Pick<Row, "mlh">) => !!r.mlh?.codeOfConductAt && !!r.mlh?.dataSharingAt;
 
 export const kindOf = (type: ApplicantType): Kind => (type === "hacker" ? "hacker" : "staff");
 

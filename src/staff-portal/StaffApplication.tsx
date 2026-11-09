@@ -11,6 +11,7 @@ import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink,
 import { LimitedTextarea, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
 import { ApplyWithAiNote, DraftNote, SignedOutNotice, focusField } from './formDraftUi'
 import { MENTOR_ONSITE_ACKNOWLEDGEMENT } from './config'
+import { PrivacyNotice } from './mlh'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
@@ -324,6 +325,8 @@ export default function StaffApplication() {
             </div>
 
             {error && <p className="sp-error" role="alert">{error}</p>}
+
+            <PrivacyNotice />
 
             <div className="sp-form-actions">
               <button type="submit" className="sp-button primary" disabled={submitting || signedOut}>

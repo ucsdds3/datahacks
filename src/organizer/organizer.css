@@ -393,3 +393,8 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
 .og-decided { margin: 6px 0 0; font-size: 13px; color: var(--sp-muted); }
 .og-pass-confirm-send { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
 .og-pass-confirm-send > span { flex: 1 1 260px; }
+
+/* The hackers table's "MLH consent" filter (while MLH is on, docs/mlh.md). */
+.og-mlh-filter { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--sp-muted); }
+.og-mlh-filter select { padding: 7px 8px; border: 1px solid var(--sp-border); border-radius: 8px; background: transparent; color: var(--sp-text); font: inherit; font-size: 14px; }
+.og-toolbar { flex-wrap: wrap; }

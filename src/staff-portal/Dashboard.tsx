@@ -4,6 +4,7 @@ import { Check } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
 import { TIMELINE, applicationBatch, type ApplicationStatus } from "./config";
 import WaitlistOptIn from "./WaitlistOptIn";
+import { MlhConsentCard } from "./mlh";
 import { NetherStatusArt } from "./nether/NetherArt";
 import { formatPacificDate } from "@/lib/pacificTime";
 
@@ -75,6 +76,8 @@ export default function Dashboard() {
         )}
       </header>
 
+      {/* MLH's agreements, for hackers who applied before MLH was switched on (not for people who weren't accepted). */}
+      {portal === "hacker" && status !== "rejected" && <MlhConsentCard preview={preview} />}
       {portal === "hacker" && status === "waitlisted" && <WaitlistOptIn preview={preview} />}
 
       <section className="sp-card sp-status-card" data-status={status} aria-labelledby="sp-status-heading">

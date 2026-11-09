@@ -38,6 +38,7 @@ export type Database = {
           ends_at: string | null;
           applications_open: boolean;
           applications_open_at: string | null;
+          mlh_required: boolean;
         };
         Insert: never;
         Update: never;

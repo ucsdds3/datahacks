@@ -724,3 +724,18 @@
 .sp-root .sp-signed-out p { flex: 1 1 260px; margin: 0; font-size: 15px; line-height: 1.45; }
 .sp-root .sp-signed-out .sp-button { min-height: 44px; }
 .sp-root .sp-signed-out .sp-error { flex-basis: 100%; margin: 0; }
+
+/* ---------------------------------------------------------------------------
+   MLH's checkboxes, the portal card that asks for them, and the privacy notice
+   above Submit (mlh.tsx). Nether colours in nether/nether-forms.css. */
+.sp-mlh-group { display: flex; flex-direction: column; gap: 10px; }
+.sp-mlh-item { display: flex; flex-direction: column; gap: 6px; }
+.sp-mlh-check a { overflow-wrap: anywhere; }
+.sp-optional { font-style: normal; color: var(--sp-muted); }
+.sp-mlh-pending { margin: 0; font-size: 14px; color: var(--sp-muted); }
+.sp-mlh-card p { margin: 8px 0 0; }
+.sp-mlh-card .sp-form { margin-top: 16px; }
+.sp-mlh-actions { display: flex; justify-content: flex-end; }
+.sp-privacy { font-size: 14px; color: var(--sp-muted); }
+.sp-privacy h2 { margin: 0 0 6px; font-size: 15px; }
+.sp-privacy ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
