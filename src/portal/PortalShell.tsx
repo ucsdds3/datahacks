@@ -5,7 +5,8 @@ import { NoIndex } from "@/components/NoIndex";
 import { AccountWatcher } from "./AccountWatcher";
 import { prefetchPortalPages } from "./pages";
 import { portal } from "./paths";
-import { ORGANIZER_BACKGROUND, PORTAL_BACKGROUND } from "./theme";
+import { ORGANIZER_BACKGROUND, THEME_BACKGROUND } from "./theme";
+import { usePortalTheme } from "./portalTheme";
 import { portalTitle } from "./titles";
 
 /**
@@ -30,14 +31,15 @@ export default function PortalShell() {
   useEffect(() => { prefetchPortalPages(); }, []);
 
   // No white behind the portal: paint the page dark (overscroll, a page still loading).
-  // The End's purple, except in the organizer console, which keeps its green.
+  // The current theme's colour, except in the organizer console, which keeps its green.
   const organizer = pathname.startsWith(portal.organizer);
+  const theme = usePortalTheme();
   useEffect(() => {
     const html = document.documentElement;
     const before = html.style.backgroundColor;
-    html.style.backgroundColor = organizer ? ORGANIZER_BACKGROUND : PORTAL_BACKGROUND;
+    html.style.backgroundColor = organizer ? ORGANIZER_BACKGROUND : THEME_BACKGROUND[theme];
     return () => { html.style.backgroundColor = before; };
-  }, [organizer]);
+  }, [organizer, theme]);
 
   return <AuthProvider><NoIndex /><AccountWatcher /><Outlet /></AuthProvider>;
 }

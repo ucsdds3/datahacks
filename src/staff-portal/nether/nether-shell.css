@@ -1,0 +1,4 @@
+/* Nether theme: shell. See nether-theme.css for tokens. */
+
+/* Placeholder backdrop until the art lands. */
+.sp-nether-sky { position: fixed; inset: 0; z-index: 0; background: var(--nether-netherrack); }

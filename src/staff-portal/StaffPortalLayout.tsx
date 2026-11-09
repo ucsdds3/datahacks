@@ -11,9 +11,11 @@ import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
 import { GENERAL_CONTACT_EMAIL, HACKER_GUIDE_PAGES, HANDBOOK_TITLE, hasJudgeAccess, type PortalRole } from "./config";
-import { EndSky } from "./EndSky";
+import { PortalBackdrop, useThemeClass } from "./PortalBackdrop";
+import { ThemeToggle } from "./ThemeToggle";
 import "./staff-portal.css";
 import "./end-theme.css";
+import "./nether/nether-theme.css";
 
 type NavItem = { path: string; label: string; icon: ReactNode };
 
@@ -92,9 +94,10 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
     const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
     nav.scrollLeft = Math.max(0, left - (nav.clientWidth - active.offsetWidth) / 2);
   }, [pathname]);
+  const themeClass = useThemeClass();
   return (
-    <div className="sp-root sp-end">
-      <EndSky />
+    <div className={`sp-root ${themeClass}`}>
+      <PortalBackdrop />
       {/* The tempered-glass sheet over the painting; the sidebar is a second pane on it. */}
       <div className="sp-shell">
         <aside className="sp-sidebar">
@@ -106,6 +109,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
             {nav}
           </nav>
           <div className="sp-sidebar-footer">
+            <ThemeToggle />
             {/* The organizers' inbox, not the account: labelled so nobody mistakes it for who's signed in. */}
             <a className="sp-contact" href={`mailto:${GENERAL_CONTACT_EMAIL}`} title="Email the organizers">
               <Mail size={14} aria-hidden /> <span>Questions? <span className="sp-contact-email">{GENERAL_CONTACT_EMAIL}</span></span>

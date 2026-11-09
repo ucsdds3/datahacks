@@ -3,15 +3,19 @@ import { useAuth } from "@/context/AuthContext";
 import { portal, type LoginRole } from "@/portal/paths";
 import { GENERAL_CONTACT_EMAIL } from "./config";
 import { useStaffAccess, type StaffAccess } from "./useStaffAccess";
-import { EndSky } from "./EndSky";
+import { PortalBackdrop, useThemeClass } from "./PortalBackdrop";
+import { ThemeToggle } from "./ThemeToggle";
 import "./staff-portal.css";
 import "./end-theme.css";
+import "./nether/nether-theme.css";
 
-/** A single card on the End sky: loading, sign-in and error screens. */
+/** A single card on the theme's backdrop: loading, sign-in and error screens. */
 export function Screen({ title, children }: { title: string; children?: React.ReactNode }) {
+  const themeClass = useThemeClass();
   return (
-    <div className="sp-root sp-end sp-gate">
-      <EndSky />
+    <div className={`sp-root ${themeClass} sp-gate`}>
+      <PortalBackdrop />
+      <ThemeToggle className="sp-gate-theme" />
       <div className="sp-gate-glass">
         <section className="sp-card">
           <img src="/datahacks-logo.png" alt="" />
