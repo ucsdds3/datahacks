@@ -125,11 +125,11 @@ export const STAFF_TYPES = ["mentor", "judge", "hybrid"] as const;
 export const UCSD_AFFILIATIONS = ["student", "alumni", "faculty", "none"] as const;
 
 export const JUDGING_TRACKS = [
-  "social_good_wellbeing",
-  "healthcare_health_tech",
+  "social_good",
+  "biotech_life_sciences",
   "defense_cybersecurity",
-  "fintech_econ_finance",
-  "entertainment",
+  "finance",
+  "energy",
 ] as const;
 
 /** The mentor blurb is optional; when given it needs some substance (applications_staff_fields_check). */
