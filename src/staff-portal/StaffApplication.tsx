@@ -35,8 +35,6 @@ const trackOptions = [
   { value: 'energy', label: 'Energy' },
 ]
 
-/** The blurb is optional; when given it needs some substance. Blank ones get written for them. */
-const BIO_MIN_LENGTH = 50
 
 const blank = {
   first_name: '',
@@ -91,7 +89,6 @@ export default function StaffApplication() {
   if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
   if (!form.applicant_type) missing.push('applicant_type')
   if (isJudging && !form.judging_track) missing.push('judging_track')
-  if (isMentoring && bioLength > 0 && bioLength < BIO_MIN_LENGTH) missing.push('bio')
   if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
   if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
   if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
@@ -106,7 +103,6 @@ export default function StaffApplication() {
     const first = missing[0]
     if (first === 'phone' && form.phone) return phoneProblem(form.phone) ?? 'Enter a 10-digit phone number.'
     if (first === 'linkedin_url' && form.linkedin_url.trim()) return 'Your LinkedIn link should start with https://.'
-    if (first === 'bio') return `Your blurb needs at least ${BIO_MIN_LENGTH} characters, or leave it blank.`
     if (missing.length === 1 && first.startsWith('acknowledged_')) return 'Tick the box to confirm before submitting.'
     return 'Some required answers are missing. The first one is highlighted.'
   }
@@ -276,14 +272,11 @@ export default function StaffApplication() {
                 <label id="field-bio" className={cls('bio')}>A short blurb about you <span>(optional, shown to hackers on the mentor calendar)</span>
                   <LimitedTextarea
                     rows={4}
-                    minLength={BIO_MIN_LENGTH}
                     maxLength={MAX_LENGTH.bio}
                     value={form.bio}
                     onChange={e => update('bio', e.target.value)}
                   />
-                  <span>
-                    {bioLength > 0 ? `At least ${BIO_MIN_LENGTH} characters.` : "Leave it blank and we'll write one for you from your application."}
-                  </span>
+                  {bioLength === 0 && <span>Leave it blank and we'll write one for you from your application.</span>}
                 </label>
               )}
 
