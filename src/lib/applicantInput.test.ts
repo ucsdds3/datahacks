@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   applicationErrorMessage, birthdateBounds, cleanLine, cleanText, isHttpsLink, isValidEmail, safeHref, safeMailto,
 } from "./applicantInput";
@@ -127,7 +127,23 @@ describe("applicationErrorMessage", () => {
     expect(message).toMatch(/format we can't accept/);
   });
 
-  it("passes other errors through", () => {
-    expect(applicationErrorMessage({ code: "42501", message: "permission denied" })).toBe("permission denied");
+  it("never shows developer text: network, sign-in and unknown failures get plain English", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(applicationErrorMessage({ code: "", message: "TypeError: Failed to fetch" })).toMatch(/couldn't reach DataHacks/);
+    expect(applicationErrorMessage({ code: "", message: "TypeError: Load failed" })).toMatch(/couldn't reach DataHacks/);
+    expect(applicationErrorMessage({ code: "PGRST301", message: "JWT expired" })).toMatch(/sign-in has expired/);
+    expect(applicationErrorMessage({ code: "42501", message: 'new row violates row-level security policy for table "applications"' }))
+      .toMatch(/sign-in has expired/);
+    expect(applicationErrorMessage({ code: "XX000", message: "internal error" })).toMatch(/Something went wrong on our side/);
+  });
+
+  it("says applications are closed, in the database's words, like the MCP server", () => {
+    const closed = { code: "23514", message: "Applications for DataHacks 2027 aren't open right now." };
+    expect(applicationErrorMessage(closed)).toBe("Applications for DataHacks 2027 aren't open right now.");
+    expect(applicationErrorMessage({ code: "23514", message: "Applications for DataHacks 2027 aren't open yet. They open on November 20, 2026." }))
+      .toBe("Applications for DataHacks 2027 aren't open yet. They open on November 20, 2026.");
+    expect(applicationErrorMessage(closed)).not.toMatch(/missing/);
+    // A field's own check still names the field.
+    expect(applicationErrorMessage({ code: "23514", message: 'new row violates check constraint "application_phone_check"' })).toMatch(/phone number/);
   });
 });

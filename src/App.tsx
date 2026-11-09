@@ -5,7 +5,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
 import ThemeIndex from "./pages/ThemeIndex";
 import Groove from "./themes/groove";
 import Pop from "./themes/pop";
@@ -43,6 +42,8 @@ const OrganizerConsole = lazy(portalPages.organizer);
 const OAuthConsent = lazy(portalPages.oauthConsent);
 // Public: how to apply through an AI assistant. Outside the portal shell, so no Supabase client.
 const ApplyWithAi = lazy(() => import("./pages/ApplyWithAi"));
+// Any unknown address: the End-themed 404. Lazy, so the portal's styles stay out of the home page's bundle.
+const NotFound = lazy(() => import("./pages/NotFound"));
 // Dev only: sign tabs in as dummy applicants. Left out of production builds.
 const TestAccounts = import.meta.env.DEV ? lazy(() => import("./dev/TestAccountsPage")) : null;
 
@@ -51,7 +52,10 @@ const PORTALS = ["hacker", "mentor", "judge", "hybrid"] as const;
 /** Shown while the portal's first chunks load: the current theme's dark page, never a white one. */
 const PortalLoading = () => <div style={{ minHeight: "100dvh", background: THEME_BACKGROUND[getPortalTheme()] }} aria-busy="true" />;
 
-const queryClient = new QueryClient();
+// One retry, not React Query's three: the Supabase client already retries a failed read
+// 3 times itself, and 4 rounds of that kept "Loading your portal…" up for ~46 s when
+// Supabase couldn't be reached. Now the page says so (with Try again) after ~15 s.
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1 } } });
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -112,7 +116,7 @@ const App = () => (
             <Route path="/apply" element={<Navigate to={portal.applyHacker} replace />} />
             <Route path="/apply/mentor-judge" element={<Navigate to={portal.applyStaff} replace />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
+          <Route path="*" element={<PortalBoundary><Suspense fallback={<PortalLoading />}><NotFound /></Suspense></PortalBoundary>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

@@ -9,13 +9,18 @@ const db = vi.hoisted(() => ({
   // Only the switch read (select applications_open, ...) fails.
   windowError: null as null | { message: string },
   applications: [] as unknown[],
+  session: { user: { id: "u1", email: "jane@example.com" } } as null | { user: { id: string; email: string } },
+  listeners: [] as ((event: string, session: unknown) => void)[],
 }));
 
 vi.mock("@/lib/supabaseClient", () => ({
   supabase: {
     auth: {
-      getSession: async () => ({ data: { session: { user: { id: "u1", email: "jane@example.com" } } } }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+      getSession: async () => ({ data: { session: db.session } }),
+      onAuthStateChange: (cb: (event: string, session: unknown) => void) => {
+        db.listeners.push(cb);
+        return { data: { subscription: { unsubscribe: () => {} } } };
+      },
       signOut: async () => {},
     },
     from: (table: string) => {
@@ -36,6 +41,10 @@ vi.mock("@/lib/supabaseClient", () => ({
 import { AuthProvider } from "@/context/AuthContext";
 import { closedTitle } from "@/portal/event";
 import { ApplyLayout } from "./Apply";
+import { act } from "@testing-library/react";
+import { useParams } from "react-router-dom";
+
+const Where = () => <h1>{`${useParams().role} login`}</h1>;
 
 function renderApply(path = "/portal/apply/hacker") {
   return render(
@@ -45,7 +54,9 @@ function renderApply(path = "/portal/apply/hacker") {
           <Routes>
             <Route path="/portal/apply" element={<ApplyLayout />}>
               <Route path="hacker" element={<h1>hacker form</h1>} />
+              <Route path="mentor-judge" element={<h1>mentor-judge form</h1>} />
             </Route>
+            <Route path="/login/:role" element={<Where />} />
             <Route path="/portal" element={<h1>portal home</h1>} />
           </Routes>
         </MemoryRouter>
@@ -58,6 +69,32 @@ beforeEach(() => {
   db.event = { id: "event-1", applications_open: true, applications_open_at: null };
   db.windowError = null;
   db.applications = [];
+  db.session = { user: { id: "u1", email: "jane@example.com" } };
+  db.listeners = [];
+});
+
+describe("who gets which sign-in page", () => {
+  it("a signed-out mentor link goes to the mentor sign-in, even with GitHub Pages' trailing slash", async () => {
+    db.session = null;
+    renderApply("/portal/apply/mentor-judge/");
+    expect(await screen.findByRole("heading", { name: "mentor login" })).toBeTruthy();
+  });
+
+  it("a signed-out hacker link goes to the hacker sign-in", async () => {
+    db.session = null;
+    renderApply("/portal/apply/hacker/");
+    expect(await screen.findByRole("heading", { name: "hacker login" })).toBeTruthy();
+  });
+
+  it("signing out while the form is open keeps the form (it says what happened) instead of leaving", async () => {
+    renderApply();
+    await screen.findByRole("heading", { name: "hacker form" });
+    db.session = null;
+    act(() => db.listeners.forEach(cb => cb("SIGNED_OUT", null)));
+    await new Promise(r => setTimeout(r, 50));
+    expect(screen.getByRole("heading", { name: "hacker form" })).toBeTruthy();
+    expect(screen.queryByText(/login/)).toBeNull();
+  });
 });
 
 describe("apply pages and the applications-open switch", () => {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { friendlyError } from "@/lib/friendlyError";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
@@ -47,7 +48,7 @@ export default function Mentors() {
       </header>
       <section className="sp-card">
         {!preview && query.isPending && <p>Loading mentors…</p>}
-        {!preview && query.isError && <p>Couldn't load mentors: {query.error.message}</p>}
+        {!preview && query.isError && <p>Couldn't load mentors. {friendlyError(query.error)}</p>}
         {(preview || query.isSuccess) && mentors.length === 0 && <p>Mentors will appear here once they're confirmed.</p>}
         <ul className="sp-mentors">
           {mentors.map((m, i) => {

@@ -264,7 +264,10 @@
 .sp-done p { margin: 6px 0 0; color: var(--sp-muted); }
 
 /* Handbook */
-.sp-handbook { display: grid; grid-template-columns: 180px 1fr; gap: 24px; align-items: start; }
+/* minmax(0, …): a plain 1fr column grows to the schedule table's min-content (~685px)
+   and, on a phone, pushes every paragraph past the clipped edge. The table scrolls in its own .sp-table-wrap. */
+.sp-handbook { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 24px; align-items: start; }
+.sp-handbook > * { min-width: 0; }
 .sp-toc { position: sticky; top: 40px; display: flex; flex-direction: column; gap: 6px; font-size: 14px; }
 .sp-toc span { margin-bottom: 4px; color: var(--sp-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 .sp-root .sp-toc a { color: var(--sp-muted); text-decoration: none; }
@@ -451,7 +454,7 @@
   .sp-nav { flex-direction: row; overflow-x: auto; }
   .sp-root .sp-nav-link { white-space: nowrap; }
   .sp-main { padding: 24px 16px; }
-  .sp-handbook { grid-template-columns: 1fr; }
+  .sp-handbook { grid-template-columns: minmax(0, 1fr); }
   .sp-toc { display: none; }
 }
 @media (max-width: 520px) {
@@ -696,3 +699,28 @@
 .sp-waitlist-toggle { display: inline-flex; align-items: center; gap: 10px; margin-top: 14px; font-weight: 500; cursor: pointer; }
 .sp-waitlist-toggle input { width: 20px; height: 20px; margin: 0; accent-color: #59744b; cursor: pointer; }
 .sp-waitlist-note { color: var(--sp-muted); font-size: 14px; }
+
+/* ---------------------------------------------------------------------------
+   Application forms: character counts, a problem under its field, the draft
+   note and the signed-out notice. Colours come from each theme's variables. */
+.sp-root .sp-form-fields .sp-counter { display: block; margin-top: 4px; color: var(--sp-muted); font-size: 13px; font-weight: 400; text-align: right; font-variant-numeric: tabular-nums; }
+.sp-root .sp-form-fields .sp-counter.near { color: var(--sp-text); font-weight: 600; }
+.sp-root .sp-form-fields .sp-field-message { display: block; margin-top: 6px; color: var(--sp-red); font-size: 14px; font-weight: 600; }
+.sp-root .sp-link-button { padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.sp-root .sp-signed-out {
+  position: sticky;
+  top: 12px;
+  z-index: 6;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin: 0 0 4px;
+  padding: 14px 16px;
+  border: 2px solid var(--sp-red);
+  background: #fff4f1;
+  color: #3b1a14;
+}
+.sp-root .sp-signed-out p { flex: 1 1 260px; margin: 0; font-size: 15px; line-height: 1.45; }
+.sp-root .sp-signed-out .sp-button { min-height: 44px; }
+.sp-root .sp-signed-out .sp-error { flex-basis: 100%; margin: 0; }

@@ -38,3 +38,28 @@ export function applyPath(): string {
   try { kind = localStorage.getItem(APPLY_AS_KEY); } catch { /* storage blocked */ }
   return kind === "staff" ? portal.applyStaff : portal.applyHacker;
 }
+
+/**
+ * A pathname without the trailing slash GitHub Pages adds when a link is loaded
+ * directly (/portal/apply/mentor-judge/). Match routes on this, never on the raw
+ * pathname: "…/mentor-judge/".endsWith("mentor-judge") is false.
+ */
+export const trimSlash = (pathname: string) => pathname.replace(/(.)\/+$/, "$1");
+
+/**
+ * Where to go back to after signing in, from a `next` the URL carried: a portal
+ * page only (anyone can edit the URL), so never another site or the organizer
+ * console from an applicant sign-in.
+ */
+export function safeNext(value: string | null | undefined): string | null {
+  if (!value || !value.startsWith("/portal/") || value.startsWith("//") || value.includes("\\")) return null;
+  // eslint-disable-next-line no-control-regex
+  if (/[\s\x00-\x1f]/.test(value)) return null;
+  return value;
+}
+
+/** A sign-in page that brings the person back to `next` (a portal page) afterwards. */
+export function loginWithNext(role: LoginRole, next?: string | null): string {
+  const safe = safeNext(next);
+  return safe ? `${portal.login(role)}?${new URLSearchParams({ next: safe })}` : portal.login(role);
+}

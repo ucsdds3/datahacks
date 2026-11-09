@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { formatPacificDate } from "@/lib/pacificTime";
 import { CheckCircle2 } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
 import { GENERAL_CONTACT_EMAIL } from "./config";
@@ -19,7 +20,7 @@ export default function Questions() {
         <CheckCircle2 size={32} aria-hidden />
         <h2>Your application has been submitted</h2>
         <p>
-          {submittedAt && <>We received it on {new Date(submittedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}. </>}
+          {submittedAt && <>We received it on {formatPacificDate(submittedAt)}. </>}
           {status === "pending" ? "We're reviewing it now." : "A decision is on your Status page."}
         </p>
         <p className="sp-muted">

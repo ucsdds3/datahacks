@@ -3,6 +3,8 @@
 // for anyone who skips the website; these keep a person from hitting them.
 // See docs/untrusted-input.md.
 
+import { friendlyError } from "./friendlyError";
+
 /**
  * Longest answer each kind of field accepts in the forms. Each is below the
  * database's cap for that column (in brackets), so the form always stops first.
@@ -83,15 +85,26 @@ const FIELD_LABEL: Record<string, string> = {
   travel_distance: "travel distance", heard_about: "how you heard about us", birthdate: "birthdate",
 };
 
+/**
+ * The applications-open trigger (applications_require_open_event) raises a check
+ * violation whose message is written for people: "Applications for DataHacks 2027
+ * aren't open right now." The MCP server passes it through the same way.
+ */
+export const isApplicationsClosedError = (error: { code?: string; message: string }) =>
+  error.code === "23514" && error.message.startsWith("Applications for ");
+
 /** What to tell an applicant when saving their application fails. */
 export function applicationErrorMessage(error: { code?: string; message: string }): string {
   // 23505 = unique violation: one application per account per event
   if (error.code === "23505") return "You've already applied. Your status is on the portal's Status page.";
+  if (isApplicationsClosedError(error)) return error.message;
   if (error.code === "23514") {
     const field = error.message.match(/application_([a-z_]+)_check/)?.[1];
     const label = field && FIELD_LABEL[field];
     if (label) return `We couldn't save your ${label}: it may be too long or in a format we can't accept. Check it and try again.`;
     return "Some answers are missing or in a format we can't accept. Check the form and try again.";
   }
-  return error.message;
+  // Network failures, an expired sign-in, anything else: plain English, never the raw text.
+  console.error("Couldn't save the application:", error);
+  return friendlyError(error);
 }

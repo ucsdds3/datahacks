@@ -1,4 +1,6 @@
 import { useState } from "react";
+// The database explains a refusal in words ("Only waitlisted applications…"); a network or sign-in failure gets plain English.
+import { errorKind, friendlyError } from "@/lib/friendlyError";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
@@ -67,7 +69,7 @@ export default function WaitlistOptIn({ preview = false }: { preview?: boolean }
         <span>Email me if a spot opens</span>
       </label>
       {on && <p className="sp-waitlist-note">You're on the list. Spots go out in the order people asked for one, and the email will say when to check in by.</p>}
-      {mutation.isError && <p className="sp-error" role="alert">Couldn't save that: {mutation.error.message}</p>}
+      {mutation.isError && <p className="sp-error" role="alert">Couldn't save that. {errorKind(mutation.error) === "other" ? mutation.error.message : friendlyError(mutation.error)}</p>}
     </section>
   );
 }

@@ -1,13 +1,16 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
-import { currentEventId } from '@/portal/event'
+import { EVENT_CODE, currentEventId } from '@/portal/event'
+import { useFormDraft } from '@/portal/formDraft'
+import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink, isValidEmail } from '@/lib/applicantInput'
-import { PhoneInput, Req, isValidPhone } from './formFields'
+import { LimitedTextarea, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
+import { ApplyWithAiNote, DraftNote, SignedOutNotice, focusField } from './formDraftUi'
+import { MENTOR_ONSITE_ACKNOWLEDGEMENT } from './config'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 
@@ -35,6 +38,21 @@ const trackOptions = [
 /** The blurb is optional; when given it needs some substance. Blank ones get written for them. */
 const BIO_MIN_LENGTH = 50
 
+const blank = {
+  first_name: '',
+  last_name: '',
+  phone: '',
+  organization: '',
+  role_title: '',
+  linkedin_url: '',
+  ucsd_affiliation: '',
+  applicant_type: '' as ApplicantType | '',
+  judging_track: '',
+  bio: '',
+  acknowledged_in_person_judging: false,
+  acknowledged_onsite_mentoring: false,
+  acknowledged_both_priority: false,
+}
 
 export default function StaffApplication() {
   const { session } = useAuth()
@@ -43,27 +61,17 @@ export default function StaffApplication() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showErrors, setShowErrors] = useState(false)
+  const [expired, setExpired] = useState(false)
+  const draft = useFormDraft({ form: 'staff', eventCode: EVENT_CODE, userId: session?.user.id, blank })
+  // The Google account they signed in with (the one the form was opened with). The
+  // database records this one whatever is sent, so the field is read-only.
+  const [email] = useState(session?.user.email ?? '')
+  const form = { ...draft.form, email }
+  const signedOut = expired || (draft.owner !== null && session?.user.id !== draft.owner)
+  const { save } = draft
+  useEffect(() => { if (signedOut) save() }, [signedOut, save])
 
-  const [form, setForm] = useState({
-    first_name: '',
-    last_name: '',
-    // The Google account they signed in with. The database records this one
-    // whatever is sent, so the field is read-only.
-    email: session?.user.email ?? '',
-    phone: '',
-    organization: '',
-    role_title: '',
-    linkedin_url: '',
-    ucsd_affiliation: '',
-    applicant_type: '' as ApplicantType | '',
-    judging_track: '',
-    bio: '',
-    acknowledged_in_person_judging: false,
-    acknowledged_onsite_mentoring: false,
-    acknowledged_both_priority: false,
-  })
-
-  const update = (field: string, value: string | boolean) => setForm(prev => ({ ...prev, [field]: value }))
+  const update = (field: keyof typeof blank, value: string | boolean) => draft.setForm(prev => ({ ...prev, [field]: value }))
 
   const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'hybrid'
   const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'hybrid'
@@ -90,6 +98,18 @@ export default function StaffApplication() {
   const isComplete = missing.length === 0
   const cls = (key: string, base = '') =>
     [base, showErrors && missing.includes(key) ? 'sp-field-error' : ''].filter(Boolean).join(' ') || undefined
+  /** aria-invalid on a control whose answer is missing or wrong, once Submit has been pressed. */
+  const inv = (key: string) => (showErrors && missing.includes(key) ? { 'aria-invalid': true as const } : {})
+
+  /** The first problem, in words: the specific one where there is one. */
+  const firstProblem = () => {
+    const first = missing[0]
+    if (first === 'phone' && form.phone) return phoneProblem(form.phone) ?? 'Enter a 10-digit phone number.'
+    if (first === 'linkedin_url' && form.linkedin_url.trim()) return 'Your LinkedIn link should start with https://.'
+    if (first === 'bio') return `Your blurb needs at least ${BIO_MIN_LENGTH} characters, or leave it blank.`
+    if (missing.length === 1 && first.startsWith('acknowledged_')) return 'Tick the box to confirm before submitting.'
+    return 'Some required answers are missing. The first one is highlighted.'
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -97,27 +117,33 @@ export default function StaffApplication() {
 
     if (!isComplete) {
       setShowErrors(true)
-      setError(missing.includes('linkedin_url') && form.linkedin_url.trim()
-        ? 'Your LinkedIn link should start with https://.'
-        : 'All fields are required for submission.')
-      toast.error('Please complete all fields before submitting.')
+      setError(firstProblem())
+      // Focus the first problem field (no toast: on phones it covered the Submit button).
       requestAnimationFrame(() => {
         const target = document.getElementById(`field-${missing[0]}`)
         target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        target?.querySelector<HTMLElement>('input, textarea')?.focus({ preventScroll: true })
+        const control = target?.matches('input, textarea') ? target : target?.querySelector<HTMLElement>('input, textarea')
+        control?.focus({ preventScroll: true })
       })
       return
     }
 
-    if (!session) return
+    if (!session || signedOut) return setExpired(true)
 
     setSubmitting(true)
+    // The session this tab has can be stale: check it's still the person who filled the form in.
+    const { data: current } = await supabase.auth.getSession()
+    if (!current.session || current.session.user.id !== draft.owner) {
+      setSubmitting(false)
+      setExpired(true)
+      return
+    }
 
     let eventId: string
     try {
       eventId = await currentEventId()
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
+      setError(`${friendlyError(e)} Your answers are saved on this device.`)
       setSubmitting(false)
       return
     }
@@ -146,10 +172,13 @@ export default function StaffApplication() {
     setSubmitting(false)
 
     if (insertError) {
-      setError(applicationErrorMessage(insertError))
+      if (errorKind(insertError) === 'session') return setExpired(true)
+      const message = applicationErrorMessage(insertError)
+      setError(insertError.code === '23505' ? message : `${message} Your answers are saved on this device.`)
       return
     }
 
+    draft.clear()
     await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
     navigate(portal.home, { replace: true })
   }
@@ -159,36 +188,38 @@ export default function StaffApplication() {
     <div className="sp-page">
       <header className="sp-page-header">
         <h1>Mentor / judge application</h1>
-        <p>Apply to mentor, judge, or both. We will be giving priority to people who sign up as both. All fields are required.</p>
+        <p>Apply to mentor, judge, or both. We will be giving priority to people who sign up as both. Every question is required except the blurb.</p>
       </header>
           <form className="sp-card sp-form" onSubmit={handleSubmit} noValidate>
-            <p className="sp-form-note">Rather answer by chatting? You can also <Link to="/apply-with-ai">apply with an AI assistant</Link>.</p>
+            {signedOut && <SignedOutNotice as="staff" otherAccount={session && session.user.id !== draft.owner ? session.user.email ?? '' : null} onLeave={save} />}
+            <DraftNote restoredAt={draft.restoredAt} onReset={draft.reset} />
+            <ApplyWithAiNote />
 
             <div className="sp-form-fields">
               <label id="field-first_name" className={cls('first_name')}>First name <Req />
-                <input required maxLength={MAX_LENGTH.name} value={form.first_name} onChange={e => update('first_name', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.name} value={form.first_name} onChange={e => update('first_name', e.target.value)} {...inv('first_name')} />
               </label>
               <label id="field-last_name" className={cls('last_name')}>Last name <Req />
-                <input required maxLength={MAX_LENGTH.name} value={form.last_name} onChange={e => update('last_name', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.name} value={form.last_name} onChange={e => update('last_name', e.target.value)} {...inv('last_name')} />
               </label>
               <label id="field-email" className={cls('email')}>Email <Req />
                 <input type="email" required readOnly value={form.email} />
               </label>
               <label id="field-phone" className={cls('phone')}>Phone number <Req />
-                <PhoneInput value={form.phone} onChange={v => update('phone', v)} />
+                <PhoneInput value={form.phone} onChange={v => update('phone', v)} {...inv('phone')} />
               </label>
               <label id="field-organization" className={cls('organization')}>Company / lab you work for <Req />
-                <input required maxLength={MAX_LENGTH.short} value={form.organization} onChange={e => update('organization', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.short} value={form.organization} onChange={e => update('organization', e.target.value)} {...inv('organization')} />
               </label>
               <label id="field-role_title" className={cls('role_title')}>Your role at your company or institute <Req />
-                <input required maxLength={MAX_LENGTH.short} value={form.role_title} onChange={e => update('role_title', e.target.value)} />
+                <input required maxLength={MAX_LENGTH.short} value={form.role_title} onChange={e => update('role_title', e.target.value)} {...inv('role_title')} />
               </label>
               <label id="field-linkedin_url" className={cls('linkedin_url')}>Link to your LinkedIn <Req />
-                <input type="url" required maxLength={MAX_LENGTH.link} placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} />
+                <input type="url" required maxLength={MAX_LENGTH.link} placeholder="https://linkedin.com/in/..." value={form.linkedin_url} onChange={e => update('linkedin_url', e.target.value)} {...inv('linkedin_url')} />
               </label>
 
               <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
-                <legend>Are You A UCSD Student, Alumni, Or Faculty Member? <Req /></legend>
+                <legend>Are you a UCSD student, alum or faculty member? <Req /></legend>
                 {ucsdOptions.map(option => (
                   <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
                     <input
@@ -197,6 +228,7 @@ export default function StaffApplication() {
                       id={`ucsd_${option.value}`}
                       checked={form.ucsd_affiliation === option.value}
                       onChange={() => update('ucsd_affiliation', option.value)}
+                      {...inv('ucsd_affiliation')}
                     />
                     <label htmlFor={`ucsd_${option.value}`}>{option.label}</label>
                   </div>
@@ -214,6 +246,7 @@ export default function StaffApplication() {
                       id={`type_${option.value}`}
                       checked={form.applicant_type === option.value}
                       onChange={() => update('applicant_type', option.value)}
+                      {...inv('applicant_type')}
                     />
                     <label htmlFor={`type_${option.value}`}>{option.label}</label>
                   </div>
@@ -231,6 +264,7 @@ export default function StaffApplication() {
                         id={`track_${option.value}`}
                         checked={form.judging_track === option.value}
                         onChange={() => update('judging_track', option.value)}
+                        {...inv('judging_track')}
                       />
                       <label htmlFor={`track_${option.value}`}>{option.label}</label>
                     </div>
@@ -240,7 +274,7 @@ export default function StaffApplication() {
 
               {isMentoring && (
                 <label id="field-bio" className={cls('bio')}>A short blurb about you <span>(optional, shown to hackers on the mentor calendar)</span>
-                  <textarea
+                  <LimitedTextarea
                     rows={4}
                     minLength={BIO_MIN_LENGTH}
                     maxLength={MAX_LENGTH.bio}
@@ -248,7 +282,7 @@ export default function StaffApplication() {
                     onChange={e => update('bio', e.target.value)}
                   />
                   <span>
-                    {bioLength > 0 ? `${bioLength} characters (at least ${BIO_MIN_LENGTH})` : "Leave it blank and we'll write one for you from your application."}
+                    {bioLength > 0 ? `At least ${BIO_MIN_LENGTH} characters.` : "Leave it blank and we'll write one for you from your application."}
                   </span>
                 </label>
               )}
@@ -260,6 +294,7 @@ export default function StaffApplication() {
                     id="in_person"
                     checked={form.acknowledged_in_person_judging}
                     onChange={e => update('acknowledged_in_person_judging', e.target.checked)}
+                    {...inv('acknowledged_in_person_judging')}
                   />
                   <label htmlFor="in_person">
                     I understand that online judging is not allowed: judges must be present in person.
@@ -274,10 +309,9 @@ export default function StaffApplication() {
                     id="onsite_mentoring"
                     checked={form.acknowledged_onsite_mentoring}
                     onChange={e => update('acknowledged_onsite_mentoring', e.target.checked)}
+                    {...inv('acknowledged_onsite_mentoring')}
                   />
-                  <label htmlFor="onsite_mentoring">
-                    I understand that mentors must be onsite from 12:30–3:30 PM on Saturday, January 16th, with check-in starting at 11:30 AM.
-                  </label>
+                  <label htmlFor="onsite_mentoring">{MENTOR_ONSITE_ACKNOWLEDGEMENT}</label>
                 </div>
               )}
 
@@ -288,6 +322,7 @@ export default function StaffApplication() {
                   required
                   checked={form.acknowledged_both_priority}
                   onChange={e => update('acknowledged_both_priority', e.target.checked)}
+                  {...inv('acknowledged_both_priority')}
                 />
                 <label htmlFor="both_priority">
                   I understand that applicants both mentoring and judging will be given priority preference.
@@ -298,7 +333,7 @@ export default function StaffApplication() {
             {error && <p className="sp-error" role="alert">{error}</p>}
 
             <div className="sp-form-actions">
-              <button type="submit" className="sp-button primary" disabled={submitting}>
+              <button type="submit" className="sp-button primary" disabled={submitting || signedOut}>
                 {submitting ? 'Submitting...' : 'Submit Application'}
               </button>
             </div>

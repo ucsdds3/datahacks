@@ -5,6 +5,7 @@ import * as mcp from "../../supabase/functions/mcp/application";
 import * as form from "@/staff-portal/formOptions";
 import * as input from "@/lib/applicantInput";
 import { EVENT_CODE, closedTitle } from "./event";
+import { MENTOR_HOURS, MENTOR_ONSITE_ACKNOWLEDGEMENT, SCHEDULE } from "@/staff-portal/config";
 
 // event.ts imports the Supabase client; nothing here talks to Supabase.
 vi.mock("@/lib/supabaseClient", () => ({ supabase: {} }));
@@ -60,6 +61,21 @@ describe("MCP application server matches the portal", () => {
     for (const day of ["2026-10-23T12:00:00", "2028-02-29T09:00:00", "2027-01-01T00:30:00", "2026-12-31T23:30:00"]) {
       expect(mcp.birthdateBounds(new Date(day)), day).toEqual(input.birthdateBounds(new Date(day)));
     }
+  });
+
+  it("gives mentors the same hours as the form and the run of show", () => {
+    const sources = ["index.ts", "application.ts"].map(f => readFileSync(join(__dirname, "../../supabase/functions/mcp", f), "utf8"));
+    const doors = SCHEDULE[0].events[0].start;
+    for (const source of sources) {
+      const mentions = [...source.matchAll(/onsite (\d{1,2}:\d{2}–\d{1,2}:\d{2} [AP]M)[^"]*?(\d{1,2}:\d{2} [AP]M)/g)];
+      expect(mentions.length).toBeGreaterThan(0);
+      for (const [, hours, checkIn] of mentions) {
+        expect(hours).toBe(MENTOR_HOURS);
+        expect(checkIn).toBe(doors);
+      }
+    }
+    expect(MENTOR_ONSITE_ACKNOWLEDGEMENT).toContain(MENTOR_HOURS);
+    expect(MENTOR_ONSITE_ACKNOWLEDGEMENT).toContain(doors);
   });
 
   it("says applications are closed the way the portal does", () => {

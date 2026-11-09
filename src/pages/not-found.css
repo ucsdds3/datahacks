@@ -1,0 +1,4 @@
+/* The 404 page: the End sign-in card, with two full-width 44px+ buttons. */
+.sp-not-found .sp-not-found-links { display: grid; gap: 10px; margin-top: 20px; }
+.sp-not-found .sp-not-found-links .sp-button { justify-content: center; width: 100%; min-height: 48px; margin: 0; font-size: 15px; text-decoration: none; }
+.sp-not-found .sp-card a:not(.sp-button) { color: var(--sp-text); text-decoration: underline; text-underline-offset: 2px; }
