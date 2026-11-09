@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 
-const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS-rBG0znKuERnIsYqSnSC9g2Idu-_-gLjHkAa1aOL8oXoeriN28h_OMEo-2Tb9OXC_uR-c9MH5W668/pub?output=csv";
+// Public roster: only the fields the site shows (name, title, affiliation, role).
+// Never point this at the form-response sheet: it holds contact details and addresses.
+const SHEET_CSV_URL = `${import.meta.env.BASE_URL}data/judges-mentors.csv`;
 
 const FULL_NAME_COLUMN = "Full Name";
 const AFFILIATION_COLUMN = "Current Employer/Affiliation (e.g. Apple or HDSI)";
