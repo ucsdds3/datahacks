@@ -79,6 +79,14 @@ jobs:
           done
           echo "Wrote entry documents for: $routes"
 
+      # The homepage is the DataCraft site, a separate static build kept in public/home/ (its assets live there
+      # too). It replaces the app's index.html only now, after 404.html and the route entries above were copied
+      # from the app's, so every other URL still opens the app.
+      - name: Homepage
+        run: |
+          test -f dist/home/index.html
+          mv dist/home/index.html dist/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

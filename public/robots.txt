@@ -1,6 +1,6 @@
-« /datacraft is the site being built and is not ready to be found. /pop,
-  /press, /groove, /legacy and /themes are internal design mockups carrying
-  placeholder dates and figures. Only the holding page should be indexed. »
+# The homepage (the DataCraft site, served at /) is the page to index. /datacraft holds design drafts and the
+# older world; /pop, /press, /groove, /legacy and /themes are internal mockups with placeholder dates and
+# figures. Portal pages carry their own noindex.
 
 User-agent: *
 Allow: /
