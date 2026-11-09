@@ -407,7 +407,7 @@
 .sp-form textarea { resize: vertical; }
 .sp-check { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; }
 .sp-check input { width: 18px; height: 18px; margin: 2px 0 0; flex-shrink: 0; accent-color: var(--sp-accent); }
-.sp-check label { font-weight: 400; }
+.sp-check label, .sp-check > span { font-weight: 400; }
 .sp-form-note { margin: 0; color: var(--sp-muted); font-size: 14px; }
 .sp-form-actions { display: flex; justify-content: flex-end; }
 .sp-field-error, .sp-field-error legend, .sp-field-error label { color: var(--sp-red); }
