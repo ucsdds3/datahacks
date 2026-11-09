@@ -16,7 +16,7 @@ import { COUNTRIES } from "./countries.ts";
 export { COUNTRIES };
 
 /** The event applications go to. Must match EVENT_CODE in src/portal/event.ts. */
-export const EVENT_CODE = "DH27BETA";
+export const EVENT_CODE = "DH27BETA2";
 
 // ---------------------------------------------------------------------------
 // Copied from src/lib/applicantInput.ts (see docs/untrusted-input.md).
