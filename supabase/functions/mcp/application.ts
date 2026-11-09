@@ -480,5 +480,18 @@ export function insertErrorMessage(error: { code?: string; message: string }): s
     if (field) return `Not submitted: the database refused ${field} (too long, or in a format it can't accept). Check it with the applicant and try again.`;
     return "Not submitted: some answers are missing or in a format the database can't accept. Check them with the applicant and try again.";
   }
-  return `Not submitted: ${error.message}`;
+  // PGRST301/PGRST303: the sign-in token expired or was rejected.
+  if (error.code === "PGRST301" || error.code === "PGRST303") {
+    return "Not submitted: the sign-in expired. Reconnect DataHacks (sign in again) and try once more; nothing was saved.";
+  }
+  // Anything else: the details stay in the function's logs, not in the reply.
+  console.error("Application insert failed:", error.code ?? "", error.message);
+  return `Not submitted: the DataHacks database refused it (error ${error.code ?? "unknown"}). Try again in a minute, or email info@ds3.club.`;
+}
+
+/** For a failed read: logged in full, and a short message without database details for the assistant. */
+export function databaseErrorMessage(what: string, error: { code?: string; message: string }): string {
+  console.error(`Reading ${what} failed:`, error.code ?? "", error.message);
+  if (error.code === "PGRST301" || error.code === "PGRST303") return "The sign-in expired. Reconnect DataHacks (sign in again) and try once more.";
+  return `Couldn't reach the DataHacks database right now (error ${error.code ?? "unknown"}). Try again in a minute.`;
 }

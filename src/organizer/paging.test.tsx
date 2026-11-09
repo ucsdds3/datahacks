@@ -17,7 +17,9 @@ type Call = {
 const fake = vi.hoisted(() => ({
   calls: [] as Call[],
   tables: {} as Record<string, unknown[]>,
-  rpc: { data: [] as unknown[], error: null as unknown },
+  rpc: { data: [] as unknown, error: null as unknown },
+  rpcByFn: {} as Record<string, { data: unknown; error: unknown } | ((args: Record<string, unknown>) => { data: unknown; error: unknown })>,
+  rpcCalls: [] as { fn: string; args: Record<string, unknown> }[],
   /** Act like a database from before the waivers migration (no attendees.waiver_signed_at). */
   noWaiverColumn: false,
 }));
@@ -42,6 +44,7 @@ vi.mock("@/lib/supabaseClient", () => {
       update: (value: unknown) => { call.update = value; return builder; },
       eq: (column: string, value: unknown) => { call.eq.push([column, value]); return builder; },
       in: (column: string, values: unknown[]) => { call.in = [column, values]; return builder; },
+      not: () => builder,
       order: (column: string) => { call.order.push(column); return builder; },
       range: (from: number, to: number) => { call.range = [from, to]; return builder; },
       maybeSingle: () => { call.single = true; return builder; },
@@ -52,12 +55,17 @@ vi.mock("@/lib/supabaseClient", () => {
     };
     return builder;
   };
-  return { supabase: { from: chain, rpc: async () => fake.rpc } };
+  const rpc = async (fn: string, args: Record<string, unknown>) => {
+    fake.rpcCalls.push({ fn, args });
+    const answer = fake.rpcByFn[fn];
+    return typeof answer === "function" ? answer(args) : answer ?? fake.rpc;
+  };
+  return { supabase: { from: chain, rpc } };
 });
 vi.mock("@/portal/event", () => ({ currentEventId: async () => "event-1" }));
 
 import ApplicationDetail from "./ApplicationDetail";
-import { PAGE_SIZE, STAGE_CHUNK, fetchAllPages, fetchApplicationRows, releaseDecisions, stageDecision } from "./data";
+import { PAGE_SIZE, RELEASE_CHUNK, ReleaseError, STAGE_CHUNK, fetchAllPages, fetchApplicationRows, releaseDecisions, stageDecision } from "./data";
 import { LIST_FIELDS, type Row } from "./types";
 
 const id = (n: number) => `app-${String(n).padStart(5, "0")}`;
@@ -74,6 +82,8 @@ beforeEach(() => {
   fake.calls.length = 0;
   fake.tables = {};
   fake.rpc = { data: [], error: null };
+  fake.rpcByFn = {};
+  fake.rpcCalls.length = 0;
 });
 
 describe("fetchAllPages", () => {
@@ -164,37 +174,70 @@ describe("fetchApplicationRows", () => {
   });
 });
 
+describe("fetchApplicationRows decisions", () => {
+  it("merges in the review columns from staged_decisions (applicants can't read them from the row)", async () => {
+    fake.tables.applications = [application(1), application(2)];
+    fake.rpcByFn.staged_decisions = {
+      data: [{ id: id(2), decision: "accepted", version: 3, decided_by: "tijil@ds3.club", decided_at: "2026-12-04T23:04:00Z" }],
+      error: null,
+    };
+    const rows = await fetchApplicationRows("event-1");
+    expect(rows.find(r => r.id === id(1))).toMatchObject({ decision: null, decision_version: 0, decided_by: null });
+    expect(rows.find(r => r.id === id(2))).toMatchObject({ decision: "accepted", decision_version: 3, decided_by: "tijil@ds3.club" });
+    expect(fake.calls.find(c => c.table === "applications")!.select).not.toMatch(/\bdecision\b,|\bdecision$/);
+  });
+
+  it("still loads decisions from a database without staged_decisions yet", async () => {
+    fake.tables.applications = [application(1, { decision: "rejected" })];
+    fake.rpcByFn.staged_decisions = { data: null, error: { code: "PGRST202", message: "Could not find the function public.staged_decisions" } };
+    const rows = await fetchApplicationRows("event-1");
+    expect(rows[0]).toMatchObject({ decision: "rejected", decision_version: 0 });
+  });
+});
+
 describe("stageDecision", () => {
-  it("splits a big selection so no request URL gets too long", async () => {
-    const ids = Array.from({ length: 250 }, (_, i) => id(i));
-    await stageDecision(ids, "accepted");
-    const updates = fake.calls.filter(c => c.update !== undefined);
-    expect(updates.map(c => c.in![1].length)).toEqual([STAGE_CHUNK, STAGE_CHUNK, 50]);
-    expect(updates.flatMap(c => c.in![1])).toEqual(ids);
-    expect(updates.every(c => c.eq.some(([column, value]) => column === "event_id" && value === "event-1"))).toBe(true);
+  it("sends big selections in chunks, each with the versions this page loaded", async () => {
+    const items = Array.from({ length: 1200 }, (_, i) => ({ id: id(i), decision_version: i % 3 }));
+    fake.rpcByFn.stage_decisions = args => ({
+      data: { updated: (args.p_ids as string[]).map(x => ({ id: x, version: 1 })), conflicts: [], drafts: [], missing: [] }, error: null,
+    });
+    const outcome = await stageDecision(items, "accepted");
+    const calls = fake.rpcCalls.filter(c => c.fn === "stage_decisions");
+    expect(calls.map(c => (c.args.p_ids as string[]).length)).toEqual([STAGE_CHUNK, STAGE_CHUNK, 200]);
+    expect(calls.flatMap(c => c.args.p_ids as string[])).toEqual(items.map(i => i.id));
+    expect(calls.flatMap(c => c.args.p_versions as number[])).toEqual(items.map(i => i.decision_version));
+    expect(calls.every(c => c.args.p_event_id === "event-1" && c.args.p_decision === "accepted")).toBe(true);
+    expect(outcome.updated).toHaveLength(1200);
   });
 });
 
 describe("releaseDecisions", () => {
   const released = (n: number) => ({ application_id: id(n), email: `p${n}@example.edu`, first_name: `Person${n}`, applicant_type: "hacker", status: "accepted" });
 
-  it("finds everyone released when the reply is cut off at 1,000 rows", async () => {
-    // 1,200 were released; the reply only lists the first 1,000. #1500 was already unsent before.
-    fake.rpc = { data: Array.from({ length: 1000 }, (_, i) => released(i)), error: null };
-    const releasedApp = (n: number) => application(n, { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z" });
-    fake.tables.applications = [...Array.from({ length: 1200 }, (_, i) => releasedApp(i)), releasedApp(1500), application(1600)];
-
-    const result = await releaseDecisions("event-1", [id(1500)]);
-
-    expect(result).toHaveLength(1200);
-    expect(new Set(result.map(r => r.application_id)).size).toBe(1200);
-    expect(result.some(r => r.application_id === id(1500) || r.application_id === id(1600))).toBe(false);
+  it("releases exactly the rows shown, by id and version, in chunks under the 1,000-row reply cap", async () => {
+    const targets = Array.from({ length: 1200 }, (_, i) => ({ id: id(i), decision_version: 1 }));
+    // Someone changed #7 since the dialog opened, so the database leaves it staged.
+    fake.rpcByFn.release_decisions = args => ({
+      data: (args.p_ids as string[]).filter(x => x !== id(7)).map(x => released(Number(x.slice(4)))), error: null,
+    });
+    const result = await releaseDecisions("event-1", targets);
+    const calls = fake.rpcCalls.filter(c => c.fn === "release_decisions");
+    expect(calls.map(c => (c.args.p_ids as string[]).length)).toEqual([RELEASE_CHUNK, RELEASE_CHUNK, 200]);
+    expect(calls[0].args.p_versions).toEqual(Array(RELEASE_CHUNK).fill(1));
+    expect(result.released).toHaveLength(1199);
+    expect(result.notReleased).toEqual([id(7)]);
   });
 
-  it("trusts a reply under 1,000 rows without reloading", async () => {
-    fake.rpc = { data: [released(1), released(2)], error: null };
-    expect(await releaseDecisions("event-1")).toHaveLength(2);
-    expect(fake.calls).toEqual([]);
+  it("keeps what was released when a later chunk fails", async () => {
+    let n = 0;
+    fake.rpcByFn.release_decisions = args => (n++ === 0
+      ? { data: (args.p_ids as string[]).map(x => released(Number(x.slice(4)))), error: null }
+      : { data: null, error: { message: "canceling statement due to statement timeout", code: "57014" } });
+    const targets = Array.from({ length: 600 }, (_, i) => ({ id: id(i), decision_version: 0 }));
+    const error = await releaseDecisions("event-1", targets).catch(e => e);
+    expect(error).toBeInstanceOf(ReleaseError);
+    expect(error.message).toBe("canceling statement due to statement timeout (57014)");
+    expect(error.released).toHaveLength(RELEASE_CHUNK);
   });
 });
 

@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { Send } from "lucide-react";
-import { sendEmails, type SendResult } from "./data";
+import { SendError, sendEmails, useEmailQuota, useRefreshQuota, type SendResult } from "./data";
+import { errorText } from "./errors";
+import QuotaNote from "./QuotaNote";
 import { PLACEHOLDERS, fillTemplate, varsFor } from "./templates";
-import { TAB_LABEL, fullName, kindOf, tabOf, type Row, type Tab } from "./types";
+import { TAB_LABEL, fullName, isDraft, kindOf, tabOf, type Row, type Tab } from "./types";
 import { BLASTS, hasBlanks, type Audience } from "./blasts";
 const AUDIENCE_LABEL: Record<Audience, string> = { all: "Everyone", hacker: "Hackers", staff: "Mentors & judges" };
 
@@ -18,9 +20,12 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
   const [progress, setProgress] = useState("");
   const [result, setResult] = useState<SendResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const quota = useEmailQuota(eventId);
+  const refreshQuota = useRefreshQuota();
 
+  // Never drafts: they haven't applied yet.
   const recipients = useMemo(
-    () => rows.filter(r => (audience === "all" || kindOf(r.applicant_type) === audience) && (status === "any" || tabOf(r.status) === status)),
+    () => rows.filter(r => !isDraft(r) && (audience === "all" || kindOf(r.applicant_type) === audience) && (status === "any" || tabOf(r.status) === status)),
     [rows, audience, status],
   );
   const sample = recipients[0];
@@ -52,12 +57,16 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
       setResult(sent);
       setConfirming(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      // Partway: what went out is recorded, so "Yes, send" again only reaches the rest.
+      if (e instanceof SendError) setResult(e.partial);
+      setError(`${errorText(e)}${e instanceof SendError ? " Press \"Yes, send\" again to send to the rest." : ""}`);
     } finally {
       setSending(false);
       setProgress("");
+      refreshQuota();
     }
   };
+  const remaining = quota.data?.remaining;
 
   return (
     <div className="og-email">
@@ -90,6 +99,10 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
           </label>
           <p className="og-recipient-count"><strong>{recipients.length}</strong> recipient{recipients.length === 1 ? "" : "s"}</p>
         </div>
+        <QuotaNote quota={quota.data ?? null} need={recipients.length} />
+        {typeof remaining === "number" && recipients.length > remaining && (
+          <p className="sp-error">Only {remaining} more email{remaining === 1 ? "" : "s"} can go out today, so this stops partway. The rest go out when you send again later.</p>
+        )}
       </section>
 
       <section className="sp-card">
@@ -119,18 +132,21 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
         </section>
       )}
 
-      {error && <p className="sp-error">{error}</p>}
+      {error && <p className="sp-error" role="alert">{error}</p>}
       {result && (
-        <p className={result.failed.length ? "sp-error" : "og-success"}>
+        <p className={result.failed.length || result.notSent.length ? "sp-error" : "og-success"}>
           Sent {result.sent} email{result.sent === 1 ? "" : "s"}.
+          {result.skipped.length > 0 && ` ${result.skipped.length} already had this exact email, so weren't sent it again.`}
           {result.failed.length > 0 && ` ${result.failed.length} failed: ${result.failed.slice(0, 3).map(f => f.error).join("; ")}`}
+          {result.stopped === "daily_limit" && ` Gmail's daily limit is reached: ${result.notSent.length} not sent yet. Send again once it frees up; nobody gets it twice.`}
         </p>
       )}
+
 
       <div className="og-send-row">
         {confirming ? (
           <>
-            <span>Send this to {recipients.length} {recipients.length === 1 ? "person" : "people"} from DataHacks Team (info@ds3.club)?</span>
+            <span>Send this to {recipients.length} {recipients.length === 1 ? "person" : "people"} from DataHacks Team (info@ds3.club)? Anyone who already got this exact email is skipped.</span>
             <button className="sp-button" onClick={() => setConfirming(false)} disabled={sending}>Cancel</button>
             <button className="sp-button primary" onClick={send} disabled={sending}><Send size={15} aria-hidden /> {sending ? progress || "Sending…" : "Yes, send"}</button>
           </>

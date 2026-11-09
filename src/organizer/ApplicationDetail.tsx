@@ -2,8 +2,9 @@ import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
-import { stageDecision, useApplication, useEventId } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
+import { stageDecision, stageProblems, useApplication, useEventId } from "./data";
+import { errorText } from "./errors";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isDraft, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
@@ -47,14 +48,17 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
     setBusy(true);
     setError(null);
     try {
-      await stageDecision([row.id], decision);
-      onChanged();
+      // With the version this page loaded: if someone else decided since, theirs stands and we say so.
+      const outcome = await stageDecision([row], decision);
+      setError(stageProblems(outcome, () => fullName(row)));
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(false);
+      onChanged();
     }
   };
+  const draft = isDraft(row);
 
   const hacker = row.applicant_type === "hacker";
   return (
@@ -63,7 +67,7 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
         <div>
           <h2>{fullName(row)}</h2>
           <p>
-            {TYPE_LABEL[row.applicant_type]} · {TAB_LABEL[placeOf(row)]}
+            {TYPE_LABEL[row.applicant_type]} · {draft ? "Draft (not submitted)" : TAB_LABEL[placeOf(row)]}
             {isStaged(row) && <span className={`og-badge ${row.decision}`}>Not released{tabOf(row.status) !== "applied" ? ` · they still see ${TAB_LABEL[tabOf(row.status)].toLowerCase()}` : ""}</span>}
           </p>
         </div>
@@ -72,20 +76,27 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
 
       <div className="og-decide">
         {(["accepted", "waitlisted", "rejected"] as const).map(d => (
-          <button key={d} className={`sp-button og-decide-${d}${row.decision === d ? " selected" : ""}`} disabled={busy} onClick={() => stage(d)}>
+          <button key={d} className={`sp-button og-decide-${d}${row.decision === d ? " selected" : ""}`} disabled={busy || draft} onClick={() => stage(d)}>
             {DECISION_LABEL[d]}
           </button>
         ))}
         <button className="sp-button" disabled={busy || row.decision === null} onClick={() => stage(null)}>Clear</button>
       </div>
-      <p className="og-hint">The row moves to that tab now. The applicant isn't told, and nothing changes for them, until you release decisions.</p>
-      {error && <p className="sp-error">{error}</p>}
+      {draft
+        ? <p className="og-hint">They haven't submitted yet, so this can't be decided. It moves to Applied once they submit.</p>
+        : <p className="og-hint">The row moves to that tab now. The applicant isn't told, and nothing changes for them, until you release decisions.</p>}
+      {row.decision && row.decided_at && (
+        <p className="og-decided">
+          {DECISION_LABEL[row.decision]}ed{row.decided_by ? ` by ${row.decided_by}` : ""}, {formatDate(row.decided_at)}
+        </p>
+      )}
+      {error && <p className="sp-error" role="alert">{error}</p>}
 
       <dl className="og-fields">
         <Field label="Email" value={row.email && <Email email={row.email} />} />
         <Field label="Phone" value={row.phone} />
         <Field label="Submitted" value={formatDate(row.submitted_at)} />
-        <Field label="Batch" value={applicationBatch(row.submitted_at) === "priority" ? "Priority" : "Regular"} />
+        <Field label="Batch" value={draft ? "Draft" : applicationBatch(row.submitted_at) === "priority" ? "Priority" : "Regular"} />
         <Field label="Check-in code" value={row.code} />
         <Field label="Checked in" value={row.code ? (row.checkedIn ? "Yes" : "No") : null} />
         {app && (hacker ? (

@@ -3,10 +3,14 @@ import { Check, Download, Search, Ticket } from "lucide-react";
 import { applicationBatch } from "@/staff-portal/config";
 import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
-import { stageDecision } from "./data";
-import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isStaged, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
+import { stageDecision, stageProblems } from "./data";
+import { errorText } from "./errors";
+import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isDraft, isStaged, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
+/** The table's tabs: the four decision tabs, plus drafts (started, never submitted) on their own. */
+type View = Tab | "draft";
 const TABS: Tab[] = ["applied", "accepted", "waitlisted", "rejected"];
+const viewOf = (r: Row): View => (isDraft(r) ? "draft" : placeOf(r));
 
 type Column = { header: string; value: (row: Row) => string };
 
@@ -18,7 +22,7 @@ const COMMON_START: Column[] = [
   { header: "Phone", value: r => r.phone ?? "" },
 ];
 const COMMON_END: Column[] = [
-  { header: "Batch", value: r => (applicationBatch(r.submitted_at) === "priority" ? "Priority" : "Regular") },
+  { header: "Batch", value: r => (isDraft(r) ? "Draft" : applicationBatch(r.submitted_at) === "priority" ? "Priority" : "Regular") },
   { header: "Submitted", value: r => shortDate(r.submitted_at) },
   // Signed liability waiver (from the check-in roster, so accepted people only).
   { header: "Waiver", value: r => (r.waiverSignedAt ? "Signed" : "") },
@@ -41,7 +45,7 @@ const COLUMNS: Record<Kind, Column[]> = {
 
 /** Extra columns only in the CSV, so an export has what a spreadsheet needs. */
 const CSV_EXTRA: Column[] = [
-  { header: "Status", value: r => r.status ?? "" },
+  { header: "Status", value: r => (isDraft(r) ? "draft (not submitted)" : r.status ?? "") },
   { header: "Staged decision", value: r => (isStaged(r) ? r.decision! : "") },
   { header: "Check-in code", value: r => r.code ?? "" },
 ];
@@ -55,7 +59,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   /** Opens the Passes page with these application ids selected. */
   onSendPasses?: (ids: string[]) => void;
 }) {
-  const [tab, setTab] = useState<Tab>("applied");
+  const [tab, setTab] = useState<View>("applied");
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(null);
@@ -64,41 +68,46 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
 
   const columns = COLUMNS[kind];
   const [counts, unreleased] = useMemo(() => {
-    const c: Record<Tab, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0 };
-    const u: Record<Tab, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0 };
+    const c: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
+    const u: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
     rows.forEach(r => {
-      c[placeOf(r)]++;
-      if (isStaged(r)) u[placeOf(r)]++;
+      c[viewOf(r)]++;
+      if (isStaged(r)) u[viewOf(r)]++;
     });
     return [c, u];
   }, [rows]);
+  const views: View[] = counts.draft > 0 || tab === "draft" ? [...TABS, "draft"] : TABS;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows.filter(r => placeOf(r) === tab
+    return rows.filter(r => viewOf(r) === tab
       && (!q || [fullName(r), r.email, r.phone, r.school, r.organization].some(v => v?.toLowerCase().includes(q))));
   }, [rows, tab, query]);
+  // Drafts can't be decided, so they're never selectable (select all included).
+  const selectable = useMemo(() => visible.filter(r => !isDraft(r)), [visible]);
 
-  const allSelected = visible.length > 0 && visible.every(r => selected.has(r.id));
-  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(visible.map(r => r.id)));
+  const allSelected = selectable.length > 0 && selectable.every(r => selected.has(r.id));
+  const toggleAll = () => setSelected(allSelected ? new Set() : new Set(selectable.map(r => r.id)));
   const toggle = (id: string) => setSelected(prev => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id); else next.add(id);
     return next;
   });
-  const switchTab = (t: Tab) => { setTab(t); setSelected(new Set()); };
+  const switchTab = (t: View) => { setTab(t); setSelected(new Set()); };
 
   const stageSelected = async (decision: Decision | null) => {
     setBusy(true);
     setError(null);
     try {
-      await stageDecision([...selected].filter(id => visible.some(r => r.id === id)), decision);
+      const outcome = await stageDecision(selectable.filter(r => selected.has(r.id)), decision);
+      const names = new Map(rows.map(r => [r.id, fullName(r)]));
+      setError(stageProblems(outcome, id => names.get(id) ?? "Someone"));
       setSelected(new Set());
-      onChanged();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(false);
+      onChanged();
     }
   };
 
@@ -108,7 +117,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
   };
 
   const open = rows.find(r => r.id === openId);
-  const selectedRows = visible.filter(r => selected.has(r.id));
+  const selectedRows = selectable.filter(r => selected.has(r.id));
   const selectedCount = selectedRows.length;
   // Also shown for people not released yet (the Passes page releases first) or about to be un-accepted (it says why not).
   const canSendPasses = !!onSendPasses && selectedRows.some(r => canGetPass(r) || passOnHold(r) || acceptedNotReleased(r));
@@ -117,9 +126,9 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
     <section className="sp-card og-table-card">
       <div className="sp-card-header">
         <div className="sp-tabs" role="tablist">
-          {TABS.map(t => (
+          {views.map(t => (
             <button key={t} role="tab" aria-selected={t === tab} className={t === tab ? "active" : ""} onClick={() => switchTab(t)}>
-              {TAB_LABEL[t]} <span className="og-count">{counts[t]}</span>
+              {t === "draft" ? "Drafts" : TAB_LABEL[t]} <span className="og-count">{counts[t]}</span>
               {unreleased[t] > 0 && <span className="og-count-unreleased"> ({unreleased[t]} not released)</span>}
             </button>
           ))}
@@ -149,16 +158,19 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
           )}
         </div>
       )}
-      {error && <p className="sp-error">{error}</p>}
+      {error && <p className="sp-error" role="alert">{error}</p>}
+      {tab === "draft" && visible.length > 0 && (
+        <p className="og-hint">Started but never submitted. Drafts can't be decided, released or emailed; they move to Applied once submitted.</p>
+      )}
 
       {visible.length === 0 ? (
-        <p className="og-empty">{query ? "Nobody matches that search." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
+        <p className="og-empty">{query ? "Nobody matches that search." : tab === "draft" ? "No drafts." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
       ) : (
         <div className="sp-table-wrap">
           <table className="sp-table og-table">
             <thead>
               <tr>
-                <th><input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" /></th>
+                <th>{selectable.length > 0 && <input type="checkbox" checked={allSelected} onChange={toggleAll} aria-label="Select all" />}</th>
                 <th>{columns[0].header}</th>
                 {/* Right after the name, so it's visible without scrolling sideways. */}
                 <th className="og-release-col">Release</th>
@@ -169,10 +181,11 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses 
               {visible.map(r => (
                 <tr key={r.id} className={r.id === openId ? "open" : undefined} onClick={() => setOpenId(r.id)}>
                   <td onClick={e => e.stopPropagation()}>
-                    <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={`Select ${fullName(r)}`} />
+                    {!isDraft(r) && <input type="checkbox" checked={selected.has(r.id)} onChange={() => toggle(r.id)} aria-label={`Select ${fullName(r)}`} />}
                   </td>
                   <td>{columns[0].value(r)}</td>
                   <td className="og-release-col">
+                    {isDraft(r) && <span className="og-badge draft">Draft</span>}
                     {isStaged(r) && <span className={`og-badge ${r.decision}`}>Not released</span>}
                     {isStaged(r) && tabOf(r.status) !== "applied" && <span className="og-was">was {TAB_LABEL[tabOf(r.status)].toLowerCase()}</span>}
                   </td>

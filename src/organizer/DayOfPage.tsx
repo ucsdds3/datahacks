@@ -7,7 +7,9 @@ import {
   type DaySettings, type OfferEmailOutcome, type Overview,
 } from "./dayOf";
 import ScanTypesCard from "./ScanTypesCard";
-import { PLACEHOLDERS, SPOT_OFFER_TEMPLATE, type Template } from "./templates";
+import { PLACEHOLDERS, type Template } from "./templates";
+import { loadOfferTemplate, saveOfferTemplate } from "./templateStore";
+import { errorText } from "./errors";
 
 /**
  * The console's Day-of section. After check-in closes: see who didn't come,
@@ -98,7 +100,7 @@ function SettingsCard({ eventId, o, open, onSaved }: { eventId: string; o: Overv
       setMessage({ ok: true, text: "Saved." });
       onSaved();
     } catch (err) {
-      setMessage({ ok: false, text: err instanceof Error ? err.message : String(err) });
+      setMessage({ ok: false, text: errorText(err) });
     } finally {
       setSaving(false);
     }
@@ -171,7 +173,7 @@ function NoShowsCard({ eventId, o, phase, onChanged }: { eventId: string; o: Ove
       setNote({ ok: true, text: `Marked ${plural(marked.length, "no-show")}.`, undo: marked.map(m => m.application_id) });
       onChanged();
     } catch (e) {
-      setNote({ ok: false, text: e instanceof Error ? e.message : String(e) });
+      setNote({ ok: false, text: errorText(e) });
     } finally {
       setWorking(false);
       setConfirming(false);
@@ -184,7 +186,7 @@ function NoShowsCard({ eventId, o, phase, onChanged }: { eventId: string; o: Ove
       setNote({ ok: true, text: `Put back ${plural(n, "person", "people")}. Their codes check in again.` });
       onChanged();
     } catch (e) {
-      setNote({ ok: false, text: e instanceof Error ? e.message : String(e) });
+      setNote({ ok: false, text: errorText(e) });
     } finally {
       setWorking(false);
     }
@@ -251,7 +253,13 @@ function WaitlistCard({ eventId, o, onChanged }: { eventId: string; o: Overview;
   const next = nextOffers(o);
   const later = o.queue.slice(next.length);
   const [confirming, setConfirming] = useState(false);
-  const [template, setTemplate] = useState<Template>(SPOT_OFFER_TEMPLATE);
+  // Kept for this event, so "Email N people not emailed yet" sends the same words.
+  const [template, setTemplateState] = useState<Template>(() => loadOfferTemplate(eventId));
+  const setTemplate = (update: (t: Template) => Template) => setTemplateState(t => {
+    const next = update(t);
+    saveOfferTemplate(eventId, next);
+    return next;
+  });
   const [working, setWorking] = useState(false);
   const [progress, setProgress] = useState("");
   const [outcome, setOutcome] = useState<{ offered: string[]; email: OfferEmailOutcome | null; error: string | null } | null>(null);
@@ -271,7 +279,7 @@ function WaitlistCard({ eventId, o, onChanged }: { eventId: string; o: Overview;
         : null;
       setOutcome({ offered: offered.map(x => x.name), email, error: null });
     } catch (e) {
-      setOutcome({ offered: offered.map(x => x.name), email: null, error: e instanceof Error ? e.message : String(e) });
+      setOutcome({ offered: offered.map(x => x.name), email: null, error: errorText(e) });
     } finally {
       setWorking(false);
       setConfirming(false);
@@ -367,10 +375,10 @@ function OffersCard({ eventId, o, onChanged }: { eventId: string; o: Overview; o
     setWorking(true);
     setResult(null);
     try {
-      const out = await emailOffers(eventId, unsent.map(x => ({ application_id: x.application_id, expires_at: x.expires_at })), SPOT_OFFER_TEMPLATE);
+      const out = await emailOffers(eventId, unsent.map(x => ({ application_id: x.application_id, expires_at: x.expires_at })), loadOfferTemplate(eventId));
       setResult(out.emailError ?? out.passError ?? `Emailed ${out.emailed}; ${out.passesSent} passes sent.`);
     } catch (e) {
-      setResult(e instanceof Error ? e.message : String(e));
+      setResult(errorText(e));
     } finally {
       setWorking(false);
       onChanged();

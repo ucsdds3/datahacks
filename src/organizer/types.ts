@@ -48,7 +48,20 @@ export type Application = {
   decision: Decision | null;
   decision_released_at: string | null;
   decision_emailed_at: string | null;
+  /** Who last changed the decision (their email), when, and how many times it has changed. */
+  decided_by: string | null;
+  decided_at: string | null;
+  decision_version: number;
 };
+
+/**
+ * The review columns: organizers only. Applicants can't read them through the
+ * API (column privileges), so they don't come with the row; the console loads
+ * them with the staged_decisions function and merges them in.
+ */
+export const REVIEW_FIELDS = ["decision", "decided_by", "decided_at", "decision_version"] as const satisfies readonly (keyof Application)[];
+export type Review = Pick<Application, (typeof REVIEW_FIELDS)[number]>;
+export const NO_REVIEW: Review = { decision: null, decided_by: null, decided_at: null, decision_version: 0 };
 
 /**
  * The columns the console's tables load for every application: what the
@@ -59,10 +72,10 @@ export type Application = {
 export const LIST_FIELDS = [
   "id", "applicant_type", "status", "submitted_at",
   "first_name", "last_name", "email", "phone", "school", "level_of_study", "organization",
-  "decision", "decision_released_at", "decision_emailed_at",
+  "decision_released_at", "decision_emailed_at",
 ] as const satisfies readonly (keyof Application)[];
 
-export type ListApplication = Pick<Application, (typeof LIST_FIELDS)[number]>;
+export type ListApplication = Pick<Application, (typeof LIST_FIELDS)[number]> & Review;
 
 /**
  * One table row: the list columns plus what the check-in roster knows.
@@ -77,14 +90,17 @@ export const kindOf = (type: ApplicantType): Kind => (type === "hacker" ? "hacke
 export const tabOf = (status: Status | null): Tab =>
   status === "accepted" || status === "waitlisted" || status === "rejected" ? status : "applied";
 
-/** A decision is staged when it's been chosen but not released yet. */
-export const isStaged = (app: ListApplication) => app.decision !== null && app.decision !== app.status;
+/** Started but never submitted: not reviewed, decided, released or emailed. */
+export const isDraft = (app: Pick<ListApplication, "status">) => app.status === "draft";
+
+/** A decision is staged when it's been chosen but not released yet. Drafts never are. */
+export const isStaged = (app: ListApplication) => app.decision !== null && app.decision !== app.status && !isDraft(app);
 
 /**
  * The tab a row sits in on the console: the decision an organizer picked, as
  * soon as they pick it. Applicants only see it once decisions are released.
  */
-export const placeOf = (app: ListApplication): Tab => app.decision ?? tabOf(app.status);
+export const placeOf = (app: ListApplication): Tab => (isDraft(app) ? "applied" : app.decision ?? tabOf(app.status));
 
 export const TYPE_LABEL: Record<ApplicantType, string> = {
   hacker: "Hacker",

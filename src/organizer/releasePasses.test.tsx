@@ -14,9 +14,13 @@ const fake = vi.hoisted(() => ({
 }));
 vi.mock("@/portal/event", () => ({ EVENT_CODE: "DH27BETA" }));
 vi.mock("./data", () => ({
-  EmailNotSetUpError: class extends Error {},
-  releaseDecisions: async () => fake.released,
-  sendEmails: async (_e: string, ids: string[]) => ({ sent: ids.length, failed: fake.emailFailed.filter(f => ids.includes(f.id)) }),
+  SendError: class extends Error {},
+  useEmailQuota: () => ({ data: null }),
+  useRefreshQuota: () => () => {},
+  releaseDecisions: async () => ({ released: fake.released, notReleased: [] }),
+  sendEmails: async (_e: string, ids: string[]) => ({
+    sent: ids.length, skipped: [], notSent: [], stopped: null, quota: null, failed: fake.emailFailed.filter(f => ids.includes(f.id)),
+  }),
   fetchApplicationRows: async () => fake.after,
   sendWalletPasses: async (_e: string, _p: unknown, options: { applicationIds?: string[]; resend?: boolean }): Promise<WalletPassResult> => {
     if (fake.passError) throw fake.passError;
@@ -29,7 +33,7 @@ vi.mock("./data", () => ({
 import ReleaseDialog from "./ReleaseDialog";
 
 const row = (id: string, status: string | null, decision: string | null, code: string | null = null, passSentAt: string | null = null) =>
-  ({ id, status, decision, code, passSentAt, first_name: id, last_name: null, email: `${id}@example.com`, applicant_type: "hacker", checkedIn: false }) as unknown as Row;
+  ({ id, status, decision, decision_version: 1, code, passSentAt, first_name: id, last_name: null, email: `${id}@example.com`, applicant_type: "hacker", checkedIn: false }) as unknown as Row;
 const released = (id: string, status: string): ReleasedRow =>
   ({ application_id: id, email: `${id}@example.com`, first_name: id, applicant_type: "hacker", status });
 
@@ -120,10 +124,10 @@ describe("ReleaseDialog wallet passes", () => {
       fireEvent.click(screen.getByRole("button", { name: "Release 3 decisions" }));
     };
 
-    it("says the release is for the whole event, and who gets a pass", () => {
+    it("says the release covers every staged decision shown, and who gets a pass", () => {
       render(<ReleaseDialog mode="release" eventId="event-1" rows={rows} passPick={{ count: 3, releasedIds: ["dee"] }} onClose={() => {}} onChanged={() => {}} />);
       expect(screen.getByText(/From Passes: you picked 3 people/).textContent).toMatch(
-        /Releasing is for the whole event.*not only the people you picked\. The 1 you picked who was already released gets theirs right after\./s,
+        /Releasing covers every staged decision listed above.*not only the people you picked\. The 1 you picked who was already released gets theirs right after\./s,
       );
       // What's being released stays on screen.
       expect(screen.getAllByRole("listitem").map(li => li.textContent)).toEqual(["1 rejected hackers", "2 accepted hackers"]);

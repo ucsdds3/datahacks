@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserPlus, X } from "lucide-react";
 import { supabase } from "@/lib/supabaseClient";
 import { isPreview } from "./preview";
+import { errorText } from "./errors";
 
 type Organizer = { email: string; status: "active" | "invited"; added_at: string };
 
@@ -57,7 +58,7 @@ export default function OrganizersPanel({ eventId, myEmail }: { eventId: string;
       setEmail("");
       refresh();
     } catch (err) {
-      setMessage({ ok: false, text: err instanceof Error ? err.message : String(err) });
+      setMessage({ ok: false, text: errorText(err) });
     } finally {
       setBusy(false);
     }
@@ -72,7 +73,7 @@ export default function OrganizersPanel({ eventId, myEmail }: { eventId: string;
       rpcError(error);
       refresh();
     } catch (err) {
-      setMessage({ ok: false, text: err instanceof Error ? err.message : String(err) });
+      setMessage({ ok: false, text: errorText(err) });
     }
   };
 
