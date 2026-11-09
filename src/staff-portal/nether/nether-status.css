@@ -409,6 +409,75 @@
 }
 
 /* ---------------------------------------------------------------------------
+   Desktop: every page here fits the board without scrolling (see "Desktop: the
+   frame fits the window" in nether-shell.css). The status page's timeline keeps
+   its size and the art takes the height that's left over, up to the size it's
+   drawn at; tighter windows get tighter spacing.
+   --------------------------------------------------------------------------- */
+@media (min-width: 861px) and (min-height: 600px) {
+  .sp-root.sp-nether .sp-page:has(> .sp-status-card) { gap: clamp(14px, 2.6dvh, 24px); }
+  .sp-root.sp-nether .sp-card.sp-status-card { display: flex; flex: 1 1 auto; flex-direction: column; min-height: 0; }
+  .sp-root.sp-nether .sp-status-card .sp-progress { margin: clamp(12px, 2dvh, 18px) 0 clamp(12px, 2.4dvh, 28px); }
+  .sp-root.sp-nether .sp-status-card .sp-progress strong { margin-top: clamp(10px, 1.6dvh, 14px); }
+  .sp-root.sp-nether .sp-status-card .sp-progress p { margin-top: clamp(4px, 0.9dvh, 8px); }
+
+  /* The art: as tall as the space left (between a floor and the size it's drawn at),
+     never stretched. */
+  .sp-root.sp-nether .sp-status-card .sp-nether-art { margin: 0; }
+  .sp-root.sp-nether .sp-status-card img.sp-nether-art {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  /* Accepted: the chest, centred under the timeline. */
+  .sp-root.sp-nether .sp-status-card img.sp-nether-art-chest {
+    align-self: stretch;
+    width: 100%;
+    min-height: 120px;
+    max-height: 440px;
+  }
+  /* Waitlisted and rejected: the mob down in the board's corner. In review: Dyno, there too. */
+  .sp-root.sp-nether .sp-status-card img:is(.sp-nether-art-strider, .sp-nether-art-ghast) {
+    align-self: flex-end;
+    width: auto;
+    min-height: 72px;
+    margin-top: auto;
+  }
+  .sp-root.sp-nether .sp-status-card .sp-nether-art-strider { max-height: 190px; }
+  .sp-root.sp-nether .sp-status-card .sp-nether-art-ghast { max-height: 180px; }
+  .sp-root.sp-nether .sp-status-card .sp-nether-art-dyno {
+    flex: none;
+    align-self: flex-end;
+    width: clamp(88px, 15dvh, 128px);
+    margin-top: auto;
+  }
+
+  /* The waitlist card over it, flatter: the question and its line on the left, the switch
+     on the right, and the note (once you're on the list) across the bottom. */
+  .sp-root.sp-nether .sp-card.sp-waitlist-optin {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "title switch" "text switch" "note note" "error error";
+    align-items: center;
+    column-gap: 32px;
+    padding: clamp(16px, 2.6dvh, 24px) clamp(20px, 3dvh, 30px);
+  }
+  .sp-root.sp-nether .sp-waitlist-optin h2 { grid-area: title; }
+  .sp-root.sp-nether .sp-waitlist-optin > p { grid-area: text; margin-top: clamp(4px, 0.8dvh, 8px); }
+  .sp-root.sp-nether .sp-waitlist-optin > .sp-waitlist-note { grid-area: note; margin-top: clamp(8px, 1.4dvh, 12px); }
+  .sp-root.sp-nether .sp-waitlist-optin > .sp-error { grid-area: error; }
+  .sp-root.sp-nether .sp-waitlist-toggle { grid-area: switch; justify-self: end; margin: 0; }
+
+  /* The waiver: the same steps, spaced to the window. */
+  .sp-root.sp-nether .sp-page:has(> .sp-waiver-card) { gap: clamp(14px, 2.6dvh, 24px); }
+  .sp-root.sp-nether .sp-page:has(> .sp-waiver-card) .sp-page-header :where(h1 ~ p) { margin-top: clamp(6px, 1.2dvh, 12px); }
+  .sp-root.sp-nether .sp-waiver-card .sp-steps li { padding-bottom: clamp(16px, 2.8dvh, 32px); }
+  .sp-root.sp-nether .sp-waiver-card .sp-steps li:last-child { padding-bottom: 0; }
+  .sp-root.sp-nether .sp-waiver-card .sp-steps > li > p:not(.sp-signed, .sp-error) { margin: clamp(4px, 0.9dvh, 8px) 0 clamp(10px, 1.8dvh, 16px); }
+}
+
+/* ---------------------------------------------------------------------------
    Smaller screens. Under ~1100px the four columns get narrow; on phones the
    timeline turns on its side: one step per row with its segment as a rail.
    --------------------------------------------------------------------------- */

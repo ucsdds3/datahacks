@@ -11,7 +11,8 @@ export default function HackerGuide({ page }: { page: HackerGuideSlug }) {
   const { title, intro, sections } = HACKER_GUIDE[page];
   const demo = sections.some(s => !s.draft);
   if (nether) {
-    return <NetherGuidePage title={title} intro={intro} note={demo && DEMO_NOTE} sections={sections} toc={sections.length > 2} current={page} />;
+    // Keyed by page, so each page opens on its first tab.
+    return <NetherGuidePage key={page} title={title} intro={intro} note={demo && DEMO_NOTE} sections={sections} toc={sections.length > 2} current={page} />;
   }
   return (
     <div className="sp-page">

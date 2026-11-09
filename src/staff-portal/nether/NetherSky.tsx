@@ -4,8 +4,9 @@
  * nether-shell.css.
  *
  * Two layers pinned to the viewport: the wall sits behind everything in the
- * `.sp-root.sp-nether` it's placed in, and the lava in front, as in the design, so
- * the page scrolls under it (the frame leaves room for it at the end of the page).
+ * `.sp-root.sp-nether` it's placed in, and the lava in front, as in the design. On a
+ * desktop the frame fits the window and the board ends above the lava; on phones and
+ * short windows the page scrolls under it (the frame leaves room for it at the end).
  */
 export function NetherSky() {
   return (

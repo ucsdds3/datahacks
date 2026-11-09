@@ -31,15 +31,15 @@ export default function PortalShell() {
   useEffect(() => { prefetchPortalPages(); }, []);
 
   // No white behind the portal: paint the page dark (overscroll, a page still loading).
-  // The current theme's colour, except in the organizer console, which keeps its green.
+  // The current theme's colour; the organizer console's End look is its own green.
   const organizer = pathname.startsWith(portal.organizer);
   const theme = usePortalTheme();
   useEffect(() => {
     const html = document.documentElement;
     const before = html.style.backgroundColor;
-    html.style.backgroundColor = organizer ? ORGANIZER_BACKGROUND : THEME_BACKGROUND[theme];
+    html.style.backgroundColor = organizer && theme === "end" ? ORGANIZER_BACKGROUND : THEME_BACKGROUND[theme];
     // Things drawn outside the portal frame (toasts) read the theme from here.
-    if (!organizer) html.dataset.portalTheme = theme;
+    html.dataset.portalTheme = theme;
     return () => {
       html.style.backgroundColor = before;
       delete html.dataset.portalTheme;

@@ -57,7 +57,7 @@
 @container sp-form (min-width: 600px) {
   .sp-root.sp-nether .sp-form-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* Headings, long answers, pick-several lists, radio groups and checkboxes take the whole row. */
-  .sp-root.sp-nether .sp-form-fields > :is(.sp-form-eyebrow, .sp-form-section, fieldset, .sp-check, label:has(textarea), .sp-field:has(.sp-multiselect)) {
+  .sp-root.sp-nether .sp-form-fields > :is(.sp-form-section, fieldset, .sp-check, label:has(textarea), .sp-field:has(.sp-multiselect)) {
     grid-column: 1 / -1;
   }
 }
@@ -74,15 +74,7 @@
 .sp-root.sp-nether .sp-field { gap: 8px; }
 .sp-root.sp-nether :is(.sp-req, .sp-form-fields label > .sp-req) { margin-left: 2px; color: var(--nether-lava); font-weight: 800; }
 
-/* Section headings: "Section 2 of 6" (the shell's glowstone .sp-eyebrow) over the title in Silkscreen. */
-.sp-root.sp-nether .sp-form-eyebrow { margin: 0; }
-/* Every section after the first starts below a seam in the board. */
-.sp-root.sp-nether .sp-form-eyebrow:not(:first-child) {
-  margin-top: 14px;
-  padding-top: 34px;
-  border-top: 2px solid var(--nether-blackstone);
-  box-shadow: inset 0 1px var(--nether-edge);
-}
+/* Section headings in Silkscreen. The form is one long scroll; every section after the first starts below a seam. */
 .sp-root.sp-nether .sp-form-fields .sp-form-section {
   margin: 0;
   padding: 0;
@@ -95,60 +87,13 @@
   overflow-wrap: anywhere;
 }
 .sp-root.sp-nether .sp-form-fields .sp-form-section::after { content: none; }
-.sp-root.sp-nether .sp-form-eyebrow + .sp-form-section { margin-top: -16px; }
+.sp-root.sp-nether .sp-form-fields .sp-form-section:not(:first-child) {
+  margin-top: 14px;
+  padding-top: 34px;
+  border-top: 2px solid var(--nether-blackstone);
+  box-shadow: inset 0 1px var(--nether-edge);
+}
 
-/* ---------------------------------------------------------------------------
-   The section bar: a segment per section (design: four 238 x 18 bars, 12px apart).
-   Lava orange is where you are, teal is done, the rest are unlit basalt.
-   --------------------------------------------------------------------------- */
-.sp-root.sp-nether .sp-form-steps {
-  display: grid;
-  grid-auto-columns: minmax(0, 1fr);
-  grid-auto-flow: column;
-  gap: 12px;
-  margin: 0 0 4px;
-  padding: 0;
-  list-style: none;
-}
-.sp-root.sp-nether .sp-form-steps li { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
-.sp-root.sp-nether .sp-form-steps li::before {
-  content: "";
-  height: 18px;
-  border: 1px solid var(--nether-edge);
-  background: var(--nether-card-edge);
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
-.sp-root.sp-nether .sp-form-steps li.done::before { background: var(--nether-warped); box-shadow: inset 0 2px #6fe3d6; }
-.sp-root.sp-nether .sp-form-steps li.current::before {
-  background: var(--nether-lava);
-  box-shadow: inset 0 2px #ffc24a, 0 0 14px rgb(242 134 47 / 0.45);
-  animation: nf-ember 2.8s ease-in-out infinite;
-}
-.sp-root.sp-nether .sp-form-step-label {
-  color: var(--nf-idle);
-  font: 400 12px/1.5 var(--nether-font-display);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  overflow-wrap: anywhere;
-}
-.sp-root.sp-nether .sp-form-steps li:is(.done, .current) .sp-form-step-label { color: var(--nether-text); }
-/* Too narrow for six names (a small laptop with the sidebar, a phone): just the bars.
-   The names stay for screen readers, and each section's "Section 2 of 6" line says where you are. */
-@container sp-form (max-width: 759px) {
-  .sp-root.sp-nether .sp-form-steps { gap: 6px; }
-  .sp-root.sp-nether .sp-form-steps li::before { height: 12px; }
-  .sp-root.sp-nether .sp-form-step-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-}
-@keyframes nf-ember {
-  50% { box-shadow: inset 0 2px #ffc24a, 0 0 22px rgb(242 134 47 / 0.7); }
-}
 
 /* ---------------------------------------------------------------------------
    Fields: dark inset wells with a 1px edge; focus is a lava rim and glow.
@@ -388,8 +333,7 @@
 @media (max-width: 640px) {
   .sp-root.sp-nether .sp-form-fields { row-gap: 22px; }
   .sp-root.sp-nether .sp-form-fields .sp-form-section { font-size: 20px; }
-  .sp-root.sp-nether .sp-form-eyebrow:not(:first-child) { margin-top: 8px; padding-top: 26px; }
-  .sp-root.sp-nether .sp-form-eyebrow + .sp-form-section { margin-top: -14px; }
+  .sp-root.sp-nether .sp-form-fields .sp-form-section:not(:first-child) { margin-top: 8px; padding-top: 26px; }
   .sp-root.sp-nether .sp-form > .sp-form-note { padding-inline: 16px; }
   .sp-root.sp-nether .sp-yesno .sp-check { flex: 1; min-width: 0; }
   .sp-root.sp-nether .sp-form-actions .sp-button { flex: 1; justify-content: center; }
@@ -398,8 +342,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sp-root.sp-nether .sp-form-steps li.current::before { animation: none; }
   .sp-root.sp-nether :is(.sp-form input, .sp-form textarea, .sp-form select, .sp-multiselect-button, .sp-form-fields .sp-check) { transition: none; }
-  .sp-root.sp-nether .sp-form-steps li::before,
   .sp-root.sp-nether .sp-form :is(input[type="checkbox"], input[type="radio"])::before { transition: none; }
 }

@@ -6,6 +6,7 @@
 @import "./nether-forms.css";
 @import "./nether-status.css";
 @import "./nether-guide.css";
+@import "./nether-organizer.css";
 
 /* Design tokens, named as in the Figma variables. */
 .sp-root.sp-nether {

@@ -87,6 +87,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
   const { session } = useAuth();
   const { pathname } = useLocation();
   const navRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
   // On phones the nav is a strip of tabs that scrolls sideways: keep the current page's tab in view.
   useLayoutEffect(() => {
     const nav = navRef.current;
@@ -94,6 +95,11 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
     if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
     const left = active.getBoundingClientRect().left - nav.getBoundingClientRect().left + nav.scrollLeft;
     nav.scrollLeft = Math.max(0, left - (nav.clientWidth - active.offsetWidth) / 2);
+  }, [pathname]);
+  // On a desktop the Nether board scrolls on its own rather than the window: open each page at its top.
+  // (Anywhere the board doesn't scroll, this does nothing.)
+  useLayoutEffect(() => {
+    if (mainRef.current) mainRef.current.scrollTop = 0;
   }, [pathname]);
   const themeClass = useThemeClass();
   return (
@@ -119,7 +125,7 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
           </div>
         </aside>
         {/* Pages load on demand; while one does, the frame stays and the page area stays dark. */}
-        <main className="sp-main"><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
+        <main className="sp-main" ref={mainRef}><Suspense fallback={<div className="sp-page" aria-busy="true" />}>{children}</Suspense></main>
       </div>
     </div>
   );

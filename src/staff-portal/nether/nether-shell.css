@@ -4,11 +4,16 @@
    bottom, "DATAHACKS PORTAL" across the top, blackstone signs hanging on two chains for
    the sidebar, and the basalt board with a warm rim that every page sits in.
 
+   On a desktop (861px wide and 600px tall and up) the frame fits the window and the window
+   never scrolls: the top bar, the signs and the lava hold still, and each page fits the board,
+   which scrolls on its own only as a last resort (see "Desktop: the frame fits the window").
+   Phones and short windows scroll the page as usual.
+
    Layers, front to back (all inside the root's own stacking context):
      5  the lava and its heat haze (.sp-nether-lava): over everything, as in the design;
-        the page scrolls in under it, and the frame keeps the end of every page clear of it
+        where the page scrolls (phones, short windows) it scrolls in under it
      4  the sidebar, with the top bar's title, account and "i" button
-     3  the wall over the top bar (wide screens), so the board scrolls in under it
+     3  the wall over the top bar (short windows), so the board scrolls in under it
      1  the board (.sp-main)
     -1  the wall and its embers (.sp-nether-sky) */
 
@@ -40,6 +45,16 @@
   --frame-gap: 16px;
   --frame-max: 1520px; /* past this the frame stays centred and the wall carries on */
   --board-top: 48px; /* from the top bar to the board */
+  --board-gap: 36px; /* from the board to the lava */
+  --board-edge: 6px;
+  --board-pad-y: 40px;
+  --board-pad-x: 40px;
+
+  /* The signs on the chains. On a desktop these follow the window's height. */
+  --sign-gap: 8px;
+  --sign-font: 13px;
+  --sign-lit: 3px; /* the lit top edge */
+  --sign-shade: 5px; /* and the shaded underside */
 
   /* The base stylesheet's colours, for anything not restyled for the Nether. */
   --sp-bg: var(--nether-basalt);
@@ -171,7 +186,8 @@
 }
 
 /* The sidebar: no panel of its own, just the signs, hanging on two chains that run down
-   into the lava. It stays put while the page scrolls, and ends where the lava starts. */
+   into the lava. It stays put while the page scrolls (short windows), and ends where the
+   lava starts. */
 .sp-root.sp-nether .sp-sidebar {
   position: sticky;
   top: 0;
@@ -222,13 +238,14 @@
   white-space: nowrap;
 }
 
-/* The signs. Level with the top of the board; the list scrolls if a short window can't fit it.
+/* The signs. Level with the top of the board. On a desktop they shrink to fit the window (see
+   "Desktop: the frame fits the window"); in a window too short for that, the list scrolls.
    The padding leaves room for the current sign's glow and the focus ring. */
 .sp-root.sp-nether .sp-nav {
   display: flex;
   flex: 0 1 auto;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--sign-gap);
   min-height: 0;
   margin: calc(var(--board-top) - 8px) -10px 12px;
   padding: 8px 10px;
@@ -237,7 +254,7 @@
   scrollbar-color: var(--nether-sign-top) transparent;
   scrollbar-width: thin;
 }
-.sp-root.sp-nether .sp-nav-group { display: flex; flex-direction: column; gap: 8px; }
+.sp-root.sp-nether .sp-nav-group { display: flex; flex-direction: column; gap: var(--sign-gap); }
 /* Group headings ("APPLICATION", "EVENT INFO"): dark plaques with glowstone letters. */
 .sp-root.sp-nether .sp-nav-group-label {
   display: block;
@@ -265,8 +282,8 @@
   border-radius: 30px;
   background: var(--nether-blackstone);
   color: var(--nether-text);
-  box-shadow: inset 0 3px var(--nether-sign-top), inset 0 -5px var(--nether-sign-bottom);
-  font: 400 13px/1.2 var(--nether-font-display);
+  box-shadow: inset 0 var(--sign-lit) var(--nether-sign-top), inset 0 calc(-1 * var(--sign-shade)) var(--nether-sign-bottom);
+  font: 400 var(--sign-font)/1.2 var(--nether-font-display);
   letter-spacing: 0.04em;
   text-align: center;
   text-decoration: none;
@@ -282,7 +299,7 @@
   border-color: var(--nether-lava-rim);
   background: var(--nether-lava);
   color: var(--nether-nav);
-  box-shadow: inset 0 3px var(--nether-lava-top), inset 0 -5px var(--nether-lava-bottom), 0 0 16px rgb(242 134 47 / 0.55);
+  box-shadow: inset 0 var(--sign-lit) var(--nether-lava-top), inset 0 calc(-1 * var(--sign-shade)) var(--nether-lava-bottom), 0 0 16px rgb(242 134 47 / 0.55);
 }
 .sp-root.sp-nether .sp-nav-link.active:hover { background: var(--nether-lava-hot); color: var(--nether-nav); }
 /* Under the pointer, a sign swings a little on its chains. */
@@ -392,8 +409,9 @@
 }
 .sp-root.sp-nether .sp-signout:hover { background: #3a353d; color: var(--nether-text); }
 
-/* The wall over the top bar, lined up with the backdrop's, so the board slides in under it. */
-@media (min-width: 861px) {
+/* The wall over the top bar, lined up with the backdrop's, so the board slides in under it
+   where the page scrolls (a desktop-wide window too short to fit the frame). */
+@media (min-width: 861px) and (max-height: 599.98px) {
   .sp-root.sp-nether:not(.sp-gate)::before {
     content: "";
     position: fixed;
@@ -405,9 +423,9 @@
     background: var(--nether-bricks) 0 0 / 192px 240px repeat, var(--nether-netherrack);
     image-rendering: pixelated;
   }
+  /* Jumping to a section or tabbing down the page stops clear of the top bar and the lava. */
+  html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 80px; }
 }
-/* Jumping to a section or tabbing down the page stops clear of the top bar and the lava. */
-html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 100px; }
 
 /* The board: dark basalt, a little see-through, with a warm rim. */
 .sp-root.sp-nether .sp-main {
@@ -415,10 +433,10 @@ html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 100px; }
   z-index: 1;
   flex: 1 1 0;
   min-width: 0;
-  min-height: calc(100dvh - var(--bar-h) - var(--board-top) - var(--lava-h) - 36px);
-  margin: calc(var(--bar-h) + var(--board-top)) 0 calc(var(--lava-h) + 36px);
-  padding: 40px;
-  border: 6px solid var(--nether-edge);
+  min-height: calc(100dvh - var(--bar-h) - var(--board-top) - var(--lava-h) - var(--board-gap));
+  margin: calc(var(--bar-h) + var(--board-top)) 0 calc(var(--lava-h) + var(--board-gap));
+  padding: var(--board-pad-y) var(--board-pad-x);
+  border: var(--board-edge) solid var(--nether-edge);
   border-radius: 30px;
   background: rgb(30 28 34 / 0.85);
   color: var(--nether-text);
@@ -600,8 +618,7 @@ html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 100px; }
    --------------------------------------------------------------------------- */
 /* Tablets and small laptops: the same frame, tighter. */
 @media (max-width: 1180px) {
-  .sp-root.sp-nether { --frame-left: 24px; --frame-right: 24px; --side-w: 210px; }
-  .sp-root.sp-nether .sp-main { padding: 32px 28px; }
+  .sp-root.sp-nether { --frame-left: 24px; --frame-right: 24px; --side-w: 210px; --board-pad-y: 32px; --board-pad-x: 28px; }
   .sp-root.sp-nether .sp-sidebar-footer { right: 18px; }
 }
 /* The account's address gives way first when the top bar runs short of room. */
@@ -609,20 +626,113 @@ html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 100px; }
   .sp-root.sp-nether .sp-account-email { max-width: 150px; }
 }
 
-/* Short windows (a 1366 x 768 laptop): smaller signs, a lower lava line, so the hacker
-   list still fits without scrolling. */
-@media (min-width: 861px) and (max-height: 880px) {
-  .sp-root.sp-nether { --lava-h: 70px; --board-top: 32px; }
-  .sp-root.sp-nether :is(.sp-nav, .sp-nav-group) { gap: 5px; }
-  .sp-root.sp-nether .sp-nav-group-label { padding: 3px 10px; }
+/* ---------------------------------------------------------------------------
+   Desktop: the frame fits the window
+   ---------------------------------------------------------------------------
+   From 861px wide and 600px tall the window never scrolls. The top bar, the signs and the
+   lava hold still and the board fills the rest; every page is laid out to fit it. The
+   frame's distances follow the window's height, so a 1280 x 720 laptop gets a tighter
+   frame than a 1920 x 1080 monitor (and the design's own 1440 x 1024 is the full size).
+
+   For pages:
+   - the board (.sp-main) is a column, and the page (.sp-page) grows to fill it, so a page
+     can hand the height it has left to one part (the status page's art does);
+   - --nether-board-h is the board's inner height (inside its rim and padding);
+   - if a page still runs long, the board scrolls on its own as a last resort, with a slim
+     scrollbar in its colours. The application form is the one page meant to do that. */
+@media (min-width: 861px) and (min-height: 600px) {
+  .sp-root.sp-nether {
+    --board-top: clamp(16px, 4.6dvh, 48px);
+    --board-gap: clamp(12px, 2.4dvh, 24px);
+    --lava-h: clamp(56px, 8.2dvh, 84px);
+    --board-pad-y: clamp(22px, 4.2dvh, 40px);
+    --nether-board-h: calc(100dvh - var(--bar-h) - var(--board-top) - var(--lava-h) - var(--board-gap) - 2 * var(--board-edge) - 2 * var(--board-pad-y));
+    /* Sticky things stick inside the board now, which is what scrolls. */
+    --nether-sticky-top: 16px;
+    /* The hacker portal's 15 signs and 2 plaques fit from a 600px-tall window up. */
+    --sign-h: clamp(22px, 3.75dvh, 38px);
+    --sign-gap: clamp(3px, 0.7dvh, 10px);
+    --sign-font: clamp(10px, 1.45dvh, 13px);
+    --plaque-pad: clamp(1px, 0.45dvh, 5px);
+    --plaque-font: clamp(10px, 1.35dvh, 12px);
+  }
+
+  html:has(.sp-root.sp-nether .sp-shell),
+  html:has(.sp-root.sp-nether .sp-shell) body { overflow: hidden; }
+  .sp-root.sp-nether:not(.sp-gate) { height: 100dvh; min-height: 0; overflow: hidden; }
+  .sp-root.sp-nether .sp-shell { align-items: stretch; height: 100%; }
+
+  /* The sidebar runs the window's full height; the chains go on down behind the lava. */
+  .sp-root.sp-nether .sp-sidebar { position: relative; height: auto; }
+  .sp-root.sp-nether .sp-sidebar::before,
+  .sp-root.sp-nether .sp-sidebar::after { bottom: 0; }
+
+  /* The signs span the board's height and never scroll: they shrink with the window, and if
+     that's still not enough they give up a little more height each. Portals with only a few
+     signs (mentors, judges, the Apply pages, anyone not accepted yet) keep them full size. */
+  .sp-root.sp-nether .sp-nav {
+    flex: 1 1 auto;
+    margin: calc(var(--board-top) - 8px) -10px calc(var(--lava-h) + var(--board-gap) - 8px);
+    overflow: visible;
+  }
+  .sp-root.sp-nether .sp-nav:not(:has(.sp-nav-group > :nth-child(8))) {
+    --sign-h: 38px;
+    --sign-gap: clamp(6px, 1.1dvh, 10px);
+    --sign-font: 13px;
+    --sign-lit: 3px;
+    --sign-shade: 5px;
+    --plaque-pad: 5px;
+    --plaque-font: 12px;
+  }
+  .sp-root.sp-nether .sp-nav-group { flex: 0 1 auto; min-height: 0; }
+  .sp-root.sp-nether .sp-nav-group-label {
+    flex: none;
+    padding-block: var(--plaque-pad);
+    font-size: var(--plaque-font);
+    line-height: 1.25;
+  }
   .sp-root.sp-nether .sp-nav-link {
-    min-height: 31px;
-    padding: 6px 14px 8px;
-    box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -4px var(--nether-sign-bottom);
+    flex: 0 1 var(--sign-h);
+    min-height: 18px;
+    /* Centred between the lit edge and the shade. */
+    padding: 0 12px calc(var(--sign-shade) - var(--sign-lit));
   }
-  .sp-root.sp-nether .sp-nav-link.active {
-    box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -4px var(--nether-lava-bottom), 0 0 14px rgb(242 134 47 / 0.55);
+
+  /* The board fills the rest of the window. */
+  .sp-root.sp-nether .sp-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden auto;
+    overscroll-behavior: contain;
+    scroll-padding-block: 16px;
   }
+  .sp-root.sp-nether .sp-main > * { flex: none; }
+  .sp-root.sp-nether .sp-main > .sp-page { flex: 1 0 auto; }
+  /* Its scrollbar, when it needs one: a blackstone bar clear of the rounded corners. */
+  .sp-root.sp-nether .sp-main::-webkit-scrollbar { width: 12px; background: transparent; }
+  .sp-root.sp-nether .sp-main::-webkit-scrollbar-track { margin-block: 22px; background: transparent; }
+  .sp-root.sp-nether .sp-main::-webkit-scrollbar-thumb {
+    border: 3px solid transparent;
+    border-radius: 0;
+    background: var(--nether-sign-top) padding-box;
+  }
+  .sp-root.sp-nether .sp-main::-webkit-scrollbar-thumb:hover { background-color: #6a6370; }
+  @supports not selector(::-webkit-scrollbar) {
+    .sp-root.sp-nether .sp-main { scrollbar-width: thin; scrollbar-color: var(--nether-sign-top) transparent; }
+  }
+}
+/* Smaller signs get thinner edges. */
+@media (min-width: 861px) and (min-height: 600px) and (max-height: 820px) {
+  .sp-root.sp-nether { --sign-lit: 2px; --sign-shade: 4px; }
+}
+
+/* A desktop-wide window too short for that (under 600px): the page scrolls under the top bar
+   and the lava, as on a phone, with smaller signs and a lower lava line. */
+@media (min-width: 861px) and (max-height: 599.98px) {
+  .sp-root.sp-nether { --lava-h: 60px; --board-top: 24px; --board-gap: 24px; --sign-gap: 5px; --sign-lit: 2px; --sign-shade: 4px; }
+  .sp-root.sp-nether .sp-nav-group-label { padding: 3px 10px; }
+  .sp-root.sp-nether .sp-nav-link { min-height: 30px; padding: 5px 14px 7px; }
 }
 
 /* Phones and small tablets: the title and "i" across the top, then the signs on one chain

@@ -244,6 +244,226 @@
 
 /* The waiver's numbered steps (.sp-steps) are styled in nether-status.css. */
 
+/* ---------------------------------------------------------------------------
+   Desktop: the page fits the board (NetherGuide.tsx's useFitStep). The title and the note
+   share a row, the sections or topics fill what's left (.sp-guide-view), and the page
+   links sit along the bottom. The script picks the roomiest layout that fits: all at once,
+   one section behind the "On this page" tabs, one topic behind a row of options, and each
+   of those a little denser (.dense). Only in the shell's desktop range, where the board is
+   a fixed box; phones keep the stacked page above.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-main > .sp-page.sp-guide-fit { flex: 1 1 0; min-height: 0; }
+.sp-root.sp-nether .sp-guide-fit { gap: 18px; }
+
+/* The title on the left, the "Good to know" note (or the venue) on the right. */
+.sp-root.sp-nether .sp-guide-top { display: flex; flex: none; align-items: flex-start; justify-content: space-between; gap: 16px 32px; }
+.sp-root.sp-nether .sp-guide-top .sp-page-header { flex: 1 1 22rem; min-width: 0; }
+.sp-root.sp-nether .sp-guide-top .sp-guide-note { flex: 0 1 23rem; gap: 14px; max-width: none; padding: 10px 16px 12px; font-size: 14px; line-height: 1.38; }
+.sp-root.sp-nether .sp-guide-top .sp-guide-note-mark { width: 18px; height: 18px; }
+.sp-root.sp-nether .sp-guide-top .sp-guide-note .sp-guide-note-title { margin-bottom: 2px; font-size: 12px; }
+.sp-root.sp-nether .sp-guide-top .sp-page-header :where(h1 ~ p) { line-height: 1.45; }
+.sp-root.sp-nether .sp-guide-top .sp-schedule-venue { flex: none; margin-top: 4px; white-space: nowrap; }
+
+/* The contents and the view, filling the rest of the board. */
+.sp-root.sp-nether .sp-guide-body { display: flex; flex: 1 1 0; gap: 24px; min-height: 0; }
+.sp-root.sp-nether .sp-guide-view {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+  /* Room for focus rings at the edges, without moving anything. */
+  margin: -4px;
+  padding: 4px;
+  overflow: hidden;
+}
+.sp-root.sp-nether .sp-guide-view:focus-visible,
+.sp-root.sp-nether .sp-guide-view [role="tabpanel"]:focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: 2px; }
+.sp-root.sp-nether .sp-guide-view:focus-visible { outline-offset: -2px; }
+/* The last resort, for a topic too long for a very short window: the view scrolls, not the
+   board, with a blackstone scrollbar that stays in sight (like the board's own). */
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-view {
+  padding-right: 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+/* Its bottom edge fades out, so it's plain there's more; the end of the topic scrolls clear of the fade. */
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-view:not(:has(.sp-guide-parts .sp-table-wrap)) {
+  padding-bottom: 28px;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 32px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 32px), transparent);
+}
+.sp-root.sp-nether .sp-guide-fit.scroll :is(.sp-guide-view, .sp-table-wrap)::-webkit-scrollbar { width: 10px; height: 10px; background: transparent; }
+.sp-root.sp-nether .sp-guide-fit.scroll :is(.sp-guide-view, .sp-table-wrap)::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  background: var(--nether-sign-top, #4a4450) padding-box;
+}
+.sp-root.sp-nether .sp-guide-fit.scroll :is(.sp-guide-view, .sp-table-wrap)::-webkit-scrollbar-thumb:hover { background-color: #6a6370; }
+.sp-root.sp-nether .sp-guide-fit.scroll :is(.sp-guide-view, .sp-table-wrap)::-webkit-scrollbar-corner { background: transparent; }
+@supports not selector(::-webkit-scrollbar) {
+  .sp-root.sp-nether .sp-guide-fit.scroll :is(.sp-guide-view, .sp-table-wrap) { scrollbar-color: var(--nether-sign-top, #4a4450) transparent; scrollbar-width: thin; }
+}
+/* A table too long for that (the handbook's schedule) scrolls in its own frame under its
+   header row instead, and the rest of the topic stays put. */
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-view:has(.sp-guide-parts .sp-table-wrap) {
+  display: flex;
+  flex-direction: column;
+  padding-right: 4px;
+  overflow: hidden;
+}
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-view:has(.sp-guide-parts .sp-table-wrap) > .sp-guide { display: flex; flex: 0 1 auto; flex-direction: column; min-height: 0; }
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-parts:has(.sp-table-wrap) { flex: 0 1 auto; min-height: 0; }
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-parts > .sp-guide-panel:has(.sp-table-wrap) { display: flex; flex: 0 1 auto; flex-direction: column; min-height: 0; }
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-parts > .sp-guide-panel > :has(> .sp-table-wrap) { display: flex; flex: 0 1 auto; flex-direction: column; min-height: 0; columns: auto; }
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-parts .sp-table-wrap { flex: 0 1 auto; min-height: 0; overflow: auto; overscroll-behavior: contain; }
+.sp-root.sp-nether .sp-guide-fit.scroll .sp-guide-parts .sp-table th { position: sticky; top: 0; z-index: 1; }
+
+.sp-root.sp-nether .sp-guide-fit .sp-guide-pager { flex: none; margin-top: -4px; }
+
+/* "On this page": the sections as tabs, down the left. */
+.sp-root.sp-nether .sp-guide-toc {
+  display: flex;
+  flex: 0 0 188px;
+  flex-direction: column;
+  align-self: flex-start;
+  max-height: 100%;
+  padding: 14px 10px 12px;
+  overflow-y: auto;
+  border: 3px solid var(--guide-panel-edge);
+  background: var(--guide-panel);
+  scrollbar-width: thin;
+}
+.sp-root.sp-nether .sp-guide-toc > span {
+  margin: 0 0 8px;
+  padding: 0 8px;
+  color: var(--nether-lava);
+  font: 400 12px/1.3 var(--nether-font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-guide-toc [role="tablist"] { display: flex; flex: none; flex-direction: column; gap: 2px; }
+/* A section's topics, under its tabs; with both lists showing, every tab sits a little closer. */
+.sp-root.sp-nether .sp-guide-toc [role="tablist"] + span { margin-top: 10px; padding-top: 12px; border-top: 2px solid var(--guide-rule); }
+.sp-root.sp-nether .sp-guide-toc:has([role="tablist"] + span) [role="tab"],
+.sp-root.sp-nether .sp-guide-toc:has(> [role="tablist"] > :nth-child(6)) [role="tab"] { padding-block: 4px; line-height: 1.25; }
+.sp-root.sp-nether .sp-guide-toc [role="tab"] {
+  padding: 6px 8px;
+  border: 0;
+  border-left: 3px solid transparent;
+  background: none;
+  color: var(--guide-muted);
+  font: 600 14px/1.3 var(--nether-font-body);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.sp-root.sp-nether .sp-guide-toc [role="tab"]:hover { border-left-color: var(--nether-lava); background: rgb(242 134 47 / 0.08); color: var(--nether-text); }
+.sp-root.sp-nether .sp-guide-toc [role="tab"][aria-selected="true"] {
+  border-left-color: var(--nether-lava);
+  background: rgb(242 134 47 / 0.16);
+  color: var(--nether-text);
+  font-weight: 800;
+}
+.sp-root.sp-nether .sp-guide-toc [role="tab"]:focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: -2px; }
+
+/* A section's topics (and the run of show's days) as a row of small blackstone signs; the open one is lava. */
+.sp-root.sp-nether .sp-guide-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.sp-root.sp-nether .sp-guide-options [role="tab"] {
+  min-height: 32px;
+  padding: 4px 14px 7px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 30px;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top, #4a4450), inset 0 -4px var(--nether-sign-bottom, #1a171c);
+  font: 700 14px/1.2 var(--nether-font-body);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.sp-root.sp-nether .sp-guide-options [role="tab"]:hover { background: #3a353d; }
+.sp-root.sp-nether .sp-guide-options [role="tab"][aria-selected="true"] {
+  border-color: var(--nether-lava-rim, #7a2e0c);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px var(--nether-lava-top, #ffc24a), inset 0 -4px var(--nether-lava-bottom, #b85a1c), 0 0 12px rgb(242 134 47 / 0.45);
+}
+.sp-root.sp-nether .sp-guide-options [role="tab"]:focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: 2px; }
+
+/* One section: its panels flow down two or three columns. */
+.sp-root.sp-nether .sp-guide-fit .sp-guide-group { gap: 16px; }
+.sp-root.sp-nether .sp-guide-flow { column-width: 16rem; column-count: 3; column-gap: 16px; }
+.sp-root.sp-nether .sp-guide-flow > .sp-guide-panel { margin-bottom: 16px; break-inside: avoid; }
+/* Evening the columns out: a panel may run on into the next column (its frame repeats there). */
+.sp-root.sp-nether .sp-guide-fit.even .sp-guide-flow > .sp-guide-panel {
+  break-inside: auto;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.sp-root.sp-nether .sp-guide-fit.even .sp-guide-flow :is(h3, li) { break-inside: avoid; }
+.sp-root.sp-nether .sp-guide-fit.even .sp-guide-flow h3 { break-after: avoid; }
+/* Text in a panel that has the whole width runs in columns rather than very long lines. */
+.sp-root.sp-nether .sp-guide-cols { column-width: 16rem; column-gap: 32px; column-rule: 1px solid var(--guide-rule); }
+.sp-root.sp-nether :is(.sp-guide-cols, .sp-guide-prose) > :first-child { margin-top: 0; }
+.sp-root.sp-nether .sp-guide-cols .sp-table-wrap { break-inside: avoid; }
+.sp-root.sp-nether .sp-guide-cols > .sp-table-wrap { column-span: all; }
+.sp-root.sp-nether .sp-guide-solo > h2 + :is(.sp-guide-cols, .sp-guide-prose) { margin-top: 10px; }
+.sp-root.sp-nether .sp-guide-parts { gap: 14px; }
+
+/* Headings the tabs already show, kept for screen readers. */
+.sp-root.sp-nether .sp-guide .sp-guide-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Denser: 15px text and tighter panels, before splitting things up further. */
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide { font-size: 15px; line-height: 1.35; }
+.sp-root.sp-nether .sp-guide-fit.dense :is(.sp-guide-grid, .sp-guide-group) { gap: 12px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-group:not(:first-child) { margin-top: 10px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-panel { padding: 12px 16px 13px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-panel > :is(h2, h3) { font-size: 16px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-heading { font-size: 18px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide :is(p, ul, ol) { margin-top: 6px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide li + li { margin-top: 2px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-flow { column-gap: 12px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide-flow > .sp-guide-panel { margin-bottom: 12px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-guide :is(.sp-table th, .sp-table td) { padding: 6px 10px; }
+
+/* The run of show: tighter rows, and one day's events in two columns behind the day tabs. */
+.sp-root.sp-nether .sp-guide-fit .sp-ros-list { margin-top: 8px; }
+.sp-root.sp-nether .sp-guide-fit .sp-ros-list li { grid-template-columns: 84px minmax(0, 1fr); gap: 12px; padding: 4px 0; }
+.sp-root.sp-nether .sp-guide-fit .sp-ros .sp-event p { margin-top: 0; line-height: 1.35; }
+.sp-root.sp-nether .sp-guide-fit .sp-ros .sp-location { margin-top: 2px; }
+/* The venue, and the day tabs when there are any, at the right of the title. */
+.sp-root.sp-nether .sp-ros-aside { display: flex; flex: none; flex-direction: column; align-items: flex-end; gap: 12px; }
+.sp-root.sp-nether .sp-ros-aside .sp-guide-options { justify-content: flex-end; }
+.sp-root.sp-nether .sp-guide .sp-ros-day > .sp-ros-list { margin-top: 0; }
+.sp-root.sp-nether .sp-guide .sp-ros-split { margin-top: 0; column-width: 17rem; column-gap: 36px; column-rule: 1px solid var(--guide-rule); }
+.sp-root.sp-nether .sp-ros-split li { break-inside: avoid; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-ros-list li { padding: 2px 0; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-ros-day { padding-block: 12px; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-ros :is(.sp-time, .sp-event-title) { font-size: 14px; line-height: 1.35; }
+.sp-root.sp-nether .sp-guide-fit.dense .sp-ros .sp-event p { font-size: 13px; }
+
+/* Shorter windows: a slimmer title, the note's heading run in with its text, and a long
+   contents list (the mentor and judge handbook's eleven sections) a little tighter. */
+@media (max-height: 820px) {
+  .sp-root.sp-nether .sp-guide-top .sp-page-header :where(h1 ~ p) { font-size: 15px; }
+  .sp-root.sp-nether .sp-guide-top .sp-guide-note p { display: inline; }
+  .sp-root.sp-nether .sp-guide-top .sp-guide-note .sp-guide-note-title { margin: 0 8px 0 0; }
+  .sp-root.sp-nether .sp-guide-toc:has(> [role="tablist"] > :nth-child(8)) { padding: 10px 8px 8px; }
+  .sp-root.sp-nether .sp-guide-toc:has(> [role="tablist"] > :nth-child(8)) > span { margin-bottom: 4px; }
+  .sp-root.sp-nether .sp-guide-toc:has(> [role="tablist"] > :nth-child(8)) [role="tablist"] { gap: 1px; }
+  .sp-root.sp-nether .sp-guide-toc:has(> [role="tablist"] > :nth-child(8)) [role="tab"] { padding: 4px 8px; font-size: 13px; line-height: 1.25; }
+  .sp-root.sp-nether .sp-guide-fit { gap: 12px; }
+  .sp-root.sp-nether .sp-guide-fit .sp-page-header .sp-guide-eyebrow { margin-bottom: 6px; }
+  .sp-root.sp-nether .sp-guide-fit .sp-page-header h1 { font-size: 28px; }
+  .sp-root.sp-nether .sp-guide-fit .sp-page-header :where(h1 ~ p) { margin-top: 6px; }
+}
+
 /* Phones. */
 @media (max-width: 520px) {
   .sp-root.sp-nether .sp-guide-group:not(:first-child) { margin-top: 8px; }
@@ -255,5 +475,5 @@
   .sp-root.sp-nether .sp-ros-list li { grid-template-columns: 76px minmax(0, 1fr); gap: 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .sp-root.sp-nether .sp-toc a { transition: none; }
+  .sp-root.sp-nether :is(.sp-toc a, .sp-guide-toc [role="tab"], .sp-guide-options [role="tab"]) { transition: none; }
 }

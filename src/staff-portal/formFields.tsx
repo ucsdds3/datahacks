@@ -1,67 +1,8 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { usePortalTheme } from "@/portal/portalTheme";
 
 /** The asterisk on a required field's label. */
 export const Req = () => <span className="sp-req" aria-hidden="true">*</span>;
-
-/** A titled section of a long form. `id` goes on its heading. */
-export type FormStep = { id: string; title: string };
-
-/**
- * A section heading. In the Nether theme it gets a "Section 2 of 6" line above it,
- * as in the design; the End shows the heading alone, as before.
- */
-export function FormSection({ steps, index }: { steps: readonly FormStep[]; index: number }) {
-  const nether = usePortalTheme() === "nether";
-  const step = steps[index];
-  return (
-    <>
-      {nether && <p className="sp-eyebrow sp-form-eyebrow">Section {index + 1} of {steps.length}</p>}
-      <h2 className="sp-form-section" id={step.id}>{step.title}</h2>
-    </>
-  );
-}
-
-/**
- * The Nether theme's section bar over a long form: a segment per section, lava
- * orange for the one being filled in (where focus is, else the first unfinished
- * one) and teal once a section's required answers are in. It only shows progress;
- * the End theme doesn't draw it at all.
- */
-export function FormSteps({ steps, done, form }: { steps: readonly FormStep[]; done: boolean[]; form: RefObject<HTMLFormElement> }) {
-  const nether = usePortalTheme() === "nether";
-  const [focused, setFocused] = useState<number | null>(null);
-
-  // The section someone is in: the last heading before whatever has focus.
-  useEffect(() => {
-    const el = form.current;
-    if (!nether || !el) return;
-    const onFocus = (e: FocusEvent) => {
-      let index = -1;
-      steps.forEach((step, i) => {
-        const heading = document.getElementById(step.id);
-        if (heading && heading.compareDocumentPosition(e.target as Node) & Node.DOCUMENT_POSITION_FOLLOWING) index = i;
-      });
-      if (index >= 0) setFocused(index);
-    };
-    el.addEventListener("focusin", onFocus);
-    return () => el.removeEventListener("focusin", onFocus);
-  }, [nether, form, steps]);
-
-  if (!nether) return null;
-  const current = focused ?? done.indexOf(false);
-  return (
-    <ol className="sp-form-steps" aria-label="Sections">
-      {steps.map((step, i) => (
-        <li key={step.id} className={i === current ? "current" : done[i] ? "done" : undefined} aria-current={i === current ? "step" : undefined}>
-          <span className="sp-form-step-label">{step.title}</span>
-          {done[i] && <span className="sr-only"> (complete)</span>}
-        </li>
-      ))}
-    </ol>
-  );
-}
 
 /**
  * Phone numbers: exactly 10 digits, shown and saved as (858) 370-2478. A
