@@ -33,7 +33,7 @@ const trackOptions = [
   { value: 'biotech_life_sciences', label: 'Biotech & Life Sciences' },
   { value: 'defense_cybersecurity', label: 'Defense & Cybersecurity' },
   { value: 'finance', label: 'Finance' },
-  { value: 'energy', label: 'Energy' },
+  { value: 'entertainment', label: 'Entertainment' },
 ]
 
 

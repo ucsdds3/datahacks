@@ -155,7 +155,7 @@ export const JUDGING_TRACKS = [
   "biotech_life_sciences",
   "defense_cybersecurity",
   "finance",
-  "energy",
+  "entertainment",
 ] as const;
 
 
