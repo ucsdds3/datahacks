@@ -133,10 +133,12 @@ describe("apply pages and the applications-open switch", () => {
 });
 
 describe("the apply page's frame", () => {
-  it("sits on the End sky", async () => {
+  it("uses the Nether look, the only theme in use", async () => {
     const { container } = renderApply();
     await screen.findByRole("heading", { name: "hacker form" });
-    expect(container.querySelector(".sp-root.sp-end > .sp-end-sky")).toBeTruthy();
+    expect(container.querySelector(".sp-root.sp-nether")).toBeTruthy();
+    expect(container.querySelector(".sp-root.sp-end")).toBeNull();
+    expect(container.querySelector(".sp-theme-toggle")).toBeNull();
   });
 
   it("dev ?preview shows the form even after applying, so it can be looked at", async () => {
