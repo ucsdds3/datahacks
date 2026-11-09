@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from "react";
 
-/** The applicant portal's two looks: the End (the default) and the Nether. */
+/** The portal's looks. Nether is the only one in use; the End styles stay in the code but are switched off. */
 export type PortalTheme = "end" | "nether";
 
 export const PORTAL_THEMES: { id: PortalTheme; label: string }[] = [
@@ -28,7 +28,10 @@ function read(): PortalTheme {
   }
 }
 
-export const getPortalTheme = (): PortalTheme => (current ??= read());
+/** Only Nether ships (Mohak, 2026-11-09). Set to false to bring back the End | Nether switch. */
+export const NETHER_ONLY = true;
+
+export const getPortalTheme = (): PortalTheme => (NETHER_ONLY ? "nether" : (current ??= read()));
 
 export function setPortalTheme(theme: PortalTheme) {
   current = theme;
@@ -45,4 +48,5 @@ function subscribe(listener: () => void) {
   return () => listeners.delete(listener);
 }
 
-export const usePortalTheme = () => useSyncExternalStore(subscribe, getPortalTheme, (): PortalTheme => "end");
+export const usePortalTheme = () =>
+  useSyncExternalStore(subscribe, getPortalTheme, (): PortalTheme => (NETHER_ONLY ? "nether" : "end"));
