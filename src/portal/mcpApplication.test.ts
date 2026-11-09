@@ -248,7 +248,7 @@ const mentor: mcp.StaffAnswers = {
 
 describe("checkStaff", () => {
   it("builds a mentor row with no judging fields", () => {
-    const result = mcp.checkStaff({ ...mentor, judging_track: "energy", acknowledged_in_person_judging: true });
+    const result = mcp.checkStaff({ ...mentor, judging_track: "entertainment", acknowledged_in_person_judging: true });
     expect("row" in result && result.row).toMatchObject({
       applicant_type: "mentor", judging_track: null, bio: null, acknowledged_in_person_judging: false, acknowledged_onsite_mentoring: true,
     });
@@ -266,9 +266,9 @@ describe("checkStaff", () => {
 
   it("saves loose case as the options' exact values", () => {
     const result = mcp.checkStaff({
-      ...mentor, applicant_type: "Hybrid", ucsd_affiliation: "Alumni", judging_track: "Energy", acknowledged_in_person_judging: true,
+      ...mentor, applicant_type: "Hybrid", ucsd_affiliation: "Alumni", judging_track: "Entertainment", acknowledged_in_person_judging: true,
     });
-    expect("row" in result && result.row).toMatchObject({ applicant_type: "hybrid", ucsd_affiliation: "alumni", judging_track: "energy" });
+    expect("row" in result && result.row).toMatchObject({ applicant_type: "hybrid", ucsd_affiliation: "alumni", judging_track: "entertainment" });
   });
 
   it("takes an https LinkedIn link only", () => {
