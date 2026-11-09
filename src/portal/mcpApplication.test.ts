@@ -251,9 +251,9 @@ describe("checkStaff", () => {
     expect(problemFields(mcp.checkStaff({ ...mentor, applicant_type: "hybrid" }))).toEqual(["judging_track", "acknowledged_in_person_judging"]);
   });
 
-  it("allows no blurb, but not a short or overlong one", () => {
+  it("allows no blurb or a short one, but not an overlong one", () => {
     expect("row" in mcp.checkStaff({ ...mentor, bio: "   " })).toBe(true);
-    expect(problemFields(mcp.checkStaff({ ...mentor, bio: "Hi, I like data." }))).toEqual(["bio"]);
+    expect("row" in mcp.checkStaff({ ...mentor, bio: "Hi, I like data." })).toBe(true);
     expect(problemFields(mcp.checkStaff({ ...mentor, bio: "b".repeat(1501) }))).toEqual(["bio"]);
   });
 

@@ -132,8 +132,6 @@ export const JUDGING_TRACKS = [
   "energy",
 ] as const;
 
-/** The mentor blurb is optional; when given it needs some substance (applications_staff_fields_check). */
-export const BIO_MIN_LENGTH = 50;
 
 // ---------------------------------------------------------------------------
 
@@ -383,9 +381,6 @@ export function checkStaff(a: StaffAnswers): Checked {
     problems.push(`judging_track is required for judges, one of: ${JUDGING_TRACKS.join(", ")}.`);
   }
   const bio = t.bio;
-  if (mentoring && bio.length > 0 && bio.length < BIO_MIN_LENGTH) {
-    problems.push(`bio is optional, but when given it needs at least ${BIO_MIN_LENGTH} characters (it has ${bio.length}).`);
-  }
   if (judging && a.acknowledged_in_person_judging !== true) {
     problems.push("acknowledged_in_person_judging: judges must confirm they'll judge in person (online judging isn't allowed).");
   }

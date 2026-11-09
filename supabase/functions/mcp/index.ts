@@ -27,7 +27,7 @@ import { pipeline } from "npm:@supabase/middleware@1.0.0";
 import { withOAuthProtectedResource, withSupabase } from "npm:@supabase/server@1.9.1";
 import { z } from "npm:zod@4.6.6";
 import {
-  BIO_MIN_LENGTH, EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
+  EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
   RACES, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
   closedMessage, databaseErrorMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
 } from "./application.ts";
@@ -207,7 +207,7 @@ Deno.serve(
                 ucsd_affiliation: enumOf(UCSD_AFFILIATIONS).describe("UCSD student, alumni, faculty member, or not affiliated with UCSD (none)"),
                 applicant_type: enumOf(STAFF_TYPES).describe("mentor, judge, or hybrid (both)"),
                 judging_track: enumOf(JUDGING_TRACKS).optional().describe("Judges and hybrids only: the track they'd like to judge"),
-                bio: z.string().optional().describe(`Mentors and hybrids only, optional: a short blurb shown to hackers on the mentor calendar, ${BIO_MIN_LENGTH} to ${MAX_LENGTH.bio} characters, in their own words. Leave it out and organizers write one`),
+                bio: z.string().optional().describe(`Mentors and hybrids only, optional: a short blurb shown to hackers on the mentor calendar, up to ${MAX_LENGTH.bio} characters, in their own words. Leave it out and organizers write one`),
                 acknowledged_in_person_judging: z.boolean().optional().describe("Judges and hybrids: they understand online judging isn't allowed, judges must be there in person"),
                 acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 12:30–4:30 PM on Saturday, January 16th, with check-in opening at 12:00 PM"),
                 acknowledged_both_priority: z.boolean().describe("They understand people who both mentor and judge get priority"),
