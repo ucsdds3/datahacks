@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabaseClient";
  * for a new year: add the event in Table Editor -> events, then change this.
  * Applications stay closed until that row's `applications_open` is turned on.
  */
-export const EVENT_CODE = "DH27BETA";
+export const EVENT_CODE = "DH27BETA2";
 
 let cached: Promise<string> | null = null;
 
