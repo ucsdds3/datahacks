@@ -221,7 +221,7 @@ export default function StaffApplication() {
               <fieldset id="field-ucsd_affiliation" className={cls('ucsd_affiliation')}>
                 <legend>Are you a UCSD student, alum or faculty member? <Req /></legend>
                 {ucsdOptions.map(option => (
-                  <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
+                  <label className="sp-check" key={option.value} htmlFor={`ucsd_${option.value}`} style={{ marginBottom: '8px' }}>
                     <input
                       type="radio"
                       name="ucsd_affiliation"
@@ -230,8 +230,8 @@ export default function StaffApplication() {
                       onChange={() => update('ucsd_affiliation', option.value)}
                       {...inv('ucsd_affiliation')}
                     />
-                    <label htmlFor={`ucsd_${option.value}`}>{option.label}</label>
-                  </div>
+                    <span>{option.label}</span>
+                  </label>
                 ))}
               </fieldset>
 
@@ -239,7 +239,7 @@ export default function StaffApplication() {
                 <legend>Are you willing to mentor, judge, or both? <Req /></legend>
                 <p className="sp-form-note">We will be giving priority to people who sign up as both.</p>
                 {applicantTypeOptions.map(option => (
-                  <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
+                  <label className="sp-check" key={option.value} htmlFor={`type_${option.value}`} style={{ marginBottom: '8px' }}>
                     <input
                       type="radio"
                       name="applicant_type"
@@ -248,8 +248,8 @@ export default function StaffApplication() {
                       onChange={() => update('applicant_type', option.value)}
                       {...inv('applicant_type')}
                     />
-                    <label htmlFor={`type_${option.value}`}>{option.label}</label>
-                  </div>
+                    <span>{option.label}</span>
+                  </label>
                 ))}
               </fieldset>
 
@@ -257,7 +257,7 @@ export default function StaffApplication() {
                 <fieldset id="field-judging_track" className={cls('judging_track')}>
                   <legend>Which track would you be interested in judging? (select one) <Req /></legend>
                   {trackOptions.map(option => (
-                    <div className="sp-check" key={option.value} style={{ marginBottom: '8px' }}>
+                    <label className="sp-check" key={option.value} htmlFor={`track_${option.value}`} style={{ marginBottom: '8px' }}>
                       <input
                         type="radio"
                         name="judging_track"
@@ -266,8 +266,8 @@ export default function StaffApplication() {
                         onChange={() => update('judging_track', option.value)}
                         {...inv('judging_track')}
                       />
-                      <label htmlFor={`track_${option.value}`}>{option.label}</label>
-                    </div>
+                      <span>{option.label}</span>
+                    </label>
                   ))}
                 </fieldset>
               )}
