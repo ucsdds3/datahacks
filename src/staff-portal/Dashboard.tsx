@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
@@ -28,7 +29,16 @@ type Step = { title: string; detail: string; done: boolean };
 /** The portal's home page: where the application stands and what happens next. */
 export default function Dashboard() {
   const { basePath, fullName, status, submittedAt, portal, waiverSubmitted, preview } = useStaffPortal();
-  const { search } = useLocation();
+  const location = useLocation();
+  const { search } = location;
+  // Right after submitting, Dyno hops in once. The flag rides on the navigation and is
+  // dropped from history straight away, so a refresh or Back doesn't replay it.
+  const [justSubmitted] = useState(() => Boolean((location.state as { justSubmitted?: boolean } | null)?.justSubmitted));
+  useEffect(() => {
+    if (!justSubmitted) return;
+    const state = window.history.state as { usr?: unknown } | null;
+    if (state && state.usr) window.history.replaceState({ ...state, usr: null }, "");
+  }, [justSubmitted]);
   const decided = status !== "pending";
   const batch = applicationBatch(submittedAt);
 
@@ -82,7 +92,7 @@ export default function Dashboard() {
             </li>
           ))}
         </ol>
-        <NetherStatusArt status={status} />
+        <NetherStatusArt status={status} celebrate={justSubmitted} />
       </section>
     </div>
   );

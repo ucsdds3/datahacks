@@ -22,12 +22,12 @@ export type NetherArtName = keyof typeof ART;
 
 const src = (file: string) => `/images/portal-nether/status/${file}.webp`;
 
-function Art({ name }: { name: NetherArtName }) {
+function Art({ name, celebrate = false }: { name: NetherArtName; celebrate?: boolean }) {
   const { width, height } = ART[name];
   // Dyno blinks: a second frame laid over the first (see .sp-nether-art-dyno).
   if (name === "dyno") {
     return (
-      <span className="sp-nether-art sp-nether-art-dyno" aria-hidden>
+      <span className={`sp-nether-art sp-nether-art-dyno${celebrate ? " is-celebrating" : ""}`} aria-hidden>
         <img src={src("dyno")} alt="" width={width} height={height} decoding="async" />
         <img className="sp-nether-dyno-blink" src={src("dyno-blink")} alt="" width={width} height={height} decoding="async" />
       </span>
@@ -37,8 +37,8 @@ function Art({ name }: { name: NetherArtName }) {
 }
 
 /** One piece of Nether art, or nothing in the End. */
-export function NetherArt({ name }: { name: NetherArtName }) {
-  return usePortalTheme() === "nether" ? <Art name={name} /> : null;
+export function NetherArt({ name, celebrate = false }: { name: NetherArtName; celebrate?: boolean }) {
+  return usePortalTheme() === "nether" ? <Art name={name} celebrate={celebrate} /> : null;
 }
 
 const STATUS_ART: Record<ApplicationStatus, NetherArtName> = {
@@ -49,4 +49,7 @@ const STATUS_ART: Record<ApplicationStatus, NetherArtName> = {
 };
 
 /** The status page's art for where the application stands. */
-export const NetherStatusArt = ({ status }: { status: ApplicationStatus }) => <NetherArt name={STATUS_ART[status]} />;
+/** `celebrate` plays Dyno's hop-in once, right after an application is submitted. */
+export const NetherStatusArt = ({ status, celebrate = false }: { status: ApplicationStatus; celebrate?: boolean }) => (
+  <NetherArt name={STATUS_ART[status]} celebrate={celebrate} />
+);

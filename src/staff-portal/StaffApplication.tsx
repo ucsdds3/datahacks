@@ -180,7 +180,7 @@ export default function StaffApplication() {
 
     draft.clear()
     await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
-    navigate(portal.home, { replace: true })
+    navigate(portal.home, { replace: true, state: { justSubmitted: true } })
   }
 
 
