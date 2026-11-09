@@ -12,6 +12,7 @@ import { ThemeToggle } from "@/staff-portal/ThemeToggle";
 import { NetherSky } from "@/staff-portal/nether/NetherSky";
 import OrganizersPanel from "./OrganizersPanel";
 import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
+import { useMlhOn } from "@/staff-portal/mlh";
 import ApplicationsTable from "./ApplicationsTable";
 import CheckinPage from "./CheckinPage";
 import EmailComposer from "./EmailComposer";
@@ -64,6 +65,7 @@ export default function OrganizerConsole() {
     ? { session: { user: { email: "preview@ds3.club" } }, isOrganizer: true, loading: false }
     : auth;
   const event = useEventId();
+  const mlhOn = useMlhOn();
   const apps = useApplications(isOrganizer ? event.data : undefined);
   const refresh = useRefreshApplications();
   const [section, setSection] = useState<Section>("hackers");
@@ -171,6 +173,8 @@ export default function OrganizerConsole() {
                 rows={rows.filter(r => kindOf(r.applicant_type) === (section === "hackers" ? "hacker" : "staff"))}
                 onChanged={refresh}
                 onSendPasses={openPasses}
+                mlhOn={mlhOn}
+                eventId={event.data}
               />
         )}
       </main>

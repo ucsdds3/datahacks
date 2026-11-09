@@ -564,3 +564,22 @@
   .sp-root.sp-nether .sp-card.sp-coming-soon { padding: 72px 16px 44px; }
   .sp-root.sp-nether .sp-coming-soon .sp-nether-art-stalactite { right: 4%; width: 96px; }
 }
+
+/* The MLH card on a hacker's home page (mlh.tsx): like the waitlist card, lava rim until agreed. */
+.sp-root.sp-nether .sp-card.sp-mlh-card { padding: 26px 30px 28px; border-color: rgb(242 134 47 / 0.55); }
+.sp-root.sp-nether .sp-card.sp-mlh-card.done { border-color: var(--nether-warped); }
+.sp-root.sp-nether .sp-mlh-card h2 {
+  margin: 0;
+  color: var(--nether-glowstone);
+  font: 400 18px/1.3 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-mlh-card > p { margin: 10px 0 0; color: var(--nether-text); font: 400 16px/1.55 var(--nether-font-body); }
+.sp-root.sp-nether .sp-mlh-card .sp-form { gap: 16px; margin-top: 18px; }
+.sp-root.sp-nether .sp-mlh-card .sp-form-fields { gap: 14px; grid-template-columns: minmax(0, 1fr); }
+.sp-root.sp-nether .sp-mlh-card .sp-mlh-actions .sp-button { min-height: 44px; min-width: 140px; justify-content: center; }
+@media (max-width: 640px) {
+  .sp-root.sp-nether .sp-card.sp-mlh-card { padding: 20px 16px 22px; }
+  .sp-root.sp-nether .sp-mlh-card .sp-mlh-actions .sp-button { flex: 1; }
+}

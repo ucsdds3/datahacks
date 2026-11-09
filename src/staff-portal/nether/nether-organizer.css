@@ -1162,3 +1162,21 @@
   .sp-root.og-root.og-nether .sp-button:active:not(:disabled) { transform: none; }
   .sp-root.og-root.og-nether .og-ci-live.live .og-ci-live-dot { animation: none; }
 }
+
+/* The hackers table's "MLH consent" filter (docs/mlh.md): a well like the search. */
+.sp-root.og-root.og-nether .og-mlh-filter { color: var(--nether-muted); font: 700 13px/1.3 var(--nether-font-body); }
+.sp-root.og-root.og-nether .og-mlh-filter select {
+  -webkit-appearance: none;
+  appearance: none;
+  min-height: 38px;
+  padding: 8px 34px 8px 10px;
+  border: 1px solid var(--og-well-edge);
+  border-radius: 0;
+  background: var(--og-well) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f4ebdd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.3);
+  color: var(--nether-text);
+  font: 400 14px/1.3 var(--nether-font-body);
+  cursor: pointer;
+}
+.sp-root.og-root.og-nether .og-mlh-filter select:hover { border-color: var(--og-well-edge-hover); }
+.sp-root.og-root.og-nether .og-mlh-filter select:focus-visible { outline: 2px solid transparent; border-color: var(--nether-lava); box-shadow: 0 0 0 1px var(--nether-lava); }

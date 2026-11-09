@@ -5,7 +5,8 @@ import * as mcp from "../../supabase/functions/mcp/application";
 import * as form from "@/staff-portal/formOptions";
 import * as input from "@/lib/applicantInput";
 import { EVENT_CODE, closedTitle } from "./event";
-import { MENTOR_HOURS, MENTOR_ONSITE_ACKNOWLEDGEMENT, SCHEDULE } from "@/staff-portal/config";
+import { MENTOR_HOURS, MENTOR_ONSITE_ACKNOWLEDGEMENT, MLH_ENABLED, SCHEDULE } from "@/staff-portal/config";
+import { MLH_LINKS, MLH_TEXT } from "@/staff-portal/mlh";
 
 // event.ts imports the Supabase client; nothing here talks to Supabase.
 vi.mock("@/lib/supabaseClient", () => ({ supabase: {} }));
@@ -16,6 +17,12 @@ vi.mock("@/lib/supabaseClient", () => ({ supabase: {} }));
 
 describe("MCP application server matches the portal", () => {
   it("applies to the same event", () => expect(mcp.EVENT_CODE).toBe(EVENT_CODE));
+
+  it("has the same MLH switch, and MLH's checkboxes in the same words with the same links", () => {
+    expect(mcp.MLH_ENABLED).toBe(MLH_ENABLED);
+    expect(mcp.MLH_TEXT).toEqual(MLH_TEXT);
+    expect(mcp.MLH_LINKS).toEqual(MLH_LINKS);
+  });
 
   it("offers the same choices as the hacker form", () => {
     expect(mcp.GENDERS).toEqual(form.GENDERS);
@@ -315,5 +322,36 @@ describe("saveApplication", () => {
     const { db, calls } = writer({ profiles: { code: "42501", message: "permission denied" }, applications: fk });
     expect(await mcp.saveApplication(db, "user-1", "grace@navy.mil", row)).toBe(fk);
     expect(calls).toEqual(["profiles.upsert", "applications.insert"]);
+  });
+});
+
+describe("MLH's checkboxes in the hacker tool", () => {
+  it("MLH off: not asked for, and nothing MLH in the row", () => {
+    const result = mcp.checkHacker({ ...hacker, mlh_code_of_conduct: true });
+    expect("row" in result && Object.keys(result.row).filter(k => k.startsWith("mlh_"))).toEqual([]);
+  });
+
+  it("MLH on: both required ones, each with MLH's wording and link in the problem", () => {
+    const result = mcp.checkHacker(hacker, new Date(), true);
+    expect(problemFields(result)).toEqual(["mlh_code_of_conduct", "mlh_data_sharing"]);
+    const problems = "problems" in result ? result.problems.join("\n") : "";
+    expect(problems).toContain(MLH_TEXT.codeOfConduct);
+    expect(problems).toContain(MLH_LINKS.codeOfConduct);
+    expect(problems).toContain(MLH_TEXT.dataSharing);
+    expect(problems).toContain(MLH_LINKS.contestTerms);
+    expect(problems).toContain(MLH_LINKS.privacyPolicy);
+    expect(problemFields(mcp.checkHacker({ ...hacker, mlh_code_of_conduct: true, mlh_data_sharing: false }, new Date(), true))).toEqual(["mlh_data_sharing"]);
+  });
+
+  it("MLH on: saves the answers, the emails one only when they said yes", () => {
+    const yes = mcp.checkHacker({ ...hacker, mlh_code_of_conduct: true, mlh_data_sharing: true, mlh_emails_opt_in: true }, new Date(), true);
+    expect("row" in yes && yes.row).toMatchObject({ mlh_code_of_conduct: true, mlh_data_sharing: true, mlh_emails_opt_in: true });
+    const unsaid = mcp.checkHacker({ ...hacker, mlh_code_of_conduct: true, mlh_data_sharing: true }, new Date(), true);
+    expect("row" in unsaid && unsaid.row).toMatchObject({ mlh_emails_opt_in: false });
+  });
+
+  it("explains the database's MLH refusal", () => {
+    expect(mcp.insertErrorMessage({ code: "23514", message: "To apply, agree to the MLH Code of Conduct and to sharing your application with MLH (the MLH checkboxes)." }))
+      .toMatch(/^Not submitted: To apply, agree to the MLH Code of Conduct.*mlh_code_of_conduct and mlh_data_sharing/);
   });
 });

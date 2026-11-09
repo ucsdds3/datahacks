@@ -19,6 +19,32 @@ export { COUNTRIES };
 export const EVENT_CODE = "DH27";
 
 // ---------------------------------------------------------------------------
+// MLH Member Event checkboxes (docs/mlh.md). Copies of MLH_ENABLED in
+// src/staff-portal/config.ts and of MLH_TEXT / MLH_LINKS in src/staff-portal/mlh.tsx:
+// MLH's own words, from the MLH 2027 Member Event Guidelines
+// (https://github.com/MLH/mlh-policies/blob/main/member-event-guidelines.md).
+// The hacker tool asks for them while this is true or the event's
+// events.mlh_required is on; the database enforces the latter.
+
+export const MLH_ENABLED = false;
+
+export const MLH_TEXT = {
+  codeOfConduct: "I have read and agree to the MLH Code of Conduct.",
+  dataSharing:
+    "I authorize you to share my application/registration information with Major League Hacking for event administration, ranking, and MLH/DEV administration (including the creation of linked accounts on MLH and DEV (dev.to)) in line with the MLH Privacy Policy. I further agree to the terms of both the MLH Contest Terms and Conditions and the MLH Privacy Policy.",
+  emails: "I authorize MLH and DEV to send me occasional emails about relevant events, career opportunities, and community announcements.",
+  pending:
+    "We have applied to be a Major League Hacking (MLH) Member Event. The following checkboxes are only applicable if our application is accepted. Your information will not be shared if we do not become an MLH Member Event.",
+} as const;
+
+export const MLH_LINKS = {
+  codeOfConduct: "https://github.com/MLH/mlh-policies/blob/main/code-of-conduct.md",
+  contestTerms: "https://github.com/MLH/mlh-policies/blob/main/contest-terms.md",
+  privacyPolicy: "https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md",
+  dev: "https://dev.to/",
+} as const;
+
+// ---------------------------------------------------------------------------
 // Copied from src/lib/applicantInput.ts (see docs/untrusted-input.md).
 /* eslint-disable no-control-regex -- matching control characters is the point */
 
@@ -215,6 +241,10 @@ export type HackerAnswers = {
   travel_distance?: string;
   travel_stipend_reason?: string;
   agreed_to_terms: boolean;
+  /** MLH's checkboxes: only asked for, checked and saved while MLH is on. */
+  mlh_code_of_conduct?: boolean;
+  mlh_data_sharing?: boolean;
+  mlh_emails_opt_in?: boolean;
 };
 
 export type StaffAnswers = {
@@ -256,8 +286,8 @@ function texts<K extends string>(
 const line = (max: number, required = true) => ({ clean: cleanLine, max, required });
 const prose = (max: number, required = true) => ({ clean: cleanText, max, required });
 
-/** The hacker form's checks. Every problem at once, so the assistant can ask about them together. */
-export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
+/** The hacker form's checks. Every problem at once, so the assistant can ask about them together. `mlh`: MLH's checkboxes are on. */
+export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Checked {
   const problems: string[] = [];
   const travel = a.wants_travel_stipend === true;
   const t = texts(a, {
@@ -317,6 +347,12 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
     if (!travelDistance) problems.push(`travel_distance must be one of: ${TRAVEL_DISTANCES.join(", ")}.`);
   }
   if (a.agreed_to_terms !== true) problems.push("agreed_to_terms: they must agree that the info is correct and to follow the code of conduct.");
+  if (mlh && a.mlh_code_of_conduct !== true) {
+    problems.push(`mlh_code_of_conduct: MLH requires it. Show them "${MLH_TEXT.codeOfConduct}" with the link ${MLH_LINKS.codeOfConduct}; true only if they agree.`);
+  }
+  if (mlh && a.mlh_data_sharing !== true) {
+    problems.push(`mlh_data_sharing: MLH requires it. Show them "${MLH_TEXT.dataSharing}" with the links ${MLH_LINKS.contestTerms} and ${MLH_LINKS.privacyPolicy}; true only if they agree.`);
+  }
   if (problems.length) return { problems };
 
   return {
@@ -352,6 +388,7 @@ export function checkHacker(a: HackerAnswers, now = new Date()): Checked {
       travel_distance: travel ? travelDistance : null,
       travel_stipend_reason: travel ? t.travel_stipend_reason || null : null,
       agreed_to_terms: true,
+      ...(mlh ? { mlh_code_of_conduct: true, mlh_data_sharing: true, mlh_emails_opt_in: a.mlh_emails_opt_in === true } : {}),
     },
   };
 }
@@ -471,6 +508,10 @@ export function insertErrorMessage(error: { code?: string; message: string }): s
   if (error.code === "23514") {
     // The applications-open trigger raises a check violation with a message meant for people.
     if (error.message.startsWith("Applications for ")) return `Not submitted: ${error.message}`;
+    // So does the MLH one (applications_mlh_consent): the event needs MLH's checkboxes.
+    if (error.message.includes("MLH")) {
+      return `Not submitted: ${error.message} Ask them about mlh_code_of_conduct and mlh_data_sharing (MLH's exact wording is in those fields' descriptions) and try again.`;
+    }
     const field = error.message.match(/application_([a-z_]+)_check/)?.[1];
     if (field) return `Not submitted: the database refused ${field} (too long, or in a format it can't accept). Check it with the applicant and try again.`;
     return "Not submitted: some answers are missing or in a format the database can't accept. Check them with the applicant and try again.";

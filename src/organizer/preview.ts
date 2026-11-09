@@ -1,5 +1,6 @@
 import type { Quota, ReleasedRow, SendResult, StageOutcome, WalletPassResult } from "./data";
 import { LIST_FIELDS, REVIEW_FIELDS, type Application, type Decision, type ListApplication, type Row } from "./types";
+import type { MlhExportApp } from "./mlhExport";
 
 /**
  * `npm run dev` with `?preview`: the console runs on sample applicants held in
@@ -35,14 +36,19 @@ const base: Omit<Application, "id" | "applicant_type" | "status" | "first_name" 
 };
 
 /** A whole sample application plus its roster fields; the tables only get the list columns of it. */
-type Sample = Application & Pick<Row, "code" | "checkedIn" | "passSentAt" | "waiverSignedAt">;
+type Sample = Application & Pick<Row, "code" | "checkedIn" | "passSentAt" | "waiverSignedAt" | "mlh">;
 
 const hacker = (id: number, first: string, last: string, school: string, extra: Partial<Sample> = {}): Sample => ({
   ...base, id: `h${id}`, applicant_type: "hacker", status: "submitted", first_name: first, last_name: last,
   email: `${first.toLowerCase()}@example.edu`, school, level_of_study: "Undergraduate", major: "Data Science",
   graduation_year: "2028", essay_proudest_project: "A model that predicts campus shuttle delays from GPS pings.",
   essay_unique_thing: "I've run three workshops on data visualization.", essay_goal: "Ship something end to end in a weekend.",
-  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
+  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null,
+  // Every other sample hacker has agreed to MLH's checkboxes (shown with ?preview&mlh).
+  mlh: id % 2 === 0
+    ? { codeOfConductAt: "2026-11-12T10:00:00-08:00", dataSharingAt: "2026-11-12T10:00:00-08:00", emailsOptIn: id % 4 === 0 }
+    : { codeOfConductAt: null, dataSharingAt: null, emailsOptIn: false },
+  ...extra,
 });
 
 const staff = (id: number, first: string, last: string, type: Application["applicant_type"], org: string, extra: Partial<Sample> = {}): Sample => ({
@@ -70,13 +76,23 @@ let rows: Sample[] = [
 export const previewRows = (): Row[] => rows.map(r => ({
   ...(Object.fromEntries([...LIST_FIELDS, ...REVIEW_FIELDS].map(f => [f, r[f]])) as ListApplication),
   code: r.code, checkedIn: r.checkedIn, passSentAt: r.passSentAt, waiverSignedAt: r.waiverSignedAt,
+  ...(r.mlh ? { mlh: r.mlh } : {}),
 }));
+
+/** The MLH export's columns for the sample hackers who agreed to share their data. */
+export const previewMlhExport = (): MlhExportApp[] =>
+  rows.filter(r => r.applicant_type === "hacker" && r.mlh?.dataSharingAt).map((r, i) => ({
+    id: r.id, first_name: r.first_name, last_name: r.last_name, email: r.email, phone: r.phone, school: r.school,
+    level_of_study: "Undergraduate (3+ year: bachelor's)", country_of_residence: r.country_of_residence,
+    birthdate: `200${i % 7}-0${(i % 9) + 1}-15`,
+    mlh_code_of_conduct_at: r.mlh!.codeOfConductAt, mlh_data_sharing_at: r.mlh!.dataSharingAt, mlh_emails_opt_in: r.mlh!.emailsOptIn,
+  }));
 
 /** The whole sample application, as the detail drawer loads it. */
 export function previewApplication(id: string): Application | null {
   const found = rows.find(r => r.id === id);
   if (!found) return null;
-  const { code, checkedIn, passSentAt, waiverSignedAt, ...app } = found;
+  const { code, checkedIn, passSentAt, waiverSignedAt, mlh, ...app } = found;
   return app;
 }
 
