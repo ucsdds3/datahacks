@@ -167,7 +167,7 @@ describe("the spot-opened email", () => {
     ], SPOT_OFFER_TEMPLATE);
     const posts = fake.invokes.filter(i => i.method !== "GET");
     expect(posts.map(i => i.name)).toEqual(["send-email", "send-wallet-passes"]);
-    expect(posts[0].body).toMatchObject({ eventId: "event-1", applicationIds: ["w1", "w2"], kind: "decision" });
+    expect(posts[0].body).toMatchObject({ eventId: "event-1", applicationIds: ["w1", "w2"], kind: "offer" });
     expect(posts[0].body!.subject).toBe("A spot opened up at DataHacks 2027: check in by 1:30 PM");
     expect(posts[1].body).toMatchObject({ eventId: "event-1", applicationIds: ["w1"] });
     expect(fake.updates).toEqual([expect.objectContaining({ table: "applications", in: ["w1"], eq: [["event_id", "event-1"]] })]);

@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import { sendEmails, sendWalletPasses, type SendResult } from "./data";
 import { PreviewOnlyError, isPreview } from "./preview";
+import { errorText } from "./errors";
 import type { Template } from "./templates";
 import { previewMarkNoShows, previewOverview, previewSaveSettings, previewUnmark } from "./dayOfPreview";
 
@@ -204,13 +205,18 @@ export async function emailOffers(
     for (const [deadline, ids] of byDeadline) {
       onProgress(`Emailing ${ids.length} ${ids.length === 1 ? "person" : "people"}…`);
       const t = withDeadline(template, deadline);
-      const result = await sendEmails(eventId, ids, t.subject, t.body, "decision");
-      const failed = new Set(result.failed.map(f => f.id));
-      emailed.push(...ids.filter(id => !failed.has(id)));
+      // "offer": the function marks decision_emailed_at and waitlist_offer_emailed_at per person as each goes out.
+      const result = await sendEmails(eventId, ids, t.subject, t.body, "offer");
+      const notOut = new Set([...result.failed.map(f => f.id), ...result.notSent]);
+      emailed.push(...ids.filter(id => !notOut.has(id)));
       out.emailFailed.push(...result.failed);
+      if (result.stopped === "daily_limit") {
+        out.emailError = `Gmail's daily limit is reached: ${result.notSent.length} offer email${result.notSent.length === 1 ? "" : "s"} not sent yet.`;
+        break;
+      }
     }
   } catch (e) {
-    out.emailError = e instanceof Error ? e.message : String(e);
+    out.emailError = errorText(e);
   }
   out.emailed = emailed.length;
   if (emailed.length === 0) return out;
@@ -225,7 +231,7 @@ export async function emailOffers(
     out.passesSent = passes.sent;
     out.passesFailed = passes.failed.length;
   } catch (e) {
-    out.passError = e instanceof Error ? e.message : String(e);
+    out.passError = errorText(e);
   }
   return out;
 }

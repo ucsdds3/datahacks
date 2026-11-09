@@ -4,6 +4,7 @@ import { DOCUSIGN } from "@/staff-portal/config";
 import { FORMAT_LABEL, importRows, matchWaivers, readDocuSignExport, type MatchKind, type ParsedExport } from "./waiverImport";
 import { MARK_FAILED, SKIP_LABEL, markWaiverSeen, recordWaiverImport, type WaiverImportResult } from "./waivers";
 import { TYPE_LABEL, fullName, type Row } from "./types";
+import { errorText } from "./errors";
 
 /**
  * The console's Waivers section, for the DocuSign PowerForm: how many accepted
@@ -65,7 +66,7 @@ function ImportCard({ eventId, rows, onChanged }: { eventId: string; rows: Row[]
       setFilter((["ready", "unmatched", "already", "not_completed"] as MatchKind[]).find(k => m.counts[k] > 0) ?? "ready");
     } catch (e) {
       setFile(null);
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     }
     if (input.current) input.current.value = "";
   };
@@ -84,7 +85,7 @@ function ImportCard({ eventId, rows, onChanged }: { eventId: string; rows: Row[]
       setResult(await recordWaiverImport(eventId, ready));
       onChanged();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorText(e));
     } finally {
       setBusy(false);
     }
@@ -182,7 +183,7 @@ function MissingCard({ eventId, rows, onChanged }: { eventId: string; rows: Row[
         onChanged();
       } else setMessage({ ok: false, text: MARK_FAILED[res.status] });
     } catch (e) {
-      setMessage({ ok: false, text: e instanceof Error ? e.message : String(e) });
+      setMessage({ ok: false, text: errorText(e) });
     } finally {
       setBusyId(null);
     }

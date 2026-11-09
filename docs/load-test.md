@@ -125,7 +125,9 @@ and the attendee roster 1,000 at a time, loads 14 list columns instead of 39
 (essays load one application at a time when it's opened), stages decisions
 100 ids per request (a URL past about 16 KB, roughly 430 ids, gets a 400),
 and finds everyone a large release covered even though `release_decisions`'
-reply is capped at 1,000 rows too.
+reply is capped at 1,000 rows too. (Since the launch fixes: decisions are
+staged through `stage_decisions` 500 at a time, and a release passes the ids it
+showed to `release_decisions` 500 at a time, so each reply stays under the cap.)
 
 ## Supabase Free vs Pro, for this
 
@@ -164,8 +166,14 @@ that load as needed. Nothing there limits how many people can apply.
 2. **Don't run "everyone sign in now" on shared Wi-Fi** (or raise the token
    rate limit for that day). Tell people to apply from their own connection
    or phone data.
-3. **Stagger decision emails** if more than ~3,000 people would get them in
-   the same minute. At DataHacks' size, sending them all at once is fine.
+3. **Mind Gmail's daily limit, not the database.** info@ds3.club is Google
+   Workspace: about 2,000 messages a day. The console stops at 1,800 in any
+   24 hours (`email_daily_limit()`, counting decisions, blasts and passes in
+   `email_log`) and shows how many are left. Release decisions in batches
+   under that, and send passes on a different day. Each send-email request
+   takes 40 people and stops itself after ~90 s (Supabase Free kills a
+   function at 150 s); everyone is marked as emailed the moment Gmail accepts
+   their message, so a retry never sends a second copy.
 4. **Rerun this test** after big changes to the apply flow, or before an event
    much bigger than DataHacks. It takes about 40 minutes, most of it
    pre-signing-in accounts.

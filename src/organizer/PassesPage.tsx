@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
-import { sendWalletPasses, type WalletPassResult } from "./data";
+import { PassSendError, sendWalletPasses, useEmailQuota, useRefreshQuota, type WalletPassResult } from "./data";
+import { errorText } from "./errors";
+import QuotaNote from "./QuotaNote";
 import type { PassPick } from "./ReleaseDialog";
 import { PASS_ROLES, ROLE_NOUN, ROLE_PLURAL, TYPE_LABEL, acceptedNotReleased, fullName, passLists, type ApplicantType, type Row } from "./types";
 
@@ -72,6 +74,10 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
   const [result, setResult] = useState<{ text: string; failed: WalletPassResult["failed"] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmResend, setConfirmResend] = useState<string | null>(null);
+  // A send waiting for "Yes, send": every bulk send asks first (each person gets a real email and a WalletWallet pass).
+  const [pending, setPending] = useState<{ people: Row[]; noun?: string } | null>(null);
+  const quota = useEmailQuota(eventId);
+  const refreshQuota = useRefreshQuota();
 
   const hidden = tried.rows === rows ? tried.ids : new Set<string>();
   const toSend = lists.toSend.filter(r => !hidden.has(r.id));
@@ -87,14 +93,19 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
     setProgress("");
     try {
       const outcome = await sendWalletPasses(eventId, sent => setProgress(`Sent ${sent} of ${ids.length}…`), { applicationIds: ids, resend });
-      setTried(prev => ({ rows, ids: new Set([...(prev.rows === rows ? prev.ids : []), ...ids]) }));
-      setSelected(prev => new Set([...prev].filter(id => !ids.includes(id))));
-      setResult({ text: done(outcome.sent), failed: outcome.failed });
+      const notSent = new Set(outcome.notSent ?? []);
+      const tried = ids.filter(id => !notSent.has(id));
+      setTried(prev => ({ rows, ids: new Set([...(prev.rows === rows ? prev.ids : []), ...tried]) }));
+      setSelected(prev => new Set([...prev].filter(id => !tried.includes(id))));
+      const limit = outcome.stopped === "daily_limit" ? ` Gmail's daily limit is reached: ${notSent.size} not sent yet. Send them once it frees up.` : "";
+      setResult({ text: done(outcome.sent) + limit, failed: outcome.failed });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      if (e instanceof PassSendError && e.partial.sent > 0) setResult({ text: `${passes(e.partial.sent)} sent before it stopped.`, failed: e.partial.failed });
+      setError(`${errorText(e)}${e instanceof PassSendError ? " Anyone who got a pass is recorded, so sending again only reaches the rest." : ""}`);
     } finally {
       setWorking(false);
       setConfirmResend(null);
+      refreshQuota();
       onChanged();
     }
   };
@@ -105,6 +116,12 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
       onReleaseAndSend({ count: people.length, releasedIds: people.filter(r => !acceptedNotReleased(r)).map(r => r.id) });
       return;
     }
+    setPending({ people, noun });
+  };
+  const confirmSend = () => {
+    if (!pending) return;
+    const { people, noun } = pending;
+    setPending(null);
     run(people, sent => `${passes(sent, noun)} sent.`);
   };
 
@@ -146,6 +163,17 @@ export default function PassesPage({ eventId, rows, initialSelected, onChanged, 
       )}
 
       <div className="og-pass-status" aria-live="polite">
+        {pending && (
+          <div className="og-pass-note og-pass-confirm-send" role="group" aria-label="Confirm sending passes">
+            <span>
+              Send {passes(pending.people.length, pending.noun)} from DataHacks Team (info@ds3.club)? Each person gets an email with
+              a new wallet pass.
+            </span>
+            <button className="sp-button" onClick={() => setPending(null)}>Cancel</button>
+            <button className="sp-button primary" onClick={confirmSend}>Yes, send {passes(pending.people.length)}</button>
+          </div>
+        )}
+        {pending && <QuotaNote quota={quota.data ?? null} need={pending.people.length} />}
         {working && <p className="og-progress">{progress || "Sending…"}</p>}
         {result && (
           <p className="og-success">

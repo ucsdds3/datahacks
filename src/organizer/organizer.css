@@ -383,3 +383,13 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
   .og-waiver-stats { grid-template-columns: 1fr; }
   .og-waiver-missing-head .og-search input { width: 100%; }
 }
+
+/* Launch fixes: Gmail quota line, inline link buttons, drafts. */
+.og-quota { margin: 12px 0 0; font-size: 13px; color: var(--sp-muted); }
+.og-quota.tight { color: #8a2b2b; font-weight: 600; }
+.og-link-button { padding: 0; border: 0; background: none; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; }
+.og-link-button:disabled { cursor: default; opacity: 0.6; }
+.og-badge.draft { background: #eceae4; color: #5c5a52; }
+.og-decided { margin: 6px 0 0; font-size: 13px; color: var(--sp-muted); }
+.og-pass-confirm-send { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.og-pass-confirm-send > span { flex: 1 1 260px; }

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Records what the console asks send-wallet-passes to send, and answers like the function would.
 // GET is the "do you know applicationIds?" check; oldFunction answers it like the previous version (405).
@@ -131,7 +132,7 @@ describe("sendWalletPasses", () => {
     expect(result.sent).toBe(50);
   });
 
-  it("sends only to chosen people, 40 per request, once each", async () => {
+  it("sends only to chosen people, 20 per request, once each", async () => {
     respond = body => ({
       sent: (body.applicationIds as string[]).length,
       failed: [{ code: "X", email: "x@example.com", error: "boom" }],
@@ -139,11 +140,11 @@ describe("sendWalletPasses", () => {
     });
     const ids = Array.from({ length: 90 }, (_, i) => uuid(i));
     const result = await sendWalletPasses("event-1", undefined, { applicationIds: ids, resend: true });
-    expect(calls.map(c => (c.applicationIds as string[]).length)).toEqual([40, 40, 10]);
+    expect(calls.map(c => (c.applicationIds as string[]).length)).toEqual([20, 20, 20, 20, 10]);
     expect(calls.flatMap(c => c.applicationIds as string[])).toEqual(ids);
     expect(calls.every(c => c.eventId === "event-1" && c.resend === true)).toBe(true);
     expect(result.sent).toBe(90);
-    expect(result.failed).toHaveLength(3);
+    expect(result.failed).toHaveLength(5);
   });
 
   it("checks the function knows applicationIds before sending to chosen people", async () => {
@@ -158,6 +159,30 @@ describe("sendWalletPasses", () => {
     oldFunction = true;
     await expect(sendWalletPasses("event-1", undefined, { applicationIds: [uuid(1)] })).rejects.toThrow(/Nothing was sent/);
     expect(calls).toEqual([]);
+  });
+
+  it("sends whoever a time-boxed request didn't get to in the next request, never twice", async () => {
+    const ids = Array.from({ length: 25 }, (_, i) => uuid(i));
+    let round = 0;
+    // The first request runs out of time after 12 of its 20.
+    respond = body => {
+      const asked = body.applicationIds as string[];
+      return round++ === 0
+        ? { sent: 12, failed: [], remaining: 8, remainingIds: asked.slice(12) }
+        : { sent: asked.length, failed: [], remaining: 0, remainingIds: [] };
+    };
+    const result = await sendWalletPasses("event-1", undefined, { applicationIds: ids });
+    expect(calls.map(c => c.applicationIds)).toEqual([ids.slice(0, 20), [...ids.slice(12, 20), ...ids.slice(20, 25)]]);
+    expect(result.sent).toBe(25);
+  });
+
+  it("stops at Gmail's daily limit and says who wasn't sent", async () => {
+    const ids = Array.from({ length: 30 }, (_, i) => uuid(i));
+    respond = body => ({ sent: 5, failed: [], remaining: 15, remainingIds: (body.applicationIds as string[]).slice(5), stopped: "daily_limit" });
+    const result = await sendWalletPasses("event-1", undefined, { applicationIds: ids });
+    expect(calls).toHaveLength(1);
+    expect(result).toMatchObject({ sent: 5, stopped: "daily_limit" });
+    expect(result.notSent).toEqual(ids.slice(5));
   });
 
   it("sends nothing for an empty selection", async () => {
@@ -201,7 +226,13 @@ describe("PassesPage", () => {
   ];
   const onReleaseAndSend = vi.fn();
   const page = (r = rows, initialSelected?: string[]) =>
-    render(<PassesPage eventId="event-1" rows={r} initialSelected={initialSelected} onChanged={() => {}} onReleaseAndSend={onReleaseAndSend} />);
+    render(
+      <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
+        <PassesPage eventId="event-1" rows={r} initialSelected={initialSelected} onChanged={() => {}} onReleaseAndSend={onReleaseAndSend} />
+      </QueryClientProvider>,
+    );
+  // Every send asks first.
+  const confirm = (n: number) => fireEvent.click(screen.getByRole("button", { name: `Yes, send ${n} pass${n === 1 ? "" : "es"}` }));
   const group = (name: string) => screen.getAllByRole("group").find(g => g.querySelector(".og-pass-role-name")?.textContent === name)!;
   const names = (el: HTMLElement) => within(el).queryAllByRole("listitem").map(li => li.querySelector("strong")!.textContent);
   const sendsTo = (ids: string[], resend = false) => expect(calls).toEqual([{ eventId: "event-1", applicationIds: ids, resend }]);
@@ -284,6 +315,9 @@ describe("PassesPage", () => {
     fireEvent.click(screen.getByRole("checkbox", { name: "Select kim" }));
     expect(send()).toHaveTextContent("Send passes to 2 selected");
     fireEvent.click(send());
+    expect(calls).toEqual([]);
+    expect(screen.getByText(/Send 2 passes from DataHacks Team/)).toBeInTheDocument();
+    confirm(2);
     await waitFor(() => expect(screen.getByText("2 passes sent.")).toBeInTheDocument());
     sendsTo(["hugo", "kim"]);
     expect(onReleaseAndSend).not.toHaveBeenCalled();
@@ -302,6 +336,7 @@ describe("PassesPage", () => {
   it("sends one role, naming exactly who", async () => {
     page();
     fireEvent.click(screen.getByRole("button", { name: "Send 1 mentor pass" }));
+    confirm(1);
     await waitFor(() => expect(screen.getByText("1 mentor pass sent.")).toBeInTheDocument());
     sendsTo(["mia"]);
   });
@@ -309,6 +344,7 @@ describe("PassesPage", () => {
   it("sends to everyone at once, still as a list, never the function's own pick", async () => {
     page(rows.filter(r => r.id !== "lee"));
     fireEvent.click(screen.getByRole("button", { name: "Send all 5" }));
+    confirm(5);
     await waitFor(() => expect(screen.getByText("5 passes sent.")).toBeInTheDocument());
     sendsTo(["hana", "hugo", "mia", "jo", "kim"]);
     expect(screen.getByText("Everyone accepted has their pass.")).toBeInTheDocument();
@@ -318,6 +354,7 @@ describe("PassesPage", () => {
     oldFunction = true;
     page();
     fireEvent.click(screen.getByRole("button", { name: "Send 1 judge pass" }));
+    confirm(1);
     await waitFor(() => expect(screen.getByText(/Nothing was sent/)).toBeInTheDocument());
     expect(calls).toEqual([]);
   });

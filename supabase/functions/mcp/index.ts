@@ -29,7 +29,7 @@ import { z } from "npm:zod@4.6.6";
 import {
   BIO_MIN_LENGTH, EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
   RACES, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
-  closedMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
+  closedMessage, databaseErrorMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
 } from "./application.ts";
 import type { Database } from "./database.types.ts";
 
@@ -66,7 +66,7 @@ Deno.serve(
           .select("id, name, applications_open, applications_open_at")
           .eq("code", EVENT_CODE)
           .maybeSingle();
-        if (error) throw new Error(error.message);
+        if (error) throw new Error(databaseErrorMessage("events", error));
         if (!data) throw new Error(`No event with code ${EVENT_CODE}. Ask the DataHacks organizers.`);
         return data;
       };
@@ -81,7 +81,7 @@ Deno.serve(
           .order("submitted_at", { ascending: false })
           .limit(1)
           .maybeSingle();
-        if (error) throw new Error(error.message);
+        if (error) throw new Error(databaseErrorMessage("applications", error));
         return data;
       };
 
