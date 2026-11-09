@@ -50,7 +50,7 @@ const staff = (id: number, first: string, last: string, type: Application["appli
   email: `${first.toLowerCase()}@example.com`, organization: org, role_title: "Engineer",
   resume_url: "https://drive.google.com/file/d/example/view",
   bio: type === "judge" ? null : "I build data pipelines and love helping teams get unstuck on modelling questions.",
-  judging_track: type === "mentor" ? null : "healthcare_health_tech", code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
+  judging_track: type === "mentor" ? null : "biotech_life_sciences", code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
 });
 
 let rows: Sample[] = [

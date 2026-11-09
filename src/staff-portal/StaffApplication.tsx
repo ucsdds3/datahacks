@@ -28,11 +28,11 @@ const ucsdOptions = [
 ]
 
 const trackOptions = [
-  { value: 'social_good_wellbeing', label: 'Social Good & Wellbeing' },
-  { value: 'healthcare_health_tech', label: 'Healthcare / Health Technology' },
+  { value: 'social_good', label: 'Social Good' },
+  { value: 'biotech_life_sciences', label: 'Biotech & Life Sciences' },
   { value: 'defense_cybersecurity', label: 'Defense & Cybersecurity' },
-  { value: 'fintech_econ_finance', label: 'FinTech / Economy / Finance' },
-  { value: 'entertainment', label: 'Entertainment' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'energy', label: 'Energy' },
 ]
 
 /** The blurb is optional; when given it needs some substance. Blank ones get written for them. */
