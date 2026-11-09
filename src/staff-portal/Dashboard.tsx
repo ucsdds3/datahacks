@@ -3,6 +3,7 @@ import { Check } from "lucide-react";
 import { useStaffPortal } from "./StaffPortalContext";
 import { TIMELINE, applicationBatch, type ApplicationStatus } from "./config";
 import WaitlistOptIn from "./WaitlistOptIn";
+import { NetherStatusArt } from "./nether/NetherArt";
 
 export const STATUS_LABEL: Record<ApplicationStatus, string> = {
   pending: "Under review",
@@ -65,7 +66,7 @@ export default function Dashboard() {
 
       {portal === "hacker" && status === "waitlisted" && <WaitlistOptIn preview={preview} />}
 
-      <section className="sp-card" aria-labelledby="sp-status-heading">
+      <section className="sp-card sp-status-card" data-status={status} aria-labelledby="sp-status-heading">
         <div className="sp-card-header">
           <h2 id="sp-status-heading">Your application</h2>
         </div>
@@ -80,6 +81,7 @@ export default function Dashboard() {
             </li>
           ))}
         </ol>
+        <NetherStatusArt status={status} />
       </section>
     </div>
   );

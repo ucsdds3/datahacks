@@ -7,6 +7,7 @@ import { Suspense, useLayoutEffect, useRef, type ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { portal as paths } from "@/portal/paths";
 import { signOutEverywhere } from "@/portal/signIn";
+import { usePortalTheme } from "@/portal/portalTheme";
 import { StaffPortalProvider, useStaffPortal } from "./StaffPortalContext";
 import { StaffGate } from "./StaffGate";
 import { useStaffAccess } from "./useStaffAccess";
@@ -124,17 +125,35 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
   );
 }
 
+/** The pages about someone's own application; the Nether sidebar heads them "Application" and the rest "Event info". */
+const APPLICATION_PAGES = ["", "/questions"];
+
 function Sidebar() {
   const { portal, basePath, status } = useStaffPortal();
   // Keep a dev `?preview` while moving between pages.
   const { search } = useLocation();
+  const nether = usePortalTheme() === "nether";
   const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? "sp-nav-link active" : "sp-nav-link");
+  const items = navItems(portal, status === "accepted");
+  const links = (list: NavItem[]) => list.map(item => (
+    <NavLink key={item.path} to={{ pathname: basePath + item.path, search }} end={item.path === ""} className={linkClass}>
+      {item.icon} {item.label}
+    </NavLink>
+  ));
+  if (!nether) return <>{links(items)}</>;
+  // The Nether design hangs the signs in two labelled groups. Same links, same order: the
+  // application pages come first in navItems, so splitting them off leaves the order alone.
+  const groups = [
+    { label: "Application", items: items.filter(item => APPLICATION_PAGES.includes(item.path)) },
+    { label: "Event info", items: items.filter(item => !APPLICATION_PAGES.includes(item.path)) },
+  ];
   return (
     <>
-      {navItems(portal, status === "accepted").map(item => (
-        <NavLink key={item.path} to={{ pathname: basePath + item.path, search }} end={item.path === ""} className={linkClass}>
-          {item.icon} {item.label}
-        </NavLink>
+      {groups.filter(group => group.items.length > 0).map(group => (
+        <div key={group.label} className="sp-nav-group" role="group" aria-label={group.label}>
+          <span className="sp-nav-group-label" aria-hidden="true">{group.label}</span>
+          {links(group.items)}
+        </div>
       ))}
     </>
   );

@@ -1,1 +1,259 @@
-/* Nether theme: guide. See nether-theme.css for tokens. */
+/* Nether theme: guide. The handbook pages, the mentor/judge handbook and the run of show
+   (Figma "Handbook – …" frames). See nether-theme.css for tokens and NetherGuide.tsx for
+   the markup: titled sub-panels on the board, a glowstone "Good to know" callout, and a
+   teal link on to the next page. */
+
+.sp-root.sp-nether {
+  --guide-panel: rgb(14 12 15 / 0.6); /* the edge colour over the board: a little darker than it */
+  --guide-panel-edge: #39343b;
+  --guide-rule: #2f2a31;
+  --guide-muted: #c3b8aa;
+  --guide-link: #4fd8e0;
+  --guide-link-hover: #a5f0f3;
+}
+
+/* "Event info · Handbook" over the page title. */
+.sp-root.sp-nether .sp-page-header .sp-guide-eyebrow {
+  margin: 0 0 12px;
+  color: var(--nether-glowstone);
+  font: 700 13px/1.3 var(--nether-font-body);
+  letter-spacing: 0;
+}
+
+/* Links on these pages: teal, like the design's "Transportation →". */
+.sp-root.sp-nether :is(.sp-guide, .sp-guide-note) a {
+  color: var(--guide-link);
+  text-decoration: underline;
+  text-decoration-color: rgb(79 216 224 / 0.45);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.sp-root.sp-nether :is(.sp-guide, .sp-guide-note) a:hover { color: var(--guide-link-hover); text-decoration-color: currentColor; }
+.sp-root.sp-nether :is(.sp-guide, .sp-guide-note, .sp-guide-pager, .sp-toc) a:focus-visible {
+  outline: 2px solid var(--nether-glowstone);
+  outline-offset: 2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Sections and sub-panels
+   --------------------------------------------------------------------------- */
+/* The article is the container its grids respond to; sections and panels sit on a two-column grid. */
+.sp-root.sp-nether .sp-guide {
+  container-type: inline-size;
+  min-width: 0;
+  color: var(--nether-text);
+  font: 400 16px/1.4 var(--nether-font-body);
+}
+.sp-root.sp-nether .sp-guide-section { scroll-margin-top: 24px; }
+/* A section with sub-panels: its title, then its own grid. */
+.sp-root.sp-nether .sp-guide-group { display: flex; flex-direction: column; gap: 20px; }
+.sp-root.sp-nether .sp-guide-group:not(:first-child) { margin-top: 16px; }
+/* A section's title over its panels, with a blackstone rule running out to the right. */
+.sp-root.sp-nether .sp-guide-heading {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0;
+  color: var(--nether-text);
+  font: 400 20px/1.2 var(--nether-font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-guide-heading::after { content: ""; flex: 1; min-width: 24px; height: 3px; background: var(--guide-panel-edge); }
+
+.sp-root.sp-nether .sp-guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.sp-root.sp-nether .sp-guide-panel {
+  min-width: 0;
+  padding: 20px 22px 22px;
+  border: 3px solid var(--guide-panel-edge);
+  background: var(--guide-panel);
+}
+.sp-root.sp-nether .sp-guide-grid > .wide { grid-column: 1 / -1; }
+/* Orange Silkscreen headings: LINKS, FREE TOOLS, NEED HELP? */
+.sp-root.sp-nether .sp-guide-panel > :is(h2, h3) {
+  margin: 0;
+  color: var(--nether-lava);
+  font: 400 18px/1.3 var(--nether-font-display);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* Prose, in a panel or as a section's lead-in. */
+.sp-root.sp-nether .sp-guide :is(p, ul, ol) { max-width: 72ch; margin: 10px 0 0; color: var(--nether-text); }
+.sp-root.sp-nether .sp-guide-lead > :first-child { margin-top: 0; }
+.sp-root.sp-nether .sp-guide :is(ul, ol) { padding-left: 18px; }
+.sp-root.sp-nether .sp-guide ul { list-style: disc; }
+.sp-root.sp-nether .sp-guide ol { padding-left: 24px; list-style: decimal; }
+.sp-root.sp-nether .sp-guide li + li { margin-top: 4px; }
+.sp-root.sp-nether .sp-guide li::marker { color: var(--nether-text); }
+.sp-root.sp-nether .sp-guide ol > li::marker { color: var(--nether-lava); font-weight: 800; }
+.sp-root.sp-nether .sp-guide strong { color: #fff6e8; font-weight: 800; }
+
+/* A section still waiting on its details. */
+.sp-root.sp-nether .sp-guide .sp-guide-draft {
+  align-self: flex-start;
+  display: inline-block;
+  width: auto;
+  margin: 0;
+  padding: 3px 10px;
+  border: 2px dashed rgb(244 201 93 / 0.7);
+  color: var(--nether-glowstone);
+  font: 700 13px/1.4 var(--nether-font-body);
+}
+.sp-root.sp-nether .sp-guide .sp-guide-panel > .sp-guide-draft { margin-top: 12px; }
+
+/* Tables (the handbook's schedule): dark rows, glowstone times. */
+.sp-root.sp-nether .sp-guide .sp-table-wrap {
+  margin-top: 14px;
+  border: 2px solid var(--guide-panel-edge);
+  border-radius: 0;
+  background: rgb(14 12 15 / 0.35);
+}
+.sp-root.sp-nether .sp-guide .sp-table { font-size: 14px; line-height: 1.35; }
+.sp-root.sp-nether .sp-guide :is(.sp-table th, .sp-table td) {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--guide-rule);
+  color: var(--nether-text);
+}
+.sp-root.sp-nether .sp-guide .sp-table th {
+  background: var(--nether-ledge);
+  color: var(--nether-lava);
+  font: 400 12px/1.3 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-guide .sp-table td:first-child { color: var(--nether-glowstone); font-weight: 700; }
+.sp-root.sp-nether .sp-guide .sp-table tbody tr:nth-child(even) td { background: rgb(255 255 255 / 0.025); }
+.sp-root.sp-nether .sp-guide .sp-table tr:last-child td { border-bottom: 0; }
+
+/* Narrow boards: one panel per row. */
+@container (max-width: 620px) {
+  .sp-root.sp-nether .sp-guide-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------------------------------------------------------------------------
+   "Good to know": glowstone outline and a glowing glowstone block.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-guide-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  max-width: 680px;
+  padding: 16px 22px 18px;
+  border: 3px solid var(--nether-glowstone);
+  background: var(--guide-panel);
+  color: var(--nether-text);
+  font: 400 16px/1.4 var(--nether-font-body);
+}
+.sp-root.sp-nether .sp-guide-note-mark {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin-top: 1px;
+  background: var(--nether-glowstone);
+  box-shadow: inset 0 0 0 2px #8a6a14, inset 3px 3px rgb(255 240 190 / 0.45), 0 0 12px rgb(244 201 93 / 0.45);
+}
+.sp-root.sp-nether .sp-guide-note p { margin: 0; color: var(--nether-text); }
+.sp-root.sp-nether .sp-guide-note .sp-guide-note-title {
+  margin-bottom: 4px;
+  color: var(--nether-glowstone);
+  font: 400 14px/1.4 var(--nether-font-display);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------------------------------------------
+   On this page (long pages): a panel down the left that stays in view.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-guide-page .sp-handbook { gap: 28px; }
+.sp-root.sp-nether .sp-toc {
+  top: var(--nether-sticky-top, 24px); /* clear of the shell's top bar */
+  gap: 2px;
+  padding: 16px 12px 14px;
+  border: 3px solid var(--guide-panel-edge);
+  background: var(--guide-panel);
+}
+.sp-root.sp-nether .sp-toc span {
+  margin: 0 0 8px;
+  padding: 0 8px;
+  color: var(--nether-lava);
+  font: 400 12px/1.3 var(--nether-font-display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-toc a {
+  padding: 5px 8px;
+  border-left: 3px solid transparent;
+  color: var(--guide-muted);
+  font: 600 14px/1.3 var(--nether-font-body);
+  text-decoration: none;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.sp-root.sp-nether .sp-toc a:hover { border-left-color: var(--nether-lava); background: rgb(242 134 47 / 0.08); color: var(--nether-text); }
+
+/* ---------------------------------------------------------------------------
+   "← Resources" … "Reimbursement →"
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-guide-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px 24px;
+  margin-top: 12px;
+  padding: 0 24px;
+}
+.sp-root.sp-nether .sp-guide-pager a {
+  color: var(--guide-link);
+  font: 700 15px/1.3 var(--nether-font-body);
+  text-decoration: none;
+}
+.sp-root.sp-nether .sp-guide-pager a:hover { color: var(--guide-link-hover); text-decoration: underline; text-underline-offset: 3px; }
+.sp-root.sp-nether .sp-guide-pager .sp-guide-next { margin-left: auto; }
+
+/* ---------------------------------------------------------------------------
+   Run of show: a panel per day, glowstone times down the left.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether .sp-guide-page .sp-schedule-venue { margin: 0; color: var(--guide-muted); font: 600 15px/1.3 var(--nether-font-body); }
+.sp-root.sp-nether .sp-guide-page .sp-schedule-venue svg { color: var(--nether-lava); }
+.sp-root.sp-nether .sp-ros { align-items: start; }
+.sp-root.sp-nether .sp-guide .sp-ros-list { max-width: none; margin: 12px 0 0; padding: 0; list-style: none; }
+.sp-root.sp-nether .sp-ros-list li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; padding: 6px 0; }
+.sp-root.sp-nether .sp-ros-list li + li { margin: 0; }
+.sp-root.sp-nether .sp-ros .sp-time { color: var(--nether-glowstone); font: 700 15px/1.4 var(--nether-font-body); font-variant-numeric: tabular-nums; }
+.sp-root.sp-nether .sp-ros .sp-time span { display: block; color: rgb(244 201 93 / 0.72); font-weight: 600; }
+.sp-root.sp-nether .sp-ros .sp-event-title { gap: 8px; color: var(--nether-text); font: 400 15px/1.4 var(--nether-font-body); }
+.sp-root.sp-nether .sp-ros .sp-event p { max-width: none; margin: 2px 0 0; color: var(--guide-muted); font-size: 14px; }
+.sp-root.sp-nether .sp-ros .sp-location { margin-top: 4px; color: var(--guide-muted); font-size: 13px; }
+.sp-root.sp-nether .sp-ros a.sp-location { color: var(--guide-link); text-decoration: none; }
+.sp-root.sp-nether .sp-ros a.sp-location:hover { text-decoration: underline; }
+.sp-root.sp-nether .sp-ros .sp-tag {
+  padding: 2px 6px 1px;
+  border-radius: 0;
+  font: 400 10px/1.3 var(--nether-font-display);
+  letter-spacing: 0.08em;
+}
+.sp-root.sp-nether .sp-ros .sp-tag.required { background: rgb(255 107 90 / 0.14); color: #ff9184; box-shadow: inset 0 0 0 1px rgb(255 107 90 / 0.55); }
+.sp-root.sp-nether .sp-ros .sp-tag.mentor { background: rgb(47 181 166 / 0.14); color: #6fdccf; box-shadow: inset 0 0 0 1px rgb(47 181 166 / 0.55); }
+.sp-root.sp-nether .sp-ros .sp-tag.judge { background: rgb(244 201 93 / 0.12); color: var(--nether-glowstone); box-shadow: inset 0 0 0 1px rgb(244 201 93 / 0.5); }
+
+/* The waiver's numbered steps (.sp-steps) are styled in nether-status.css. */
+
+/* Phones. */
+@media (max-width: 520px) {
+  .sp-root.sp-nether .sp-guide-group:not(:first-child) { margin-top: 8px; }
+  .sp-root.sp-nether .sp-guide-panel { padding: 16px 16px 18px; }
+  .sp-root.sp-nether .sp-guide-panel > :is(h2, h3) { font-size: 16px; }
+  .sp-root.sp-nether .sp-guide-heading { font-size: 17px; }
+  .sp-root.sp-nether .sp-guide-note { gap: 14px; padding: 14px 16px 16px; }
+  .sp-root.sp-nether .sp-guide-pager { padding: 0 4px; }
+  .sp-root.sp-nether .sp-ros-list li { grid-template-columns: 76px minmax(0, 1fr); gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-root.sp-nether .sp-toc a { transition: none; }
+}

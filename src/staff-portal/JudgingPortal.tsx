@@ -1,4 +1,5 @@
 import { Gavel } from "lucide-react";
+import { NetherArt } from "./nether/NetherArt";
 
 // Placeholder until the judging tool is hooked up.
 export default function JudgingPortal() {
@@ -9,6 +10,7 @@ export default function JudgingPortal() {
         <p>Scoring, assignments and submissions for judges.</p>
       </header>
       <section className="sp-card sp-coming-soon">
+        <NetherArt name="stalactite" />
         <Gavel size={36} aria-hidden />
         <h2>Coming soon</h2>
         <p>The judging portal will open closer to the event. Check back here before judging begins.</p>

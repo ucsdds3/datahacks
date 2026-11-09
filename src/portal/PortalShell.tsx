@@ -38,7 +38,12 @@ export default function PortalShell() {
     const html = document.documentElement;
     const before = html.style.backgroundColor;
     html.style.backgroundColor = organizer ? ORGANIZER_BACKGROUND : THEME_BACKGROUND[theme];
-    return () => { html.style.backgroundColor = before; };
+    // Things drawn outside the portal frame (toasts) read the theme from here.
+    if (!organizer) html.dataset.portalTheme = theme;
+    return () => {
+      html.style.backgroundColor = before;
+      delete html.dataset.portalTheme;
+    };
   }, [organizer, theme]);
 
   return <AuthProvider><NoIndex /><AccountWatcher /><Outlet /></AuthProvider>;

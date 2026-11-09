@@ -27,3 +27,14 @@
   color: var(--nether-text);
   font-family: var(--nether-font-body);
 }
+
+/* Toasts render outside the portal frame (at the app root), so they key off the theme flag PortalShell puts on <html>. */
+html[data-portal-theme="nether"] .toaster [data-sonner-toast] {
+  border: 3px solid #0e0c0f !important;
+  border-radius: 0 !important;
+  background: #1e1c22 !important;
+  color: #f4ebdd !important;
+  font-family: "Nunito", system-ui, sans-serif;
+  box-shadow: 0 0 0 1px #6b2a16, 0 10px 30px rgb(0 0 0 / 0.5) !important;
+}
+html[data-portal-theme="nether"] .toaster [data-sonner-toast] [data-description] { color: rgb(244 235 221 / 0.75) !important; }

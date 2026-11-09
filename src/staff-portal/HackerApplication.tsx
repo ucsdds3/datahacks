@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { supabase } from '@/lib/supabaseClient'
@@ -8,7 +8,7 @@ import { currentEventId } from '@/portal/event'
 import { TIMELINE } from './config'
 import { indexSchools, searchSchools } from './schoolSearch'
 import { MAX_LENGTH, applicationErrorMessage, birthdateBounds, cleanLine, cleanText, isHttpsLink } from '@/lib/applicantInput'
-import { Combobox, DateInput, MultiSelect, PhoneInput, Req, Select, YesNo, isValidPhone } from './formFields'
+import { Combobox, DateInput, FormSection, FormSteps, MultiSelect, PhoneInput, Req, Select, YesNo, isValidPhone } from './formFields'
 import {
   COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
   TRAVEL_DISTANCES, TRAVEL_METHODS,
@@ -31,6 +31,36 @@ const blank = {
 }
 type Form = typeof blank
 
+/** The form's sections, for their headings and the Nether theme's section bar. */
+const SECTIONS = [
+  { id: 'hk-section-about', title: 'About you' },
+  { id: 'hk-section-school', title: 'School' },
+  { id: 'hk-section-experience', title: 'Experience' },
+  { id: 'hk-section-questions', title: 'A few questions' },
+  { id: 'hk-section-heard', title: 'How did you hear about DataHacks?' },
+  { id: 'hk-section-travel', title: 'Travel' },
+] as const
+
+const answered = (...values: (string | string[] | boolean | null)[]) =>
+  values.every(v => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) ? v.length > 0 : v !== null && v !== false))
+
+/** Which sections have all their required answers in. Only shown as progress; submitting checks everything itself. */
+function sectionsDone(form: Form): boolean[] {
+  const { min, max } = birthdateBounds()
+  const link = (url: string) => isHttpsLink(url.trim())
+  return [
+    answered(form.first_name, form.last_name, form.gender, form.race_ethnicity, form.country_of_residence, form.city_of_residence)
+      && isValidPhone(form.phone) && form.birthdate >= min && form.birthdate <= max,
+    answered(form.level_of_study, form.school, form.major, form.graduation_year),
+    answered(form.hackathon_experience, form.attended_before) && link(form.linkedin_url) && link(form.github_url)
+      && (!form.devpost_url.trim() || link(form.devpost_url)) && link(form.resume_url),
+    answered(form.essay_proudest_project, form.essay_unique_thing, form.essay_goal),
+    answered(form.heard_about),
+    answered(form.wants_travel_stipend, form.agreed_to_terms)
+      && (!form.wants_travel_stipend || answered(form.travel_region, form.travel_method, form.travel_distance)),
+  ]
+}
+
 export default function HackerApplication() {
   const { session } = useAuth()
   const navigate = useNavigate()
@@ -38,6 +68,7 @@ export default function HackerApplication() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [form, setForm] = useState<Form>(blank)
+  const formRef = useRef<HTMLFormElement>(null)
 
   const update = <K extends keyof Form>(field: K, value: Form[K]) => setForm(prev => ({ ...prev, [field]: value }))
   const text = (field: keyof Form) => ({
@@ -130,12 +161,13 @@ export default function HackerApplication() {
         <h1>Hacker application</h1>
         <p>Applications submitted by {PRIORITY_LABEL} are reviewed in the priority batch.</p>
       </header>
-      <form className="sp-card sp-form" onSubmit={handleSubmit}>
+      <form className="sp-card sp-form" onSubmit={handleSubmit} ref={formRef}>
+        <FormSteps steps={SECTIONS} done={sectionsDone(form)} form={formRef} />
         <p className="sp-form-note">Fields marked <Req /> are required. You can't change your answers after submitting.</p>
         <p className="sp-form-note">Rather answer by chatting? You can also <Link to="/apply-with-ai">apply with an AI assistant</Link>.</p>
 
         <div className="sp-form-fields">
-          <h2 className="sp-form-section">About you</h2>
+          <FormSection steps={SECTIONS} index={0} />
           <label>First name (as on your ID) <Req />
             <input required autoComplete="given-name" maxLength={MAX_LENGTH.name} {...text('first_name')} />
           </label>
@@ -162,7 +194,7 @@ export default function HackerApplication() {
             <input required autoComplete="address-level2" maxLength={MAX_LENGTH.short} {...text('city_of_residence')} />
           </label>
 
-          <h2 className="sp-form-section">School</h2>
+          <FormSection steps={SECTIONS} index={1} />
           <label>Level of study <Req />
             <Select options={LEVELS_OF_STUDY} value={form.level_of_study} onChange={v => update('level_of_study', v)} />
           </label>
@@ -177,7 +209,7 @@ export default function HackerApplication() {
             <Select options={GRADUATION_YEARS} value={form.graduation_year} onChange={v => update('graduation_year', v)} />
           </label>
 
-          <h2 className="sp-form-section">Experience</h2>
+          <FormSection steps={SECTIONS} index={2} />
           <label>Hackathons you've been to <Req />
             <Select options={HACKATHON_EXPERIENCE} value={form.hackathon_experience} onChange={v => update('hackathon_experience', v)} />
           </label>
@@ -198,7 +230,7 @@ export default function HackerApplication() {
             <input type="url" required maxLength={MAX_LENGTH.link} placeholder="Google Drive, Dropbox or any link we can open" {...text('resume_url')} />
           </label>
 
-          <h2 className="sp-form-section">A few questions</h2>
+          <FormSection steps={SECTIONS} index={3} />
           <label>What's the project you're most proud of building? <Req />
             <textarea required rows={4} maxLength={MAX_LENGTH.essay} {...text('essay_proudest_project')} />
           </label>
@@ -215,13 +247,13 @@ export default function HackerApplication() {
             <textarea rows={2} maxLength={MAX_LENGTH.brief} {...text('lifetime_goal')} />
           </label>
 
-          <h2 className="sp-form-section">How did you hear about DataHacks?</h2>
+          <FormSection steps={SECTIONS} index={4} />
           <div className="sp-field">
             <span className="sp-field-label">Pick all that apply <Req /></span>
             <MultiSelect options={HEARD_ABOUT} value={form.heard_about} onChange={v => update('heard_about', v)} />
           </div>
 
-          <h2 className="sp-form-section">Travel</h2>
+          <FormSection steps={SECTIONS} index={5} />
           <div className="sp-field">
             <span className="sp-field-label">Would you need travel reimbursement to attend? <Req /></span>
             <YesNo name="wants_travel_stipend" value={form.wants_travel_stipend} onChange={v => update('wants_travel_stipend', v)} />

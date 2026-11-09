@@ -1,4 +1,715 @@
-/* Nether theme: shell. See nether-theme.css for tokens. */
+/* Nether theme: shell. See nether-theme.css for tokens.
+   Everything around the pages (Figma "Shell", "sidebar", lava art) and the shared page
+   primitives the other Nether files build on: a nether-brick wall with lava along the
+   bottom, "DATAHACKS PORTAL" across the top, blackstone signs hanging on two chains for
+   the sidebar, and the basalt board with a warm rim that every page sits in.
 
-/* Placeholder backdrop until the art lands. */
-.sp-nether-sky { position: fixed; inset: 0; z-index: 0; background: var(--nether-netherrack); }
+   Layers, front to back (all inside the root's own stacking context):
+     5  the lava and its heat haze (.sp-nether-lava): over everything, as in the design;
+        the page scrolls in under it, and the frame keeps the end of every page clear of it
+     4  the sidebar, with the top bar's title, account and "i" button
+     3  the wall over the top bar (wide screens), so the board scrolls in under it
+     1  the board (.sp-main)
+    -1  the wall and its embers (.sp-nether-sky) */
+
+.sp-root.sp-nether {
+  /* Shared with the other Nether files. */
+  --nether-muted: #b3aaa1; /* secondary text: 7:1 on the board */
+  --nether-link: #4fd8e0;
+  --nether-link-hover: #a5f0f3;
+  --nether-card: rgb(14 12 15 / 0.55); /* a panel on the board, a step darker than it */
+  --nether-card-edge: #3a363e;
+  --nether-ring: #6b2a16; /* the board's warm rim */
+  --nether-ember: #ffb13b;
+  --nether-sign-top: #4a4450; /* light catching a blackstone sign's top edge */
+  --nether-sign-bottom: #1a171c; /* and its shaded underside */
+  --nether-lava-hot: #ff9e4a; /* lava under the pointer */
+  --nether-lava-top: #ffc24a;
+  --nether-lava-bottom: #b85a1c;
+  --nether-lava-rim: #7a2e0c;
+  --nether-bricks: url("/images/portal-nether/shell/nether-bricks.webp");
+  /* Where something sticky on a page should stop: clear of the top bar. */
+  --nether-sticky-top: calc(var(--bar-h) + 16px);
+
+  /* The frame, as drawn at 1440 x 1024. */
+  --bar-h: 56px; /* the top bar */
+  --lava-h: 84px; /* how much lava shows along the bottom */
+  --side-w: 220px;
+  --frame-left: 64px;
+  --frame-right: 60px;
+  --frame-gap: 16px;
+  --frame-max: 1520px; /* past this the frame stays centred and the wall carries on */
+  --board-top: 48px; /* from the top bar to the board */
+
+  /* The base stylesheet's colours, for anything not restyled for the Nether. */
+  --sp-bg: var(--nether-basalt);
+  --sp-surface: var(--nether-ledge);
+  --sp-border: var(--nether-card-edge);
+  --sp-text: var(--nether-text);
+  --sp-muted: var(--nether-muted);
+  --sp-accent: var(--nether-lava);
+  --sp-accent-soft: #3b2418;
+  --sp-blue: #8fb4ff;
+  --sp-green: var(--nether-warped);
+  --sp-red: var(--nether-error);
+  --sp-orange: var(--nether-lava);
+  --mc-page: var(--nether-netherrack);
+  --mc-ink: var(--nether-edge);
+  --mc-light: var(--nether-text);
+  --mc-light-muted: var(--nether-muted);
+  --mc-leaf: var(--nether-warped);
+  --mc-focus: var(--nether-glowstone);
+
+  position: relative;
+  isolation: isolate;
+  /* The page itself never scrolls sideways; wide things scroll in place. */
+  overflow-x: clip;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Backdrop (NetherSky.tsx): the wall, embers, the lava and its heat haze
+   --------------------------------------------------------------------------- */
+/* Nether bricks, redrawn from the design's texture as a 32 x 40 pixel tile at 6px a pixel. */
+.sp-root.sp-nether .sp-nether-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--nether-bricks) 0 0 / 192px 240px repeat, var(--nether-netherrack);
+  image-rendering: pixelated;
+}
+
+/* The lava flow: the design's pixel-lava-downflow, mirrored into a strip that tiles.
+   Drawn at one and a half times its pixel size; it flows unless motion is reduced. Behind
+   it, a strip of the same wall lined up with the backdrop's, so a page scrolling under the
+   lava goes behind the wall rather than showing between the rocks. */
+.sp-root.sp-nether .sp-nether-lava {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 5;
+  height: var(--lava-h);
+  pointer-events: none;
+  background:
+    url("/images/portal-nether/shell/lava.webp") 50% 100% / auto 100% repeat-x,
+    var(--nether-bricks) 0 calc(var(--lava-h) - 100dvh) / 192px 240px repeat,
+    var(--nether-netherrack);
+  image-rendering: pixelated;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .sp-root.sp-nether .sp-nether-lava {
+    background-image: url("/images/portal-nether/shell/lava-flow.webp"), var(--nether-bricks);
+  }
+}
+/* Heat haze: the design's blurred glows over the lava, as soft gradients rising from it. */
+.sp-root.sp-nether .sp-nether-lava::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 460px;
+  background:
+    radial-gradient(ellipse 265px 135px at 17% calc(100% + 30px), rgb(255 140 40 / 0.2), rgb(255 140 40 / 0.13) 45%, transparent),
+    radial-gradient(ellipse 285px 145px at 84% calc(100% + 22px), rgb(255 140 40 / 0.18), rgb(255 140 40 / 0.12) 45%, transparent),
+    radial-gradient(ellipse 360px 130px at 49% calc(100% + 60px), rgb(255 177 59 / 0.12), rgb(255 177 59 / 0.08) 45%, transparent),
+    radial-gradient(ellipse 200px 150px at 4% calc(100% - 128px), rgb(229 100 30 / 0.1), rgb(229 100 30 / 0.06) 45%, transparent),
+    radial-gradient(ellipse 210px 160px at 94% calc(100% - 150px), rgb(229 100 30 / 0.1), rgb(229 100 30 / 0.06) 45%, transparent),
+    radial-gradient(ellipse 180px 120px at 52% calc(100% - 118px), rgb(255 177 59 / 0.06), transparent);
+}
+
+/* Embers: where the design puts them, drifting up out of the heat when motion is allowed. */
+.sp-root.sp-nether .sp-nether-ember {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: var(--nether-ember);
+  box-shadow: 0 0 6px 1px rgb(255 177 59 / 0.55);
+}
+.sp-root.sp-nether .sp-nether-ember:nth-child(1) { top: 220px; left: 96.5%; width: 8px; height: 8px; }
+.sp-root.sp-nether .sp-nether-ember:nth-child(2) { top: 460px; left: 97.8%; }
+.sp-root.sp-nether .sp-nether-ember:nth-child(3) { bottom: calc(var(--lava-h) - 6px); left: 20.1%; }
+.sp-root.sp-nether .sp-nether-ember:nth-child(4) { top: 104px; left: 81.7%; }
+.sp-root.sp-nether .sp-nether-ember:nth-child(5) { top: 62%; left: 2.6%; width: 4px; height: 4px; }
+.sp-root.sp-nether .sp-nether-ember:nth-child(6) { bottom: calc(var(--lava-h) + 40px); left: 63%; width: 4px; height: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  .sp-root.sp-nether .sp-nether-ember { animation: sp-nether-ember 9s linear infinite; }
+  .sp-root.sp-nether .sp-nether-ember:nth-child(2) { animation-duration: 11s; animation-delay: -4s; }
+  .sp-root.sp-nether .sp-nether-ember:nth-child(3) { animation-duration: 7s; animation-delay: -2s; }
+  .sp-root.sp-nether .sp-nether-ember:nth-child(4) { animation-duration: 13s; animation-delay: -9s; }
+  .sp-root.sp-nether .sp-nether-ember:nth-child(5) { animation-duration: 10s; animation-delay: -6s; }
+  .sp-root.sp-nether .sp-nether-ember:nth-child(6) { animation-duration: 8s; animation-delay: -1s; }
+  .sp-root.sp-nether .sp-nether-lava::before { animation: sp-nether-haze 6s ease-in-out infinite alternate; }
+}
+@keyframes sp-nether-ember {
+  0% { opacity: 0; transform: translate(0, 48px); }
+  15% { opacity: 1; }
+  70% { opacity: 0.8; }
+  100% { opacity: 0; transform: translate(10px, -150px); }
+}
+@keyframes sp-nether-haze {
+  from { opacity: 0.75; }
+  to { opacity: 1; }
+}
+
+/* ---------------------------------------------------------------------------
+   The frame: top bar, sidebar on chains, and the board
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether:not(.sp-gate) { display: block; min-height: 100dvh; }
+
+.sp-root.sp-nether .sp-shell {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--frame-gap);
+  max-width: var(--frame-max);
+  margin: 0 auto;
+  padding: 0 var(--frame-right) 0 var(--frame-left);
+}
+
+/* The sidebar: no panel of its own, just the signs, hanging on two chains that run down
+   into the lava. It stays put while the page scrolls, and ends where the lava starts. */
+.sp-root.sp-nether .sp-sidebar {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 var(--side-w);
+  width: var(--side-w);
+  height: calc(100dvh - var(--lava-h));
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--nether-text);
+}
+.sp-root.sp-nether .sp-sidebar::before,
+.sp-root.sp-nether .sp-sidebar::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 64px;
+  bottom: calc(-1 * var(--lava-h));
+  width: 8px;
+  /* Links of chain: a lit one, then one edge-on. */
+  background: repeating-linear-gradient(180deg, #5a5560 0 12px, #2c2830 12px 18px);
+}
+.sp-root.sp-nether .sp-sidebar::before { left: 34px; }
+.sp-root.sp-nether .sp-sidebar::after { right: 34px; }
+
+/* "DATAHACKS PORTAL" across the top bar (the sidebar's brand block, without the logo). */
+.sp-root.sp-nether .sp-brand {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: var(--bar-h);
+  margin: 0;
+  padding: 0 0 0 8px;
+  border: 0;
+  white-space: nowrap;
+}
+.sp-root.sp-nether .sp-brand img { display: none; }
+.sp-root.sp-nether .sp-brand > div { display: flex; gap: 0.6em; }
+.sp-root.sp-nether .sp-brand :is(strong, span) {
+  display: inline;
+  color: var(--nether-text);
+  font: 400 20px/1 var(--nether-font-display);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* The signs. Level with the top of the board; the list scrolls if a short window can't fit it.
+   The padding leaves room for the current sign's glow and the focus ring. */
+.sp-root.sp-nether .sp-nav {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  margin: calc(var(--board-top) - 8px) -10px 12px;
+  padding: 8px 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--nether-sign-top) transparent;
+  scrollbar-width: thin;
+}
+.sp-root.sp-nether .sp-nav-group { display: flex; flex-direction: column; gap: 8px; }
+/* Group headings ("APPLICATION", "EVENT INFO"): dark plaques with glowstone letters. */
+.sp-root.sp-nether .sp-nav-group-label {
+  display: block;
+  padding: 5px 10px;
+  border: 2px solid #3a1a14;
+  border-radius: 30px;
+  background: var(--nether-nav);
+  color: var(--nether-glowstone);
+  font: 400 12px/15px var(--nether-font-display);
+  letter-spacing: 1px;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* A blackstone sign: lit along the top, shaded underneath. */
+.sp-root.sp-nether .sp-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-height: 38px;
+  padding: 9px 14px 10px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 30px;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 3px var(--nether-sign-top), inset 0 -5px var(--nether-sign-bottom);
+  font: 400 13px/1.2 var(--nether-font-display);
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+  /* It hangs from the chains, so it swings from the top. */
+  transform-origin: 50% 0;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+.sp-root.sp-nether .sp-nav-link svg { display: none; }
+.sp-root.sp-nether .sp-nav-link:hover { background: #3a353d; color: var(--nether-text); }
+/* Where you are: lava orange, glowing. */
+.sp-root.sp-nether .sp-nav-link.active {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px var(--nether-lava-top), inset 0 -5px var(--nether-lava-bottom), 0 0 16px rgb(242 134 47 / 0.55);
+}
+.sp-root.sp-nether .sp-nav-link.active:hover { background: var(--nether-lava-hot); color: var(--nether-nav); }
+/* Under the pointer, a sign swings a little on its chains. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .sp-root.sp-nether .sp-nav-link:hover { animation: sp-nether-sway 0.8s ease-out; }
+}
+@keyframes sp-nether-sway {
+  0% { rotate: 0deg; }
+  25% { rotate: -2deg; }
+  55% { rotate: 1.2deg; }
+  80% { rotate: -0.5deg; }
+  100% { rotate: 0deg; }
+}
+
+/* The account, the End | Nether switch and the "i" (the organizers' inbox), at the right
+   of the top bar. */
+.sp-root.sp-nether .sp-sidebar-footer {
+  position: fixed;
+  top: 0;
+  right: calc(max(0px, (100% - var(--frame-max)) / 2) + 26px);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  height: var(--bar-h);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+}
+.sp-root.sp-nether .sp-sidebar-footer .sp-theme-toggle { order: 1; }
+.sp-root.sp-nether .sp-sidebar-footer .sp-account { order: 2; }
+.sp-root.sp-nether .sp-sidebar-footer .sp-contact { order: 3; }
+
+/* The "i": a lava-rimmed square. Its words stay for screen readers; the title says where it goes. */
+.sp-root.sp-nether .sp-sidebar-footer a.sp-contact {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--nether-lava);
+  background: var(--nether-nav);
+  color: var(--nether-text);
+  text-decoration: none;
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+.sp-root.sp-nether .sp-sidebar-footer a.sp-contact > * {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.sp-root.sp-nether .sp-sidebar-footer a.sp-contact::before {
+  content: "i";
+  content: "i" / "";
+  font: 700 24px/1 var(--nether-font-body);
+}
+.sp-root.sp-nether .sp-sidebar-footer a.sp-contact:hover {
+  background: #2a120c;
+  color: var(--nether-text);
+  box-shadow: 0 0 14px rgb(242 134 47 / 0.5);
+}
+
+/* The End | Nether switch: two little signs on a dark plaque. */
+.sp-root.sp-nether .sp-theme-toggle {
+  gap: 3px;
+  padding: 3px;
+  border-radius: 30px;
+  background: var(--nether-nav);
+  box-shadow: inset 0 0 0 2px #3a1a14;
+}
+.sp-root.sp-nether .sp-theme-toggle button {
+  padding: 6px 12px 5px;
+  border-radius: 30px;
+  color: var(--nether-muted);
+  font: 400 11px/1.2 var(--nether-font-display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.sp-root.sp-nether .sp-theme-toggle button:hover { color: var(--nether-text); }
+.sp-root.sp-nether .sp-theme-toggle button[aria-pressed="true"] {
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -3px var(--nether-lava-bottom);
+}
+.sp-root.sp-nether .sp-theme-toggle button:focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: 2px; }
+
+/* Who's signed in, and Sign out. */
+.sp-root.sp-nether .sp-account { flex-direction: row; align-items: center; gap: 10px; min-width: 0; }
+.sp-root.sp-nether .sp-account-who { min-width: 0; color: var(--nether-muted); font-size: 12px; line-height: 1.3; text-align: right; }
+.sp-root.sp-nether .sp-account-email { max-width: 240px; color: var(--nether-text); font-size: 13px; font-weight: 700; }
+.sp-root.sp-nether .sp-signout {
+  flex: none;
+  gap: 6px;
+  padding: 6px 12px 8px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 30px;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -3px var(--nether-sign-bottom);
+  font: 700 13px/1 var(--nether-font-body);
+  transition: background-color 0.15s;
+}
+.sp-root.sp-nether .sp-signout:hover { background: #3a353d; color: var(--nether-text); }
+
+/* The wall over the top bar, lined up with the backdrop's, so the board slides in under it. */
+@media (min-width: 861px) {
+  .sp-root.sp-nether:not(.sp-gate)::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 3;
+    height: var(--bar-h);
+    background: var(--nether-bricks) 0 0 / 192px 240px repeat, var(--nether-netherrack);
+    image-rendering: pixelated;
+  }
+}
+/* Jumping to a section or tabbing down the page stops clear of the top bar and the lava. */
+html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 72px 0 100px; }
+
+/* The board: dark basalt, a little see-through, with a warm rim. */
+.sp-root.sp-nether .sp-main {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: calc(100dvh - var(--bar-h) - var(--board-top) - var(--lava-h) - 36px);
+  margin: calc(var(--bar-h) + var(--board-top)) 0 calc(var(--lava-h) + 36px);
+  padding: 40px;
+  border: 6px solid var(--nether-edge);
+  border-radius: 30px;
+  background: rgb(30 28 34 / 0.85);
+  color: var(--nether-text);
+  box-shadow: 0 0 0 3px var(--nether-ring), 0 0 30px 2px rgb(242 134 47 / 0.14), 0 20px 50px rgb(8 2 3 / 0.4);
+}
+.sp-root.sp-nether .sp-page { gap: 24px; max-width: none; margin: 0; }
+
+/* Page titles: Silkscreen straight on the board, the intro under it. */
+.sp-root.sp-nether :is(.sp-page-header, .sp-greeting) {
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.sp-root.sp-nether :is(.sp-page-header, .sp-greeting) h1 {
+  margin: 0;
+  color: var(--nether-text);
+  font: 400 32px/1.2 var(--nether-font-display);
+  letter-spacing: 0;
+  text-shadow: none;
+  text-wrap: balance;
+}
+/* Kept weak (:where) so a page's own lines under its title (the waiver status) restyle easily. */
+.sp-root.sp-nether .sp-page-header :where(h1 ~ p) {
+  max-width: 72ch;
+  margin: 12px 0 0;
+  color: var(--nether-text);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.sp-root.sp-nether :is(.sp-page-header, .sp-greeting) a { color: var(--nether-link); }
+/* The small glowstone line over a title ("Your application", "Section 1 of 4"). */
+.sp-root.sp-nether .sp-eyebrow {
+  margin: 0 0 12px;
+  color: var(--nether-glowstone);
+  font: 700 13px/1.3 var(--nether-font-body);
+  letter-spacing: 0;
+}
+
+/* Links. Focus rings are the base stylesheet's, in glowstone (--mc-focus), panels included. */
+.sp-root.sp-nether a { color: var(--nether-link); text-underline-offset: 3px; }
+.sp-root.sp-nether a:hover { color: var(--nether-link-hover); }
+.sp-root.sp-nether .sp-card :is(a, button, input, select, textarea, summary):focus-visible { outline-color: var(--nether-glowstone); }
+
+/* A panel on the board (the design's boxed sections): darker basalt in a square blackstone edge. */
+.sp-root.sp-nether .sp-card {
+  padding: 24px 28px;
+  border: 3px solid var(--nether-card-edge);
+  border-radius: 0;
+  background: var(--nether-card);
+  color: var(--nether-text);
+  box-shadow: none;
+}
+.sp-root.sp-nether .sp-card h2 {
+  margin: 0;
+  color: var(--nether-lava);
+  font: 400 20px/1.25 var(--nether-font-display);
+  letter-spacing: 0.06em;
+}
+
+/* Buttons: blackstone blocks ("SAVE DRAFT"); the main action is lava ("NEXT →"). */
+.sp-root.sp-nether .sp-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  padding: 10px 22px 12px;
+  border: 1px solid var(--nether-edge);
+  border-radius: 0;
+  background: var(--nether-blackstone);
+  color: var(--nether-text);
+  box-shadow: inset 0 3px var(--nether-sign-top), inset 0 -5px var(--nether-sign-bottom);
+  font: 400 16px/1.2 var(--nether-font-display);
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  transition: background-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.sp-root.sp-nether .sp-button:hover:not(:disabled) {
+  border-color: var(--nether-edge);
+  background: #3a353d;
+  color: var(--nether-text);
+  filter: none;
+  transform: none;
+}
+.sp-root.sp-nether .sp-button.primary {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px var(--nether-lava-top), inset 0 -5px var(--nether-lava-bottom);
+}
+.sp-root.sp-nether .sp-button.primary:hover:not(:disabled) {
+  border-color: var(--nether-lava-rim);
+  background: var(--nether-lava-hot);
+  color: var(--nether-nav);
+  box-shadow: inset 0 3px #ffd27a, inset 0 -5px #c7682a, 0 0 18px rgb(255 158 74 / 0.55);
+}
+/* Pressed: the block sinks onto its shadow. */
+.sp-root.sp-nether .sp-button:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 3px var(--nether-sign-bottom), inset 0 -2px var(--nether-sign-top); }
+.sp-root.sp-nether .sp-button.primary:active:not(:disabled) { box-shadow: inset 0 3px var(--nether-lava-bottom), inset 0 -2px var(--nether-lava-top); }
+/* Unavailable: a dark, flat block whose label still reads. */
+.sp-root.sp-nether .sp-button:disabled {
+  border-color: #2c2830;
+  background: #1c1a1f;
+  color: #8a8290;
+  box-shadow: none;
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Sign-in, loading and error screens (StaffGate.tsx → Screen): one board on the wall,
+   the lava below, the title across the top and the switch in the corner.
+   --------------------------------------------------------------------------- */
+.sp-root.sp-nether.sp-gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: calc(var(--bar-h) + 16px) 16px calc(var(--lava-h) + 32px);
+}
+.sp-root.sp-nether.sp-gate::before {
+  content: "DataHacks Portal";
+  content: "DataHacks Portal" / "";
+  position: absolute;
+  top: 18px;
+  left: max(clamp(16px, 5vw, 72px), env(safe-area-inset-left));
+  color: var(--nether-text);
+  font: 400 20px/1 var(--nether-font-display);
+  letter-spacing: 0;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sp-root.sp-nether.sp-gate .sp-gate-theme { top: 13px; right: max(clamp(12px, 1.8vw, 26px), env(safe-area-inset-right)); }
+.sp-root.sp-nether .sp-gate-glass { position: relative; z-index: 1; width: 100%; max-width: 468px; }
+.sp-root.sp-nether.sp-gate .sp-card {
+  max-width: none;
+  padding: 36px 32px 32px;
+  border: 6px solid var(--nether-edge);
+  border-radius: 26px;
+  background: rgb(30 28 34 / 0.92);
+  box-shadow: 0 0 0 3px var(--nether-ring), 0 0 40px 4px rgb(242 134 47 / 0.16), 0 24px 60px rgb(8 2 3 / 0.5);
+}
+/* The logo's dark letters need a light tile on the dark board. */
+.sp-root.sp-nether.sp-gate .sp-card > img {
+  box-sizing: content-box;
+  width: 44px;
+  height: 44px;
+  margin: 0 auto;
+  padding: 8px;
+  border: 3px solid var(--nether-edge);
+  border-radius: 14px;
+  background: var(--nether-text);
+  box-shadow: 0 0 0 2px var(--nether-ring), 0 0 18px rgb(242 134 47 / 0.25);
+}
+.sp-root.sp-nether.sp-gate h1 {
+  margin: 20px 0 0;
+  color: var(--nether-text);
+  font: 400 22px/1.3 var(--nether-font-display);
+  letter-spacing: 0.02em;
+  text-wrap: balance;
+}
+.sp-root.sp-nether.sp-gate p { margin: 12px 0 0; color: var(--nether-muted); font-size: 15px; line-height: 1.55; }
+.sp-root.sp-nether.sp-gate .sp-error { color: var(--nether-error); }
+.sp-root.sp-nether .sp-signin-button { width: 100%; min-height: 52px; margin-top: 24px; }
+.sp-root.sp-nether.sp-gate .sp-signin-alt { margin-top: 18px; font-size: 14px; }
+/* "You're signed in as …" with Continue / Use another account. */
+.sp-root.sp-nether.sp-gate .account-notice-sp {
+  padding: 16px;
+  border: 3px solid var(--nether-card-edge);
+  background: var(--nether-card);
+}
+.sp-root.sp-nether.sp-gate .account-notice-sp .account-notice-text { color: var(--nether-text); font-size: 15px; }
+.sp-root.sp-nether .account-notice-sp .account-notice-email { color: var(--nether-text); }
+.sp-root.sp-nether.sp-gate .account-notice-sp .sp-button { min-height: 46px; font-size: 14px; letter-spacing: 0.08em; }
+
+/* ---------------------------------------------------------------------------
+   Smaller screens
+   --------------------------------------------------------------------------- */
+/* Tablets and small laptops: the same frame, tighter. */
+@media (max-width: 1180px) {
+  .sp-root.sp-nether { --frame-left: 24px; --frame-right: 24px; --side-w: 210px; }
+  .sp-root.sp-nether .sp-main { padding: 32px 28px; }
+  .sp-root.sp-nether .sp-sidebar-footer { right: 18px; }
+}
+/* The account's address gives way first when the top bar runs short of room. */
+@media (max-width: 1040px) {
+  .sp-root.sp-nether .sp-account-email { max-width: 150px; }
+}
+
+/* Short windows (a 1366 x 768 laptop): smaller signs, a lower lava line, so the hacker
+   list still fits without scrolling. */
+@media (min-width: 861px) and (max-height: 880px) {
+  .sp-root.sp-nether { --lava-h: 70px; --board-top: 32px; }
+  .sp-root.sp-nether :is(.sp-nav, .sp-nav-group) { gap: 5px; }
+  .sp-root.sp-nether .sp-nav-group-label { padding: 3px 10px; }
+  .sp-root.sp-nether .sp-nav-link {
+    min-height: 31px;
+    padding: 6px 14px 8px;
+    box-shadow: inset 0 2px var(--nether-sign-top), inset 0 -4px var(--nether-sign-bottom);
+  }
+  .sp-root.sp-nether .sp-nav-link.active {
+    box-shadow: inset 0 2px var(--nether-lava-top), inset 0 -4px var(--nether-lava-bottom), 0 0 14px rgb(242 134 47 / 0.55);
+  }
+}
+
+/* Phones and small tablets: the title and "i" across the top, then the signs on one chain
+   in a strip that scrolls sideways, then the switch and the account. All of it scrolls away
+   with the page; only the lava stays. */
+@media (max-width: 860px) {
+  .sp-root.sp-nether { --lava-h: 56px; --nether-sticky-top: 16px; }
+  .sp-root.sp-nether .sp-shell { display: block; padding: 0 max(10px, env(safe-area-inset-right)) 0 max(10px, env(safe-area-inset-left)); }
+  .sp-root.sp-nether .sp-sidebar {
+    position: relative;
+    top: auto;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-areas: "brand brand info" "nav nav nav" "theme account account";
+    align-items: center;
+    gap: 0 12px;
+    width: auto;
+    height: auto;
+  }
+  /* One chain across, behind the strip of signs. */
+  .sp-root.sp-nether .sp-sidebar::before {
+    top: calc(var(--bar-h) + 24px);
+    right: -10px;
+    bottom: auto;
+    left: -10px;
+    width: auto;
+    height: 6px;
+    background: repeating-linear-gradient(90deg, #5a5560 0 12px, #2c2830 12px 18px);
+  }
+  .sp-root.sp-nether .sp-sidebar::after { content: none; }
+  .sp-root.sp-nether .sp-brand { grid-area: brand; padding-left: 2px; }
+  .sp-root.sp-nether .sp-brand :is(strong, span) { font-size: 17px; }
+  .sp-root.sp-nether .sp-sidebar-footer { display: contents; }
+  .sp-root.sp-nether .sp-sidebar-footer a.sp-contact { grid-area: info; width: 40px; height: 40px; }
+  .sp-root.sp-nether .sp-sidebar-footer .sp-theme-toggle { grid-area: theme; justify-self: start; }
+  .sp-root.sp-nether .sp-sidebar-footer .sp-account { grid-area: account; justify-content: flex-end; }
+  .sp-root.sp-nether .sp-account-email { max-width: 100%; }
+  .sp-root.sp-nether .sp-nav {
+    grid-area: nav;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin: 0 -10px 6px;
+    padding: 8px 32px 12px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    /* It scrolls sideways: fade the edge so it's clear there are more. */
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 32px), transparent);
+  }
+  .sp-root.sp-nether .sp-nav::-webkit-scrollbar { display: none; }
+  .sp-root.sp-nether .sp-nav-group { flex: none; flex-direction: row; align-items: center; gap: 8px; }
+  .sp-root.sp-nether .sp-nav-group + .sp-nav-group { margin-left: 6px; }
+  .sp-root.sp-nether .sp-nav-group-label { padding: 6px 12px; }
+  .sp-root.sp-nether .sp-nav-link { min-height: 38px; padding: 9px 16px 10px; font-size: 12px; white-space: nowrap; }
+  .sp-root.sp-nether .sp-main {
+    min-height: 0;
+    margin: 6px 0 calc(var(--lava-h) + 20px);
+    padding: 24px 18px 28px;
+    border-width: 4px;
+    border-radius: 20px;
+    box-shadow: 0 0 0 2px var(--nether-ring), 0 0 24px rgb(242 134 47 / 0.14);
+  }
+  .sp-root.sp-nether :is(.sp-page-header, .sp-greeting) h1 { font-size: 24px; }
+  .sp-root.sp-nether .sp-card { padding: 20px 18px; }
+  html:has(.sp-root.sp-nether:not(.sp-gate)) { scroll-padding: 16px 0 72px; }
+
+  .sp-root.sp-nether.sp-gate::before { top: 20px; font-size: 16px; }
+  .sp-root.sp-nether.sp-gate .sp-gate-theme { top: 12px; }
+  .sp-root.sp-nether.sp-gate { padding-inline: 12px; }
+  .sp-root.sp-nether.sp-gate .sp-card { padding: 30px 22px 26px; border-width: 5px; border-radius: 22px; }
+}
+@media (max-width: 420px) {
+  .sp-root.sp-nether .sp-brand :is(strong, span) { font-size: 15px; }
+  .sp-root.sp-nether .sp-main { padding: 22px 16px 26px; }
+  .sp-root.sp-nether .sp-button { padding-inline: 18px; letter-spacing: 0.1em; }
+  .sp-root.sp-nether.sp-gate::before { font-size: 14px; }
+  .sp-root.sp-nether.sp-gate h1 { font-size: 19px; }
+}
+
+/* Asked for less transparency: a solid board. */
+@media (prefers-reduced-transparency: reduce) {
+  .sp-root.sp-nether .sp-main,
+  .sp-root.sp-nether.sp-gate .sp-card { background: var(--nether-basalt); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sp-root.sp-nether :is(.sp-nav-link, .sp-signout, .sp-button, .sp-sidebar-footer a.sp-contact) { transition: none; }
+  .sp-root.sp-nether .sp-button:active:not(:disabled) { transform: none; }
+}
