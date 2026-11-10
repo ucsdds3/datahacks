@@ -13,7 +13,7 @@ a courtesy; the database's are the rule.
 | Columns | Rule |
 | --- | --- |
 | first_name, last_name, country_of_residence | at most 100 characters, no control characters (no tabs or line breaks) |
-| city_of_residence, school, major, organization, role_title, travel_region | at most 200, no control characters |
+| city_of_residence, school, major, organization, role_title, travel_region, sponsor_affiliation | at most 200, no control characters |
 | essay_*, bio, travel_stipend_reason | at most 4000; tab, newline and CR allowed, no other control characters |
 | funniest_joke, lifetime_goal | at most 1000, same |
 | linkedin_url, github_url, devpost_url, resume_url | `https://` + plain host, no whitespace, quotes, `<>` or `\`, at most 500 |
