@@ -1,0 +1,443 @@
+/* The public live stats page (Stats.tsx), in the applicant portal's Nether look: nether-brick wall,
+   a basalt board with a warm rim, Silkscreen headings, lava and warped-teal marks. The tokens are
+   copied from staff-portal/nether (nether-theme.css, nether-shell.css) rather than importing them,
+   so this page doesn't load the portal's stylesheets. */
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Silkscreen:wght@400;700&display=swap");
+
+.dh-stats {
+  --netherrack: #2a0f10;
+  --nav: #120708;
+  --blackstone: #2e2a30;
+  --edge: #0e0c0f;
+  --basalt: #1e1c22;
+  --warped: #2fb5a6;
+  --lava: #f2862f;
+  --lava-hot: #ff9e4a;
+  --lava-top: #ffc24a;
+  --lava-bottom: #b85a1c;
+  --lava-rim: #7a2e0c;
+  --glowstone: #f4c95d;
+  --text: #f4ebdd;
+  --muted: #b3aaa1;
+  --link: #4fd8e0;
+  --link-hover: #a5f0f3;
+  --card: rgb(14 12 15 / 0.55);
+  --card-edge: #3a363e;
+  --ring: #6b2a16;
+  --sign-top: #4a4450;
+  --sign-bottom: #1a171c;
+  --well: #141216;
+  --other: #6d6670;
+  --display: "Silkscreen", "VT323", monospace;
+  --body: "Nunito", system-ui, sans-serif;
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  overflow-x: clip;
+  padding: 0 24px;
+  background:
+    linear-gradient(rgb(18 7 8 / 0.55), rgb(18 7 8 / 0.75)),
+    url("/images/portal-nether/shell/nether-bricks.webp") 0 0 / 192px 240px repeat,
+    var(--netherrack);
+  color: var(--text);
+  font: 400 16px/1.5 var(--body);
+  image-rendering: pixelated;
+}
+.dh-stats *,
+.dh-stats *::before,
+.dh-stats *::after { box-sizing: border-box; }
+.dh-stats :is(h1, h2, h3, p, ol, figure) { margin: 0; }
+.dh-stats a { color: var(--link); text-underline-offset: 3px; }
+.dh-stats a:hover { color: var(--link-hover); }
+.dh-stats :is(a, button, [tabindex]):focus-visible { outline: 2px solid var(--glowstone); outline-offset: 3px; }
+
+.dh-stats-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Top bar ---------------------------------------------------------------- */
+.dh-stats-top,
+.dh-stats-board,
+.dh-stats-foot { width: 100%; max-width: 1240px; margin-inline: auto; }
+
+.dh-stats-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 72px;
+}
+.dh-stats .dh-stats-brand {
+  color: var(--text);
+  font: 400 20px/1 var(--display);
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.dh-stats .dh-stats-brand span { color: var(--lava); }
+.dh-stats .dh-stats-brand:hover { color: var(--text); }
+.dh-stats-nav { display: flex; align-items: center; gap: 18px; }
+.dh-stats .dh-stats-home-link { color: var(--text); font-weight: 700; text-decoration: none; }
+.dh-stats .dh-stats-home-link:hover { color: var(--glowstone); }
+
+/* Blackstone buttons; the main action in lava (as the portal's .sp-button). */
+.dh-stats-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 9px 18px 11px;
+  border: 1px solid var(--edge);
+  border-radius: 0;
+  background: var(--blackstone);
+  color: var(--text);
+  box-shadow: inset 0 3px var(--sign-top), inset 0 -5px var(--sign-bottom);
+  font: 400 14px/1.2 var(--display);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+.dh-stats a.dh-stats-button { color: var(--text); }
+.dh-stats-button:hover:not(:disabled) { background: #3a353d; }
+.dh-stats-button:disabled { cursor: progress; opacity: 0.75; }
+.dh-stats .dh-stats-button.primary {
+  border-color: var(--lava-rim);
+  background: var(--lava);
+  color: var(--nav);
+  box-shadow: inset 0 3px var(--lava-top), inset 0 -5px var(--lava-bottom);
+}
+.dh-stats .dh-stats-button.primary:hover:not(:disabled) {
+  background: var(--lava-hot);
+  color: var(--nav);
+  box-shadow: inset 0 3px var(--lava-top), inset 0 -5px var(--lava-bottom), 0 0 16px rgb(242 134 47 / 0.5);
+}
+.dh-stats-button svg { width: 16px; height: 16px; flex: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .dh-stats-button svg.spin { animation: dh-stats-spin 0.9s linear infinite; }
+}
+@keyframes dh-stats-spin { to { transform: rotate(360deg); } }
+
+/* ---- The board --------------------------------------------------------------- */
+.dh-stats-board {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  padding: 36px 40px 40px;
+  border: 6px solid var(--edge);
+  border-radius: 30px;
+  background: rgb(30 28 34 / 0.92);
+  box-shadow: 0 0 0 3px var(--ring), 0 0 30px 2px rgb(242 134 47 / 0.14), 0 20px 50px rgb(8 2 3 / 0.4);
+}
+
+.dh-stats-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px 32px;
+}
+.dh-stats h1 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  font: 400 32px/1.2 var(--display);
+  text-wrap: balance;
+}
+.dh-stats-intro { margin-top: 8px; color: var(--muted); font-size: 16px; }
+
+/* The LIVE pill: warped teal, with a square ember that pulses. */
+.dh-stats-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 6px;
+  border: 2px solid var(--warped);
+  background: rgb(47 181 166 / 0.12);
+  color: #7fe6da;
+  font: 400 13px/1 var(--display);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.dh-stats-live::before { content: ""; width: 8px; height: 8px; background: var(--warped); box-shadow: 0 0 8px var(--warped); }
+.dh-stats-live.off { border-color: var(--card-edge); background: var(--well); color: var(--muted); }
+.dh-stats-live.off::before { background: var(--other); box-shadow: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .dh-stats-live:not(.off)::before { animation: dh-stats-pulse 1.6s ease-in-out infinite; }
+}
+@keyframes dh-stats-pulse { 50% { opacity: 0.25; } }
+
+.dh-stats-refresh { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.dh-stats-refresh p { color: var(--muted); font-size: 13px; text-align: right; }
+
+.dh-stats-stale {
+  margin-top: -16px;
+  padding: 10px 14px;
+  border: 2px solid rgb(244 201 93 / 0.5);
+  background: rgb(244 201 93 / 0.08);
+  color: var(--glowstone);
+  font-weight: 700;
+}
+
+/* ---- Sections, panels and cards ------------------------------------------------- */
+.dh-stats-section { display: flex; flex-direction: column; gap: 16px; }
+.dh-stats h2 {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  color: var(--glowstone);
+  font: 400 15px/1.3 var(--display);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.dh-stats-section > h2::after { content: ""; flex: 1; height: 2px; background: var(--card-edge); }
+
+.dh-stats-panel {
+  padding: 22px 24px 24px;
+  border: 2px solid var(--card-edge);
+  background: var(--card);
+  box-shadow: inset 0 2px rgb(255 255 255 / 0.04);
+}
+.dh-stats-panel-note { color: var(--muted); font-size: 14px; }
+
+.dh-stats-cards {
+  display: grid;
+  grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+/* Each card's label, number and note line up with its neighbours' (a label that wraps doesn't push its number down alone). */
+.dh-stats-card {
+  display: grid;
+  grid-row: span 3;
+  grid-template-rows: subgrid;
+  align-content: start;
+  row-gap: 6px;
+  min-width: 0;
+  padding: 20px 20px 22px;
+  border: 2px solid var(--card-edge);
+  background: var(--card);
+  box-shadow: inset 0 2px rgb(255 255 255 / 0.04);
+}
+.dh-stats-card.featured {
+  border-color: var(--lava-rim);
+  background: linear-gradient(160deg, rgb(242 134 47 / 0.14), rgb(14 12 15 / 0.55) 60%);
+  box-shadow: inset 0 2px rgb(255 194 74 / 0.12), 0 0 18px rgb(242 134 47 / 0.12);
+}
+.dh-stats-card-label {
+  color: var(--muted);
+  font: 400 12px/1.3 var(--display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dh-stats-card-value {
+  color: var(--text);
+  font: 400 40px/1.1 var(--display);
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.dh-stats-card.featured .dh-stats-card-value { color: var(--glowstone); font-size: 52px; }
+.dh-stats-card-note { color: var(--muted); font-size: 14px; line-height: 1.35; }
+
+.dh-stats-card.skeleton { min-height: 132px; }
+@media (prefers-reduced-motion: no-preference) {
+  .dh-stats-card.skeleton { animation: dh-stats-pulse 1.4s ease-in-out infinite; }
+}
+.dh-stats-loading { display: flex; flex-direction: column; gap: 16px; }
+
+/* ---- Goal ------------------------------------------------------------------------- */
+.dh-stats-goal { display: flex; flex-direction: column; gap: 12px; }
+.dh-stats-goal-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
+.dh-stats-goal-label {
+  color: var(--text);
+  font: 400 14px/1.3 var(--display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dh-stats-goal-value { color: var(--glowstone); font-weight: 800; font-variant-numeric: tabular-nums; }
+.dh-stats-meter {
+  height: 22px;
+  border: 2px solid var(--edge);
+  background: var(--well);
+  box-shadow: inset 0 2px rgb(0 0 0 / 0.5);
+}
+.dh-stats-meter > span {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  /* Lava in pixel steps, lit along the top. */
+  background: repeating-linear-gradient(90deg, var(--lava) 0 14px, var(--lava-hot) 14px 18px);
+  box-shadow: inset 0 3px var(--lava-top), inset 0 -4px var(--lava-bottom), 0 0 12px rgb(242 134 47 / 0.45);
+  transition: width 0.6s ease-out;
+}
+.dh-stats-meter.reached > span {
+  background: var(--warped);
+  box-shadow: inset 0 3px #7fe6da, inset 0 -4px #1d7d72, 0 0 12px rgb(47 181 166 / 0.45);
+}
+.dh-stats-facts { color: var(--muted); font-size: 14px; }
+
+/* ---- Chart -------------------------------------------------------------------------- */
+.dh-stats-chart { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+.dh-stats-plot {
+  position: relative;
+  height: 240px;
+  touch-action: pan-y;
+  cursor: crosshair;
+}
+.dh-stats-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dh-stats-plot .grid { stroke: rgb(244 235 221 / 0.12); stroke-width: 1; }
+.dh-stats-plot .area { fill: rgb(242 134 47 / 0.16); }
+.dh-stats-plot .line { fill: none; stroke: var(--lava); stroke-width: 2; stroke-linejoin: round; }
+.dh-stats-axis {
+  position: absolute;
+  left: 0;
+  padding-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.dh-stats-crosshair {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed rgb(244 235 221 / 0.45);
+  pointer-events: none;
+}
+.dh-stats-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--basalt);
+  background: var(--glowstone);
+  box-shadow: 0 0 10px rgb(244 201 93 / 0.6);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.dh-stats-tip {
+  position: absolute;
+  padding: 5px 10px;
+  border: 2px solid var(--edge);
+  background: var(--nav);
+  color: var(--text);
+  font-size: 13px;
+  white-space: nowrap;
+  --tip-x: -50%;
+  --tip-y: calc(-100% - 14px);
+  transform: translate(var(--tip-x), var(--tip-y));
+  pointer-events: none;
+}
+/* Kept inside the chart: hung to one side near its edges, under the point near its top. */
+.dh-stats-tip.start { --tip-x: -8px; }
+.dh-stats-tip.end { --tip-x: calc(-100% + 8px); }
+.dh-stats-tip.below { --tip-y: 14px; }
+.dh-stats-tip strong { color: var(--glowstone); font-weight: 800; }
+.dh-stats-x { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
+
+/* ---- Ranked lists --------------------------------------------------------------------- */
+.dh-stats-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.dh-stats-list h3 {
+  margin: 0 0 14px;
+  color: var(--text);
+  font: 400 15px/1.3 var(--display);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.dh-stats-list ol { display: flex; flex-direction: column; gap: 12px; padding: 0; list-style: none; }
+.dh-stats-list li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 5px 12px;
+  align-items: baseline;
+}
+.dh-stats-list-label { font-size: 15px; line-height: 1.3; }
+.dh-stats-list-count { color: var(--muted); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dh-stats-list-bar { grid-column: 1 / -1; height: 8px; background: var(--well); }
+.dh-stats-list-bar > span {
+  display: block;
+  height: 100%;
+  min-width: 3px;
+  background: var(--warped);
+  box-shadow: inset 0 2px #7fe6da;
+  transition: width 0.6s ease-out;
+}
+.dh-stats-list li.other .dh-stats-list-label { color: var(--muted); font-style: italic; }
+.dh-stats-list li.other .dh-stats-list-bar > span { background: var(--other); box-shadow: none; }
+
+/* ---- Empty, paused and error states ------------------------------------------------------ */
+.dh-stats-message {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 36px 32px;
+}
+.dh-stats-message h2 { color: var(--text); font-size: 22px; letter-spacing: 0.04em; }
+.dh-stats-message p:not(.dh-stats-goal-label) { max-width: 60ch; color: var(--muted); }
+.dh-stats-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+
+/* ---- Footer and the lava ----------------------------------------------------------------- */
+.dh-stats-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 28px 0 24px;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
+}
+.dh-stats-foot p:first-child { max-width: 72ch; margin-inline: auto; }
+.dh-stats-lava {
+  height: 56px;
+  margin: auto -24px 0;
+  background: url("/images/portal-nether/shell/lava.webp") 50% 100% / auto 100% repeat-x;
+}
+
+/* ---- Narrower windows --------------------------------------------------------------------- */
+@media (max-width: 1100px) {
+  .dh-stats-cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .dh-stats-card { grid-column: span 2; }
+  .dh-stats-card.featured { grid-column: span 2; }
+  .dh-stats-card:nth-child(4),
+  .dh-stats-card:nth-child(5) { grid-column: span 3; }
+}
+@media (max-width: 860px) {
+  .dh-stats-lists { grid-template-columns: minmax(0, 1fr); }
+  .dh-stats-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dh-stats-card,
+  .dh-stats-card:nth-child(4),
+  .dh-stats-card:nth-child(5) { grid-column: span 1; }
+  .dh-stats-card.featured { grid-column: 1 / -1; }
+  .dh-stats-refresh { align-items: flex-start; }
+  .dh-stats-refresh p { text-align: left; }
+}
+@media (max-width: 560px) {
+  .dh-stats { padding: 0 16px; }
+  .dh-stats-top { min-height: 64px; }
+  .dh-stats .dh-stats-brand { font-size: 16px; }
+  .dh-stats .dh-stats-home-link { display: none; }
+  .dh-stats-top .dh-stats-button { min-height: 40px; padding: 8px 12px 10px; font-size: 12px; }
+  .dh-stats-board { gap: 28px; padding: 22px 16px 24px; border-width: 4px; border-radius: 20px; }
+  .dh-stats h1 { font-size: 22px; }
+  .dh-stats-intro { font-size: 15px; }
+  .dh-stats-panel { padding: 18px 16px 20px; }
+  .dh-stats-card { padding: 14px 14px 16px; }
+  .dh-stats-card-value { font-size: 28px; }
+  .dh-stats-card.featured .dh-stats-card-value { font-size: 40px; }
+  .dh-stats-card-note { font-size: 13px; }
+  .dh-stats-plot { height: 180px; }
+  .dh-stats-message { padding: 24px 18px; }
+  .dh-stats-message h2 { font-size: 18px; }
+  .dh-stats-lava { height: 40px; margin-inline: -16px; }
+}

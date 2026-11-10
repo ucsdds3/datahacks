@@ -42,6 +42,8 @@ const OrganizerConsole = lazy(portalPages.organizer);
 const OAuthConsent = lazy(portalPages.oauthConsent);
 // Public: how to apply through an AI assistant. Outside the portal shell, so no Supabase client.
 const ApplyWithAi = lazy(() => import("./pages/ApplyWithAi"));
+// Public: live application counts. Its own small chunk, no Supabase client (see pages/statsData).
+const Stats = lazy(() => import("./pages/Stats"));
 // Any unknown address: the End-themed 404. Lazy, so the portal's styles stay out of the home page's bundle.
 const NotFound = lazy(() => import("./pages/NotFound"));
 // Dev only: sign tabs in as dummy applicants. Left out of production builds.
@@ -51,6 +53,8 @@ const PORTALS = ["hacker", "mentor", "judge", "hybrid"] as const;
 
 /** Shown while the portal's first chunks load: the current theme's dark page, never a white one. */
 const PortalLoading = () => <div style={{ minHeight: "100dvh", background: THEME_BACKGROUND[getPortalTheme()] }} aria-busy="true" />;
+/** The stats page's dark netherrack while its chunk loads. */
+const StatsLoading = () => <div style={{ minHeight: "100dvh", background: "#1a0a0b" }} aria-busy="true" />;
 
 // One retry, not React Query's three: the Supabase client already retries a failed read
 // 3 times itself, and 4 rounds of that kept "Loading your portal…" up for ~46 s when
@@ -77,6 +81,7 @@ const App = () => (
           <Route path="/groove" element={<><NoIndex /><Groove /></>} />
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           <Route path="/apply-with-ai" element={<Suspense fallback={<PortalLoading />}><ApplyWithAi /></Suspense>} />
+          <Route path="/stats" element={<PortalBoundary><Suspense fallback={<StatsLoading />}><Stats /></Suspense></PortalBoundary>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={<PortalLoading />}><PortalShell /></Suspense></PortalBoundary>}>
             <Route path={portal.login("hacker")} element={<SignIn as="hacker" />} />
