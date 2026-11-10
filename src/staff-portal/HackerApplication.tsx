@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { EVENT_CODE, currentEventId } from '@/portal/event'
 import { useFormDraft } from '@/portal/formDraft'
+import { requestReceivedEmail } from '@/portal/receivedEmail'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { formatPacificDate } from '@/lib/pacificTime'
 import { TIMELINE } from './config'
@@ -22,7 +23,7 @@ import {
 const SCHOOL_INDEX = indexSchools(SCHOOLS)
 const findSchools = (query: string) => searchSchools(SCHOOL_INDEX, query)
 
-// Deadlines are Pacific time wherever the applicant is (11:59 PM Pacific on Nov 29 is Nov 30 in New York).
+// Deadlines are Pacific time wherever the applicant is (11:59 PM Pacific on Nov 30 is Dec 1 in New York).
 const PRIORITY_LABEL = formatPacificDate(TIMELINE.priorityDeadline, { month: 'long', day: 'numeric' })
 const REGULAR_LABEL = formatPacificDate(TIMELINE.regularDeadline, { month: 'long', day: 'numeric' })
 
@@ -190,6 +191,9 @@ export default function HackerApplication() {
       return
     }
 
+    // "We've received your application": the server picks the application and address and
+    // sends it once. Not awaited; if this tab closes first, the portal asks again on its next visit.
+    void requestReceivedEmail(session.user.id)
     draft.clear()
     await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
     navigate(portal.home, { replace: true, state: { justSubmitted: true } })

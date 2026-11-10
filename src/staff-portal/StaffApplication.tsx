@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext'
 import { portal } from '@/portal/paths'
 import { EVENT_CODE, currentEventId } from '@/portal/event'
 import { useFormDraft } from '@/portal/formDraft'
+import { requestReceivedEmail } from '@/portal/receivedEmail'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink, isValidEmail } from '@/lib/applicantInput'
 import { LimitedTextarea, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
@@ -175,6 +176,9 @@ export default function StaffApplication() {
       return
     }
 
+    // "We've received your application": the server picks the application and address and
+    // sends it once. Not awaited; if this tab closes first, the portal asks again on its next visit.
+    void requestReceivedEmail(session.user.id)
     draft.clear()
     await queryClient.invalidateQueries({ queryKey: ['staff-application'] })
     navigate(portal.home, { replace: true, state: { justSubmitted: true } })

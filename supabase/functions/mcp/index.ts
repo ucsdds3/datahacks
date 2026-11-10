@@ -9,7 +9,10 @@
 // on the site and approves the client on /oauth/consent. Every query below runs
 // as that person through a user-scoped client, so row-level security applies
 // exactly as it does in the portal: they can only see and submit their own
-// application, never anyone else's, and never a decision.
+// application, never anyone else's, and never a decision. The one thing done
+// with the service role: after a submission, the "We've received your
+// application" email for that person's own new application
+// (_shared/receivedSend.ts, the same code as send-received-email).
 //
 // URL: https://<project-ref>.supabase.co/functions/v1/mcp
 //
@@ -33,6 +36,7 @@ import {
   type HackerAnswers,
 } from "./application.ts";
 import type { Database } from "./database.types.ts";
+import { sendReceivedInBackground } from "../_shared/receivedSend.ts";
 
 const INSTRUCTIONS = `DataHacks is UC San Diego's data science hackathon, run by DS3. These tools act for the person who signed in.
 
@@ -148,7 +152,11 @@ Deno.serve(
           submitted_at: new Date().toISOString(),
         });
         if (error) return failure(insertErrorMessage(error));
-        return text(`Submitted your ${TYPE_LABEL[checked.row.applicant_type as string]} application to ${event.name}. It's now under review; decisions go out by email, and the status is on the portal: https://datahacks.ds3ucsd.com/portal`);
+        // The "We've received your application" email, the same one the portal's forms
+        // send (supabase/functions/send-received-email). In the background, so this
+        // answers straight away; if it fails, the portal sends it when they next sign in.
+        sendReceivedInBackground({ userId, eventId: event.id });
+        return text(`Submitted your ${TYPE_LABEL[checked.row.applicant_type as string]} application to ${event.name}. It's now under review; a confirmation email is on its way to ${email}, decisions go out by email, and the status is on the portal: https://datahacks.ds3ucsd.com/portal`);
       };
 
       const handler = createMcpHandler(

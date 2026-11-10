@@ -8,6 +8,7 @@ Hackers, mentors and judges can connect an AI assistant (Claude, ChatGPT, Cursor
   - `get_my_application`: who's signed in and their application's type and status.
   - `submit_hacker_application`: the hacker form.
   - `submit_mentor_judge_application`: the mentor / judge / both form.
+- **After a submit:** the person gets the same "We've received your DataHacks 2027 application" email as from the portal's forms, sent in the background with the same code (`supabase/functions/_shared/receivedSend.ts`, see `send-received-email`). It's the one thing the server does with the service role, and only for that person's own new application. If it fails, the portal sends it when they next sign in.
 
 ## How the auth gate works
 
