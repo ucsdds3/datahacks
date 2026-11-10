@@ -53,6 +53,10 @@ export const trimSlash = (pathname: string) => pathname.replace(/(.)\/+$/, "$1")
  */
 export function safeNext(value: string | null | undefined): string | null {
   if (!value || !value.startsWith("/portal/") || value.startsWith("//") || value.includes("\\")) return null;
+  // Never the organizer console, however it's spelled (routes ignore case and decode %XX).
+  let decoded: string;
+  try { decoded = decodeURIComponent(value); } catch { return null; }
+  if (/^\/portal\/+organizer(?:[/?#]|$)/i.test(decoded)) return null;
   // eslint-disable-next-line no-control-regex
   if (/[\s\x00-\x1f]/.test(value)) return null;
   return value;

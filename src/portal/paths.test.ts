@@ -17,7 +17,9 @@ describe("safeNext: where to return after sign-in", () => {
     expect(safeNext("/portal/hacker/resources?x=1")).toBe("/portal/hacker/resources?x=1");
   });
   it("refuses other sites and odd paths", () => {
-    for (const bad of [null, "", "https://evil.com", "//evil.com/portal/", "/portal\\..\\x", "/login/hacker", "/portal/x\nSet-Cookie", "javascript:alert(1)"]) {
+    for (const bad of [null, "", "https://evil.com", "//evil.com/portal/", "/portal\\..\\x", "/login/hacker", "/portal/x\nSet-Cookie", "javascript:alert(1)",
+      // The organizer console has its own sign-in page.
+      "/portal/organizer", "/portal/organizer/", "/portal/Organizer", "/portal/organizer?x=1", "/portal/%6Frganizer", "/portal/%E0%A4%A"]) {
       expect(safeNext(bad), String(bad)).toBeNull();
     }
   });

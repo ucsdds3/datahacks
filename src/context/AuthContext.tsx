@@ -28,11 +28,15 @@ async function fetchRoles(userId: string): Promise<{ role: Role; isOrganizer: bo
   return { role: 'hacker', isOrganizer }
 }
 
+/** The roles read from event_roles, and the account they were read for. */
+type Roles = { userId: string; role: Role; isOrganizer: boolean }
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
-  const [role, setRole] = useState<Role | null>(null)
-  const [isOrganizer, setIsOrganizer] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const [roles, setRoles] = useState<Roles | null>(null)
+  // Set once Supabase confirms there's no saved session, so a signed-out visitor
+  // isn't sent to sign in before a stored session has had the chance to load.
+  const [signedOut, setSignedOut] = useState(false)
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session))
@@ -40,18 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => listener.subscription.unsubscribe()
   }, [])
 
-  // Roles are only ever granted by the database. loading stays true until the
-  // role arrives, so a guarded page never renders on a guess.
+  // Roles are only ever granted by the database.
   const userId = session?.user.id
   useEffect(() => {
     let current = true
     if (!userId) {
+      // Signed out: forget the last account's roles, so signing back in reads them afresh.
+      setRoles(null)
       supabase.auth.getSession().then(({ data }) => {
-        if (current && !data.session) { setRole(null); setIsOrganizer(false); setLoading(false) }
+        if (current && !data.session) setSignedOut(true)
       })
       return () => { current = false }
     }
-    setLoading(true)
     fetchRoles(userId)
       .catch(error => {
         // Signed in but the role can't be read: treat them as a hacker, which
@@ -60,16 +64,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { role: 'hacker' as const, isOrganizer: false }
       })
       .then(next => {
-        if (!current) return
-        setRole(next.role)
-        setIsOrganizer(next.isOrganizer)
-        setLoading(false)
+        if (current) setRoles({ userId, ...next })
       })
     return () => { current = false }
   }, [userId])
 
+  // Roles count only for the account they were read for. When another tab signs
+  // this browser in as someone else, the session changes a render before the new
+  // account's roles are read; until they arrive this is loading, so a guarded page
+  // (the organizer console) never renders with the previous account's roles.
+  const mine = userId && roles?.userId === userId ? roles : null
+  const loading = userId ? !mine : !signedOut
+
   return (
-    <AuthContext.Provider value={{ session, role, isOrganizer, loading }}>
+    <AuthContext.Provider value={{ session, role: mine?.role ?? null, isOrganizer: mine?.isOrganizer ?? false, loading }}>
       {children}
     </AuthContext.Provider>
   )
