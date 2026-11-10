@@ -17,6 +17,7 @@ export function Screen({ title, children }: { title: string; children?: React.Re
     <div className={`sp-root ${themeClass} sp-gate`}>
       <PortalBackdrop />
       <ThemeToggle className="sp-gate-theme" />
+      <a className="sp-home-link sp-gate-home" href="/">&larr; Main website</a>
       <div className="sp-gate-glass">
         <section className="sp-card">
           <img src="/datahacks-logo.png" alt="" />
