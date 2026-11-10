@@ -3,7 +3,7 @@
 Hackers, mentors and judges can connect an AI assistant (Claude, ChatGPT, Cursor, VS Code, Claude Code…) to DataHacks and fill out their application by chatting instead of using the form. The assistant asks the form's questions, reads the answers back, and submits once the person says yes.
 
 - **Server:** `supabase/functions/mcp` (a Supabase Edge Function).
-- **URL:** `https://yrxjhrrphhbmqejresvy.supabase.co/functions/v1/mcp` (production), `https://gpoqlosneoicpzrluilj.supabase.co/functions/v1/mcp` (staging).
+- **URL:** `https://yrxjhrrphhbmqejresvy.supabase.co/functions/v1/mcp` (production; also reachable at `https://auth.ds3atucsd.com/functions/v1/mcp`, the Supabase custom domain), `https://gpoqlosneoicpzrluilj.supabase.co/functions/v1/mcp` (staging).
 - **Tools:**
   - `get_my_application`: who's signed in and their application's type and status.
   - `submit_hacker_application`: the hacker form.
