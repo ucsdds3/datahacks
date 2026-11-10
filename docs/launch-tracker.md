@@ -18,7 +18,7 @@ Last updated: 2026-10-23 (evening, after launch).
 | ID | Item | Next step |
 |---|---|---|
 | M3 | Evan reviews the event picker for the check-in app. | Optional now: the live app already picks DH27BETA. The picker matters once DH27 exists alongside DH27BETA. Send him https://github.com/eparkle/DS3-DataHacks-Check-in/pull/1. |
-| M4 | Google sign-in says "continue to yrxjhrrphhbmqejresvy.supabase.co". | Google Cloud Console → OAuth consent screen. Set the app name "DataHacks", the logo and the ds3ucsd.com domain, then submit for verification. Needs the Google Cloud account that owns the OAuth client. |
+| M4 | ✅ Done 2026-11-10: Google sign-in goes through `auth.ds3atucsd.com` (Supabase custom domain), the OAuth app is In production with DataHacks branding and a privacy policy (/privacy). | Optional: brand verification in Google Cloud (project `datahacks`) to show the name and logo. |
 | M5 | The questionnaire. | Decide what it's for, who fills it in, when it opens and closes, the questions, and whether it blocks anything (for example, check-in). |
 | M6 | Sponsor challenges content. | Per challenge: name, sponsor, a 1–2 sentence prompt, dataset link, judging criteria and prize. |
 | M7 | Design team art. | 9 layer backdrops (overworld, sulfur caves, lush caves, mineshaft, deep dark, stronghold, end city, the end, bedrock), about 2400px wide, WebP or PNG, plus the logo. Lush caves and end city are placeholders. |
