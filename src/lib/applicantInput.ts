@@ -11,7 +11,7 @@ import { friendlyError } from "./friendlyError";
  */
 export const MAX_LENGTH = {
   name: 80, // first_name, last_name [100]
-  short: 150, // city, school, major, organization, role, travel region [200]
+  short: 150, // city, school, major, organization, role, travel region, suggested food/activity [200]
   link: 400, // every *_url [500]
   essay: 3000, // essays, travel note [4000]
   bio: 1500, // mentor blurb [4000]
@@ -80,6 +80,7 @@ const FIELD_LABEL: Record<string, string> = {
   linkedin_url: "LinkedIn link", github_url: "GitHub link", devpost_url: "Devpost link", resume_url: "resume link",
   essay_proudest_project: "proudest project", essay_unique_thing: "something unique", essay_goal: "event goal",
   bio: "blurb", travel_stipend_reason: "travel note", funniest_joke: "funniest joke", lifetime_goal: "lifetime goal",
+  suggested_food: "food suggestion", suggested_activity: "activity suggestion",
   gender: "gender", race_ethnicity: "race/ethnicity", level_of_study: "level of study",
   graduation_year: "graduation year", hackathon_experience: "hackathon experience", travel_method: "travel method",
   travel_distance: "travel distance", heard_about: "how you heard about us", birthdate: "birthdate",

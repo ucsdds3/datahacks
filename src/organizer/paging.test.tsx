@@ -277,6 +277,7 @@ describe("ApplicationDetail", () => {
     const full = application(7, {
       major: "Cognitive Science", essay_proudest_project: "A model that predicts shuttle delays.",
       essay_goal: "Ship something end to end.", heard_about: ["Instagram"],
+      suggested_food: "Poke bowls", suggested_activity: "Smash tournament",
     });
     fake.tables.applications = [full, application(8)];
     // What the table hands the drawer: the list columns only.
@@ -293,9 +294,12 @@ describe("ApplicationDetail", () => {
     expect(await screen.findByText("A model that predicts shuttle delays.")).toBeInTheDocument();
     expect(screen.getByText("Cognitive Science")).toBeInTheDocument();
     expect(screen.getByText("Ship something end to end.")).toBeInTheDocument();
+    expect(screen.getByText("Suggested food").nextSibling).toHaveTextContent("Poke bowls");
+    expect(screen.getByText("Suggested activity").nextSibling).toHaveTextContent("Smash tournament");
     const detail = fake.calls.find(c => c.table === "applications" && c.single)!;
     expect(detail.eq).toEqual([["id", id(7)], ["event_id", "event-1"]]);
     expect(detail.select).toMatch(/essay_proudest_project/);
+    expect(detail.select).toMatch(/suggested_food, suggested_activity/);
     await waitFor(() => expect(screen.queryByText(/Loading the application/)).not.toBeInTheDocument());
   });
 });

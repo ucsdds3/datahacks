@@ -25,6 +25,9 @@ export type StatsRow = {
   attended_before: boolean | null;
   country_of_residence: string | null;
   heard_about: string[] | null;
+  /** Hackers' "Help us plan" answers, as typed (null on applications from before they were asked). */
+  suggested_food: string | null;
+  suggested_activity: string | null;
   wants_travel_stipend: boolean | null;
   travel_region: string | null;
   travel_distance: string | null;
@@ -43,7 +46,8 @@ export type StatsRow = {
 export const STATS_FIELDS = [
   "id", "applicant_type", "status", "submitted_at",
   "school", "major", "level_of_study", "graduation_year", "hackathon_experience", "attended_before",
-  "country_of_residence", "heard_about", "wants_travel_stipend", "travel_region", "travel_distance",
+  "country_of_residence", "heard_about", "suggested_food", "suggested_activity",
+  "wants_travel_stipend", "travel_region", "travel_distance",
   "gender", "race_ethnicity", "judging_track", "ucsd_affiliation",
 ] as const satisfies readonly (keyof StatsRow)[];
 
@@ -348,6 +352,8 @@ export function computeStats(rows: readonly StatsRow[], { goal = HACKER_GOAL, no
       attendedBefore: yesNo(hackers, r => r.attended_before),
       country: topN(tally(hackers, r => r.country_of_residence), 10),
       heardAbout: tally(hackers, r => r.heard_about),
+      food: topN(tally(hackers, r => r.suggested_food), 15),
+      activities: topN(tally(hackers, r => r.suggested_activity), 15),
       travel: yesNo(hackers, r => r.wants_travel_stipend),
       travelDistance: tally(travelers, r => r.travel_distance, { sort: byOptions(TRAVEL_DISTANCES) }),
       travelRegion: topN(tally(travelers, r => r.travel_region), 10),

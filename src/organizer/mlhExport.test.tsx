@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 // The organizer console while MLH is on: the "MLH consent" column and filter,
 // the agreements in the CSV, and the MLH export (docs/mlh.md).
@@ -79,6 +79,20 @@ describe("the hackers table", () => {
     expect(ada[col("MLH emails opt-in")]).toBe("Yes");
     expect(bea[col("MLH consent")]).toBe("Not yet");
     expect(bea[col("MLH emails opt-in")]).toBe("No");
+  });
+
+  it("the hackers CSV has their suggested food and activity (blank for older applications); the mentor/judge CSV doesn't", () => {
+    const withIdeas = [row("ada", undefined, { suggested_food: "Boba", suggested_activity: "=5K" }), row("bea", undefined)];
+    render(<ApplicationsTable kind="hacker" rows={withIdeas} onChanged={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^CSV/ }));
+    const [header, ada, bea] = csv.files[0].rows as string[][];
+    expect(ada[header.indexOf("Suggested food")]).toBe("Boba");
+    expect(ada[header.indexOf("Suggested activity")]).toBe("=5K"); // csvCell guards formulas when the file is written
+    expect(bea[header.indexOf("Suggested food")]).toBe("");
+    cleanup();
+    render(<ApplicationsTable kind="staff" rows={withIdeas.map(r => ({ ...r, applicant_type: "mentor" }))} onChanged={() => {}} />);
+    fireEvent.click(screen.getByRole("button", { name: /^CSV/ }));
+    expect(csv.files[1].rows[0]).not.toContain("Suggested food");
   });
 
   it("the mentor/judge table never gets MLH's columns", () => {

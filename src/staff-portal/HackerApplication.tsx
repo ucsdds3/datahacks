@@ -33,6 +33,7 @@ const blank = {
   major: '', graduation_year: '', hackathon_experience: '', attended_before: null as boolean | null,
   linkedin_url: '', github_url: '', devpost_url: '', resume_url: '',
   essay_proudest_project: '', essay_unique_thing: '', essay_goal: '', funniest_joke: '', lifetime_goal: '',
+  suggested_food: '', suggested_activity: '',
   heard_about: [] as string[],
   wants_travel_stipend: null as boolean | null, travel_region: '', travel_method: '', travel_distance: '', travel_stipend_reason: '',
   agreed_to_terms: false,
@@ -45,14 +46,14 @@ type Form = typeof blank
 const FIELD_ID: Partial<Record<keyof Form, string>> = {
   phone: 'hk-phone', race_ethnicity: 'hk-race', attended_before: 'hk-attended', birthdate: 'hk-birthdate',
   linkedin_url: 'hk-linkedin', github_url: 'hk-github', devpost_url: 'hk-devpost', resume_url: 'hk-resume',
-  heard_about: 'hk-heard', wants_travel_stipend: 'hk-travel', travel_region: 'hk-travel-region',
+  suggested_food: 'hk-food', suggested_activity: 'hk-activity', heard_about: 'hk-heard', wants_travel_stipend: 'hk-travel', travel_region: 'hk-travel-region',
   travel_method: 'hk-travel-method', travel_distance: 'hk-travel-distance', agreed_to_terms: 'hk-agree',
   mlh_code_of_conduct: mlhInputId('hk', 'mlh_code_of_conduct'), mlh_data_sharing: mlhInputId('hk', 'mlh_data_sharing'),
 }
 
 type Problem = { field: keyof Form; message: string }
 
-/** What the browser's own checks can't catch: dropdown pickers, links and yes/no answers (and MLH's boxes while it's on). */
+/** What the browser's own checks can't catch: dropdown pickers, links, yes/no answers, suggestions of only spaces (and MLH's boxes while it's on). */
 export function formProblem(form: Form, today = new Date(), mlh = false): Problem | null {
   const phone = phoneProblem(form.phone)
   if (phone) return { field: 'phone', message: phone }
@@ -64,6 +65,8 @@ export function formProblem(form: Form, today = new Date(), mlh = false): Proble
   if (!isHttpsLink(form.github_url.trim())) return { field: 'github_url', message: 'Enter a link to your GitHub profile, starting with https://.' }
   if (form.devpost_url.trim() && !isHttpsLink(form.devpost_url.trim())) return { field: 'devpost_url', message: 'Your Devpost link should start with https://.' }
   if (!isHttpsLink(form.resume_url.trim())) return { field: 'resume_url', message: 'Enter a link to your resume, starting with https://.' }
+  if (!cleanLine(form.suggested_food)) return { field: 'suggested_food', message: 'Suggest a food item we should have at DataHacks.' }
+  if (!cleanLine(form.suggested_activity)) return { field: 'suggested_activity', message: 'Suggest an activity we should run at DataHacks.' }
   if (form.heard_about.length === 0) return { field: 'heard_about', message: 'Tell us how you heard about DataHacks.' }
   if (form.wants_travel_stipend === null) return { field: 'wants_travel_stipend', message: 'Tell us whether you need travel reimbursement.' }
   if (form.wants_travel_stipend) {
@@ -161,6 +164,8 @@ export default function HackerApplication() {
       essay_goal: cleanText(form.essay_goal),
       funniest_joke: cleanText(form.funniest_joke),
       lifetime_goal: cleanText(form.lifetime_goal),
+      suggested_food: cleanLine(form.suggested_food),
+      suggested_activity: cleanLine(form.suggested_activity),
       race_ethnicity: form.race_ethnicity.join('; '),
       attended_before: form.attended_before === true,
       wants_travel_stipend: travel === true,
@@ -302,6 +307,16 @@ export default function HackerApplication() {
           </label>
           <label>A lifetime goal of yours <span>(optional)</span>
             <LimitedTextarea rows={2} maxLength={MAX_LENGTH.brief} {...text('lifetime_goal')} />
+          </label>
+
+          <h2 className="sp-form-section">Help us plan</h2>
+          <label className={errorClass('suggested_food')}>Suggest a food item we should have at DataHacks <Req />
+            <input id="hk-food" required maxLength={MAX_LENGTH.short} placeholder="Boba, poke bowls…" {...text('suggested_food')} {...mark('suggested_food')} />
+            {fieldError('suggested_food')}
+          </label>
+          <label className={errorClass('suggested_activity')}>Suggest an activity we should run at DataHacks <Req />
+            <input id="hk-activity" required maxLength={MAX_LENGTH.short} placeholder="Smash tournament, 5K…" {...text('suggested_activity')} {...mark('suggested_activity')} />
+            {fieldError('suggested_activity')}
           </label>
 
           <h2 className="sp-form-section">How did you hear about DataHacks?</h2>

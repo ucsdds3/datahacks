@@ -28,7 +28,7 @@ const base: Omit<Application, "id" | "applicant_type" | "status" | "first_name" 
   school: null, level_of_study: null, major: null, graduation_year: null, organization: null, role_title: null,
   resume_url: null, linkedin_url: "https://www.linkedin.com/in/example", devpost_url: null,
   judging_track: null, bio: null, essay_proudest_project: null, essay_unique_thing: null, essay_goal: null,
-  heard_about: null, decision: null, decision_released_at: null, decision_emailed_at: null,
+  suggested_food: null, suggested_activity: null, heard_about: null, decision: null, decision_released_at: null, decision_emailed_at: null,
   decided_by: null, decided_at: null, decision_version: 0,
   gender: null, race_ethnicity: null, city_of_residence: "San Diego", country_of_residence: "United States",
   hackathon_experience: null, github_url: "https://github.com/example", wants_travel_stipend: false,
@@ -43,7 +43,7 @@ const hacker = (id: number, first: string, last: string, school: string, extra: 
   email: `${first.toLowerCase()}@example.edu`, school, level_of_study: "Undergraduate", major: "Data Science",
   graduation_year: "2028", essay_proudest_project: "A model that predicts campus shuttle delays from GPS pings.",
   essay_unique_thing: "I've run three workshops on data visualization.", essay_goal: "Ship something end to end in a weekend.",
-  heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null,
+  suggested_food: "Boba", suggested_activity: "Smash tournament", heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null,
   // Every other sample hacker has agreed to MLH's checkboxes (shown with ?preview&mlh).
   mlh: id % 2 === 0
     ? { codeOfConductAt: "2026-11-12T10:00:00-08:00", dataSharingAt: "2026-11-12T10:00:00-08:00", emailsOptIn: id % 4 === 0 }

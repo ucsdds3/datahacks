@@ -51,7 +51,7 @@ export const MLH_LINKS = {
 /** Longest answer each kind of field accepts in the forms; each is below the database's cap. */
 export const MAX_LENGTH = {
   name: 80, // first_name, last_name [100]
-  short: 150, // city, school, major, organization, role, travel region [200]
+  short: 150, // city, school, major, organization, role, travel region, suggested food/activity [200]
   link: 400, // every *_url [500]
   essay: 3000, // essays, travel note [4000]
   bio: 1500, // mentor blurb [4000]
@@ -247,6 +247,8 @@ export type HackerAnswers = {
   essay_goal: string;
   funniest_joke?: string;
   lifetime_goal?: string;
+  suggested_food: string;
+  suggested_activity: string;
   heard_about: string[];
   wants_travel_stipend: boolean;
   travel_region?: string;
@@ -315,6 +317,8 @@ export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Ch
     essay_goal: prose(MAX_LENGTH.essay),
     funniest_joke: prose(MAX_LENGTH.brief, false),
     lifetime_goal: prose(MAX_LENGTH.brief, false),
+    suggested_food: line(MAX_LENGTH.short),
+    suggested_activity: line(MAX_LENGTH.short),
     travel_region: line(MAX_LENGTH.short, travel),
     travel_stipend_reason: prose(MAX_LENGTH.essay, false),
   }, problems);
@@ -395,6 +399,8 @@ export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Ch
       essay_goal: t.essay_goal,
       funniest_joke: t.funniest_joke,
       lifetime_goal: t.lifetime_goal,
+      suggested_food: t.suggested_food,
+      suggested_activity: t.suggested_activity,
       heard_about: heard,
       wants_travel_stipend: travel,
       travel_region: travel ? t.travel_region : null,

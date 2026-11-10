@@ -8,12 +8,13 @@ a courtesy; the database's are the rule.
 ## What the database enforces
 
 `supabase/migrations/20261024001558_application_checks.sql` adds one
-`application_<column>_check` per column of `public.applications`:
+`application_<column>_check` per column of `public.applications` (later columns
+bring their own, e.g. `20261110090000_suggested_food_activity.sql`):
 
 | Columns | Rule |
 | --- | --- |
 | first_name, last_name, country_of_residence | at most 100 characters, no control characters (no tabs or line breaks) |
-| city_of_residence, school, major, organization, role_title, travel_region | at most 200, no control characters |
+| city_of_residence, school, major, organization, role_title, travel_region, suggested_food, suggested_activity | at most 200, no control characters |
 | essay_*, bio, travel_stipend_reason | at most 4000; tab, newline and CR allowed, no other control characters |
 | funniest_joke, lifetime_goal | at most 1000, same |
 | linkedin_url, github_url, devpost_url, resume_url | `https://` + plain host, no whitespace, quotes, `<>` or `\`, at most 500 |

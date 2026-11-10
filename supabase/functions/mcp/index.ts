@@ -232,6 +232,8 @@ Deno.serve(
                 essay_goal: z.string().describe(`What would you like to get out of this event? Their own words, at most ${MAX_LENGTH.essay} characters`),
                 funniest_joke: z.string().optional().describe(`Funniest joke (optional, at most ${MAX_LENGTH.brief} characters)`),
                 lifetime_goal: z.string().optional().describe(`A lifetime goal of theirs (optional, at most ${MAX_LENGTH.brief} characters)`),
+                suggested_food: z.string().describe(`Suggest a food item we should have at DataHacks (e.g. boba, poke bowls). Their own idea, one line, at most ${MAX_LENGTH.short} characters`),
+                suggested_activity: z.string().describe(`Suggest an activity we should run at DataHacks (e.g. a Smash tournament, a 5K). Their own idea, one line, at most ${MAX_LENGTH.short} characters`),
                 heard_about: z.array(enumOf(HEARD_ABOUT)).min(1).describe("How they heard about DataHacks; pick all that apply"),
                 wants_travel_stipend: z.boolean().describe("Would they need travel reimbursement to attend?"),
                 travel_region: z.string().optional().describe(`Where they're traveling from: city, state or country, at most ${MAX_LENGTH.short} characters. Required if they want travel reimbursement`),

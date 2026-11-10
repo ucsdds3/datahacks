@@ -50,9 +50,15 @@ const CSV_EXTRA: Column[] = [
   { header: "Staged decision", value: r => (isStaged(r) ? r.decision! : "") },
   { header: "Check-in code", value: r => r.code ?? "" },
 ];
-/** And the mentor/judge form's "How did you hear about DataHacks?" in the mentors & judges CSV. */
+/**
+ * Per-table CSV extras: hackers' "Help us plan" answers (blank for people who applied before it was asked),
+ * and the mentor/judge form's "How did you hear about DataHacks?".
+ */
 const CSV_KIND: Record<Kind, Column[]> = {
-  hacker: [],
+  hacker: [
+    { header: "Suggested food", value: r => r.suggested_food ?? "" },
+    { header: "Suggested activity", value: r => r.suggested_activity ?? "" },
+  ],
   staff: [{ header: "Heard about us", value: r => r.heard_about?.join(", ") ?? "" }],
 };
 

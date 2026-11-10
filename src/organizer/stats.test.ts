@@ -9,8 +9,8 @@ import {
 const row = (extra: Partial<StatsRow> = {}): StatsRow => ({
   id: "x", applicant_type: "hacker", status: "submitted", submitted_at: "2026-11-10T12:00:00-08:00",
   school: null, major: null, level_of_study: null, graduation_year: null, hackathon_experience: null, attended_before: null,
-  country_of_residence: null, heard_about: null, wants_travel_stipend: null, travel_region: null, travel_distance: null,
-  gender: null, race_ethnicity: null, judging_track: null, ucsd_affiliation: null, decision: null, checkedIn: false,
+  country_of_residence: null, heard_about: null, suggested_food: null, suggested_activity: null,
+  wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null, judging_track: null, ucsd_affiliation: null, decision: null, checkedIn: false,
   ...extra,
 });
 
@@ -212,12 +212,19 @@ describe("decisions", () => {
 describe("computeStats", () => {
   const rows: StatsRow[] = [
     row({ id: "1", school: "UCSD", hackathon_experience: HACKATHON_EXPERIENCE[0], submitted_at: "2026-11-20T10:00:00-08:00", wants_travel_stipend: false }),
-    row({ id: "2", school: "University of California, San Diego", hackathon_experience: HACKATHON_EXPERIENCE[1], wants_travel_stipend: false }),
+    row({
+      id: "2", school: "University of California, San Diego", hackathon_experience: HACKATHON_EXPERIENCE[1], wants_travel_stipend: false,
+      suggested_food: "Boba", suggested_activity: "Smash tournament",
+    }),
     row({
       id: "3", school: "UCLA", hackathon_experience: HACKATHON_EXPERIENCE[0], submitted_at: "2026-12-01T10:00:00-08:00",
       wants_travel_stipend: true, travel_region: "Los Angeles, CA", travel_distance: "50–200 miles",
+      suggested_food: "boba ", suggested_activity: "5K",
     }),
-    row({ id: "4", status: "draft", submitted_at: null, school: "Stanford University", hackathon_experience: HACKATHON_EXPERIENCE[0] }),
+    row({
+      id: "4", status: "draft", submitted_at: null, school: "Stanford University", hackathon_experience: HACKATHON_EXPERIENCE[0],
+      suggested_food: "Pizza", suggested_activity: "Karaoke",
+    }),
     row({ id: "5", applicant_type: "mentor", ucsd_affiliation: "alumni", heard_about: ["Word of Mouth"] }),
     row({
       id: "6", applicant_type: "judge", judging_track: "biotech_life_sciences", ucsd_affiliation: "none", decision: "accepted",
@@ -251,6 +258,13 @@ describe("computeStats", () => {
     expect(bars(stats.hacker.travelRegion.items)).toEqual([["Los Angeles, CA", 1]]);
     expect(stats.hacker.experience.items[0].label).toBe(HACKATHON_EXPERIENCE[0]);
     expect(stats.daily.at(-1)).toMatchObject({ day: "2026-12-02", cumulative: 3 });
+  });
+
+  it("lists hackers' suggested food and activities, grouped, without drafts or older applications", () => {
+    expect(bars(stats.hacker.food.items)).toEqual([["Boba", 2]]);
+    expect(stats.hacker.food).toMatchObject({ answered: 2, missing: 1, distinct: 1 });
+    expect(bars(stats.hacker.activities.items)).toEqual([["5K", 1], ["Smash tournament", 1]]);
+    expect(stats.hacker.activities.missing).toBe(1);
   });
 
   it("breaks mentors and judges down by role, decision, track and affiliation, with the form's labels", () => {
