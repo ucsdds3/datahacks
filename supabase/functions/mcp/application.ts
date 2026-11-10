@@ -260,7 +260,6 @@ export type StaffAnswers = {
   bio?: string;
   acknowledged_in_person_judging?: boolean;
   acknowledged_onsite_mentoring?: boolean;
-  acknowledged_both_priority: boolean;
 };
 
 export type Checked = { row: Record<string, unknown> } | { problems: string[] };
@@ -424,9 +423,6 @@ export function checkStaff(a: StaffAnswers): Checked {
   if (mentoring && a.acknowledged_onsite_mentoring !== true) {
     problems.push("acknowledged_onsite_mentoring: mentors must confirm they'll be onsite 12:30–4:30 PM on Saturday, January 16th (check-in opens at 12:00 PM).");
   }
-  if (a.acknowledged_both_priority !== true) {
-    problems.push("acknowledged_both_priority: they must confirm they understand people who both mentor and judge get priority.");
-  }
   if (problems.length) return { problems };
 
   return {
@@ -443,7 +439,6 @@ export function checkStaff(a: StaffAnswers): Checked {
       bio: mentoring && bio.length > 0 ? bio : null,
       acknowledged_in_person_judging: judging,
       acknowledged_onsite_mentoring: mentoring,
-      acknowledged_both_priority: true,
     },
   };
 }

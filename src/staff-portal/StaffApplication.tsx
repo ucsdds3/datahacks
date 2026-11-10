@@ -19,7 +19,7 @@ type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
   { value: 'mentor', label: 'Mentor' },
   { value: 'judge', label: 'Judge' },
-  { value: 'hybrid', label: 'Both (priority preference)' },
+  { value: 'hybrid', label: 'Both' },
 ]
 
 const ucsdOptions = [
@@ -51,7 +51,6 @@ const blank = {
   bio: '',
   acknowledged_in_person_judging: false,
   acknowledged_onsite_mentoring: false,
-  acknowledged_both_priority: false,
 }
 
 export default function StaffApplication() {
@@ -93,7 +92,6 @@ export default function StaffApplication() {
   if (isJudging && !form.judging_track) missing.push('judging_track')
   if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
   if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
-  if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
   const isComplete = missing.length === 0
   const cls = (key: string, base = '') =>
     [base, showErrors && missing.includes(key) ? 'sp-field-error' : ''].filter(Boolean).join(' ') || undefined
@@ -164,7 +162,6 @@ export default function StaffApplication() {
       bio: isMentoring && bioLength > 0 ? bio : null,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
-      acknowledged_both_priority: form.acknowledged_both_priority,
     })
 
     setSubmitting(false)
@@ -312,20 +309,6 @@ export default function StaffApplication() {
                   <label htmlFor="onsite_mentoring">{MENTOR_ONSITE_ACKNOWLEDGEMENT}</label>
                 </div>
               )}
-
-              <div id="field-acknowledged_both_priority" className={cls('acknowledged_both_priority', 'sp-check')}>
-                <input
-                  type="checkbox"
-                  id="both_priority"
-                  required
-                  checked={form.acknowledged_both_priority}
-                  onChange={e => update('acknowledged_both_priority', e.target.checked)}
-                  {...inv('acknowledged_both_priority')}
-                />
-                <label htmlFor="both_priority">
-                  I understand that applicants both mentoring and judging will be given priority preference.
-                </label>
-              </div>
             </div>
 
             {error && <p className="sp-error" role="alert">{error}</p>}
