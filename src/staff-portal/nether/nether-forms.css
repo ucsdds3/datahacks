@@ -154,7 +154,10 @@
 
 /* Birthdate: empty looks empty (see DateInput in formFields.tsx). */
 .sp-root.sp-nether .sp-date { position: relative; display: block; margin-top: 8px; }
-.sp-root.sp-nether .sp-date input { display: block; }
+/* iOS Safari gives date fields an intrinsic minimum width, so on a phone the box ran past the form's edge:
+   size it to the column instead (appearance: none also lets the min-height apply), value kept on the left. */
+.sp-root.sp-nether .sp-date input { display: block; width: 100%; max-width: 100%; min-width: 0; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+.sp-root.sp-nether .sp-date input::-webkit-date-and-time-value { text-align: left; }
 .sp-root.sp-nether .sp-date input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.85; }
 .sp-root.sp-nether .sp-date-hint { display: none; }
 @supports selector(::-webkit-datetime-edit) {

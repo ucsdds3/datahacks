@@ -243,7 +243,7 @@ describe("matchOption", () => {
 const mentor: mcp.StaffAnswers = {
   first_name: "Grace", last_name: "Hopper", phone: "858-555-0123", organization: "Navy", role_title: "Rear Admiral",
   linkedin_url: "https://linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "mentor",
-  acknowledged_onsite_mentoring: true,
+  acknowledged_onsite_mentoring: true, acknowledged_in_person: true,
 };
 
 describe("checkStaff", () => {

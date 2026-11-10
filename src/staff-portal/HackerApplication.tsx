@@ -316,6 +316,7 @@ export default function HackerApplication() {
             <span className="sp-field-label">Would you need travel reimbursement to attend? <Req /></span>
             <YesNo id="hk-travel" name="wants_travel_stipend" value={form.wants_travel_stipend} onChange={v => update('wants_travel_stipend', v)} />
             {fieldError('wants_travel_stipend')}
+            <p className="sp-form-note"><strong>Reimbursement is not guaranteed.</strong> It's decided case by case. If you're accepted to DataHacks, we'll send you the next steps for reimbursement.</p>
           </div>
           {form.wants_travel_stipend && (
             <>
