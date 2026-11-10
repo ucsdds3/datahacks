@@ -21,7 +21,7 @@ a courtesy; the database's are the rule.
 | email | one plain address (letters, digits, `. _ + ' -`, a dotted domain), at most 254 |
 | phone | `(858) 555-0123` |
 | status | draft, submitted, accepted, waitlisted, rejected |
-| gender, level_of_study, hackathon_experience, travel_method, travel_distance, race_ethnicity (each `; ` piece), heard_about (each element) | one of the options in `src/staff-portal/formOptions.ts` |
+| gender, level_of_study, hackathon_experience, travel_method, travel_distance, race_ethnicity (each `; ` piece), heard_about (each element) | one of the options in `src/staff-portal/formOptions.ts` (heard_about: `HEARD_ABOUT` from hackers, `STAFF_HEARD_ABOUT` from mentors and judges) |
 | graduation_year | a year 1900–2099, "Already graduated" or "Not applicable" |
 | birthdate | 1900-01-01 to 18 years before today |
 

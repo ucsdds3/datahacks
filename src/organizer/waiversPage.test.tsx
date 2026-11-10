@@ -12,7 +12,7 @@ const ID2 = "6f1c2a9e-3b7d-4e8a-9c0f-1a2b3c4d5e62";
 const ID3 = "6f1c2a9e-3b7d-4e8a-9c0f-1a2b3c4d5e63";
 const row = (id: string, first: string, email: string, extra: Partial<Row> = {}): Row => ({
   id, applicant_type: "hacker", status: "accepted", submitted_at: null, first_name: first, last_name: "Test", email,
-  phone: null, school: null, level_of_study: null, organization: null, decision: "accepted", decided_by: null, decided_at: null, decision_version: 1, decision_released_at: null,
+  phone: null, school: null, level_of_study: null, organization: null, heard_about: null, decision: "accepted", decided_by: null, decided_at: null, decision_version: 1, decision_released_at: null,
   decision_emailed_at: null, code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,
 });
 const ROWS = [

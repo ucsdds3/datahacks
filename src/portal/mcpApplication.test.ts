@@ -36,6 +36,10 @@ describe("MCP application server matches the portal", () => {
     expect(mcp.COUNTRIES).toEqual(form.COUNTRIES);
   });
 
+  it("offers the same choices as the mentor/judge form", () => {
+    expect(mcp.STAFF_HEARD_ABOUT).toEqual(form.STAFF_HEARD_ABOUT);
+  });
+
   it("has the forms' length limits", () => expect(mcp.MAX_LENGTH).toEqual(input.MAX_LENGTH));
 
   // The copies of applicantInput's rules must agree with the originals on every input,
@@ -132,6 +136,12 @@ describe("MCP application server matches the database", () => {
     expect(allowed("applications_judging_track_check")).toEqual([...mcp.JUDGING_TRACKS]);
     expect(allowed("applications_ucsd_affiliation_check")).toEqual([...mcp.UCSD_AFFILIATIONS]);
     expect(allowed("applications_applicant_type_check")).toEqual(["hacker", ...mcp.STAFF_TYPES]);
+  });
+
+  // Needs 20261110060000_staff_heard_about.sql, which gives mentors and judges their own list.
+  it("sends mentors' and judges' own heard_about options, which the database takes from them", () => {
+    expect(allowedBy("application_heard_about_check").staff, "the database takes mentors' and judges' options from 20261110060000_staff_heard_about.sql on")
+      .toEqual([...mcp.STAFF_HEARD_ABOUT]);
   });
 });
 
@@ -253,7 +263,7 @@ describe("matchOption", () => {
 const mentor: mcp.StaffAnswers = {
   first_name: "Grace", last_name: "Hopper", phone: "858-555-0123", organization: "Navy", role_title: "Rear Admiral",
   linkedin_url: "https://linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "mentor",
-  acknowledged_onsite_mentoring: true, acknowledged_in_person: true,
+  heard_about: ["Word of Mouth"], acknowledged_onsite_mentoring: true, acknowledged_in_person: true,
 };
 
 describe("checkStaff", () => {
@@ -283,6 +293,17 @@ describe("checkStaff", () => {
 
   it("takes an https LinkedIn link only", () => {
     expect(problemFields(mcp.checkStaff({ ...mentor, linkedin_url: "linkedin.com/in/grace" }))).toEqual(["linkedin_url"]);
+  });
+
+  it("saves how they heard about DataHacks as the options' exact values, once each", () => {
+    const result = mcp.checkStaff({ ...mentor, heard_about: ["ieee member", "UCSD's The Basement", "IEEE Member"] });
+    expect("row" in result && result.row).toMatchObject({ heard_about: ["IEEE Member", "UCSD's The Basement"] });
+  });
+
+  it("needs at least one heard_about, and only the staff options", () => {
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: [] }))).toEqual(["heard_about"]);
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: ["Instagram"] }))).toEqual(["heard_about"]);
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: ["Word of Mouth", "Billboard"] }))).toEqual(["heard_about"]);
   });
 });
 

@@ -70,7 +70,7 @@ export function formatPhone(value: string) {
   return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
 }
 
-type AriaProps = { "aria-invalid"?: boolean; "aria-describedby"?: string };
+type AriaProps = { "aria-invalid"?: boolean; "aria-describedby"?: string; "aria-labelledby"?: string };
 
 export function PhoneInput({ value, onChange, id, ...aria }: { value: string; onChange: (value: string) => void; id?: string } & AriaProps) {
   const ref = useRef<HTMLInputElement>(null);

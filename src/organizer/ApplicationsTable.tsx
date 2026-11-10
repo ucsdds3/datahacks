@@ -50,6 +50,11 @@ const CSV_EXTRA: Column[] = [
   { header: "Staged decision", value: r => (isStaged(r) ? r.decision! : "") },
   { header: "Check-in code", value: r => r.code ?? "" },
 ];
+/** And the mentor/judge form's "How did you hear about DataHacks?" in the mentors & judges CSV. */
+const CSV_KIND: Record<Kind, Column[]> = {
+  hacker: [],
+  staff: [{ header: "Heard about us", value: r => r.heard_about?.join(", ") ?? "" }],
+};
 
 /**
  * While MLH is on (docs/mlh.md), hackers get an "MLH consent" column and
@@ -136,7 +141,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses,
   };
 
   const exportCsv = () => {
-    const cols = [...columns, ...CSV_EXTRA, ...(mlh ? MLH_CSV : [])];
+    const cols = [...columns, ...CSV_EXTRA, ...CSV_KIND[kind], ...(mlh ? MLH_CSV : [])];
     downloadCsv(csvFilename(TABLE_SLUG[kind], tab), [cols.map(c => c.header), ...visible.map(r => cols.map(c => c.value(r)))]);
   };
 
