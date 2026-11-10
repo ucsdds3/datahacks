@@ -228,6 +228,26 @@
   white-space: nowrap;
 }
 .sp-root.sp-nether .sp-brand img { display: none; }
+/* "← Main website" beside the brand in the top bar (and at the top right of the sign-in screens). */
+.sp-root .sp-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 18px;
+  color: var(--nether-muted, #c9b9a6);
+  font: 600 13px/1 var(--nether-font-body, system-ui), sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.sp-root .sp-home-link:hover,
+.sp-root .sp-home-link:focus-visible { color: var(--nether-lava, #f2862f); text-decoration: underline; text-underline-offset: 3px; }
+.sp-root.sp-gate .sp-gate-home {
+  position: absolute;
+  z-index: 2;
+  top: max(20px, env(safe-area-inset-top));
+  right: max(clamp(12px, 1.8vw, 26px), env(safe-area-inset-right));
+  margin: 0;
+}
 .sp-root.sp-nether .sp-brand > div { display: flex; gap: 0.6em; }
 .sp-root.sp-nether .sp-brand :is(strong, span) {
   display: inline;

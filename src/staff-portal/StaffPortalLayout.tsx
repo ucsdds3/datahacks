@@ -1,6 +1,6 @@
 import { Navigate, NavLink, Outlet, useLocation } from "react-router-dom";
 import {
-  BookOpen, Bus, CalendarClock, ClipboardList, Cpu, FileSignature, Gavel, HandHelping, LayoutDashboard, Library, LogOut, Mail,
+  ArrowLeft, BookOpen, Bus, CalendarClock, ClipboardList, Cpu, FileSignature, Gavel, HandHelping, LayoutDashboard, Library, LogOut, Mail,
   Plane, Receipt, Send, Trophy, Users, UtensilsCrossed, Waypoints,
 } from "lucide-react";
 import { Suspense, useLayoutEffect, useRef, type ReactNode } from "react";
@@ -111,6 +111,8 @@ export function PortalFrame({ nav, signOutPath, children }: { nav: ReactNode; si
           <div className="sp-brand">
             <img src="/datahacks-logo.png" alt="" />
             <div><strong>DataHacks</strong><span>Portal</span></div>
+            {/* A full page load: the homepage is a separate static page (see src/pages/Home.tsx). */}
+            <a className="sp-home-link" href="/"><ArrowLeft size={14} aria-hidden /> Main website</a>
           </div>
           <nav className="sp-nav" aria-label="Portal" ref={navRef}>
             {nav}
