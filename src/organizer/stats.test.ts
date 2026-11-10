@@ -138,6 +138,8 @@ describe("Pacific time", () => {
   });
 });
 
+const DAY = 86_400_000;
+
 describe("dailySubmissions", () => {
   const at = (submitted_at: string | null) => ({ submitted_at });
 
@@ -160,8 +162,11 @@ describe("dailySubmissions", () => {
   });
 
   it("stops at the regular deadline once applications have closed", () => {
-    const days = dailySubmissions([at("2026-12-13T12:00:00-08:00")], new Date("2027-01-20T12:00:00-08:00"));
-    expect(days.map(d => d.day)).toEqual(["2026-12-13", "2026-12-14", "2026-12-15"]);
+    // Relative to TIMELINE, so the test follows the deadline when it moves.
+    const end = new Date(TIMELINE.regularDeadline).getTime();
+    const iso = (ms: number) => new Date(ms).toISOString();
+    const days = dailySubmissions([at(iso(end - 2 * DAY))], new Date("2027-01-20T12:00:00-08:00"));
+    expect(days.map(d => d.day)).toEqual([pacificDay(iso(end - 2 * DAY)), pacificDay(iso(end - DAY)), pacificDay(iso(end))]);
   });
 
   it("is empty with nothing submitted", () => {
