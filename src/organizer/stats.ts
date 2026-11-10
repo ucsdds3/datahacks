@@ -361,6 +361,7 @@ export function computeStats(rows: readonly StatsRow[], { goal = HACKER_GOAL, no
       decisions: decisionTally(staff),
       checkin: checkinTally(staff),
       tracks: tally(judges, r => r.judging_track, { label: v => JUDGING_TRACK_LABEL[v] ?? humanize(v) }),
+      heardAbout: tally(staff, r => r.heard_about),
       affiliation: tally(staff, r => r.ucsd_affiliation, {
         label: v => UCSD_AFFILIATION_LABEL[v] ?? humanize(v), sort: byOptions(Object.keys(UCSD_AFFILIATION_LABEL)),
       }),

@@ -1,4 +1,4 @@
-import { GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, TRAVEL_DISTANCES } from "@/staff-portal/formOptions";
+import { GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, STAFF_HEARD_ABOUT, TRAVEL_DISTANCES } from "@/staff-portal/formOptions";
 import type { StatsData } from "./data";
 import type { StatsRow } from "./stats";
 import type { ApplicantType, Decision } from "./types";
@@ -91,6 +91,10 @@ const RACE: Weighted<string> = [
 
 const TRACKS: Weighted<string> = [["social_good", 20], ["biotech_life_sciences", 25], ["defense_cybersecurity", 15], ["finance", 25], ["entertainment", 15]];
 const AFFILIATIONS: Weighted<string> = [["none", 55], ["alumni", 25], ["student", 10], ["faculty", 10]];
+const STAFF_HEARD: Weighted<string> = [
+  [STAFF_HEARD_ABOUT[6], 30], [STAFF_HEARD_ABOUT[1], 25], [STAFF_HEARD_ABOUT[4], 22], [STAFF_HEARD_ABOUT[0], 20], [STAFF_HEARD_ABOUT[3], 18],
+  [STAFF_HEARD_ABOUT[2], 6], [STAFF_HEARD_ABOUT[7], 6], [STAFF_HEARD_ABOUT[5], 5], [STAFF_HEARD_ABOUT[8], 4],
+];
 
 /** Submissions per day from November 3: a launch spike, a quiet middle, a rush at each deadline. */
 function perDay(day: number, rand: () => number) {
@@ -161,6 +165,8 @@ function build(): StatsRow[] {
       ...blank(`ps${i}`, type),
       submitted_at: new Date(OPENED + Math.floor(rand() * DAYS) * 86_400_000).toISOString(),
       judging_track: type === "mentor" ? null : pick(TRACKS), ucsd_affiliation: pick(AFFILIATIONS),
+      // A few applied before the question was asked.
+      heard_about: i < 8 ? null : pickSome(STAFF_HEARD, 2),
     };
     decide(row, 0.55, [["accepted", 80], ["waitlisted", 8], ["rejected", 8]]);
     rows.push(row);

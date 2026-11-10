@@ -71,7 +71,7 @@ export const NO_REVIEW: Review = { decision: null, decided_by: null, decided_at:
  */
 export const LIST_FIELDS = [
   "id", "applicant_type", "status", "submitted_at",
-  "first_name", "last_name", "email", "phone", "school", "level_of_study", "organization",
+  "first_name", "last_name", "email", "phone", "school", "level_of_study", "organization", "heard_about",
   "decision_released_at", "decision_emailed_at",
 ] as const satisfies readonly (keyof Application)[];
 

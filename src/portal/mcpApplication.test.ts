@@ -36,6 +36,10 @@ describe("MCP application server matches the portal", () => {
     expect(mcp.COUNTRIES).toEqual(form.COUNTRIES);
   });
 
+  it("offers the same choices as the mentor/judge form", () => {
+    expect(mcp.STAFF_HEARD_ABOUT).toEqual(form.STAFF_HEARD_ABOUT);
+  });
+
   it("has the forms' length limits", () => expect(mcp.MAX_LENGTH).toEqual(input.MAX_LENGTH));
 
   // The copies of applicantInput's rules must agree with the originals on every input,
@@ -101,14 +105,24 @@ describe("MCP application server matches the database", () => {
   const dir = join(__dirname, "../../supabase/migrations");
   const sql = readdirSync(dir).sort().map(f => readFileSync(join(dir, f), "utf8")).join("\n")
     .replace(/--.*$/gm, ""); // comments quote values too
-  /** The quoted values in a constraint's definition, '' unescaped. */
-  const allowed = (constraint: string) => {
+  /** A constraint's definition, from its latest migration. */
+  const definition = (constraint: string) => {
     const start = sql.lastIndexOf(constraint);
     expect(start, constraint).toBeGreaterThan(-1);
     const rest = sql.slice(start + constraint.length);
     const end = rest.search(/\n\s*(add )?constraint |;\s*\n/i);
-    const body = end === -1 ? rest : rest.slice(0, end);
-    return [...body.matchAll(/'((?:[^']|'')*)'/g)].map(m => m[1].replace(/''/g, "'"));
+    return end === -1 ? rest : rest.slice(0, end);
+  };
+  /** The quoted values in some SQL, '' unescaped. */
+  const quoted = (text: string) => [...text.matchAll(/'((?:[^']|'')*)'/g)].map(m => m[1].replace(/''/g, "'"));
+  /** The quoted values in a constraint's definition. */
+  const allowed = (constraint: string) => quoted(definition(constraint));
+  /** What a constraint takes from hackers and from mentors and judges, when it
+   *  splits them (case when applicant_type = 'hacker' then … else … end). */
+  const allowedBy = (constraint: string) => {
+    const body = definition(constraint);
+    const split = body.match(/case when applicant_type = 'hacker'\s+then([\s\S]*)\belse\b([\s\S]*)\bend\b/i);
+    return split ? { hacker: quoted(split[1]), staff: quoted(split[2]) } : { hacker: quoted(body), staff: quoted(body) };
   };
 
   it("sends only values the CHECK constraints accept", () => {
@@ -118,10 +132,16 @@ describe("MCP application server matches the database", () => {
     expect(allowed("application_hackathon_experience_check")).toEqual([...mcp.HACKATHON_EXPERIENCE]);
     expect(allowed("application_travel_method_check")).toEqual([...mcp.TRAVEL_METHODS]);
     expect(allowed("application_travel_distance_check")).toEqual([...mcp.TRAVEL_DISTANCES]);
-    expect(allowed("application_heard_about_check")).toEqual([...mcp.HEARD_ABOUT]);
+    expect(allowedBy("application_heard_about_check").hacker).toEqual([...mcp.HEARD_ABOUT]);
     expect(allowed("applications_judging_track_check")).toEqual([...mcp.JUDGING_TRACKS]);
     expect(allowed("applications_ucsd_affiliation_check")).toEqual([...mcp.UCSD_AFFILIATIONS]);
     expect(allowed("applications_applicant_type_check")).toEqual(["hacker", ...mcp.STAFF_TYPES]);
+  });
+
+  // Needs 20261110060000_staff_heard_about.sql, which gives mentors and judges their own list.
+  it("sends mentors' and judges' own heard_about options, which the database takes from them", () => {
+    expect(allowedBy("application_heard_about_check").staff, "the database takes mentors' and judges' options from 20261110060000_staff_heard_about.sql on")
+      .toEqual([...mcp.STAFF_HEARD_ABOUT]);
   });
 });
 
@@ -243,7 +263,7 @@ describe("matchOption", () => {
 const mentor: mcp.StaffAnswers = {
   first_name: "Grace", last_name: "Hopper", phone: "858-555-0123", organization: "Navy", role_title: "Rear Admiral",
   linkedin_url: "https://linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "mentor",
-  acknowledged_onsite_mentoring: true, acknowledged_in_person: true,
+  heard_about: ["Word of Mouth"], acknowledged_onsite_mentoring: true, acknowledged_in_person: true,
 };
 
 describe("checkStaff", () => {
@@ -273,6 +293,17 @@ describe("checkStaff", () => {
 
   it("takes an https LinkedIn link only", () => {
     expect(problemFields(mcp.checkStaff({ ...mentor, linkedin_url: "linkedin.com/in/grace" }))).toEqual(["linkedin_url"]);
+  });
+
+  it("saves how they heard about DataHacks as the options' exact values, once each", () => {
+    const result = mcp.checkStaff({ ...mentor, heard_about: ["ieee member", "UCSD's The Basement", "IEEE Member"] });
+    expect("row" in result && result.row).toMatchObject({ heard_about: ["IEEE Member", "UCSD's The Basement"] });
+  });
+
+  it("needs at least one heard_about, and only the staff options", () => {
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: [] }))).toEqual(["heard_about"]);
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: ["Instagram"] }))).toEqual(["heard_about"]);
+    expect(problemFields(mcp.checkStaff({ ...mentor, heard_about: ["Word of Mouth", "Billboard"] }))).toEqual(["heard_about"]);
   });
 });
 

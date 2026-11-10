@@ -68,8 +68,8 @@ let rows: Sample[] = [
   hacker(6, "Farah", "Haddad", "UC San Diego", { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z", decision_emailed_at: "2026-12-01T00:01:00Z", code: "DH27-H002" }),
   hacker(7, "Gus", "Kim", "UC Davis", { status: "draft", submitted_at: null }),
   hacker(8, "Hana", "Sato", "UC San Diego", { decision: "rejected", decision_version: 1 }),
-  staff(1, "Jane", "Doe", "mentor", "Qualcomm"),
-  staff(2, "Raj", "Iyer", "hybrid", "Intuit", { decision: "accepted" }),
+  staff(1, "Jane", "Doe", "mentor", "Qualcomm", { heard_about: ["Word of Mouth"] }),
+  staff(2, "Raj", "Iyer", "hybrid", "Intuit", { decision: "accepted", heard_about: ["DataHacks Industry Sponsor", "MLH email"] }),
   staff(3, "Mia", "Lopez", "judge", "UC San Diego", { status: "accepted", decision: "accepted", decision_released_at: "2026-12-01T00:00:00Z", code: "DH27-J001" }),
 ];
 

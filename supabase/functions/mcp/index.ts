@@ -31,7 +31,7 @@ import { withOAuthProtectedResource, withSupabase } from "npm:@supabase/server@1
 import { z } from "npm:zod@4.6.6";
 import {
   EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
-  MLH_ENABLED, MLH_LINKS, MLH_TEXT, RACES, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
+  MLH_ENABLED, MLH_LINKS, MLH_TEXT, RACES, STAFF_HEARD_ABOUT, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
   closedMessage, databaseErrorMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
   type HackerAnswers,
 } from "./application.ts";
@@ -260,8 +260,9 @@ Deno.serve(
                 linkedin_url: z.string().describe("Link to their LinkedIn profile, starting with https://"),
                 ucsd_affiliation: enumOf(UCSD_AFFILIATIONS).describe("UCSD student, alumni, faculty member, or not affiliated with UCSD (none)"),
                 applicant_type: enumOf(STAFF_TYPES).describe("mentor, judge, or hybrid (both)"),
-                judging_track: enumOf(JUDGING_TRACKS).optional().describe("Judges and hybrids only: the track they'd like to judge"),
+                judging_track: enumOf(JUDGING_TRACKS).optional().describe("Judges and hybrids only: the track they'd like to judge. Judges from a DataHacks industry sponsor judge that sponsor's challenge; everyone else judges one of the five tracks"),
                 bio: z.string().optional().describe(`Mentors and hybrids only, optional: a short blurb shown to hackers on the mentor calendar, up to ${MAX_LENGTH.bio} characters, in their own words. Leave it out and organizers write one`),
+                heard_about: z.array(enumOf(STAFF_HEARD_ABOUT)).min(1).describe("How they heard about DataHacks; pick all that apply"),
                 acknowledged_in_person_judging: z.boolean().optional().describe("Judges and hybrids: they understand online judging isn't allowed, judges must be there in person"),
                 acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 12:30–4:30 PM on Saturday, January 16th, with check-in opening at 12:00 PM"),
                 acknowledged_in_person: z.boolean().describe("Everyone (mentors, judges, both): they understand mentoring and judging are strictly in person, with no online options for either"),

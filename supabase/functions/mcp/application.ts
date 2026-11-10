@@ -158,6 +158,19 @@ export const JUDGING_TRACKS = [
   "entertainment",
 ] as const;
 
+/** The mentor/judge form's own "How did you hear about DataHacks?" list (STAFF_HEARD_ABOUT in formOptions.ts). */
+export const STAFF_HEARD_ABOUT = [
+  "MLH email",
+  "DataHacks Direct Reach-Out",
+  "UCSD's The Basement",
+  "DataHacks Industry Sponsor",
+  "Association with UCSD",
+  "IEEE Member",
+  "Word of Mouth",
+  "AI/Online Search",
+  "Other",
+] as const;
+
 
 // ---------------------------------------------------------------------------
 
@@ -258,6 +271,7 @@ export type StaffAnswers = {
   applicant_type: string;
   judging_track?: string;
   bio?: string;
+  heard_about: string[];
   acknowledged_in_person_judging?: boolean;
   acknowledged_onsite_mentoring?: boolean;
   acknowledged_in_person: boolean;
@@ -418,6 +432,10 @@ export function checkStaff(a: StaffAnswers): Checked {
     problems.push(`judging_track is required for judges, one of: ${JUDGING_TRACKS.join(", ")}.`);
   }
   const bio = t.bio;
+  const heard = matchOptions(STAFF_HEARD_ABOUT, a.heard_about) ?? [];
+  if (heard.length === 0) {
+    problems.push(`heard_about needs at least one of, and only: ${STAFF_HEARD_ABOUT.join(", ")}.`);
+  }
   if (judging && a.acknowledged_in_person_judging !== true) {
     problems.push("acknowledged_in_person_judging: judges must confirm they'll judge in person (online judging isn't allowed).");
   }
@@ -441,6 +459,7 @@ export function checkStaff(a: StaffAnswers): Checked {
       ucsd_affiliation: ucsdAffiliation,
       judging_track: judging ? judgingTrack : null,
       bio: mentoring && bio.length > 0 ? bio : null,
+      heard_about: heard,
       acknowledged_in_person_judging: judging,
       acknowledged_onsite_mentoring: mentoring,
       acknowledged_in_person: true,
