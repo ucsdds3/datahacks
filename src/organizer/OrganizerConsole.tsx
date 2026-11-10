@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { ClipboardCheck, DoorOpen, FileSignature, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
+import { BarChart3, ClipboardCheck, DoorOpen, FileSignature, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
@@ -20,13 +20,14 @@ import ReleaseDialog, { type PassPick } from "./ReleaseDialog";
 import PassesPage from "./PassesPage";
 import DayOfPage from "./DayOfPage";
 import WaiversPage from "./WaiversPage";
+import StatsPage from "./StatsPage";
 import { useApplications, useEventId, useRefreshApplications } from "./data";
 import { isPreview } from "./preview";
 import { isStaged, kindOf, passDue, unsentDecisionRows } from "./types";
 import "@/staff-portal/staff-portal.css";
 import "./organizer.css";
 
-type Section = "hackers" | "staff" | "passes" | "waivers" | "checkin" | "dayof" | "email" | "organizers";
+type Section = "stats" | "hackers" | "staff" | "passes" | "waivers" | "checkin" | "dayof" | "email" | "organizers";
 
 function Gate({ title, children }: { title: string; children?: React.ReactNode }) {
   // The Nether uses the portal's own sign-in screen (wall, lava, the switch); the End keeps the console's card.
@@ -44,6 +45,7 @@ function Gate({ title, children }: { title: string; children?: React.ReactNode }
 }
 
 const SECTIONS: { id: Section; label: string; icon: React.ReactNode; title: string }[] = [
+  { id: "stats", label: "Stats", icon: <BarChart3 size={18} />, title: "Application stats" },
   { id: "hackers", label: "Hackers", icon: <Users size={18} />, title: "Hacker applications" },
   { id: "staff", label: "Mentors & judges", icon: <UserCog size={18} />, title: "Mentor & judge applications" },
   { id: "passes", label: "Passes", icon: <Ticket size={18} />, title: "Wallet passes" },
@@ -148,7 +150,9 @@ export default function OrganizerConsole() {
         {apps.isPending && <p className="og-empty">Loading applications…</p>}
         {apps.isError && <p className="sp-error">Couldn't load applications: {(apps.error as Error).message}</p>}
         {apps.isSuccess && event.data && (
-          section === "organizers"
+          section === "stats"
+            ? <StatsPage eventId={event.data} />
+            : section === "organizers"
             ? <OrganizersPanel eventId={event.data} myEmail={session.user.email ?? ""} />
             : section === "passes"
             ? <PassesPage

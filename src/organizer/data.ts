@@ -4,6 +4,7 @@ import { currentEventId } from "@/portal/event";
 import { errorText, functionErrorMessage } from "./errors";
 import { LIST_FIELDS, NO_REVIEW, type Application, type Decision, type ListApplication, type MlhConsent, type Review, type Row } from "./types";
 import { MLH_EXPORT_COLUMNS, type MlhExportApp } from "./mlhExport";
+import { STATS_FIELDS, type StatsRow } from "./stats";
 import {
   PREVIEW_EVENT_ID, isPreview, previewApplication, previewMlhExport, previewQuota, previewRelease, previewRows, previewSendEmails,
   previewSendPasses, previewStage,
@@ -160,6 +161,52 @@ export function useApplications(eventId: string | undefined) {
     queryKey: ["organizer-applications", eventId],
     enabled: !!eventId,
     queryFn: () => fetchApplicationRows(eventId!),
+  });
+}
+
+export type StatsData = {
+  rows: StatsRow[];
+  /** Whether the check-in roster could be read (check-in counts are left out if not). */
+  hasRoster: boolean;
+};
+
+const STATS_COLUMNS = STATS_FIELDS.join(", ");
+
+/**
+ * What the Stats page counts: every application at the event (the answers it
+ * tallies, no names, emails or essays), each with its decision and whether
+ * they've checked in. A page at a time, like the tables.
+ */
+export async function fetchStats(eventId: string): Promise<StatsData> {
+  // Dev ?preview: a made-up application season, loaded only in the preview.
+  if (isPreview()) return (await import("./statsPreview")).previewStats();
+  type StatsColumns = Omit<StatsRow, "decision" | "checkedIn">;
+  const [apps, reviews, roster] = await Promise.all([
+    fetchAllPages<StatsColumns>((from, to) =>
+      supabase.from("applications").select(STATS_COLUMNS).eq("event_id", eventId)
+        .order("created_at", { ascending: true }).order("id", { ascending: true }).range(from, to) as unknown as Page<StatsColumns>),
+    fetchReviews(eventId),
+    // Check-in counts are extra: without the roster the rest still shows.
+    fetchRoster(eventId, false).catch(() => null),
+  ]);
+  const checkedIn = new Set((roster ?? []).filter(a => a.application_id && a.checked_in_at).map(a => a.application_id!));
+  return {
+    rows: apps.map(app => ({ ...app, decision: reviews.get(app.id)?.decision ?? null, checkedIn: checkedIn.has(app.id) })),
+    hasRoster: roster !== null,
+  };
+}
+
+/** How often the Stats page reloads while it's open and the browser tab is showing. */
+export const STATS_REFRESH_MS = 60_000;
+
+export function useStats(eventId: string | undefined) {
+  return useQuery({
+    queryKey: ["organizer-stats", eventId],
+    enabled: !!eventId,
+    queryFn: () => fetchStats(eventId!),
+    refetchInterval: STATS_REFRESH_MS,
+    // Paused while the browser tab is hidden; coming back to it reloads.
+    refetchIntervalInBackground: false,
   });
 }
 

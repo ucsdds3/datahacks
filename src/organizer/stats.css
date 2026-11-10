@@ -1,0 +1,88 @@
+/* Organizer console: the Stats section (StatsPage.tsx). Builds on organizer.css and checkin.css
+   (the live status, tiles and chart are check-in's .og-ci-* pieces); the Nether colours are in
+   src/staff-portal/nether/nether-organizer.css. */
+
+.og-st-page { display: flex; flex-direction: column; gap: 16px; }
+
+.og-st-live { padding: 5px 10px 4px; border: 1px solid currentColor; border-radius: 999px; }
+.og-st-spin { animation: og-st-spin 1s linear infinite; }
+@keyframes og-st-spin { to { rotate: 360deg; } }
+
+/* Overview tiles: five across, fewer as the board narrows. */
+.og-st-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.og-st-tiles .og-ci-tile { min-width: 0; }
+
+/* Cards */
+.og-st-card { min-width: 0; }
+.og-st-card-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 4px 10px; margin-bottom: 12px; }
+.og-st-card-head h3 { margin: 0; font-size: 15px; }
+.og-st-card h4 { display: flex; align-items: center; gap: 8px; margin: 18px 0 8px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--sp-muted); }
+.og-st-sub { color: var(--sp-muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.og-st-tag { padding: 1px 7px; border: 1px solid var(--sp-border); border-radius: 999px; color: var(--sp-muted); font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: none; white-space: nowrap; }
+.og-st-foot { margin: 12px 0 0; color: var(--sp-muted); font-size: 12px; line-height: 1.45; }
+.og-st-none { margin: 0; color: var(--sp-muted); font-size: 14px; }
+.og-st-big-line { margin: 0; font-size: 14px; }
+.og-st-big-line strong { font-size: 22px; font-variant-numeric: tabular-nums; }
+.og-st-big-line small { margin-left: 6px; color: var(--sp-muted); font-size: 13px; }
+
+/* Section headings, with a rule running out to the right. */
+.og-st-heading { display: flex; align-items: baseline; gap: 10px; margin: 10px 0 -2px; font-size: 18px; }
+.og-st-heading small { color: var(--sp-muted); font-size: 13px; font-weight: 500; }
+.og-st-heading::after { content: ""; flex: 1 1 auto; align-self: center; height: 1px; background: var(--sp-border); }
+
+/* The chart beside the decisions; the breakdowns in as many columns as fit, packed top to bottom. */
+.og-st-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; align-items: start; }
+.og-st-columns { columns: 320px; column-gap: 16px; }
+.og-st-columns > * { break-inside: avoid; margin: 0 0 16px; }
+
+/* Ranked bars: the answer and its count on one line, the bar under them. */
+.og-st-bars { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.og-st-bars li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 3px 12px; font-size: 14px; line-height: 1.3; }
+.og-st-label { min-width: 0; overflow-wrap: anywhere; }
+.og-st-label small { color: var(--sp-muted); font-size: 12px; }
+.og-st-num { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.og-st-num small { display: inline-block; min-width: 3.4em; color: var(--sp-muted); font-size: 12px; font-weight: 500; text-align: right; }
+.og-st-bar { grid-column: 1 / -1; display: block; height: 6px; background: var(--sp-bg); }
+.og-st-bar > span { display: block; min-width: 2px; height: 100%; background: var(--sp-accent); }
+.og-st-bars li.other .og-st-label { color: var(--sp-muted); }
+.og-st-bars li.other .og-st-bar > span { background: var(--sp-muted); }
+.og-st-decisions li.accepted .og-st-bar > span { background: var(--sp-green); }
+.og-st-decisions li.waitlisted .og-st-bar > span { background: var(--sp-orange); }
+.og-st-decisions li.rejected .og-st-bar > span { background: var(--sp-red); }
+.og-st-decisions li.undecided .og-st-bar > span { background: var(--sp-muted); }
+.og-st-checkin strong { color: var(--sp-text); }
+
+/* Progress to the goal: the priority batch, then the regular one. */
+.og-st-goal .og-st-card-head { margin-bottom: 10px; }
+.og-st-goal-count { font-size: 14px; font-variant-numeric: tabular-nums; }
+.og-st-goal-count strong { font-size: 18px; }
+.og-st-progress { display: flex; height: 14px; overflow: hidden; background: var(--sp-bg); }
+.og-st-progress > span { display: block; height: 100%; }
+.og-st-progress .priority, .og-st-swatch.priority { background: var(--sp-accent); }
+.og-st-progress .regular, .og-st-swatch.regular { background: var(--sp-blue); }
+.og-st-legend { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 12px 0 0; padding: 0; list-style: none; font-size: 14px; }
+.og-st-legend strong { font-variant-numeric: tabular-nums; }
+.og-st-legend small { color: var(--sp-muted); font-size: 12px; }
+.og-st-swatch { display: inline-block; width: 12px; height: 12px; margin-right: 7px; vertical-align: -1px; }
+
+/* The chart's priority-deadline line. */
+.og-st-mark { stroke: var(--sp-muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.og-st-mark-label { fill: var(--sp-muted); font-size: 11px; }
+.og-st-page .og-ci-plain { min-width: 0; }
+.og-st-page .og-ci-plain td, .og-st-page .og-ci-plain th { font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1100px) {
+  .og-st-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 700px) {
+  .og-st-status > span:not(.og-ci-live) { flex: 1 1 100%; order: 1; font-size: 13px; }
+  .og-st-columns { columns: auto; }
+}
+/* Phones: tiles two by two, the odd one out across the bottom. */
+@media (max-width: 560px) {
+  .og-st-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .og-st-tiles > :last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .og-st-spin { animation: none; }
+}

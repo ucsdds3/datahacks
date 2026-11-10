@@ -70,7 +70,8 @@ vi.mock("@/lib/supabaseClient", () => {
 vi.mock("@/portal/event", () => ({ currentEventId: async () => "event-1" }));
 
 import ApplicationDetail from "./ApplicationDetail";
-import { PAGE_SIZE, RELEASE_CHUNK, ReleaseError, STAGE_CHUNK, fetchAllPages, fetchApplicationRows, releaseDecisions, stageDecision } from "./data";
+import { PAGE_SIZE, RELEASE_CHUNK, ReleaseError, STAGE_CHUNK, fetchAllPages, fetchApplicationRows, fetchStats, releaseDecisions, stageDecision } from "./data";
+import { STATS_FIELDS } from "./stats";
 import { LIST_FIELDS, type Row } from "./types";
 
 const id = (n: number) => `app-${String(n).padStart(5, "0")}`;
@@ -296,5 +297,34 @@ describe("ApplicationDetail", () => {
     expect(detail.eq).toEqual([["id", id(7)], ["event_id", "event-1"]]);
     expect(detail.select).toMatch(/essay_proudest_project/);
     await waitFor(() => expect(screen.queryByText(/Loading the application/)).not.toBeInTheDocument());
+  });
+});
+
+describe("fetchStats", () => {
+  it("loads every application at the event a page at a time, only the answers it counts, with decisions and check-ins", async () => {
+    fake.tables.applications = [
+      ...Array.from({ length: 2237 }, (_, i) => application(i, { major: "Data Science" })),
+      application(9999, { id: "other-event", event_id: "event-2" }),
+    ];
+    fake.tables.attendees = [
+      { event_id: "event-1", application_id: id(3), code: "DH-3", checked_in_at: "2027-01-16T12:05:00-08:00", emailed_at: null },
+      { event_id: "event-1", application_id: id(4), code: "DH-4", checked_in_at: null, emailed_at: null },
+    ];
+    fake.rpcByFn.staged_decisions = { data: [{ id: id(3), decision: "accepted", version: 2, decided_at: null, decided_by: null }], error: null };
+
+    const { rows, hasRoster } = await fetchStats("event-1");
+
+    expect(rows).toHaveLength(2237);
+    expect(rows.some(r => r.id === "other-event")).toBe(false);
+    expect(hasRoster).toBe(true);
+    expect(rows[3]).toMatchObject({ id: id(3), decision: "accepted", checkedIn: true });
+    expect(rows[4]).toMatchObject({ decision: null, checkedIn: false });
+
+    const appCalls = fake.calls.filter(c => c.table === "applications");
+    expect(appCalls.map(c => c.range)).toEqual([[0, 999], [1000, 1999], [2000, 2999]]);
+    expect(appCalls[0].order).toEqual(["created_at", "id"]);
+    expect(appCalls[0].eq).toEqual([["event_id", "event-1"]]);
+    expect(appCalls[0].select?.split(", ")).toEqual([...STATS_FIELDS]);
+    expect(appCalls[0].select).not.toMatch(/email|first_name|last_name|phone|essay|decision/);
   });
 });
