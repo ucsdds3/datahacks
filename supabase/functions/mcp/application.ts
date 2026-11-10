@@ -503,7 +503,7 @@ export function insertErrorMessage(error: { code?: string; message: string }): s
   if (error.code === "23505") return "Not submitted: there's already an application for this account or email in this event.";
   // 23503 = foreign key violation: applications.user_id needs the account's profiles row.
   if (error.code === "23503") {
-    return "Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3ucsd.com and try again.";
+    return "Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3atucsd.com and try again.";
   }
   if (error.code === "23514") {
     // The applications-open trigger raises a check violation with a message meant for people.

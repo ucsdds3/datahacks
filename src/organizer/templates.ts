@@ -32,7 +32,7 @@ export function varsFor(row: Row): TemplateVars {
 }
 
 const SIGN_OFF = "\n\nThe DataHacks team\nData Science Student Society at UC San Diego\ninfo@ds3.club";
-const PORTAL = "https://datahacks.ds3ucsd.com/portal";
+const PORTAL = "https://datahacks.ds3atucsd.com/portal";
 
 /** Starting points for the decision emails; organizers edit them before releasing. */
 export const DEFAULT_TEMPLATES: Record<`${Decision}:${Kind}`, Template> = {

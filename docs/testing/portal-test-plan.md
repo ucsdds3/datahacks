@@ -9,7 +9,7 @@ Anything confusing, ugly, slow or wrong counts.
 
 - **Local** (developers and test agents): `npm run dev`, then
   `http://localhost:8080`. Uses the DH27BETA test event.
-- **Live site** (teammates): `https://datahacks.ds3ucsd.com`, once the portal
+- **Live site** (teammates): `https://datahacks.ds3atucsd.com`, once the portal
   ships. Sign in with your own Google account.
 
 Everything during testing goes to the **DH27BETA** test event. It gets wiped

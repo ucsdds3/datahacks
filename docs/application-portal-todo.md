@@ -32,11 +32,11 @@ Never change the schema in the dashboard's SQL editor any more: write a migratio
 - [ ] **Protect `main`:** require pull requests and the `supabase-ci` checks before merging, since a merge now changes the production database.
 
 ## Before launch
-- [x] **Supabase redirect URLs fixed (2026-10-22):** sign-ins were landing on the check-in app because only its URL was allowed. Added `http://localhost:8080/**` and `https://datahacks.ds3ucsd.com/**`; the check-in app's entry and the Site URL (still the check-in app) were left as they were.
+- [x] **Supabase redirect URLs fixed (2026-10-22):** sign-ins were landing on the check-in app because only its URL was allowed. Added `http://localhost:8080/**` and `https://datahacks.ds3atucsd.com/**`; the check-in app's entry and the Site URL (still the check-in app) were left as they were.
 - [x] mprakash@ucsd.edu is an organizer (2026-10-22). evanpark.contact@gmail.com already was.
 - [ ] **Organizer accounts** for Ansh (abhatnagar@ucsd.edu) and Tijil (tchhabra@ucsd.edu). Neither has signed in yet (2026-10-22); once they have (after the October 31 redirect-URL change), run the SQL below for each. Each organizer needs an `organizer` row in `event_roles`. Run in the SQL editor, once per email: `insert into public.event_roles (event_id, user_id, role) select e.id, u.id, 'organizer' from public.events e, auth.users u where e.code = 'DH26' and u.email = 'EMAIL';` (the person must have signed in once first).
 - [x] **Email sending is on** (2026-10-22): Gmail secrets saved and `send-email` deployed from the dashboard; a test email from the organizer console went through.
-- [ ] **Redirect URLs** (Supabase → Authentication → URL Configuration): add `https://datahacks.ds3ucsd.com/**` and `http://localhost:8080/**`. The list is empty and the Site URL is `http://localhost:3000`, so Google sign-in on the real site can't come back to `/auth/callback`.
+- [ ] **Redirect URLs** (Supabase → Authentication → URL Configuration): add `https://datahacks.ds3atucsd.com/**` and `http://localhost:8080/**`. The list is empty and the Site URL is `http://localhost:3000`, so Google sign-in on the real site can't come back to `/auth/callback`.
 - [ ] **The 2027 event:** add it in Table Editor → `events` (with a code such as `DH27`), then change `EVENT_CODE` in `src/portal/event.ts`. Applications currently go to the dummy `DH26` event.
 - [ ] **Google sign-in shows "continue to yrxjhrrphhbmqejresvy.supabase.co".** Set the OAuth consent screen's app name ("DataHacks") and logo in Google Cloud Console and submit for brand verification; optionally a Supabase custom domain (e.g. `auth.ds3ucsd.com`, needs the Pro plan + add-on).
 - [ ] Accept a test mentor application in the dashboard and check that it grants the role (`event_roles`) and a check-in code (`attendees`), and that the portal shows "accepted".
@@ -49,7 +49,7 @@ Never change the schema in the dashboard's SQL editor any more: write a migratio
 - [ ] **AI blurbs for mentors who skip theirs:** the mentor blurb is optional (50+ characters when given). Generate one from the rest of their application for anyone who leaves it blank, before the hacker Mentors tab opens.
 - [x] ~~**An MCP server for applications.**~~ Built (2026-10-23), see `docs/mcp-server.md`: hackers, mentors and judges connect an AI assistant, sign in with Google on `/oauth/consent`, and apply by chatting. Still to do:
   - [ ] Turn on the OAuth 2.1 server with dynamic client registration and Authorization Path `/oauth/consent` (staging, then production).
-  - [ ] Point the Site URL at `https://datahacks.ds3ucsd.com`, checking with Evan first.
+  - [ ] Point the Site URL at `https://datahacks.ds3atucsd.com`, checking with Evan first.
   - [ ] Connect Claude to the staging URL and apply once as a hacker and once as a mentor.
 - [ ] **Check-in portal UI** (Evan's repo, DS3-DataHacks-Check-in): mobile first, with the top bar collapsible behind a toggle instead of always showing. Organizers will test it on their phones.
 - [ ] ~~**One portal for everyone.**~~ Done, see above. Per the architecture diagram, hackers, mentors and judges all land in the same portal after Google sign-in. Mentors/judges already do (`/portal`); hackers still get a separate dashboard. Add a hacker section with application status, run of show and the mentor sign-in list (the mentor form already collects a blurb "shown to hackers on the mentor calendar"). The design is the 10/13 PDF from the group chat.
