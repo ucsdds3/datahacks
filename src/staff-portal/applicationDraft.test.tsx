@@ -196,7 +196,7 @@ describe("the \"we've received your application\" email", () => {
   const staffDraft = {
     first_name: "Grace", last_name: "Hopper", phone: "(858) 555-0123", organization: "Navy", role_title: "Admiral",
     linkedin_url: "https://www.linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "judge",
-    judging_track: "finance", acknowledged_in_person_judging: true, acknowledged_both_priority: true,
+    judging_track: "finance", acknowledged_in_person_judging: true, acknowledged_in_person: true,
   };
 
   it("the hacker form asks the server for it once the application is in, with nothing about who or what", async () => {

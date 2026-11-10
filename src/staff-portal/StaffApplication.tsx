@@ -19,7 +19,7 @@ type ApplicantType = 'mentor' | 'judge' | 'hybrid'
 const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
   { value: 'mentor', label: 'Mentor' },
   { value: 'judge', label: 'Judge' },
-  { value: 'hybrid', label: 'Both (priority preference)' },
+  { value: 'hybrid', label: 'Both' },
 ]
 
 const ucsdOptions = [
@@ -51,7 +51,7 @@ const blank = {
   bio: '',
   acknowledged_in_person_judging: false,
   acknowledged_onsite_mentoring: false,
-  acknowledged_both_priority: false,
+  acknowledged_in_person: false,
 }
 
 export default function StaffApplication() {
@@ -93,7 +93,7 @@ export default function StaffApplication() {
   if (isJudging && !form.judging_track) missing.push('judging_track')
   if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
   if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
-  if (!form.acknowledged_both_priority) missing.push('acknowledged_both_priority')
+  if (!form.acknowledged_in_person) missing.push('acknowledged_in_person')
   const isComplete = missing.length === 0
   const cls = (key: string, base = '') =>
     [base, showErrors && missing.includes(key) ? 'sp-field-error' : ''].filter(Boolean).join(' ') || undefined
@@ -164,7 +164,7 @@ export default function StaffApplication() {
       bio: isMentoring && bioLength > 0 ? bio : null,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
-      acknowledged_both_priority: form.acknowledged_both_priority,
+      acknowledged_in_person: form.acknowledged_in_person,
     })
 
     setSubmitting(false)
@@ -189,10 +189,14 @@ export default function StaffApplication() {
     <div className="sp-page">
       <header className="sp-page-header">
         <h1>Mentor / judge application</h1>
-        <p>Apply to mentor, judge, or both. We will be giving priority to people who sign up as both. Every question is required except the blurb.</p>
+        <p>Apply to mentor, judge, or both. Every question is required except the blurb.</p>
       </header>
           <form className="sp-card sp-form" onSubmit={handleSubmit} noValidate>
             {signedOut && <SignedOutNotice as="staff" otherAccount={session && session.user.id !== draft.owner ? session.user.email ?? '' : null} onLeave={save} />}
+            <p className="sp-form-note">
+              <strong>In person only.</strong> Mentoring and judging happen on site at UC San Diego, with no online option, so please
+              apply only if you can be there in person. As of now, we don't provide travel support or reimbursement for mentors and judges.
+            </p>
             <DraftNote restoredAt={draft.restoredAt} onReset={draft.reset} />
             <ApplyWithAiNote />
 
@@ -313,17 +317,17 @@ export default function StaffApplication() {
                 </div>
               )}
 
-              <div id="field-acknowledged_both_priority" className={cls('acknowledged_both_priority', 'sp-check')}>
+              <div id="field-acknowledged_in_person" className={cls('acknowledged_in_person', 'sp-check')}>
                 <input
                   type="checkbox"
-                  id="both_priority"
+                  id="in_person_only"
                   required
-                  checked={form.acknowledged_both_priority}
-                  onChange={e => update('acknowledged_both_priority', e.target.checked)}
-                  {...inv('acknowledged_both_priority')}
+                  checked={form.acknowledged_in_person}
+                  onChange={e => update('acknowledged_in_person', e.target.checked)}
+                  {...inv('acknowledged_in_person')}
                 />
-                <label htmlFor="both_priority">
-                  I understand that applicants both mentoring and judging will be given priority preference.
+                <label htmlFor="in_person_only">
+                  I understand that mentoring and judging are strictly in person. There are no online options for either.
                 </label>
               </div>
             </div>
