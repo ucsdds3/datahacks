@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { HACKER_GOAL } from "@/staff-portal/config";
+import { HACKER_GOAL, TIMELINE } from "@/staff-portal/config";
 import { HACKATHON_EXPERIENCE, LEVELS_OF_STUDY } from "@/staff-portal/formOptions";
 import {
   OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions, decisionTally,
@@ -122,14 +122,17 @@ describe("Pacific time", () => {
     expect(pacificDay("2026-07-01T06:59:00Z")).toBe("2026-06-30"); // 11:59 PM PDT
   });
 
-  it("puts anything up to 11:59 PM Pacific on November 29 in the priority batch", () => {
+  it("puts anything up to the priority deadline (11:59 PM Pacific) in the priority batch", () => {
     const at = (submitted_at: string | null) => ({ submitted_at });
+    // Relative to TIMELINE, so the test follows the deadline when it moves.
+    const deadline = new Date(TIMELINE.priorityDeadline).getTime();
+    const iso = (ms: number) => new Date(ms).toISOString();
     expect(batchSplit([
       at("2026-11-03T09:00:00-08:00"),
-      at("2026-11-29T23:59:00-08:00"),
-      at("2026-11-30T07:30:00Z"), // 11:30 PM on the 29th in San Diego, already the 30th in UTC
-      at("2026-11-30T00:00:30-08:00"),
-      at("2026-12-10T12:00:00Z"),
+      at(iso(deadline - 59_000)), // 11:59 PM Pacific
+      at(iso(deadline - 30 * 60_000)), // 11:29 PM in San Diego, already the next day in UTC
+      at(iso(deadline + 31_000)), // half a minute after midnight Pacific
+      at("2026-12-25T12:00:00Z"),
       at(null),
     ])).toEqual({ priority: 3, regular: 3 });
   });
