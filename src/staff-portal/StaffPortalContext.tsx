@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useState, type React
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
+import { useReceivedEmailCheck } from "@/portal/receivedEmail";
 import type { ApplicationStatus, PortalRole } from "./config";
 import type { StaffApplication } from "./useStaffAccess";
 import { callWaiverFunction, fetchWaiverOnFile, type WaiverStatus } from "./waiverFunction";
@@ -71,6 +72,9 @@ export function StaffPortalProvider({ application, preview, children }: { applic
 
   // The database decides; this browser's copy fills in while it loads or can't be reached.
   const waiverSubmitted = !preview && onFile.isSuccess ? onFile.data : cached;
+
+  // Their "We've received your application" email, if it hasn't gone out yet.
+  useReceivedEmailCheck({ applicationId: application.id, userId, underReview: application.status === "pending", preview });
 
   const fullName = `${application.firstName} ${application.lastName}`.trim()
     || (session?.user?.user_metadata?.full_name as string | undefined)?.trim()

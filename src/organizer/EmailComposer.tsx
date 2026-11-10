@@ -3,6 +3,7 @@ import { Send } from "lucide-react";
 import { SendError, sendEmails, useEmailQuota, useRefreshQuota, type SendResult } from "./data";
 import { errorText } from "./errors";
 import QuotaNote from "./QuotaNote";
+import ReceivedEmailsCard from "./ReceivedEmailsCard";
 import { PLACEHOLDERS, fillTemplate, varsFor } from "./templates";
 import { TAB_LABEL, fullName, isDraft, kindOf, tabOf, type Row, type Tab } from "./types";
 import { BLASTS, hasBlanks, type Audience } from "./blasts";
@@ -70,6 +71,8 @@ export default function EmailComposer({ eventId, rows }: { eventId: string; rows
 
   return (
     <div className="og-email">
+      <ReceivedEmailsCard eventId={eventId} />
+
       <section className="sp-card">
         <div className="sp-card-header"><h2>Start from</h2></div>
         <div className="og-filters">

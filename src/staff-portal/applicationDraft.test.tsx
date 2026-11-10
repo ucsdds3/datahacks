@@ -13,6 +13,7 @@ const db = vi.hoisted(() => ({
   listeners: [] as ((event: string, session: unknown) => void)[],
   insertError: null as null | { code?: string; message: string },
   inserts: [] as Record<string, unknown>[],
+  invokes: [] as { name: string; body: unknown }[],
 }));
 
 vi.mock("@/lib/supabaseClient", () => ({
@@ -35,12 +36,19 @@ vi.mock("@/lib/supabaseClient", () => ({
       };
       return query;
     },
+    functions: {
+      invoke: async (name: string, options?: { body?: unknown }) => {
+        db.invokes.push({ name, body: options?.body });
+        return { data: { sent: 1 }, error: null };
+      },
+    },
   },
 }));
 
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { draftKey, resetLeaving } from "@/portal/formDraft";
+import { forgetReceivedEmailRequests } from "@/portal/receivedEmail";
 import { signOutEverywhere } from "@/portal/signIn";
 import HackerApplication from "./HackerApplication";
 import StaffApplication from "./StaffApplication";
@@ -98,6 +106,8 @@ beforeEach(() => {
   db.listeners = [];
   db.insertError = null;
   db.inserts = [];
+  db.invokes = [];
+  forgetReceivedEmailRequests();
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 afterEach(() => vi.useRealTimers());
@@ -179,6 +189,40 @@ describe("application drafts", () => {
     await mountWithSession("staff");
     expect(screen.getByLabelText(/First name/)).toHaveValue("Grace");
     expect(screen.getByLabelText(/^Email/)).toHaveValue("ada@example.com");
+  });
+});
+
+describe("the \"we've received your application\" email", () => {
+  const staffDraft = {
+    first_name: "Grace", last_name: "Hopper", phone: "(858) 555-0123", organization: "Navy", role_title: "Admiral",
+    linkedin_url: "https://www.linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "judge",
+    judging_track: "finance", acknowledged_in_person_judging: true, acknowledged_both_priority: true,
+  };
+
+  it("the hacker form asks the server for it once the application is in, with nothing about who or what", async () => {
+    saveDraft(valid);
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.invokes).toEqual([{ name: "send-received-email", body: {} }]);
+  });
+
+  it("so does the mentor/judge form", async () => {
+    saveDraft(staffDraft, draftKey("staff", EVENT_CODE, "u1"));
+    await mountWithSession("staff");
+    fireEvent.submit(screen.getByRole("button", { name: /Submit Application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts[0]).toMatchObject({ applicant_type: "judge" });
+    expect(db.invokes).toEqual([{ name: "send-received-email", body: {} }]);
+  });
+
+  it("isn't asked for when the submit fails", async () => {
+    saveDraft(valid);
+    db.insertError = { code: "23505", message: "duplicate key value violates unique constraint" };
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    await screen.findByRole("alert");
+    expect(db.invokes).toEqual([]);
   });
 });
 
