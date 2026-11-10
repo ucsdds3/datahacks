@@ -9,9 +9,10 @@ import { useFormDraft } from '@/portal/formDraft'
 import { requestReceivedEmail } from '@/portal/receivedEmail'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink, isValidEmail } from '@/lib/applicantInput'
-import { LimitedTextarea, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
+import { LimitedTextarea, MultiSelect, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
 import { ApplyWithAiNote, DraftNote, SignedOutNotice, focusField } from './formDraftUi'
 import { MENTOR_ONSITE_ACKNOWLEDGEMENT } from './config'
+import { STAFF_HEARD_ABOUT } from './formOptions'
 import { PrivacyNotice } from './mlh'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
@@ -49,6 +50,7 @@ const blank = {
   applicant_type: '' as ApplicantType | '',
   judging_track: '',
   bio: '',
+  heard_about: [] as string[],
   acknowledged_in_person_judging: false,
   acknowledged_onsite_mentoring: false,
   acknowledged_in_person: false,
@@ -71,7 +73,7 @@ export default function StaffApplication() {
   const { save } = draft
   useEffect(() => { if (signedOut) save() }, [signedOut, save])
 
-  const update = (field: keyof typeof blank, value: string | boolean) => draft.setForm(prev => ({ ...prev, [field]: value }))
+  const update = <K extends keyof typeof blank>(field: K, value: (typeof blank)[K]) => draft.setForm(prev => ({ ...prev, [field]: value }))
 
   const isJudging = form.applicant_type === 'judge' || form.applicant_type === 'hybrid'
   const isMentoring = form.applicant_type === 'mentor' || form.applicant_type === 'hybrid'
@@ -91,6 +93,7 @@ export default function StaffApplication() {
   if (!form.ucsd_affiliation) missing.push('ucsd_affiliation')
   if (!form.applicant_type) missing.push('applicant_type')
   if (isJudging && !form.judging_track) missing.push('judging_track')
+  if (form.heard_about.length === 0) missing.push('heard_about')
   if (isJudging && !form.acknowledged_in_person_judging) missing.push('acknowledged_in_person_judging')
   if (isMentoring && !form.acknowledged_onsite_mentoring) missing.push('acknowledged_onsite_mentoring')
   if (!form.acknowledged_in_person) missing.push('acknowledged_in_person')
@@ -106,6 +109,7 @@ export default function StaffApplication() {
     if (first === 'phone' && form.phone) return phoneProblem(form.phone) ?? 'Enter a 10-digit phone number.'
     if (first === 'linkedin_url' && form.linkedin_url.trim()) return 'Your LinkedIn link should start with https://.'
     if (missing.length === 1 && first.startsWith('acknowledged_')) return 'Tick the box to confirm before submitting.'
+    if (missing.length === 1 && first === 'heard_about') return 'Tell us how you heard about DataHacks.'
     return 'Some required answers are missing. The first one is highlighted.'
   }
 
@@ -120,7 +124,7 @@ export default function StaffApplication() {
       requestAnimationFrame(() => {
         const target = document.getElementById(`field-${missing[0]}`)
         target?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        const control = target?.matches('input, textarea') ? target : target?.querySelector<HTMLElement>('input, textarea')
+        const control = target?.matches('input, textarea') ? target : target?.querySelector<HTMLElement>('input, textarea, button')
         control?.focus({ preventScroll: true })
       })
       return
@@ -162,6 +166,7 @@ export default function StaffApplication() {
       ucsd_affiliation: form.ucsd_affiliation,
       judging_track: isJudging ? form.judging_track : null,
       bio: isMentoring && bioLength > 0 ? bio : null,
+      heard_about: form.heard_about,
       acknowledged_in_person_judging: isJudging && form.acknowledged_in_person_judging,
       acknowledged_onsite_mentoring: isMentoring && form.acknowledged_onsite_mentoring,
       acknowledged_in_person: form.acknowledged_in_person,
@@ -261,6 +266,9 @@ export default function StaffApplication() {
               {isJudging && (
                 <fieldset id="field-judging_track" className={cls('judging_track')}>
                   <legend>Which track would you be interested in judging? (select one) <Req /></legend>
+                  <p className="sp-form-note">
+                    Judges from a DataHacks industry sponsor judge that sponsor's challenge. Everyone else judges one of the five tracks.
+                  </p>
                   {trackOptions.map(option => (
                     <label className="sp-check" key={option.value} htmlFor={`track_${option.value}`} style={{ marginBottom: '8px' }}>
                       <input
@@ -288,6 +296,18 @@ export default function StaffApplication() {
                   {bioLength === 0 && <span>Leave it blank and we'll write one for you from your application.</span>}
                 </label>
               )}
+
+              <div id="field-heard_about" className={cls('heard_about', 'sp-field')}>
+                <span id="staff-heard-label" className="sp-field-label">How did you hear about DataHacks? (select all that apply) <Req /></span>
+                <MultiSelect
+                  id="staff-heard"
+                  options={STAFF_HEARD_ABOUT}
+                  value={form.heard_about}
+                  onChange={v => update('heard_about', v)}
+                  aria-labelledby="staff-heard-label staff-heard"
+                  {...inv('heard_about')}
+                />
+              </div>
 
               {isJudging && (
                 <div id="field-acknowledged_in_person_judging" className={cls('acknowledged_in_person_judging', 'sp-check')}>

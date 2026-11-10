@@ -225,10 +225,13 @@ describe("computeStats", () => {
       id: "4", status: "draft", submitted_at: null, school: "Stanford University", hackathon_experience: HACKATHON_EXPERIENCE[0],
       suggested_food: "Pizza", suggested_activity: "Karaoke",
     }),
-    row({ id: "5", applicant_type: "mentor", ucsd_affiliation: "alumni" }),
-    row({ id: "6", applicant_type: "judge", judging_track: "biotech_life_sciences", ucsd_affiliation: "none", decision: "accepted" }),
+    row({ id: "5", applicant_type: "mentor", ucsd_affiliation: "alumni", heard_about: ["Word of Mouth"] }),
+    row({
+      id: "6", applicant_type: "judge", judging_track: "biotech_life_sciences", ucsd_affiliation: "none", decision: "accepted",
+      heard_about: ["DataHacks Industry Sponsor", "Word of Mouth"],
+    }),
     row({ id: "7", applicant_type: "hybrid", judging_track: "social_good", ucsd_affiliation: "none" }),
-    row({ id: "8", applicant_type: "judge", status: "draft", submitted_at: null }),
+    row({ id: "8", applicant_type: "judge", status: "draft", submitted_at: null, heard_about: ["IEEE Member"] }),
   ];
   const stats = computeStats(rows, { now: new Date("2026-12-02T12:00:00-08:00") });
 
@@ -269,6 +272,12 @@ describe("computeStats", () => {
     expect(stats.staff.decisions.find(d => d.key === "accepted")).toMatchObject({ count: 1, staged: 1 });
     expect(bars(stats.staff.tracks.items)).toEqual([["Biotech & Life Sciences", 1], ["Social Good", 1]]);
     expect(bars(stats.staff.affiliation.items)).toEqual([["UCSD alumni", 1], ["Not affiliated with UCSD", 2]]);
+  });
+
+  it("counts how mentors and judges heard about DataHacks, apart from hackers", () => {
+    expect(bars(stats.staff.heardAbout.items)).toEqual([["Word of Mouth", 2], ["DataHacks Industry Sponsor", 1]]);
+    expect(stats.staff.heardAbout).toMatchObject({ answered: 2, missing: 1 });
+    expect(stats.hacker.heardAbout.items.map(i => i.label)).not.toContain("Word of Mouth");
   });
 });
 

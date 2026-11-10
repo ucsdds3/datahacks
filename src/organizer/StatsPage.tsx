@@ -116,6 +116,7 @@ export default function StatsPage({ eventId }: { eventId: string }) {
         </section>
         <BarCard title="Judging tracks" breakdown={stats.staff.tracks} tone="teal" foot="Judges and mentor & judges: the track they'd like to judge." />
         <BarCard title="UCSD affiliation" breakdown={stats.staff.affiliation} tone="teal" />
+        <BarCard title="How they heard about DataHacks" breakdown={stats.staff.heardAbout} tone="teal" multi />
       </div>
     </div>
   );

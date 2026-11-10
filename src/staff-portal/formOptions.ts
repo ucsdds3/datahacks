@@ -57,6 +57,19 @@ export const HEARD_ABOUT = [
   "Other",
 ];
 
+/** The mentor/judge form's own "How did you hear about DataHacks?" list, in the order it's asked (not A–Z). */
+export const STAFF_HEARD_ABOUT = [
+  "MLH email",
+  "DataHacks Direct Reach-Out",
+  "UCSD's The Basement",
+  "DataHacks Industry Sponsor",
+  "Association with UCSD",
+  "IEEE Member",
+  "Word of Mouth",
+  "AI/Online Search",
+  "Other",
+];
+
 export const TRAVEL_METHODS = ["Car", "Bus", "Train", "Plane", "Other"];
 
 export const TRAVEL_DISTANCES = ["Under 50 miles", "50–200 miles", "200–500 miles", "Over 500 miles", "From outside the US"];

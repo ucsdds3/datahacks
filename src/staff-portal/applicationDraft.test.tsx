@@ -52,9 +52,10 @@ import { forgetReceivedEmailRequests } from "@/portal/receivedEmail";
 import { signOutEverywhere } from "@/portal/signIn";
 import HackerApplication from "./HackerApplication";
 import StaffApplication from "./StaffApplication";
-import { GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES } from "./formOptions";
+import { GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, STAFF_HEARD_ABOUT } from "./formOptions";
 
 const HACKER_KEY = draftKey("hacker", EVENT_CODE, "u1");
+const STAFF_KEY = draftKey("staff", EVENT_CODE, "u1");
 
 const valid = {
   first_name: "Ada", last_name: "Lovelace", phone: "(858) 555-0123", gender: GENDERS[0], race_ethnicity: [RACES[0]],
@@ -66,6 +67,13 @@ const valid = {
   funniest_joke: "", lifetime_goal: "", suggested_food: "Boba", suggested_activity: "Smash tournament",
   heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
   travel_method: "", travel_distance: "", travel_stipend_reason: "", agreed_to_terms: true,
+};
+
+/** A judge's complete mentor/judge application. */
+const staffDraft = {
+  first_name: "Grace", last_name: "Hopper", phone: "(858) 555-0123", organization: "Navy", role_title: "Admiral",
+  linkedin_url: "https://www.linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "judge",
+  judging_track: "finance", heard_about: ["DataHacks Industry Sponsor"], acknowledged_in_person_judging: true, acknowledged_in_person: true,
 };
 
 const saveDraft = (form: object, key = HACKER_KEY) =>
@@ -194,12 +202,6 @@ describe("application drafts", () => {
 });
 
 describe("the \"we've received your application\" email", () => {
-  const staffDraft = {
-    first_name: "Grace", last_name: "Hopper", phone: "(858) 555-0123", organization: "Navy", role_title: "Admiral",
-    linkedin_url: "https://www.linkedin.com/in/grace", ucsd_affiliation: "none", applicant_type: "judge",
-    judging_track: "finance", acknowledged_in_person_judging: true, acknowledged_in_person: true,
-  };
-
   it("the hacker form asks the server for it once the application is in, with nothing about who or what", async () => {
     saveDraft(valid);
     await mountWithSession();
@@ -209,11 +211,11 @@ describe("the \"we've received your application\" email", () => {
   });
 
   it("so does the mentor/judge form", async () => {
-    saveDraft(staffDraft, draftKey("staff", EVENT_CODE, "u1"));
+    saveDraft(staffDraft, STAFF_KEY);
     await mountWithSession("staff");
     fireEvent.submit(screen.getByRole("button", { name: /Submit Application/ }).closest("form")!);
     expect(await screen.findByText("portal home")).toBeInTheDocument();
-    expect(db.inserts[0]).toMatchObject({ applicant_type: "judge" });
+    expect(db.inserts[0]).toMatchObject({ applicant_type: "judge", heard_about: ["DataHacks Industry Sponsor"] });
     expect(db.invokes).toEqual([{ name: "send-received-email", body: {} }]);
   });
 
@@ -224,6 +226,60 @@ describe("the \"we've received your application\" email", () => {
     fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
     await screen.findByRole("alert");
     expect(db.invokes).toEqual([]);
+  });
+});
+
+describe("the mentor/judge form's \"How did you hear about DataHacks?\"", () => {
+  const submit = () => fireEvent.submit(screen.getByRole("button", { name: /Submit Application/ }).closest("form")!);
+  const question = () => screen.getByRole("button", { name: /How did you hear about DataHacks/ });
+
+  it("offers the mentor/judge list, in order, not the hacker one", async () => {
+    await mountWithSession("staff");
+    fireEvent.click(question());
+    const menu = question().closest(".sp-multiselect")!.querySelector(".sp-multiselect-menu")!;
+    expect([...menu.querySelectorAll("label")].map(option => option.textContent)).toEqual(STAFF_HEARD_ABOUT);
+    expect(screen.queryByLabelText("Instagram")).toBeNull();
+  });
+
+  it("is required, and every answer picked goes in with the application", async () => {
+    saveDraft({ ...staffDraft, heard_about: [] }, STAFF_KEY);
+    await mountWithSession("staff");
+    submit();
+    expect(await screen.findByRole("alert")).toHaveTextContent("Tell us how you heard about DataHacks.");
+    expect(question()).toHaveAttribute("aria-invalid", "true");
+    expect(db.inserts).toEqual([]);
+
+    fireEvent.click(question());
+    fireEvent.click(screen.getByLabelText("DataHacks Industry Sponsor"));
+    fireEvent.click(screen.getByLabelText("MLH email"));
+    submit();
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts[0]).toMatchObject({ heard_about: ["MLH email", "DataHacks Industry Sponsor"] });
+  });
+
+  it("is kept in the draft and restored", async () => {
+    const view = await mountWithSession("staff");
+    fireEvent.click(question());
+    fireEvent.click(screen.getByLabelText("IEEE Member"));
+    await waitFor(() => expect(savedForm(STAFF_KEY)?.heard_about).toEqual(["IEEE Member"]), { timeout: 2000 });
+    view.unmount();
+    await mountWithSession("staff");
+    expect(question()).toHaveTextContent("IEEE Member");
+  });
+});
+
+describe("the mentor/judge form's note for judges", () => {
+  const note = /Judges from a DataHacks industry sponsor judge that sponsor's challenge\. Everyone else judges one of the five tracks\./;
+
+  it("shows with the judging-track question for judges and for both, not for mentors", async () => {
+    await mountWithSession("staff");
+    expect(screen.queryByText(note)).toBeNull();
+    fireEvent.click(screen.getByLabelText("Mentor"));
+    expect(screen.queryByText(note)).toBeNull();
+    fireEvent.click(screen.getByLabelText("Judge"));
+    expect(screen.getByText(note).closest("fieldset")).toHaveAttribute("id", "field-judging_track");
+    fireEvent.click(screen.getByLabelText("Both"));
+    expect(screen.getByText(note)).toBeInTheDocument();
   });
 });
 

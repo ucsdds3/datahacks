@@ -131,6 +131,7 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Resume" value={<Link href={app.resume_url} />} />
             <Field label="LinkedIn" value={<Link href={app.linkedin_url} />} />
             <Field label="Mentor blurb" value={app.bio} />
+            <Field label="Heard about us" value={app.heard_about?.join(", ")} />
           </>
         ))}
       </dl>
