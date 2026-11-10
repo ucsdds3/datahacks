@@ -156,7 +156,7 @@ Deno.serve(
         // send (supabase/functions/send-received-email). In the background, so this
         // answers straight away; if it fails, the portal sends it when they next sign in.
         sendReceivedInBackground({ userId, eventId: event.id });
-        return text(`Submitted your ${TYPE_LABEL[checked.row.applicant_type as string]} application to ${event.name}. It's now under review; a confirmation email is on its way to ${email}, decisions go out by email, and the status is on the portal: https://datahacks.ds3ucsd.com/portal`);
+        return text(`Submitted your ${TYPE_LABEL[checked.row.applicant_type as string]} application to ${event.name}. It's now under review; a confirmation email is on its way to ${email}, decisions go out by email, and the status is on the portal: https://datahacks.ds3atucsd.com/portal`);
       };
 
       const handler = createMcpHandler(
@@ -193,7 +193,7 @@ Deno.serve(
                   : null,
                 ...(mlh ? { mlh_member_event: true } : {}),
                 next_step: needsMlh
-                  ? "They've applied, but before DataHacks joined Major League Hacking (MLH). They need to agree to MLH's terms: on the portal's home page, https://datahacks.ds3ucsd.com/portal, there's a card for it."
+                  ? "They've applied, but before DataHacks joined Major League Hacking (MLH). They need to agree to MLH's terms: on the portal's home page, https://datahacks.ds3atucsd.com/portal, there's a card for it."
                   : application
                   ? "They've applied. Applications can't be edited; for changes, they should email the organizers."
                   : closed

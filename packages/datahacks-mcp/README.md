@@ -1,6 +1,6 @@
 # datahacks-mcp
 
-Apply to [DataHacks](https://datahacks.ds3ucsd.com), UC San Diego's data science hackathon, by chatting with your AI assistant instead of filling out the form.
+Apply to [DataHacks](https://datahacks.ds3atucsd.com), UC San Diego's data science hackathon, by chatting with your AI assistant instead of filling out the form.
 
 ```sh
 npx -y datahacks-mcp install
@@ -12,7 +12,7 @@ That adds a "datahacks" server to the AI apps it finds on your computer: **Claud
 2. Start a new chat and ask: **"Apply me to DataHacks as a hacker"** (or as a mentor or judge).
 3. When it asks, sign in with Google in the browser window that opens, and choose **Allow**.
 
-The assistant goes through the application's questions with you, reads every answer back, and submits only when you say yes. The normal form is always there too: <https://datahacks.ds3ucsd.com/portal>.
+The assistant goes through the application's questions with you, reads every answer back, and submits only when you say yes. The normal form is always there too: <https://datahacks.ds3atucsd.com/portal>.
 
 > **Maintainers:** don't advertise `npx datahacks-mcp` anywhere until the package is actually on npm (see [Publishing](#publishing-for-ds3-maintainers)). An unpublished name can be registered by someone else, and then every copied command would run their code. The site's Apply with AI page only shows the npx commands once `NPM_PUBLISHED` is `true` in `src/pages/applyWithAiConfig.ts`.
 
@@ -93,4 +93,4 @@ Later releases: bump `version`, merge, tag `datahacks-mcp-v<new version>`, push 
 
 ## License
 
-MIT. Made by DS3 at UC San Diego for [DataHacks](https://datahacks.ds3ucsd.com).
+MIT. Made by DS3 at UC San Diego for [DataHacks](https://datahacks.ds3atucsd.com).
