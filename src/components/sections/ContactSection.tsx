@@ -156,7 +156,7 @@
                MLH Code of Conduct
              </a>
              <span>•</span>
-             <a href="https://datahacks.ds3atucsd.com/" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
+             <a href="https://datahacks.ds3ucsd.com/" target="_blank" rel="noopener noreferrer" className="hover:text-bioluminescent transition-colors">
                DataHacks Official
              </a>
              <span>•</span>

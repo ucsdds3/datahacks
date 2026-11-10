@@ -17,7 +17,7 @@ import { isUuid, runSendLoop, type ClaimResult, type SendLoopOptions, type SendL
 // import the site's files); the test fails when they drift.
 
 export const EVENT_NAME = "DataHacks 2027";
-export const PORTAL_URL = "https://datahacks.ds3atucsd.com/portal/";
+export const PORTAL_URL = "https://datahacks.ds3ucsd.com/portal/";
 export const CONTACT_EMAIL = "info@ds3.club";
 
 /** TIMELINE in src/staff-portal/config.ts. */

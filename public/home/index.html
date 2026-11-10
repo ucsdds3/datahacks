@@ -2,6 +2,14 @@
 <!-- Built from the DataCraft site (v6). The deploy moves this file to /index.html. -->
 <html lang="en">
   <head>
+    <script>
+      // A sign-in that lands on the homepage (Supabase falls back to its Site URL when the callback address
+      // isn't on its allow-list) still finishes: hand the code to the app's sign-in callback.
+      try {
+        if (/[?&](code|error)=/.test(location.search) || /(access_token|error)=/.test(location.hash))
+          location.replace("/auth/callback" + location.search + location.hash);
+      } catch (e) {}
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DYHJSWQFBV"></script>
     <script>
@@ -17,20 +25,20 @@
     <title>DataHacks 2027 | January 16–17, 2027 · UC San Diego</title>
     <meta name="description" content="DataHacks 2027: UC San Diego’s student-run data science hackathon, January 16–17, 2027. Applications are open." />
     <meta name="author" content="Data Science Student Society (DS3)" />
-    <link rel="canonical" href="https://datahacks.ds3atucsd.com/" />
+    <link rel="canonical" href="https://datahacks.ds3ucsd.com/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://datahacks.ds3atucsd.com/" />
+    <meta property="og:url" content="https://datahacks.ds3ucsd.com/" />
     <meta property="og:title" content="DataHacks 2027 | January 16–17, 2027 · UC San Diego" />
     <meta property="og:description" content="DataHacks 2027: UC San Diego’s student-run data science hackathon, January 16–17, 2027. Applications are open." />
-    <meta property="og:image" content="https://datahacks.ds3atucsd.com/emblem.png" />
+    <meta property="og:image" content="https://datahacks.ds3ucsd.com/emblem.png" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="DataHacks 2027 | January 16–17, 2027 · UC San Diego" />
     <meta name="twitter:description" content="DataHacks 2027: UC San Diego’s student-run data science hackathon, January 16–17, 2027. Applications are open." />
-    <meta name="twitter:image" content="https://datahacks.ds3atucsd.com/emblem.png" />
+    <meta name="twitter:image" content="https://datahacks.ds3ucsd.com/emblem.png" />
     <link rel="icon" type="image/png" href="/home/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
