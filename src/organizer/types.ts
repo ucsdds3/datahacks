@@ -108,13 +108,13 @@ export const tabOf = (status: Status | null): Tab =>
 export const isDraft = (app: Pick<ListApplication, "status">) => app.status === "draft";
 
 /** A decision is staged when it's been chosen but not released yet. Drafts never are. */
-export const isStaged = (app: ListApplication) => app.decision !== null && app.decision !== app.status && !isDraft(app);
+export const isStaged = (app: Pick<ListApplication, "decision" | "status">) => app.decision !== null && app.decision !== app.status && !isDraft(app);
 
 /**
  * The tab a row sits in on the console: the decision an organizer picked, as
  * soon as they pick it. Applicants only see it once decisions are released.
  */
-export const placeOf = (app: ListApplication): Tab => (isDraft(app) ? "applied" : app.decision ?? tabOf(app.status));
+export const placeOf = (app: Pick<ListApplication, "decision" | "status">): Tab => (isDraft(app) ? "applied" : app.decision ?? tabOf(app.status));
 
 export const TYPE_LABEL: Record<ApplicantType, string> = {
   hacker: "Hacker",

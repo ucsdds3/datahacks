@@ -215,5 +215,12 @@ export const TIMELINE = {
   mentorsTabOpens: new Date("2027-01-16T08:00:00-08:00"),
 };
 
+/**
+ * DataHacks 2027 applicant goal: submitted hacker applications (drafts don't
+ * count). The organizer console's Stats page measures progress against it.
+ * Not the homepage's "450+ hackers", which is how many come to the event.
+ */
+export const HACKER_GOAL = 1500;
+
 export const applicationBatch = (submittedAt: string | null) =>
   submittedAt && new Date(submittedAt) <= TIMELINE.priorityDeadline ? "priority" : "regular";

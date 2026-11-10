@@ -2,8 +2,8 @@
 // diego" → University of California, San Diego), any word order, and a typo or
 // two ("standford").
 
-/** Whole-query nicknames → the school's name as it appears in the list. */
-const NICKNAMES: Record<string, string[]> = {
+/** Whole-query nicknames → the school's name as it appears in the list. The console's Stats page groups schools by these too. */
+export const NICKNAMES: Record<string, string[]> = {
   ucsd: ["University of California, San Diego"],
   ucla: ["University of California, Los Angeles"],
   ucb: ["University of California, Berkeley"],

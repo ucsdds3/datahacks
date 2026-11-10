@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Bucket } from "./checkin";
+import { niceMax, useWidth } from "./chart";
 
 /**
  * Check-ins per time bucket (bars, left axis) and the running total (line,
@@ -12,29 +13,6 @@ const HEIGHT = 200;
 const M = { top: 12, right: 40, bottom: 26, left: 34 };
 
 const clock = (t: number) => new Date(t).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-
-/** 1, 2, 5, 10, 20, 50… at or above n, so axis labels are round. */
-function niceMax(n: number) {
-  if (n <= 4) return Math.max(n, 1);
-  const step = Math.pow(10, Math.floor(Math.log10(n)));
-  for (const k of [1, 2, 2.5, 5, 10]) if (k * step >= n) return k * step;
-  return 10 * step;
-}
-
-/** The element's width, following it through resizes and remounts (a callback ref). */
-function useWidth<T extends HTMLElement>() {
-  const [el, setEl] = useState<T | null>(null);
-  const [width, setWidth] = useState(0);
-  useEffect(() => {
-    if (!el) return;
-    setWidth(el.clientWidth);
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(entries => setWidth(Math.floor(entries[0].contentRect.width)));
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [el]);
-  return [setEl, width] as const;
-}
 
 export default function ArrivalsChart({ buckets, minutes }: { buckets: Bucket[]; minutes: number }) {
   const [ref, width] = useWidth<HTMLDivElement>();
