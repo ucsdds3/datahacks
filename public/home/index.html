@@ -2,6 +2,14 @@
 <!-- Built from the DataCraft site (v6). The deploy moves this file to /index.html. -->
 <html lang="en">
   <head>
+    <script>
+      // A sign-in that lands on the homepage (Supabase falls back to its Site URL when the callback address
+      // isn't on its allow-list) still finishes: hand the code to the app's sign-in callback.
+      try {
+        if (/[?&](code|error)=/.test(location.search) || /(access_token|error)=/.test(location.hash))
+          location.replace("/auth/callback" + location.search + location.hash);
+      } catch (e) {}
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-DYHJSWQFBV"></script>
     <script>
