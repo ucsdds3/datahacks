@@ -191,12 +191,13 @@ export const MLH_APPLICATION_PENDING = false;
 export const DATA_RETENTION = "until one year after the event, then we delete it";
 
 /**
- * Application timeline (confirmed 2026-10-22). Applications submitted by the
- * priority deadline (the Sunday after Thanksgiving) are in the priority batch.
+ * Application timeline (updated 2026-11-09: priority Monday, November 30; regular
+ * Monday, December 21; both 11:59 PM Pacific). Applications submitted by the
+ * priority deadline are in the priority batch.
  */
 export const TIMELINE = {
-  priorityDeadline: new Date("2026-11-29T23:59:59-08:00"),
-  regularDeadline: new Date("2026-12-15T23:59:59-08:00"),
+  priorityDeadline: new Date("2026-11-30T23:59:59-08:00"),
+  regularDeadline: new Date("2026-12-21T23:59:59-08:00"),
   priorityDecisions: "mid-December",
   regularDecisions: "the end of December",
   /** When each role is needed: mentors only on Saturday, judges only on Sunday. */

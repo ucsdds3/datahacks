@@ -15,7 +15,7 @@ export const STATUS_LABEL: Record<ApplicationStatus, string> = {
   rejected: "Not accepted",
 };
 
-// Pacific time, wherever the applicant is: the priority deadline is 11:59 PM Pacific on Nov 29.
+// Pacific time, wherever the applicant is: the priority deadline is 11:59 PM Pacific on Nov 30.
 const formatDate = (value: Date | string) => formatPacificDate(value);
 
 const DECISION_TEXT: Record<ApplicationStatus, string> = {

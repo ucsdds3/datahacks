@@ -23,7 +23,7 @@ import {
 const SCHOOL_INDEX = indexSchools(SCHOOLS)
 const findSchools = (query: string) => searchSchools(SCHOOL_INDEX, query)
 
-// Deadlines are Pacific time wherever the applicant is (11:59 PM Pacific on Nov 29 is Nov 30 in New York).
+// Deadlines are Pacific time wherever the applicant is (11:59 PM Pacific on Nov 30 is Dec 1 in New York).
 const PRIORITY_LABEL = formatPacificDate(TIMELINE.priorityDeadline, { month: 'long', day: 'numeric' })
 const REGULAR_LABEL = formatPacificDate(TIMELINE.regularDeadline, { month: 'long', day: 'numeric' })
 

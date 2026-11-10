@@ -22,8 +22,8 @@ export const CONTACT_EMAIL = "info@ds3.club";
 
 /** TIMELINE in src/staff-portal/config.ts. */
 export const TIMELINE = {
-  priorityDeadline: new Date("2026-11-29T23:59:59-08:00"),
-  regularDeadline: new Date("2026-12-15T23:59:59-08:00"),
+  priorityDeadline: new Date("2026-11-30T23:59:59-08:00"),
+  regularDeadline: new Date("2026-12-21T23:59:59-08:00"),
   priorityDecisions: "mid-December",
   regularDecisions: "the end of December",
   eventDates: {
@@ -40,7 +40,7 @@ const isApplicantType = (value: string): value is ApplicantType => value in TYPE
 
 const PACIFIC = "America/Los_Angeles";
 // Plain spaces: some ICU versions put a narrow no-break space before "PM".
-/** "November 29" in Pacific time. */
+/** "November 30" in Pacific time. */
 const pacificDay = (date: Date) => date.toLocaleDateString("en-US", { month: "long", day: "numeric", timeZone: PACIFIC }).replace(/\s+/g, " ");
 /** "11:59 PM" in Pacific time. */
 const pacificTime = (date: Date) => date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZone: PACIFIC }).replace(/\s+/g, " ");

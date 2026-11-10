@@ -1,7 +1,7 @@
 # Questions for you
 
 ## Answered (2026-10-22), now in the code
-- **Priority applications close** Sunday, November 29, 2026 (the Sunday after Thanksgiving). **Regular applications close** Tuesday, December 15.
+- **Priority applications close** Monday, November 30, 2026, 11:59 PM Pacific. **Regular applications close** Monday, December 21, 11:59 PM Pacific (both moved on 2026-11-09).
 - **Decisions:** priority batch by mid-December, regular batch by the end of December.
 - **Event:** hackers Saturday–Sunday, January 16–17, 2027. Mentors are only needed Saturday the 16th, 12:30–4:30 PM, which is the one mentoring block. Judges are only needed Sunday the 17th.
 - **One application per person:** you can't be both a hacker and a mentor/judge.

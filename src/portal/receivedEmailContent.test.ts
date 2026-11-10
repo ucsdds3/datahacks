@@ -46,7 +46,7 @@ describe("what it says", () => {
       "Hi Ada,\n\n" +
       "Thanks for applying to DataHacks 2027! We've received your hacker application.\n\n" +
       "DataHacks 2027 is Saturday–Sunday, January 16–17, 2027, at UC San Diego.\n\n" +
-      "What happens next: you applied by the priority deadline (November 29, 11:59 PM Pacific), so you'll hear back from us by mid-December.\n\n" +
+      "What happens next: you applied by the priority deadline (November 30, 11:59 PM Pacific), so you'll hear back from us by mid-December.\n\n" +
       "You can check your application's status anytime on the portal:\nhttps://datahacks.ds3ucsd.com/portal/\n\n" +
       "Your answers can't be changed now that you've submitted. If something needs fixing, or you have a question, email us at info@ds3.club.\n\n" +
       "The DataHacks team\nData Science Student Society at UC San Diego\ninfo@ds3.club",
@@ -59,22 +59,22 @@ describe("what it says", () => {
   it("a hacker who applied after it: reviewed after the final deadline", () => {
     const email = receivedEmail(hacker({ submitted_at: "2026-12-05T20:00:00Z" }));
     expect(email.text).toContain(
-      "What happens next: you applied after the priority deadline (November 29, 11:59 PM Pacific), so we'll review your application " +
-      "after applications close on December 15, 11:59 PM Pacific, and you'll hear back from us by the end of December.",
+      "What happens next: you applied after the priority deadline (November 30, 11:59 PM Pacific), so we'll review your application " +
+      "after applications close on December 21, 11:59 PM Pacific, and you'll hear back from us by the end of December.",
     );
     expect(email.text).not.toContain("mid-December");
   });
 
   it("puts each hacker in the batch the portal shows, by Pacific time", () => {
     const cases = [
-      "2026-11-30T07:59:59Z", // 11:59:59 PM Pacific on Nov 29: priority
-      "2026-11-30T08:00:00Z", // midnight Pacific: regular, though it's still Nov 29 in Hawaii
+      "2026-12-01T07:59:59Z", // 11:59:59 PM Pacific on Nov 30: priority
+      "2026-12-01T08:00:00Z", // midnight Pacific: regular, though it's still Nov 30 in Hawaii
       "2026-11-03T17:00:00Z",
-      "2026-12-15T12:00:00Z",
+      "2026-12-21T12:00:00Z",
     ];
     for (const at of cases) expect(hackerBatch(at)).toBe(applicationBatch(at));
-    expect(hackerBatch("2026-12-16T09:00:00Z")).toBe("late");
-    expect(receivedEmail(hacker({ submitted_at: "2026-12-16T09:00:00Z" })).text)
+    expect(hackerBatch("2026-12-22T09:00:00Z")).toBe("late");
+    expect(receivedEmail(hacker({ submitted_at: "2026-12-22T09:00:00Z" })).text)
       .toContain("What happens next: we'll review your application and email you when your decision is out.");
   });
 
