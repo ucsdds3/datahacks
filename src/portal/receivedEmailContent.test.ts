@@ -47,11 +47,11 @@ describe("what it says", () => {
       "Thanks for applying to DataHacks 2027! We've received your hacker application.\n\n" +
       "DataHacks 2027 is Saturday–Sunday, January 16–17, 2027, at UC San Diego.\n\n" +
       "What happens next: you applied by the priority deadline (November 30, 11:59 PM Pacific), so you'll hear back from us by mid-December.\n\n" +
-      "You can check your application's status anytime on the portal:\nhttps://datahacks.ds3atucsd.com/portal/\n\n" +
+      "You can check your application's status anytime on the portal:\nhttps://datahacks.ds3ucsd.com/portal/\n\n" +
       "Your answers can't be changed now that you've submitted. If something needs fixing, or you have a question, email us at info@ds3.club.\n\n" +
       "The DataHacks team\nData Science Student Society at UC San Diego\ninfo@ds3.club",
     );
-    expect(email.html).toContain('<a href="https://datahacks.ds3atucsd.com/portal/">https://datahacks.ds3atucsd.com/portal/</a>');
+    expect(email.html).toContain('<a href="https://datahacks.ds3ucsd.com/portal/">https://datahacks.ds3ucsd.com/portal/</a>');
     expect(email.html).toContain('<a href="mailto:info@ds3.club">info@ds3.club</a>');
     expect(email.html).toMatch(/^<div style="font-family: sans-serif; line-height: 1.5"><p>Hi Ada,<\/p>/);
   });

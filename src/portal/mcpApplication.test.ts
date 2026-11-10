@@ -294,7 +294,7 @@ describe("insertErrorMessage", () => {
   it("explains an account without a profile", () => {
     expect(mcp.insertErrorMessage({
       code: "23503", message: 'insert or update on table "applications" violates foreign key constraint "applications_user_id_fkey"',
-    })).toBe("Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3atucsd.com and try again.");
+    })).toBe("Couldn't save your application because your DataHacks account isn't fully set up — sign in once at https://datahacks.ds3ucsd.com and try again.");
   });
 });
 

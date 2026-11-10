@@ -49,8 +49,8 @@ isn't set up; see the TODO in the function.
 | App | "DataHacks Portal Waiver", integration key `24c6a289-a194-46f9-a5f3-3a13fd5aa71a` (in `src/staff-portal/config.ts`) |
 | App settings | Admin > Integrations > Apps and Keys > Actions > Edit |
 | RSA keypair | id `d47f58e9-8d52-48a0-9625-3e65099e5e59`. The private key is not in the repo. Mohak has it as PKCS#8 at `~/.datahacks/docusign-private-pkcs8.pem`. |
-| Redirect URIs | `https://datahacks.ds3atucsd.com/`, `http://localhost:8080/` |
-| CORS origins | `https://datahacks.ds3atucsd.com`, `http://localhost:8080`, `http://localhost:8081` |
+| Redirect URIs | `https://datahacks.ds3ucsd.com/`, `http://localhost:8080/` |
+| CORS origins | `https://datahacks.ds3ucsd.com`, `http://localhost:8080`, `http://localhost:8081` |
 | Template | "DataHacks 2027 Liability Waiver (DRAFT)", id `04c6a9d7-42e8-46e5-91aa-de634df3405f`, one role `Signer` |
 
 The template's tabs are anchored to the PDF's labels and sit on the line

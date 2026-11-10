@@ -101,7 +101,7 @@ export const HANDBOOK: HandbookSection[] = [
       <p>Questions during the event? Email <a href="mailto:datahacks@ucsd.edu">datahacks@ucsd.edu</a>, post in the <A href="https://discord.gg/z7KNvSGCvF">DataHacks Discord</A>, or find a staff member in a tan organizer shirt. There's also a help center near the stage. This guide is updated as the event approaches, so check back regularly.</p>
       <h3>Useful links</h3>
       <ul>
-        <li><A href="https://datahacks.ds3atucsd.com/">DataHacks website</A></li>
+        <li><A href="https://datahacks.ds3ucsd.com/">DataHacks website</A></li>
         <li><A href="https://discord.gg/z7KNvSGCvF">DataHacks Discord</A></li>
         <li><A href="https://datahacks-2026.devpost.com/">DataHacks Devpost</A></li>
         <li><A href="https://www.instagram.com/datahacks_2026/">DataHacks Instagram</A></li>
@@ -221,7 +221,7 @@ export const HANDBOOK: HandbookSection[] = [
         ]}
       />
       <h3>Workshops</h3>
-      <p>Workshops are in the Auxiliary Room (inside the Rec Gym) and Price Center Theater (PCT); see the <A href="https://datahacks.ds3atucsd.com/#timeline">workshop schedule</A>. Every workshop attended earns a raffle ticket for the prize drawing at the Awards Ceremony.</p>
+      <p>Workshops are in the Auxiliary Room (inside the Rec Gym) and Price Center Theater (PCT); see the <A href="https://datahacks.ds3ucsd.com/#timeline">workshop schedule</A>. Every workshop attended earns a raffle ticket for the prize drawing at the Awards Ceremony.</p>
       <p>To get to Price Center Theater from the Rec Gym, head south on Scholars Lane, turn right onto Library Walk and continue to the theater on the second floor, about a 10-minute walk. <A href="https://maps.app.goo.gl/SH98tWQT6VFG2RbH6">Directions to PCT</A> · <A href="https://maps.app.goo.gl/Eh3gaxoByLmEVbix6">Directions back to Rec Gym</A></p>
     </>,
   },
@@ -294,9 +294,9 @@ export const HANDBOOK: HandbookSection[] = [
     title: "Prizes, Sponsors & FAQ",
     content: <>
       <ul>
-        <li><A href="https://datahacks.ds3atucsd.com/#prizes">Prizes</A></li>
-        <li><A href="https://datahacks.ds3atucsd.com/#sponsors">Sponsors</A></li>
-        <li><A href="https://datahacks.ds3atucsd.com/#faq">FAQ</A></li>
+        <li><A href="https://datahacks.ds3ucsd.com/#prizes">Prizes</A></li>
+        <li><A href="https://datahacks.ds3ucsd.com/#sponsors">Sponsors</A></li>
+        <li><A href="https://datahacks.ds3ucsd.com/#faq">FAQ</A></li>
       </ul>
     </>,
   },

@@ -40,7 +40,7 @@ export const BLASTS: Blast[] = [
       "- [[Sponsor 2]]: [[challenge, prize]]\n" +
       "- [[Sponsor 3]]: [[challenge, prize]]\n\n" +
       "You can enter a sponsor challenge on top of your main track. Details are in the hacker handbook on the portal: " +
-      "https://datahacks.ds3atucsd.com/portal\n\n" +
+      "https://datahacks.ds3ucsd.com/portal\n\n" +
       "Still need a team? Come to team matching right after the opening ceremony." +
       SIGN_OFF,
   },
@@ -68,7 +68,7 @@ export const BLASTS: Blast[] = [
       "By transit, take a bus or rideshare to Old Town or downtown, then the Blue Line trolley to UC San Diego Central Campus.\n" +
       "[[Travel stipend recipients: how to submit receipts.]]\n\n" +
       "Bring your student ID, a laptop and charger, and your check-in QR code (we'll send it separately). " +
-      "If you haven't signed the liability waiver yet, please do it on the portal before you come: https://datahacks.ds3atucsd.com/portal" +
+      "If you haven't signed the liability waiver yet, please do it on the portal before you come: https://datahacks.ds3ucsd.com/portal" +
       SIGN_OFF,
   },
   {
@@ -86,7 +86,7 @@ export const BLASTS: Blast[] = [
       "Hackers: check-in opens Saturday, January 16 at [[12:00 PM]].\n" +
       "Mentors: please arrive by [[12:15 PM]] on Saturday, January 16. Office hours run 12:30–4:30 PM.\n" +
       "Judges: please arrive by [[12:15 PM]] on Sunday, January 17.\n\n" +
-      "Make sure you've signed the liability waiver on the portal before you arrive: https://datahacks.ds3atucsd.com/portal" +
+      "Make sure you've signed the liability waiver on the portal before you arrive: https://datahacks.ds3ucsd.com/portal" +
       SIGN_OFF,
   },
 ];
