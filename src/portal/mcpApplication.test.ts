@@ -38,6 +38,13 @@ describe("MCP application server matches the portal", () => {
 
   it("has the forms' length limits", () => expect(mcp.MAX_LENGTH).toEqual(input.MAX_LENGTH));
 
+  it("asks the hacker tool for the form's two suggestions, as required answers", () => {
+    const source = readFileSync(join(__dirname, "../../supabase/functions/mcp/index.ts"), "utf8");
+    for (const field of ["suggested_food", "suggested_activity"]) {
+      expect(source, field).toMatch(new RegExp(`\\n\\s+${field}: z\\.string\\(\\)\\.describe\\(`));
+    }
+  });
+
   // The copies of applicantInput's rules must agree with the originals on every input,
   // including the awkward ones the database's checks were written against.
   const samples = [
@@ -132,6 +139,7 @@ const hacker: mcp.HackerAnswers = {
   graduation_year: String(new Date().getFullYear() + 1), hackathon_experience: "1–2 hackathons", attended_before: false,
   linkedin_url: "https://www.linkedin.com/in/ada", github_url: "https://github.com/ada", resume_url: "https://drive.google.com/ada",
   essay_proudest_project: "An analytical engine.", essay_unique_thing: "Poetical science.", essay_goal: "Meet people.",
+  suggested_food: "Boba", suggested_activity: "Smash tournament",
   heard_about: ["Instagram"], wants_travel_stipend: false, agreed_to_terms: true,
 };
 
@@ -143,7 +151,26 @@ describe("checkHacker", () => {
     expect("row" in result && result.row).toMatchObject({
       applicant_type: "hacker", first_name: "Ada", phone: "(858) 555-0123", race_ethnicity: "White; Other",
       devpost_url: null, travel_region: null, funniest_joke: "", agreed_to_terms: true,
+      suggested_food: "Boba", suggested_activity: "Smash tournament",
     });
+  });
+
+  it("needs a suggested food and activity, on one line, within the form's limit", () => {
+    // Required: left out, empty or only spaces is a problem for each.
+    const without: Partial<mcp.HackerAnswers> = { ...hacker };
+    delete without.suggested_food;
+    delete without.suggested_activity;
+    expect(problemFields(mcp.checkHacker(without as mcp.HackerAnswers))).toEqual(["suggested_food", "suggested_activity"]);
+    expect(problemFields(mcp.checkHacker({ ...hacker, suggested_food: "", suggested_activity: " \n\t " })))
+      .toEqual(["suggested_food", "suggested_activity"]);
+    expect(mcp.checkHacker({ ...hacker, suggested_food: "" })).toEqual({ problems: ["suggested_food is required."] });
+    // Cleaned like the form's other one-line answers.
+    const cleaned = mcp.checkHacker({ ...hacker, suggested_food: "  Poke\nbowls ", suggested_activity: "Smash\ttournament\u0007" });
+    expect("row" in cleaned && cleaned.row).toMatchObject({ suggested_food: "Poke bowls", suggested_activity: "Smash tournament" });
+    // MAX_LENGTH.short (150), below the database's 200.
+    expect("row" in mcp.checkHacker({ ...hacker, suggested_food: "f".repeat(150), suggested_activity: "a".repeat(150) })).toBe(true);
+    expect(problemFields(mcp.checkHacker({ ...hacker, suggested_food: "f".repeat(151), suggested_activity: "a".repeat(151) })))
+      .toEqual(["suggested_food", "suggested_activity"]);
   });
 
   it("cleans answers the way the form saves them", () => {

@@ -89,6 +89,19 @@ const RACE: Weighted<string> = [
   [RACES[1], 55], [RACES[6], 18], [RACES[3], 15], [RACES[2], 4], [RACES[4], 3], [RACES[0], 1], [RACES[5], 1], [RACES[7], 2], [RACES[8], 3],
 ];
 
+const FOODS: Weighted<string> = [
+  ["Boba", 120], ["boba", 30], ["Boba tea", 25], ["Poke bowls", 60], ["poke", 15], ["Tacos", 70], ["tacos", 12],
+  ["Pizza", 55], ["Sushi", 40], ["Korean BBQ", 30], ["Ramen", 28], ["Acai bowls", 20], ["Ice cream", 18], ["Dumplings", 15],
+  ["Burritos", 15], ["Mango sticky rice", 8], ["Vegan options!", 10], ["Hot Cheetos", 6], ["Matcha", 9], ["Churros", 7],
+];
+
+const ACTIVITIES: Weighted<string> = [
+  ["Smash tournament", 90], ["smash bros tournament", 20], ["Super Smash Bros", 15], ["5K", 35], ["5k run", 10],
+  ["Karaoke", 45], ["Trivia night", 35], ["trivia", 10], ["Board games", 30], ["Yoga", 22], ["Cup stacking", 12],
+  ["Mario Kart", 25], ["Chess tournament", 18], ["Nap room", 10], ["Typing speed contest", 12], ["Ping pong", 14],
+  ["Beach cleanup", 6], ["Kahoot", 15], ["Rubik's cube race", 5], ["Dance party", 8],
+];
+
 const TRACKS: Weighted<string> = [["social_good", 20], ["biotech_life_sciences", 25], ["defense_cybersecurity", 15], ["finance", 25], ["entertainment", 15]];
 const AFFILIATIONS: Weighted<string> = [["none", 55], ["alumni", 25], ["student", 10], ["faculty", 10]];
 
@@ -108,8 +121,15 @@ let reloads = 0;
 
 function build(): StatsRow[] {
   const rand = seeded(1500);
+  // Its own stream for the suggestions, so the rest of the sample stays as it was before they were asked.
+  const ideas = seeded(2027);
   const pick = <T,>(options: Weighted<T>): T => {
     let r = rand() * options.reduce((s, [, w]) => s + w, 0);
+    for (const [value, w] of options) if ((r -= w) < 0) return value;
+    return options[options.length - 1][0];
+  };
+  const pickIdea = (options: Weighted<string>): string => {
+    let r = ideas() * options.reduce((s, [, w]) => s + w, 0);
     for (const [value, w] of options) if ((r -= w) < 0) return value;
     return options[options.length - 1][0];
   };
@@ -120,7 +140,7 @@ function build(): StatsRow[] {
   const blank = (id: string, type: ApplicantType): StatsRow => ({
     id, applicant_type: type, status: "submitted", submitted_at: null, school: null, major: null, level_of_study: null,
     graduation_year: null, hackathon_experience: null, attended_before: null, country_of_residence: null, heard_about: null,
-    wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null,
+    suggested_food: null, suggested_activity: null, wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null,
     judging_track: null, ucsd_affiliation: null, decision: null, checkedIn: false,
   });
   /** Earlier applications are likelier to have a decision by now; some released, some only staged. */
@@ -146,6 +166,8 @@ function build(): StatsRow[] {
         hackathon_experience: pick(EXPERIENCE), attended_before: rand() < 0.22, country_of_residence: pick(COUNTRIES),
         heard_about: pickSome(HEARD, 3), wants_travel_stipend: travel, travel_region: region, travel_distance: distance,
         gender: pick(GENDER), race_ethnicity: pickSome(RACE, 2).join("; "),
+        // Asked from the second week on: the launch-week applicants have no answer.
+        ...(day >= 7 ? { suggested_food: pickIdea(FOODS), suggested_activity: pickIdea(ACTIVITIES) } : {}),
       };
       if (day <= 26) decide(row, 0.75, [["accepted", 60], ["waitlisted", 20], ["rejected", 12]]);
       rows.push(row);

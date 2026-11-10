@@ -81,6 +81,8 @@ export function hackerApplication(n) {
     essay_goal: essay("I want to learn."),
     funniest_joke: "Why did the dataset break up? Too many outliers.",
     lifetime_goal: "Ship something useful.",
+    suggested_food: "Boba",
+    suggested_activity: "Smash tournament",
     heard_about: ["Instagram", "Friend or word of mouth"],
     wants_travel_stipend: false,
     travel_region: null,

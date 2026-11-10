@@ -34,7 +34,8 @@ const ORGANIZER_COLUMNS = [
   "first_name", "last_name", "email", "phone",
   "school", "level_of_study", "major", "graduation_year",
   "organization", "role_title", "resume_url", "resume_path", "linkedin_url", "devpost_url",
-  "judging_track", "bio", "essay_proudest_project", "essay_unique_thing", "essay_goal", "heard_about",
+  "judging_track", "bio", "essay_proudest_project", "essay_unique_thing", "essay_goal",
+  "suggested_food", "suggested_activity", "heard_about",
   "gender", "race_ethnicity", "city_of_residence", "country_of_residence", "hackathon_experience", "github_url",
   "wants_travel_stipend", "travel_region", "travel_method", "travel_distance", "travel_stipend_reason",
   "decision", "decision_released_at", "decision_emailed_at",
@@ -179,6 +180,7 @@ function applicationInsert(s, eventId, n) {
     resume_url: "https://example.com/resume.pdf",
     essay_proudest_project: essay("I built a model."), essay_unique_thing: essay("I like data."), essay_goal: essay("I want to learn."),
     funniest_joke: "Why did the dataset break up? Too many outliers.", lifetime_goal: "Ship something useful.",
+    suggested_food: "Boba", suggested_activity: "Smash tournament",
     heard_about: ["Instagram", "Friend or word of mouth"], wants_travel_stipend: false,
     travel_region: null, travel_method: null, travel_distance: null, travel_stipend_reason: null, agreed_to_terms: true,
   };

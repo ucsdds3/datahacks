@@ -76,7 +76,8 @@ const valid = {
   hackathon_experience: HACKATHON_EXPERIENCE[0], attended_before: false, linkedin_url: "https://www.linkedin.com/in/ada",
   github_url: "https://github.com/ada", devpost_url: "", resume_url: "https://drive.google.com/file/d/x",
   essay_proudest_project: "The analytical engine.", essay_unique_thing: "Poetical science.", essay_goal: "Meet people.",
-  funniest_joke: "", lifetime_goal: "", heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
+  funniest_joke: "", lifetime_goal: "", suggested_food: "Boba", suggested_activity: "Smash tournament",
+  heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
   travel_method: "", travel_distance: "", travel_stipend_reason: "", agreed_to_terms: true,
 };
 const blankMlh = { mlh_code_of_conduct: false, mlh_data_sharing: false, mlh_emails_opt_in: false };

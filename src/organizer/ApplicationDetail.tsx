@@ -119,6 +119,8 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Project they're proudest of" value={app.essay_proudest_project} />
             <Field label="Something unique they'd bring" value={app.essay_unique_thing} />
             <Field label="What they want from the event" value={app.essay_goal} />
+            <Field label="Suggested food" value={app.suggested_food} />
+            <Field label="Suggested activity" value={app.suggested_activity} />
             <Field label="Heard about us" value={app.heard_about?.join(", ")} />
           </>
         ) : (

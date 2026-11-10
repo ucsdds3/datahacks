@@ -63,7 +63,8 @@ const valid = {
   hackathon_experience: HACKATHON_EXPERIENCE[0], attended_before: false, linkedin_url: "https://www.linkedin.com/in/ada",
   github_url: "https://github.com/ada", devpost_url: "", resume_url: "https://drive.google.com/file/d/x",
   essay_proudest_project: "The analytical engine.", essay_unique_thing: "Poetical science.", essay_goal: "Meet people.",
-  funniest_joke: "", lifetime_goal: "", heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
+  funniest_joke: "", lifetime_goal: "", suggested_food: "Boba", suggested_activity: "Smash tournament",
+  heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
   travel_method: "", travel_distance: "", travel_stipend_reason: "", agreed_to_terms: true,
 };
 
@@ -286,5 +287,43 @@ describe("submit errors", () => {
     // Fixing it clears the mark.
     fireEvent.change(field, { target: { value: "https://linkedin.com/in/ada" } });
     expect(field).not.toHaveAttribute("aria-invalid");
+  });
+
+  it("needs a suggested food and activity: only spaces is pointed at, not sent", async () => {
+    saveDraft({ ...valid, suggested_food: "   ", suggested_activity: "" });
+    await mountWithSession();
+    const form = screen.getByRole("button", { name: /Submit application/ }).closest("form")!;
+    fireEvent.submit(form);
+    const food = screen.getByLabelText(/Suggest a food item we should have/);
+    expect(food).toHaveAttribute("aria-invalid", "true");
+    expect(food.closest("label")).toHaveClass("sp-field-error");
+    expect(screen.getByRole("alert")).toHaveTextContent("Suggest a food item we should have at DataHacks.");
+    await waitFor(() => expect(document.activeElement).toBe(food));
+    expect(db.inserts).toHaveLength(0);
+
+    fireEvent.change(food, { target: { value: "Tacos" } });
+    expect(food).not.toHaveAttribute("aria-invalid");
+    fireEvent.submit(form);
+    const activity = screen.getByLabelText(/Suggest an activity we should run/);
+    expect(activity).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent("Suggest an activity we should run at DataHacks.");
+    await waitFor(() => expect(document.activeElement).toBe(activity));
+    expect(db.inserts).toHaveLength(0);
+  });
+
+  it("keeps the suggestions in the draft and saves them on one line", async () => {
+    saveDraft({ ...valid, suggested_food: "Poke bowls" });
+    await mountWithSession();
+    const food = screen.getByLabelText(/Suggest a food item we should have/);
+    expect(food).toHaveValue("Poke bowls");
+    expect(food).toHaveAttribute("maxLength", "150");
+    expect(food).toBeRequired();
+    const activity = screen.getByLabelText(/Suggest an activity we should run/);
+    expect(activity).toHaveValue("Smash tournament");
+    fireEvent.change(activity, { target: { value: "  Karaoke\tnight " } });
+    await waitFor(() => expect(savedForm()?.suggested_activity).toBe("  Karaoke\tnight "), { timeout: 2000 });
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts[0]).toMatchObject({ suggested_food: "Poke bowls", suggested_activity: "Karaoke night" });
   });
 });

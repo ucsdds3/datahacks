@@ -33,6 +33,9 @@ export type Application = {
   essay_proudest_project: string | null;
   essay_unique_thing: string | null;
   essay_goal: string | null;
+  /** Hackers: a food item and an activity they suggest (required on the form; null on older rows). */
+  suggested_food: string | null;
+  suggested_activity: string | null;
   heard_about: string[] | null;
   gender: string | null;
   race_ethnicity: string | null;
@@ -72,6 +75,7 @@ export const NO_REVIEW: Review = { decision: null, decided_by: null, decided_at:
 export const LIST_FIELDS = [
   "id", "applicant_type", "status", "submitted_at",
   "first_name", "last_name", "email", "phone", "school", "level_of_study", "organization",
+  "suggested_food", "suggested_activity",
   "decision_released_at", "decision_emailed_at",
 ] as const satisfies readonly (keyof Application)[];
 

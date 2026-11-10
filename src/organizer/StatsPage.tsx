@@ -85,6 +85,10 @@ export default function StatsPage({ eventId }: { eventId: string }) {
           <Missing breakdown={stats.hacker.attendedBefore} what="this" />
         </section>
         <BarCard title="Heard about DataHacks" breakdown={stats.hacker.heardAbout} multi />
+        <BarCard title="Suggested food" breakdown={stats.hacker.food} sub={`${num(stats.hacker.food.distinct)} ideas`}
+          foot="As typed, grouped ignoring capitals, spaces and punctuation." />
+        <BarCard title="Suggested activities" breakdown={stats.hacker.activities} sub={`${num(stats.hacker.activities.distinct)} ideas`}
+          foot="As typed, grouped ignoring capitals, spaces and punctuation." />
         <BarCard title="Country of residence" breakdown={stats.hacker.country} sub={`${num(stats.hacker.country.distinct)} countries`} />
         <Travel stats={stats} />
         <section className="sp-card og-st-card">
