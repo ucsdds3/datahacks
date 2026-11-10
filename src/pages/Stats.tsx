@@ -1,5 +1,4 @@
 import { useEffect, useId, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
   APPLICANT_GOAL, MIN_GROUP, REFRESH_MS, STATS_EVENT_CODE, StatsPausedError, chartPoints, fetchPublicStats, formatCount,
@@ -9,6 +8,7 @@ import "./stats.css";
 
 export const STATS_TITLE = "DataHacks 2027 · Live stats";
 const PAGE_BACKGROUND = "#1a0a0b";
+// Links open in the whole window: this page is also shown full-screen at stats.datahacks.ds3atucsd.com.
 const APPLY = "/apply/";
 
 const plural = (n: number, one: string, many: string) => `${formatCount(n)} ${n === 1 ? one : many}`;
@@ -50,10 +50,10 @@ export default function Stats() {
   return (
     <div className="dh-stats">
       <header className="dh-stats-top">
-        <a className="dh-stats-brand" href="/">DataHacks <span>2027</span></a>
+        <a className="dh-stats-brand" href="/" target="_top">DataHacks <span>2027</span></a>
         <nav className="dh-stats-nav" aria-label="DataHacks">
-          <a className="dh-stats-home-link" href="/">Home</a>
-          <Link className="dh-stats-button primary" to={APPLY}>Apply now</Link>
+          <a className="dh-stats-home-link" href="/" target="_top">Home</a>
+          <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
         </nav>
       </header>
 
@@ -102,7 +102,7 @@ export default function Stats() {
           fewer than {MIN_GROUP} applicants is counted in "Other". Submitted applications only, not drafts.
         </p>
         <p>
-          <a href="/">DataHacks home</a> · <Link to={APPLY}>Apply</Link> · Questions? <a href="mailto:info@ds3.club">info@ds3.club</a>
+          <a href="/" target="_top">DataHacks home</a> · <a href={APPLY} target="_top">Apply</a> · Questions? <a href="mailto:info@ds3.club">info@ds3.club</a>
         </p>
       </footer>
       <div className="dh-stats-lava" aria-hidden="true" />
@@ -297,7 +297,7 @@ function Empty() {
       <p>No hacker applications yet, so be one of the first. This page fills in as applications come in.</p>
       <p className="dh-stats-goal-label">Goal: {formatCount(APPLICANT_GOAL)} applicants</p>
       <div className="dh-stats-actions">
-        <Link className="dh-stats-button primary" to={APPLY}>Apply now</Link>
+        <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
       </div>
     </section>
   );
@@ -309,8 +309,8 @@ function Problem({ paused, retrying, onRetry }: { paused: boolean; retrying: boo
       <h2>Live stats are paused</h2>
       <p>The DataHacks team has turned this page's numbers off for now. Check back soon.</p>
       <div className="dh-stats-actions">
-        <Link className="dh-stats-button primary" to={APPLY}>Apply now</Link>
-        <a className="dh-stats-button" href="/">DataHacks home</a>
+        <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
+        <a className="dh-stats-button" href="/" target="_top">DataHacks home</a>
       </div>
     </section>
   ) : (
@@ -321,7 +321,7 @@ function Problem({ paused, retrying, onRetry }: { paused: boolean; retrying: boo
         <button type="button" className="dh-stats-button primary" onClick={onRetry} disabled={retrying}>
           {retrying ? "Trying again…" : "Try again"}
         </button>
-        <a className="dh-stats-button" href="/">DataHacks home</a>
+        <a className="dh-stats-button" href="/" target="_top">DataHacks home</a>
       </div>
     </section>
   );
