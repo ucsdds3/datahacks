@@ -1,0 +1,20 @@
+/* The privacy policy: a plain, readable page in the homepage's parchment colours. */
+.dh-privacy {
+  box-sizing: border-box;
+  max-width: 760px;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 48px 20px 72px;
+  color: #3f2a17;
+  font: 16px/1.65 Georgia, "Times New Roman", serif;
+}
+body:has(.dh-privacy) { background: #f6ead2; }
+.dh-privacy h1 { margin: 6px 0 4px; font-size: 34px; line-height: 1.2; }
+.dh-privacy h2 { margin: 32px 0 8px; font-size: 21px; }
+.dh-privacy ul { padding-left: 22px; }
+.dh-privacy li { margin: 6px 0; }
+.dh-privacy a { color: #8a4b12; text-underline-offset: 0.15em; }
+.dh-privacy-org { margin: 0; font: 600 13px/1.4 system-ui, sans-serif; letter-spacing: 0.06em; text-transform: uppercase; color: #764a24; }
+.dh-privacy-org a { color: inherit; text-decoration: none; }
+.dh-privacy-updated { margin: 0 0 24px; color: #764a24; font-size: 14px; }
+.dh-privacy-back { margin-top: 40px; }

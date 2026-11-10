@@ -44,6 +44,7 @@ const OAuthConsent = lazy(portalPages.oauthConsent);
 const ApplyWithAi = lazy(() => import("./pages/ApplyWithAi"));
 // Public: live application counts. Its own small chunk, no Supabase client (see pages/statsData).
 const Stats = lazy(() => import("./pages/Stats"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 // Any unknown address: the End-themed 404. Lazy, so the portal's styles stay out of the home page's bundle.
 const NotFound = lazy(() => import("./pages/NotFound"));
 // Dev only: sign tabs in as dummy applicants. Left out of production builds.
@@ -82,6 +83,8 @@ const App = () => (
           <Route path="/legacy" element={<><NoIndex /><Index /></>} />
           <Route path="/apply-with-ai" element={<Suspense fallback={<PortalLoading />}><ApplyWithAi /></Suspense>} />
           <Route path="/stats" element={<PortalBoundary><Suspense fallback={<StatsLoading />}><Stats /></Suspense></PortalBoundary>} />
+          {/* The privacy policy (Google's sign-in screen links here). */}
+          <Route path="/privacy" element={<PortalBoundary><Suspense fallback={null}><Privacy /></Suspense></PortalBoundary>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route element={<PortalBoundary><Suspense fallback={<PortalLoading />}><PortalShell /></Suspense></PortalBoundary>}>
             <Route path={portal.login("hacker")} element={<SignIn as="hacker" />} />
