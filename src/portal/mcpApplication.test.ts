@@ -101,14 +101,24 @@ describe("MCP application server matches the database", () => {
   const dir = join(__dirname, "../../supabase/migrations");
   const sql = readdirSync(dir).sort().map(f => readFileSync(join(dir, f), "utf8")).join("\n")
     .replace(/--.*$/gm, ""); // comments quote values too
-  /** The quoted values in a constraint's definition, '' unescaped. */
-  const allowed = (constraint: string) => {
+  /** A constraint's definition, from its latest migration. */
+  const definition = (constraint: string) => {
     const start = sql.lastIndexOf(constraint);
     expect(start, constraint).toBeGreaterThan(-1);
     const rest = sql.slice(start + constraint.length);
     const end = rest.search(/\n\s*(add )?constraint |;\s*\n/i);
-    const body = end === -1 ? rest : rest.slice(0, end);
-    return [...body.matchAll(/'((?:[^']|'')*)'/g)].map(m => m[1].replace(/''/g, "'"));
+    return end === -1 ? rest : rest.slice(0, end);
+  };
+  /** The quoted values in some SQL, '' unescaped. */
+  const quoted = (text: string) => [...text.matchAll(/'((?:[^']|'')*)'/g)].map(m => m[1].replace(/''/g, "'"));
+  /** The quoted values in a constraint's definition. */
+  const allowed = (constraint: string) => quoted(definition(constraint));
+  /** What a constraint takes from hackers and from mentors and judges, when it
+   *  splits them (case when applicant_type = 'hacker' then … else … end). */
+  const allowedBy = (constraint: string) => {
+    const body = definition(constraint);
+    const split = body.match(/case when applicant_type = 'hacker'\s+then([\s\S]*)\belse\b([\s\S]*)\bend\b/i);
+    return split ? { hacker: quoted(split[1]), staff: quoted(split[2]) } : { hacker: quoted(body), staff: quoted(body) };
   };
 
   it("sends only values the CHECK constraints accept", () => {
@@ -118,7 +128,7 @@ describe("MCP application server matches the database", () => {
     expect(allowed("application_hackathon_experience_check")).toEqual([...mcp.HACKATHON_EXPERIENCE]);
     expect(allowed("application_travel_method_check")).toEqual([...mcp.TRAVEL_METHODS]);
     expect(allowed("application_travel_distance_check")).toEqual([...mcp.TRAVEL_DISTANCES]);
-    expect(allowed("application_heard_about_check")).toEqual([...mcp.HEARD_ABOUT]);
+    expect(allowedBy("application_heard_about_check").hacker).toEqual([...mcp.HEARD_ABOUT]);
     expect(allowed("applications_judging_track_check")).toEqual([...mcp.JUDGING_TRACKS]);
     expect(allowed("applications_ucsd_affiliation_check")).toEqual([...mcp.UCSD_AFFILIATIONS]);
     expect(allowed("applications_applicant_type_check")).toEqual(["hacker", ...mcp.STAFF_TYPES]);
