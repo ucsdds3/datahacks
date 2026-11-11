@@ -1,7 +1,7 @@
 /* The Nether theme for the applicant portal (Figma: "applicants-portal", page "Applicant Portal").
    Everything is scoped to `.sp-root.sp-nether`, exactly like end-theme.css is to `.sp-end`,
    so switching theme is a class swap (see PortalBackdrop.tsx / portalTheme.ts). */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Silkscreen:wght@400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Russo+One&family=Silkscreen:wght@400;700&display=swap");
 @import "./nether-shell.css";
 @import "./nether-forms.css";
 @import "./nether-status.css";
