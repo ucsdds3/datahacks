@@ -48,8 +48,53 @@
     />
     <script type="module" crossorigin src="/home/index-4Zu8xK9g.js"></script>
     <link rel="stylesheet" crossorigin href="/home/index-IaFFHknE.css">
+    <style>
+      /* Room for the MLH trust badge (fixed at top right: 50px from the right edge, clamp(60px, 10vw, 100px)
+         wide, 1.752x as tall). The bundle's markup is untouched; these only move the nav (#top nav). */
+      /* Desktop: the nav sits at the right of the 1120px page column, so below ~1440px it would run under the
+         badge. Push it left until its last link ends 32px before the badge (no change on wide screens). */
+      @media (width >= 48rem) {
+        #top nav {
+          margin-right: max(0px, calc(82px + clamp(60px, 10vw, 100px) - max(0px, (100vw - 1120px) / 2) - var(--spacing) * 30));
+        }
+      }
+      /* Phones: the nav row (under the logo) would sit under the badge, so it starts just below it. */
+      @media (width < 40rem) {
+        #top nav { margin-top: calc(clamp(60px, 10vw, 100px) * 1.752 - 56px); }
+      }
+
+      /* Footer: one line on the dirt under the FAQ, in the page's caps type and cream. Hidden until the app
+         renders, so it never flashes at the top of an empty page. */
+      .dh-footer {
+        padding: 8px 16px 40px;
+        text-align: center;
+        font-family: "Josefin Sans", ui-sans-serif, system-ui, sans-serif;
+        font-size: 13px;
+        line-height: 1.8;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgb(243 227 195 / 0.8);
+      }
+      .dh-footer span, .dh-footer a { white-space: nowrap; }
+      .dh-footer a {
+        color: #f8e8c9;
+        font-weight: 600;
+        text-decoration: underline;
+        text-decoration-thickness: 0.08em;
+        text-underline-offset: 0.3em;
+      }
+      .dh-footer a:hover { color: #fff; }
+      .dh-footer a:focus-visible { outline: 2px solid #f8e8c9; outline-offset: 3px; }
+      #root:empty + .dh-footer { display: none; }
+    </style>
   </head>
   <body>
+    <!-- MLH trust badge: MLH's embed code, unaltered apart from the colour (black). https://www.mlh.com/brand-guidelines/#trust-badge -->
+    <a id="mlh-trust-badge" style="display:block;max-width:100px;min-width:60px;position:fixed;right:50px;top:0;width:10%;z-index:10000" href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2027-season&utm_content=black" target="_blank"><img src="https://logged-assets.s3.amazonaws.com/trust-badge/2027/mlh-trust-badge-2027-black.svg" alt="Major League Hacking 2027 Hackathon Season" style="width:100%"></a>
     <div id="root"></div>
+    <footer class="dh-footer">
+      <span>DataHacks 2027</span> · <span>DS3 at UC San Diego</span> ·
+      <a href="https://mlh.io/code-of-conduct" target="_blank" rel="noopener">MLH Code of Conduct</a>
+    </footer>
   </body>
 </html>

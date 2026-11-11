@@ -9,7 +9,6 @@ import ThemeIndex from "./pages/ThemeIndex";
 import Groove from "./themes/groove";
 import Pop from "./themes/pop";
 import Press from "./themes/press";
-import Minecraft from "./themes/minecraft";
 import { NoIndex } from "./components/NoIndex";
 import Home from "./pages/Home";
 import { PortalBoundary } from "./portal/PortalBoundary";
@@ -70,11 +69,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           {/* The homepage is the DataCraft site, a static build the deploy serves at "/" (public/home/).
-              Landing here inside the app loads it. The older world under /datacraft stays out of search. */}
+              Landing here inside the app loads it. */}
           <Route path="/" element={<Home />} />
-          <Route path="/datacraft/*" element={<><NoIndex /><Minecraft /></>} />
-          {/* Anything still pointing at the old path follows along. */}
-          <Route path="/minecraft/*" element={<Navigate to="/datacraft" replace />} />
+          {/* The older, unfinished world (src/themes/minecraft) is taken down: its addresses, and those of the
+              static design drafts that used to be served under /datacraft/, all go to the homepage. */}
+          <Route path="/datacraft/*" element={<Navigate to="/" replace />} />
+          <Route path="/minecraft/*" element={<Navigate to="/" replace />} />
           {/* Design mockups: placeholder dates and figures, kept out of search. */}
           <Route path="/themes" element={<><NoIndex /><ThemeIndex /></>} />
           <Route path="/pop" element={<><NoIndex /><Pop /></>} />

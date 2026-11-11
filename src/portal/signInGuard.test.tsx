@@ -137,9 +137,9 @@ describe("sign-in page", () => {
 describe("the public site's apply buttons", () => {
   const renderButton = () =>
     render(
-      <MemoryRouter initialEntries={["/datacraft"]}>
+      <MemoryRouter initialEntries={["/"]}>
         <Routes>
-          <Route path="/datacraft" element={<ApplyButton as="hacker">Apply as a hacker</ApplyButton>} />
+          <Route path="/" element={<ApplyButton as="hacker">Apply as a hacker</ApplyButton>} />
           <Route path="*" element={<Where />} />
         </Routes>
       </MemoryRouter>,

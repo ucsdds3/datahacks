@@ -2,7 +2,8 @@ import { Link } from "react-router-dom";
 
 const THEMES = [
   {
-    path: "/datacraft",
+    // The direction that was picked: it is the live homepage now.
+    path: "/",
     name: "Crafted Together",
     blurb: "Minecraft adventure. Voxel landscapes, pixel type, inventory panels, and a world to build.",
     swatch: ["#192115", "#91c64b", "#a9d4de", "#c5c3b6", "#91724b", "#fce875"],
