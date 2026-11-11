@@ -109,6 +109,23 @@ const STAFF_HEARD: Weighted<string> = [
   [STAFF_HEARD_ABOUT[2], 6], [STAFF_HEARD_ABOUT[7], 6], [STAFF_HEARD_ABOUT[5], 5], [STAFF_HEARD_ABOUT[8], 4],
 ];
 
+// Mentors' and judges' companies and job titles, typed the way people do.
+const ORGANIZATIONS: Weighted<string> = [
+  ["Qualcomm", 9], ["qualcomm", 2], ["Qualcomm Inc.", 2], ["UC San Diego", 5], ["UCSD", 4], ["University of California, San Diego", 2],
+  ["Intuit", 5], ["Apple", 4], ["Apple Inc", 1], ["Google", 4], ["Amazon", 3], ["Amazon (AWS)", 2], ["Illumina", 4], ["Microsoft", 3],
+  ["Meta", 3], ["Dexcom", 3], ["NVIDIA", 2], ["Nvidia", 1], ["General Atomics", 2], ["Scripps Research", 2], ["ServiceNow", 2],
+  ["Salesforce", 2], ["Northrop Grumman", 2], ["Sony Interactive Entertainment", 1], ["Visa", 1], ["LPL Financial", 1],
+  ["Rady Children's Hospital", 1], ["Booz Allen Hamilton", 1], ["Stealth startup", 1], ["Viasat", 1], ["Teradata", 1],
+];
+
+const JOB_TITLES: Weighted<string> = [
+  ["Software Engineer", 10], ["Senior Software Engineer", 6], ["SWE II", 2], ["Data Scientist", 8], ["Senior Data Scientist", 3],
+  ["Machine Learning Engineer", 6], ["ML Engineer", 2], ["Applied Scientist", 2], ["Data Engineer", 3], ["Data Analyst", 2],
+  ["Product Manager", 4], ["Technical Program Manager", 1], ["Research Scientist", 3], ["Engineering Manager", 3],
+  ["Staff Software Engineer", 2], ["Co-founder & CEO", 2], ["Director of Data Science", 1], ["Security Engineer", 2],
+  ["PhD Student", 4], ["Assistant Professor", 2], ["Lecturer", 1], ["Venture Partner", 1], ["Consultant", 1], ["Bioinformatician", 1],
+];
+
 /** Submissions per day from November 3: a launch spike, a quiet middle, a rush at each deadline. */
 function perDay(day: number, rand: () => number) {
   const launch = 70 * Math.exp(-day / 2.2);
@@ -125,18 +142,18 @@ let reloads = 0;
 
 function build(): StatsRow[] {
   const rand = seeded(1500);
-  // Its own stream for the suggestions, so the rest of the sample stays as it was before they were asked.
+  // Their own streams for the suggestions and for mentors' companies and job titles, so the rest of the sample
+  // stays as it was before those were asked or counted.
   const ideas = seeded(2027);
-  const pick = <T,>(options: Weighted<T>): T => {
-    let r = rand() * options.reduce((s, [, w]) => s + w, 0);
+  const work = seeded(2028);
+  const pickWith = <T,>(stream: () => number, options: Weighted<T>): T => {
+    let r = stream() * options.reduce((s, [, w]) => s + w, 0);
     for (const [value, w] of options) if ((r -= w) < 0) return value;
     return options[options.length - 1][0];
   };
-  const pickIdea = (options: Weighted<string>): string => {
-    let r = ideas() * options.reduce((s, [, w]) => s + w, 0);
-    for (const [value, w] of options) if ((r -= w) < 0) return value;
-    return options[options.length - 1][0];
-  };
+  const pick = <T,>(options: Weighted<T>): T => pickWith(rand, options);
+  const pickIdea = (options: Weighted<string>) => pickWith(ideas, options);
+  const pickWork = (options: Weighted<string>) => pickWith(work, options);
   const pickSome = <T,>(options: Weighted<T>, most: number): T[] => {
     const n = 1 + Math.floor(Math.pow(rand(), 2.2) * most);
     return [...new Set(Array.from({ length: n }, () => pick(options)))];
@@ -145,7 +162,7 @@ function build(): StatsRow[] {
     id, applicant_type: type, status: "submitted", submitted_at: null, school: null, major: null, level_of_study: null,
     graduation_year: null, hackathon_experience: null, attended_before: null, country_of_residence: null, heard_about: null,
     suggested_food: null, suggested_activity: null, wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null,
-    judging_track: null, ucsd_affiliation: null, decision: null, checkedIn: false,
+    judging_track: null, ucsd_affiliation: null, organization: null, role_title: null, decision: null, checkedIn: false,
   });
   /** Earlier applications are likelier to have a decision by now; some released, some only staged. */
   const decide = (row: StatsRow, chance: number, weights: Weighted<Decision>) => {
@@ -187,6 +204,7 @@ function build(): StatsRow[] {
       ...blank(`ps${i}`, type),
       submitted_at: new Date(OPENED + Math.floor(rand() * DAYS) * 86_400_000).toISOString(),
       judging_track: type === "mentor" ? null : pick(TRACKS), ucsd_affiliation: pick(AFFILIATIONS),
+      organization: pickWork(ORGANIZATIONS), role_title: pickWork(JOB_TITLES),
       // A few applied before the question was asked.
       heard_about: i < 8 ? null : pickSome(STAFF_HEARD, 2),
     };

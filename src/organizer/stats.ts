@@ -36,6 +36,9 @@ export type StatsRow = {
   race_ethnicity: string | null;
   judging_track: string | null;
   ucsd_affiliation: string | null;
+  /** Mentors' and judges' company or lab, and their job title: one-line answers, as typed (null for hackers). */
+  organization: string | null;
+  role_title: string | null;
   /** The decision an organizer picked (staged or released), from staged_decisions. */
   decision: Decision | null;
   /** On the check-in roster and checked in. */
@@ -48,7 +51,7 @@ export const STATS_FIELDS = [
   "school", "major", "level_of_study", "graduation_year", "hackathon_experience", "attended_before",
   "country_of_residence", "heard_about", "suggested_food", "suggested_activity",
   "wants_travel_stipend", "travel_region", "travel_distance",
-  "gender", "race_ethnicity", "judging_track", "ucsd_affiliation",
+  "gender", "race_ethnicity", "judging_track", "ucsd_affiliation", "organization", "role_title",
 ] as const satisfies readonly (keyof StatsRow)[];
 
 /** One bar. `rest` is set on the rolled-up "Other" bar: how many smaller answers it stands for. */
@@ -156,6 +159,18 @@ export function topN(breakdown: Breakdown, n: number, otherLabel = "Other"): Bre
   };
 }
 
+/**
+ * A bar for every option of a short fixed list, 0 for any nobody has picked
+ * yet, so a gap shows. `options` maps the stored value to its label.
+ */
+export function withEvery(breakdown: Breakdown, options: Record<string, string>, sort = byCount): Breakdown {
+  const have = new Set(breakdown.items.map(i => i.key));
+  const zeros = Object.entries(options)
+    .filter(([value]) => !have.has(textKey(value)))
+    .map(([value, label]): Item => ({ key: textKey(value), label, count: 0 }));
+  return { ...breakdown, items: [...breakdown.items, ...zeros].sort(sort) };
+}
+
 /** A yes/no question: Yes, then No; unanswered (null) is `missing`. */
 export function yesNo<T>(rows: readonly T[], pick: (row: T) => boolean | null | undefined): Breakdown {
   return tally(rows, r => {
@@ -197,7 +212,10 @@ export function byGraduationYear(a: Item, b: Item) {
   return byOptions(["Already graduated", "Not applicable"])(a, b);
 }
 
-/** The staff form's judging tracks (StaffApplication.tsx; the database's applications_judging_track_check). */
+/**
+ * DataHacks 2027's judging tracks, in the staff form's order (StaffApplication.tsx; the database's
+ * applications_judging_track_check, which stats.test.ts checks this against). Hackers don't pick a track.
+ */
 export const JUDGING_TRACK_LABEL: Record<string, string> = {
   social_good: "Social Good",
   biotech_life_sciences: "Biotech & Life Sciences",
@@ -213,6 +231,45 @@ export const UCSD_AFFILIATION_LABEL: Record<string, string> = {
   faculty: "UCSD faculty",
   none: "Not affiliated with UCSD",
 };
+
+/** "Inc.", "LLC" and the like at the end of a company's name. */
+const LEGAL_SUFFIX = / (inc|llc|ltd|corp|corporation|co|plc|gmbh)$/;
+
+/**
+ * Mentors' and judges' companies group like other answers, and also ignoring
+ * a legal suffix ("Qualcomm Inc.") or a note in brackets ("Amazon (AWS)");
+ * UCSD's spellings are one, as with schools (label with schoolLabel).
+ */
+export function organizationKey(value: string): string {
+  const key = textKey(value.replace(/\([^)]*\)/g, " ")).replace(LEGAL_SUFFIX, "");
+  return key ? schoolKey(key) : textKey(value);
+}
+
+/** Kinds of job, for mentors' and judges' job titles; the first that matches wins, so the order matters. */
+const JOB_RULES: readonly (readonly [kind: string, pattern: RegExp])[] = [
+  ["Student / Academic", /\b(student|phd|ph d|postdoc|post doc|professor|lecturer|faculty|teaching|academic|undergrad\w*)\b/],
+  ["Founder / Executive", /\b(founder|cofounder|ceo|cto|cpo|coo|cfo|chief|president|vp|director|head)\b/],
+  ["Investment", /\b(investor|investment|investments|venture|ventures|vc|portfolio)\b/],
+  ["Product", /\b(product|program manager|tpm|pm)\b/],
+  ["Engineering Leadership", /\b(manager|management|tech lead|team lead|engineering lead)\b|\b(staff|principal|lead)\b.*\bengineer/],
+  ["Security", /\b(security|cyber\w*|infosec)\b/],
+  ["Machine Learning / AI", /\b(machine learning|ml|ai|artificial intelligence|deep learning|computer vision|nlp|llm|applied scientist)\b/],
+  ["Data / Analytics", /\b(data|analyst|analytics|statistician|quant\w*|business intelligence|bi)\b/],
+  ["Research", /\b(research\w*|scientist)\b/],
+  ["Software Engineering", /\b(software|developer|engineer\w*|sde|swe|programmer|architect|technical staff|mts|devops|sre)\b/],
+];
+
+/** The kinds of job, in the order they're listed; anything unmatched is "Other". */
+export const JOB_KINDS = [
+  "Software Engineering", "Machine Learning / AI", "Data / Analytics", "Product", "Research", "Engineering Leadership",
+  "Founder / Executive", "Security", "Student / Academic", "Investment", "Other",
+];
+
+/** The kind of job a title is, from words in it ("Sr. ML Engineer" is Machine Learning / AI). */
+export function jobKind(title: string): string {
+  const key = textKey(title);
+  return JOB_RULES.find(([, pattern]) => pattern.test(key))?.[0] ?? "Other";
+}
 
 const ROLE_LABEL: Record<string, string> = { mentor: "Mentor", judge: "Judge", hybrid: "Mentor & judge" };
 
@@ -374,7 +431,9 @@ export function computeStats(rows: readonly StatsRow[], { goal = HACKER_GOAL, no
       byRole: tally(staff, r => r.applicant_type, { label: v => ROLE_LABEL[v] ?? humanize(v), sort: byOptions(["mentor", "judge", "hybrid"]) }),
       decisions: decisionTally(staff),
       checkin: checkinTally(staff),
-      tracks: tally(judges, r => r.judging_track, { label: v => JUDGING_TRACK_LABEL[v] ?? humanize(v) }),
+      tracks: withEvery(tally(judges, r => r.judging_track, { label: v => JUDGING_TRACK_LABEL[v] ?? humanize(v) }), JUDGING_TRACK_LABEL),
+      companies: topN(tally(staff, r => r.organization, { key: organizationKey, label: schoolLabel }), 15),
+      jobs: tally(staff, r => r.role_title, { key: v => textKey(jobKind(v)), label: jobKind, sort: byOptions(JOB_KINDS) }),
       heardAbout: tally(staff, r => r.heard_about),
       affiliation: tally(staff, r => r.ucsd_affiliation, {
         label: v => UCSD_AFFILIATION_LABEL[v] ?? humanize(v), sort: byOptions(Object.keys(UCSD_AFFILIATION_LABEL)),
