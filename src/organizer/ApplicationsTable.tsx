@@ -5,6 +5,7 @@ import ApplicationDetail from "./ApplicationDetail";
 import { csvFilename, downloadCsv } from "./csv";
 import { fetchMlhExport, stageDecision, stageProblems } from "./data";
 import { mlhExportRows } from "./mlhExport";
+import { isUcsd, type SchoolScope } from "./stats";
 import { errorText } from "./errors";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass, fullName, isDraft, isStaged, mlhAgreed, passOnHold, placeOf, tabOf, type Decision, type Kind, type Row, type Tab } from "./types";
 
@@ -12,6 +13,7 @@ import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, acceptedNotReleased, canGetPass,
 type View = Tab | "draft";
 const TABS: Tab[] = ["applied", "accepted", "waitlisted", "rejected"];
 const viewOf = (r: Row): View => (isDraft(r) ? "draft" : placeOf(r));
+const SCHOOL_SCOPES: [SchoolScope, string][] = [["all", "All"], ["ucsd", "UCSD"], ["other", "Non-UCSD"]];
 
 type Column = { header: string; value: (row: Row) => string };
 
@@ -94,6 +96,13 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses,
   const [error, setError] = useState<string | null>(null);
   const mlh = mlhOn && kind === "hacker";
   const [mlhFilter, setMlhFilter] = useState<MlhFilter>("all");
+  // Hackers only: show everyone, UCSD students, or students from other schools. The tab counts follow it.
+  const schoolOn = kind === "hacker";
+  const [school, setSchool] = useState<SchoolScope>("all");
+  const scoped = useMemo(
+    () => (!schoolOn || school === "all" ? rows : rows.filter(r => isUcsd(r.school) === (school === "ucsd"))),
+    [rows, school, schoolOn],
+  );
 
   const columns = useMemo(() => {
     if (!mlh) return COLUMNS[kind];
@@ -104,20 +113,20 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses,
   const [counts, unreleased] = useMemo(() => {
     const c: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
     const u: Record<View, number> = { applied: 0, accepted: 0, waitlisted: 0, rejected: 0, draft: 0 };
-    rows.forEach(r => {
+    scoped.forEach(r => {
       c[viewOf(r)]++;
       if (isStaged(r)) u[viewOf(r)]++;
     });
     return [c, u];
-  }, [rows]);
+  }, [scoped]);
   const views: View[] = counts.draft > 0 || tab === "draft" ? [...TABS, "draft"] : TABS;
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return rows.filter(r => viewOf(r) === tab
+    return scoped.filter(r => viewOf(r) === tab
       && (!mlh || mlhFilter === "all" || (mlhFilter === "agreed") === mlhAgreed(r))
       && (!q || [fullName(r), r.email, r.phone, r.school, r.organization].some(v => v?.toLowerCase().includes(q))));
-  }, [rows, tab, query, mlh, mlhFilter]);
+  }, [scoped, tab, query, mlh, mlhFilter]);
   // Drafts can't be decided, so they're never selectable (select all included).
   const selectable = useMemo(() => visible.filter(r => !isDraft(r)), [visible]);
 
@@ -189,6 +198,16 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses,
             <Search size={15} aria-hidden />
             <input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name, email, school…" aria-label="Search" />
           </label>
+          {schoolOn && (
+            <div className="og-school-filter" role="group" aria-label="Which hackers to show">
+              {SCHOOL_SCOPES.map(([value, label]) => (
+                <button key={value} type="button" className={`sp-button${school === value ? " primary" : ""}`} aria-pressed={school === value}
+                  onClick={() => { setSchool(value); setSelected(new Set()); }}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
           {mlh && (
             <label className="og-mlh-filter">
               <span>MLH consent</span>
@@ -230,7 +249,7 @@ export default function ApplicationsTable({ kind, rows, onChanged, onSendPasses,
       )}
 
       {visible.length === 0 ? (
-        <p className="og-empty">{query || (mlh && mlhFilter !== "all") ? "Nobody matches that search." : tab === "draft" ? "No drafts." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
+        <p className="og-empty">{query || (mlh && mlhFilter !== "all") || school !== "all" ? "Nobody matches that search." : tab === "draft" ? "No drafts." : `No ${TAB_LABEL[tab].toLowerCase()} applications yet.`}</p>
       ) : (
         <div className="sp-table-wrap">
           <table className="sp-table og-table">

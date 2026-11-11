@@ -398,3 +398,7 @@ label.og-pass-row:hover, .og-pass-row.selected { background: #dfe6cf; }
 .og-mlh-filter { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--sp-muted); }
 .og-mlh-filter select { padding: 7px 8px; border: 1px solid var(--sp-border); border-radius: 8px; background: transparent; color: var(--sp-text); font: inherit; font-size: 14px; }
 .og-toolbar { flex-wrap: wrap; }
+
+/* Hackers: All / UCSD / Non-UCSD. */
+.og-school-filter { display: inline-flex; gap: 6px; }
+.og-school-filter .sp-button { padding-inline: 12px; }

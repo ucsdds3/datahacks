@@ -176,6 +176,14 @@ export function schoolKey(value: string): string {
   return key.replace(/^uc /, "university of california ").replace(/^university of california at /, "university of california ");
 }
 
+const UCSD_KEY = schoolKey("University of California, San Diego");
+
+/** Whether a school is UC San Diego, however it's spelled ("UCSD", "UC San Diego", ...). */
+export const isUcsd = (school: string | null) => !!school && schoolKey(school) === UCSD_KEY;
+
+/** The hackers table's school toggle: everyone, UCSD students, or students from other schools. */
+export type SchoolScope = "all" | "ucsd" | "other";
+
 /** The list's spelling for schools people often shorten; others keep their most common spelling. */
 export const schoolLabel = (_value: string, key: string) => SCHOOL_NAMES.get(key);
 
