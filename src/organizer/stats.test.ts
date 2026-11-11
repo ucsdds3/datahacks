@@ -1,16 +1,20 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { HACKER_GOAL, TIMELINE } from "@/staff-portal/config";
 import { HACKATHON_EXPERIENCE, LEVELS_OF_STUDY } from "@/staff-portal/formOptions";
 import {
-  OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions, decisionTally,
-  pacificDay, recentSubmissions, schoolKey, schoolLabel, share, tally, topN, yesNo, type Item, type StatsRow,
+  JOB_KINDS, JUDGING_TRACK_LABEL, OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions,
+  decisionTally, jobKind, organizationKey, pacificDay, recentSubmissions, schoolKey, schoolLabel, share, tally, topN, withEvery, yesNo,
+  type Item, type StatsRow,
 } from "./stats";
 
 const row = (extra: Partial<StatsRow> = {}): StatsRow => ({
   id: "x", applicant_type: "hacker", status: "submitted", submitted_at: "2026-11-10T12:00:00-08:00",
   school: null, major: null, level_of_study: null, graduation_year: null, hackathon_experience: null, attended_before: null,
   country_of_residence: null, heard_about: null, suggested_food: null, suggested_activity: null,
-  wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null, judging_track: null, ucsd_affiliation: null, decision: null, checkedIn: false,
+  wants_travel_stipend: null, travel_region: null, travel_distance: null, gender: null, race_ethnicity: null, judging_track: null, ucsd_affiliation: null,
+  organization: null, role_title: null, decision: null, checkedIn: false,
   ...extra,
 });
 
@@ -94,6 +98,66 @@ describe("topN", () => {
     expect(b.items.map(i => i.label)).toEqual(["z", "a"]);
     expect(topN({ ...b, items: [...b.items, { key: "q", label: "q", count: 1 }, { key: "r", label: "r", count: 1 }] }, 1).items.map(i => i.label))
       .toEqual(["a", "Other"]);
+  });
+});
+
+describe("withEvery", () => {
+  it("adds a 0 bar for each option nobody has picked, after the ones that have been", () => {
+    const options = { a_b: "A & B", c: "C", d: "D" };
+    const b = withEvery(tally(["c", "a_b", "c", null], v => v, { label: v => options[v as keyof typeof options] }), options);
+    expect(bars(b.items)).toEqual([["C", 2], ["A & B", 1], ["D", 0]]);
+    expect(b).toMatchObject({ answered: 3, missing: 1, distinct: 2 });
+  });
+
+  it("leaves an answer that isn't an option alone", () => {
+    expect(bars(withEvery(tally(["x"], v => v), { y: "Y" }).items)).toEqual([["x", 1], ["Y", 0]]);
+  });
+});
+
+describe("mentors' and judges' companies and job titles", () => {
+  it("groups a company's spellings, ignoring Inc., LLC and notes in brackets, and UCSD's names as one", () => {
+    const companies = ["Qualcomm", "qualcomm", "Qualcomm Inc.", "Qualcomm, Inc", "Apple", "Apple LLC", "Apple", "Amazon (AWS)", "Amazon", "Amazon",
+      "UCSD", "UC San Diego", "University of California, San Diego", "University of San Diego", "Co", "(stealth)"];
+    const b = tally(companies, c => c, { key: organizationKey, label: schoolLabel });
+    expect(bars(b.items)).toEqual([
+      ["Qualcomm", 4],
+      ["Amazon", 3],
+      ["Apple", 3],
+      ["University of California, San Diego", 3],
+      ["(stealth)", 1],
+      ["Co", 1],
+      ["University of San Diego", 1],
+    ]);
+  });
+
+  it("sorts job titles into kinds of role by the words in them", () => {
+    const kinds: [string, string][] = [
+      ["Software Engineer", "Software Engineering"],
+      ["Sr. SDE", "Software Engineering"],
+      ["SWE II", "Software Engineering"],
+      ["Member of Technical Staff", "Software Engineering"],
+      ["Machine Learning Engineer", "Machine Learning / AI"],
+      ["AI/ML Engineer", "Machine Learning / AI"],
+      ["Applied Scientist", "Machine Learning / AI"],
+      ["Senior Data Scientist", "Data / Analytics"],
+      ["Data Analyst", "Data / Analytics"],
+      ["Quantitative Researcher", "Data / Analytics"],
+      ["Product Manager", "Product"],
+      ["Technical Program Manager", "Product"],
+      ["Research Scientist", "Research"],
+      ["Research Engineer", "Research"],
+      ["Engineering Manager", "Engineering Leadership"],
+      ["Staff Software Engineer", "Engineering Leadership"],
+      ["Co-founder & CEO", "Founder / Executive"],
+      ["Director of Data Science", "Founder / Executive"],
+      ["Security Engineer", "Security"],
+      ["PhD Student", "Student / Academic"],
+      ["Assistant Professor", "Student / Academic"],
+      ["Portfolio Manager", "Investment"],
+      ["Consultant", "Other"],
+    ];
+    expect(kinds.map(([title]) => [title, jobKind(title)])).toEqual(kinds);
+    expect(kinds.every(([, kind]) => JOB_KINDS.includes(kind))).toBe(true);
   });
 });
 
@@ -225,13 +289,13 @@ describe("computeStats", () => {
       id: "4", status: "draft", submitted_at: null, school: "Stanford University", hackathon_experience: HACKATHON_EXPERIENCE[0],
       suggested_food: "Pizza", suggested_activity: "Karaoke",
     }),
-    row({ id: "5", applicant_type: "mentor", ucsd_affiliation: "alumni", heard_about: ["Word of Mouth"] }),
+    row({ id: "5", applicant_type: "mentor", ucsd_affiliation: "alumni", heard_about: ["Word of Mouth"], organization: "UCSD", role_title: "PhD student" }),
     row({
       id: "6", applicant_type: "judge", judging_track: "biotech_life_sciences", ucsd_affiliation: "none", decision: "accepted",
-      heard_about: ["DataHacks Industry Sponsor", "Word of Mouth"],
+      heard_about: ["DataHacks Industry Sponsor", "Word of Mouth"], organization: "Qualcomm", role_title: "Senior Software Engineer",
     }),
-    row({ id: "7", applicant_type: "hybrid", judging_track: "social_good", ucsd_affiliation: "none" }),
-    row({ id: "8", applicant_type: "judge", status: "draft", submitted_at: null, heard_about: ["IEEE Member"] }),
+    row({ id: "7", applicant_type: "hybrid", judging_track: "social_good", ucsd_affiliation: "none", organization: "Qualcomm Inc.", role_title: "Data Scientist" }),
+    row({ id: "8", applicant_type: "judge", status: "draft", submitted_at: null, heard_about: ["IEEE Member"], organization: "Apple", role_title: "CEO" }),
   ];
   const stats = computeStats(rows, { now: new Date("2026-12-02T12:00:00-08:00") });
 
@@ -270,14 +334,35 @@ describe("computeStats", () => {
   it("breaks mentors and judges down by role, decision, track and affiliation, with the form's labels", () => {
     expect(bars(stats.staff.byRole.items)).toEqual([["Mentor", 1], ["Judge", 1], ["Mentor & judge", 1]]);
     expect(stats.staff.decisions.find(d => d.key === "accepted")).toMatchObject({ count: 1, staged: 1 });
-    expect(bars(stats.staff.tracks.items)).toEqual([["Biotech & Life Sciences", 1], ["Social Good", 1]]);
+    // Every 2027 track, 0 where no judge has picked it yet.
+    expect(bars(stats.staff.tracks.items)).toEqual([
+      ["Biotech & Life Sciences", 1], ["Social Good", 1], ["Defense & Cybersecurity", 0], ["Entertainment", 0], ["Finance", 0],
+    ]);
+    expect(stats.staff.tracks).toMatchObject({ answered: 2, distinct: 2 });
     expect(bars(stats.staff.affiliation.items)).toEqual([["UCSD alumni", 1], ["Not affiliated with UCSD", 2]]);
+  });
+
+  it("breaks mentors and judges down by company and kind of job, without drafts", () => {
+    expect(bars(stats.staff.companies.items)).toEqual([["Qualcomm", 2], ["University of California, San Diego", 1]]);
+    expect(stats.staff.companies).toMatchObject({ answered: 3, missing: 0, distinct: 2 });
+    expect(bars(stats.staff.jobs.items)).toEqual([["Software Engineering", 1], ["Data / Analytics", 1], ["Student / Academic", 1]]);
   });
 
   it("counts how mentors and judges heard about DataHacks, apart from hackers", () => {
     expect(bars(stats.staff.heardAbout.items)).toEqual([["Word of Mouth", 2], ["DataHacks Industry Sponsor", 1]]);
     expect(stats.staff.heardAbout).toMatchObject({ answered: 2, missing: 1 });
     expect(stats.hacker.heardAbout.items.map(i => i.label)).not.toContain("Word of Mouth");
+  });
+});
+
+describe("judging tracks", () => {
+  it("are DataHacks 2027's, as the database takes them (the latest applications_judging_track_check)", () => {
+    const dir = join(__dirname, "../../supabase/migrations");
+    const sql = readdirSync(dir).sort().map(f => readFileSync(join(dir, f), "utf8")).join("\n").replace(/--.*$/gm, "");
+    const latest = sql.slice(sql.lastIndexOf("add constraint applications_judging_track_check"));
+    const allowed = [...latest.slice(0, latest.indexOf(";")).matchAll(/'([^']*)'/g)].map(m => m[1]);
+    expect(Object.keys(JUDGING_TRACK_LABEL)).toEqual(allowed);
+    expect(Object.values(JUDGING_TRACK_LABEL)).toEqual(["Social Good", "Biotech & Life Sciences", "Defense & Cybersecurity", "Finance", "Entertainment"]);
   });
 });
 

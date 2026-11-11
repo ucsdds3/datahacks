@@ -46,6 +46,9 @@
 .og-st-bar > span { display: block; min-width: 2px; height: 100%; background: var(--sp-accent); }
 .og-st-bars li.other .og-st-label { color: var(--sp-muted); }
 .og-st-bars li.other .og-st-bar > span { background: var(--sp-muted); }
+/* An option nobody has picked yet (every judging track is listed): no sliver of bar. */
+.og-st-bars li.zero .og-st-label { color: var(--sp-muted); }
+.og-st-bars li.zero .og-st-bar > span { display: none; }
 .og-st-decisions li.accepted .og-st-bar > span { background: var(--sp-green); }
 .og-st-decisions li.waitlisted .og-st-bar > span { background: var(--sp-orange); }
 .og-st-decisions li.rejected .og-st-bar > span { background: var(--sp-red); }

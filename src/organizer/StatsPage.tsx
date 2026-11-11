@@ -114,7 +114,12 @@ export default function StatsPage({ eventId }: { eventId: string }) {
           <Decisions counts={stats.staff.decisions} of={stats.staff.total} />
           {query.data?.hasRoster && <CheckedIn {...stats.staff.checkin} />}
         </section>
-        <BarCard title="Judging tracks" breakdown={stats.staff.tracks} tone="teal" foot="Judges and mentor & judges: the track they'd like to judge." />
+        <BarCard title="Companies & labs" breakdown={stats.staff.companies} tone="teal" sub={`${num(stats.staff.companies.distinct)} organizations`}
+          foot="As typed, grouped ignoring capitals, punctuation and endings like Inc. or LLC; UCSD's spellings are one." />
+        <BarCard title="Job roles" breakdown={stats.staff.jobs} tone="teal"
+          foot="Each job title sorted into a kind of role by the words in it (Data Scientist is Data / Analytics, ML Engineer is Machine Learning / AI)." />
+        <BarCard title="Judging tracks" breakdown={stats.staff.tracks} tone="teal"
+          foot="Judges and mentor & judges: the track they'd like to judge. Every track is listed, 0 where no one has picked it yet." />
         <BarCard title="UCSD affiliation" breakdown={stats.staff.affiliation} tone="teal" />
         <BarCard title="How they heard about DataHacks" breakdown={stats.staff.heardAbout} tone="teal" multi />
       </div>
@@ -193,7 +198,7 @@ function Bars({ breakdown, tone = "lava" }: { breakdown: Breakdown; tone?: "lava
   return (
     <ol className={`og-st-bars ${tone}`}>
       {breakdown.items.map(i => (
-        <li key={i.key} className={i.rest ? "other" : undefined}>
+        <li key={i.key} className={i.rest ? "other" : i.count === 0 ? "zero" : undefined}>
           <span className="og-st-label">{i.label}{i.rest ? <small> · {num(i.rest)} more</small> : null}</span>
           <span className="og-st-num">{num(i.count)}<small>{share(i.count, breakdown.answered)}</small></span>
           <span className="og-st-bar" aria-hidden><span style={{ width: `${(i.count / max) * 100}%` }} /></span>
