@@ -4,10 +4,10 @@ import { describe, expect, it } from "vitest";
 import { HACKER_GOAL, TIMELINE } from "@/staff-portal/config";
 import { HACKATHON_EXPERIENCE, LEVELS_OF_STUDY } from "@/staff-portal/formOptions";
 import {
-  JOB_KINDS, JUDGING_TRACK_LABEL, OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions,
-  decisionTally, jobKind, organizationKey, pacificDay, recentSubmissions, schoolKey, schoolLabel, share, tally, topN, withEvery, yesNo,
-  type Item, type StatsRow,
+  OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions, decisionTally, isUcsd,
+  pacificDay, recentSubmissions, schoolKey, schoolLabel, share, tally, topN, yesNo, type Item, type StatsRow,
 } from "./stats";
+import { JOB_KINDS, JUDGING_TRACK_LABEL, jobKind, organizationKey, withEvery } from "./stats";
 
 const row = (extra: Partial<StatsRow> = {}): StatsRow => ({
   id: "x", applicant_type: "hacker", status: "submitted", submitted_at: "2026-11-10T12:00:00-08:00",
@@ -373,4 +373,15 @@ describe("share", () => {
     expect(share(0, 5)).toBe("0%");
     expect(share(1, 0)).toBe("");
   });
+});
+
+describe("isUcsd", () => {
+  const rows = ["UCSD", "UC San Diego", "University of California, San Diego"].map(school => row({ school }));
+
+  it("knows UC San Diego however it's spelled", () => {
+    expect(rows.slice(0, 3).every(r => isUcsd(r.school))).toBe(true);
+    expect(isUcsd("UCLA")).toBe(false);
+    expect(isUcsd(null)).toBe(false);
+  });
+
 });
