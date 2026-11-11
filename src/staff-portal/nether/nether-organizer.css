@@ -32,7 +32,7 @@
   --nether-glowstone: #f4c95d;
   --nether-text: #f4ebdd;
   --nether-error: #ff6b5a;
-  --nether-font-display: "Silkscreen", "VT323", monospace;
+  --nether-font-display: "Russo One", "Nunito", system-ui, sans-serif; /* readable headings and labels; the brand keeps the pixel font */
   --nether-font-body: "Nunito", system-ui, sans-serif;
   --nether-muted: #b3aaa1; /* secondary text: 7:1 on the board */
   --nether-link: #4fd8e0;
@@ -199,7 +199,7 @@
 .sp-root.og-root.og-nether .sp-brand :is(strong, span) {
   display: inline;
   color: var(--nether-text);
-  font: 400 20px/1 var(--nether-font-display);
+  font: 400 20px/1 "Silkscreen", "VT323", monospace;
   letter-spacing: 0;
   text-transform: uppercase;
   white-space: nowrap;
