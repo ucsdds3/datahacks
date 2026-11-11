@@ -1,10 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { TIMELINE } from "@/staff-portal/config";
 import DailyChart from "./DailyChart";
 import { STATS_REFRESH_MS, useStats } from "./data";
 import { isPreview } from "./preview";
-import { computeStats, pacificDay, share, type Breakdown, type DecisionCount, type Stats } from "./stats";
+import { computeStats, inScope, pacificDay, share, type Breakdown, type DecisionCount, type SchoolScope, type Stats } from "./stats";
 import "./checkin.css";
 import "./stats.css";
 
@@ -17,13 +17,16 @@ import "./stats.css";
 
 const num = (n: number) => n.toLocaleString("en-US");
 
+const SCOPES: [SchoolScope, string][] = [["all", "All"], ["ucsd", "UCSD"], ["other", "Non-UCSD"]];
+
 const PRIORITY_DEADLINE = TIMELINE.priorityDeadline.toLocaleString("en-US", {
   month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles",
 });
 
 export default function StatsPage({ eventId }: { eventId: string }) {
   const query = useStats(eventId);
-  const stats = useMemo(() => (query.data ? computeStats(query.data.rows) : null), [query.data]);
+  const [scope, setScope] = useState<SchoolScope>("all");
+  const stats = useMemo(() => (query.data ? computeStats(inScope(query.data.rows, scope)) : null), [query.data, scope]);
 
   if (query.isPending) return <p className="og-empty">Loading stats…</p>;
   if (!stats) return <p className="sp-error">Couldn't load stats: {(query.error as Error | null)?.message ?? "unknown error"}</p>;
@@ -41,6 +44,13 @@ export default function StatsPage({ eventId }: { eventId: string }) {
         <span>
           Last updated {updated} · refreshes every {STATS_REFRESH_MS / 1000} seconds{isPreview() && " · preview (sample data)"}
         </span>
+        <div className="og-st-scope" role="group" aria-label="Which hackers to count">
+          {SCOPES.map(([value, label]) => (
+            <button key={value} className={`sp-button${scope === value ? " primary" : ""}`} aria-pressed={scope === value} onClick={() => setScope(value)}>
+              {label}
+            </button>
+          ))}
+        </div>
         <button className="sp-button" onClick={() => query.refetch()} disabled={query.isFetching}>
           <RefreshCw size={14} aria-hidden className={query.isFetching ? "og-st-spin" : undefined} /> {query.isFetching ? "Refreshing…" : "Refresh"}
         </button>

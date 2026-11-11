@@ -176,6 +176,20 @@ export function schoolKey(value: string): string {
   return key.replace(/^uc /, "university of california ").replace(/^university of california at /, "university of california ");
 }
 
+const UCSD_KEY = schoolKey("University of California, San Diego");
+
+/** Whether a school is UC San Diego, however it's spelled ("UCSD", "UC San Diego", ...). */
+export const isUcsd = (school: string | null) => !!school && schoolKey(school) === UCSD_KEY;
+
+/** Which hackers the Stats page counts: everyone, UCSD students, or students from other schools. */
+export type SchoolScope = "all" | "ucsd" | "other";
+
+/** The rows for a scope. Only hackers are filtered; mentors and judges always count. */
+export function inScope(rows: readonly StatsRow[], scope: SchoolScope): StatsRow[] {
+  if (scope === "all") return [...rows];
+  return rows.filter(r => r.applicant_type !== "hacker" || isUcsd(r.school) === (scope === "ucsd"));
+}
+
 /** The list's spelling for schools people often shorten; others keep their most common spelling. */
 export const schoolLabel = (_value: string, key: string) => SCHOOL_NAMES.get(key);
 
