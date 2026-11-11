@@ -1,0 +1,11 @@
+-- MLH approved DataHacks 2027 as a Member Event (email of 2026-11-11), so the
+-- MLH consent switch goes on for DH27 (docs/mlh.md, "Turning it on").
+--
+-- Production was already switched on by hand in the SQL editor on 2026-11-11;
+-- this records it so staging and production match the migrations. Idempotent:
+-- a no-op where it's already on, and a no-op on a database without DH27.
+--
+-- Hacker applications submitted from now on need the two required MLH
+-- agreements. Applications submitted before are never blocked; those hackers
+-- see the "Agree to MLH's terms" card in their portal.
+update public.events set mlh_required = true where code = 'DH27';
