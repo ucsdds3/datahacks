@@ -86,7 +86,3 @@
 @media (prefers-reduced-motion: reduce) {
   .og-st-spin { animation: none; }
 }
-
-/* All / UCSD / Non-UCSD: which hackers the page counts. */
-.og-st-scope { display: inline-flex; gap: 6px; }
-.og-st-scope .sp-button { padding-inline: 12px; }

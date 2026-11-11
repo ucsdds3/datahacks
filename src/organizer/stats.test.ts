@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { HACKER_GOAL, TIMELINE } from "@/staff-portal/config";
 import { HACKATHON_EXPERIENCE, LEVELS_OF_STUDY } from "@/staff-portal/formOptions";
 import {
-  OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions, decisionTally, inScope, isUcsd,
+  OTHER_KEY, batchSplit, byGraduationYear, byOptions, checkinTally, clean, computeStats, dailySubmissions, decisionTally, isUcsd,
   pacificDay, recentSubmissions, schoolKey, schoolLabel, share, tally, topN, yesNo, type Item, type StatsRow,
 } from "./stats";
 
@@ -290,9 +290,8 @@ describe("share", () => {
   });
 });
 
-describe("UCSD scope", () => {
-  const at = (applicant_type: StatsRow["applicant_type"], school: string | null) => row({ applicant_type, school });
-  const rows = [at("hacker", "UCSD"), at("hacker", "UC San Diego"), at("hacker", "University of California, San Diego"), at("hacker", "UCLA"), at("hacker", null), at("mentor", null)];
+describe("isUcsd", () => {
+  const rows = ["UCSD", "UC San Diego", "University of California, San Diego"].map(school => row({ school }));
 
   it("knows UC San Diego however it's spelled", () => {
     expect(rows.slice(0, 3).every(r => isUcsd(r.school))).toBe(true);
@@ -300,9 +299,4 @@ describe("UCSD scope", () => {
     expect(isUcsd(null)).toBe(false);
   });
 
-  it("filters hackers only; mentors and judges always count", () => {
-    expect(inScope(rows, "all")).toHaveLength(6);
-    expect(inScope(rows, "ucsd").map(r => r.school)).toEqual(["UCSD", "UC San Diego", "University of California, San Diego", null]);
-    expect(inScope(rows, "other").map(r => r.school)).toEqual(["UCLA", null, null]);
-  });
 });
