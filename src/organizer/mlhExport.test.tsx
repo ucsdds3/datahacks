@@ -17,8 +17,10 @@ vi.mock("@/lib/supabaseClient", () => ({ supabase: {} }));
 vi.mock("@/portal/event", () => ({ currentEventId: async () => "event-1" }));
 
 import ApplicationsTable from "./ApplicationsTable";
-import { MLH_EXPORT_HEADER, MLH_LEVEL_OF_STUDY, ageOn, mlhExportRows, type MlhExportApp } from "./mlhExport";
-import { LEVELS_OF_STUDY } from "@/staff-portal/formOptions";
+import { MLH_EXPORT_HEADER, MLH_LEVEL_OF_STUDY, ageOn, mlhExportRows, mlhSchool, type MlhExportApp } from "./mlhExport";
+import MLH_SCHOOL_NAMES from "./mlhSchools.json";
+import { schoolKey } from "./stats";
+import { LEVELS_OF_STUDY, SCHOOLS } from "@/staff-portal/formOptions";
 import type { Row } from "./types";
 
 const AGREED = { codeOfConductAt: "2027-01-02T10:00:00Z", dataSharingAt: "2027-01-02T10:00:01Z", emailsOptIn: true };
@@ -127,7 +129,7 @@ describe("the MLH export's rows", () => {
     const out = mlhExportRows([app("ada")], [row("ada", AGREED, { status: "accepted", checkedIn: true })], on);
     expect(out[0]).toEqual(MLH_EXPORT_HEADER);
     expect(out[1]).toEqual([
-      "ada", "Test", "ada@example.edu", "(858) 555-0100", 21, "University of California, San Diego", "Undergraduate University (3+ year)",
+      "ada", "Test", "ada@example.edu", "(858) 555-0100", 21, "University of California San Diego", "Undergraduate University (3+ year)",
       "United States", AGREED.codeOfConductAt, AGREED.dataSharingAt, "Yes", "Accepted", "Yes",
     ]);
   });
@@ -149,5 +151,34 @@ describe("the MLH export's rows", () => {
 
   it("maps every level of study on the form to MLH's wording", () => {
     for (const level of LEVELS_OF_STUDY) expect(MLH_LEVEL_OF_STUDY[level], level).toBeTruthy();
+  });
+
+  it("gives schools in MLH's verified spelling, however they were typed", () => {
+    for (const typed of ["University of California, San Diego", "University of California San Diego", "UCSD", " ucsd ", "UC San Diego", "University of California at San Diego"]) {
+      expect(mlhSchool(typed), typed).toBe("University of California San Diego");
+    }
+    expect(mlhSchool("University of Texas at Dallas")).toBe("The University of Texas at Dallas");
+    expect(mlhSchool("California State University, Long Beach")).toBe("California State University-Long Beach");
+    expect(mlhSchool("MIT")).toBe("Massachusetts Institute of Technology");
+    // Not UCSD: other San Diego schools keep their own names.
+    expect(mlhSchool("University of San Diego")).toBe("University of San Diego");
+    expect(mlhSchool("San Diego State University")).toBe("San Diego State University");
+    // Already MLH's spelling, or not one we know: as typed.
+    expect(mlhSchool("Stanford University")).toBe("Stanford University");
+    expect(mlhSchool("  Some Coding Academy ")).toBe("Some Coding Academy");
+    expect(mlhSchool(null)).toBe("");
+    expect(mlhSchool("   ")).toBe("");
+  });
+
+  it("only renames schools on the form's list, one MLH name each", () => {
+    const names = new Set<string>(SCHOOLS);
+    const byKey = new Map<string, string>();
+    for (const [ours, mlh] of Object.entries(MLH_SCHOOL_NAMES as Record<string, string>)) {
+      expect(names.has(ours), ours).toBe(true);
+      expect(mlh.trim(), ours).toBe(mlh);
+      const key = schoolKey(ours);
+      expect(byKey.get(key) ?? mlh, ours).toBe(mlh);
+      byKey.set(key, mlh);
+    }
   });
 });
