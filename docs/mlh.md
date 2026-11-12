@@ -1,9 +1,9 @@
 # MLH Member Event switch
 
-DataHacks 2027 has applied to be a Major League Hacking (MLH) Member Event. MLH
-requires three checkboxes on the hacker application and asks events to share
-registration data. All of it is built and **off**. Turn it on the day MLH
-approves the event.
+MLH approved DataHacks 2027 as a Major League Hacking (MLH) Member Event in
+November 2026. MLH requires three checkboxes on the hacker application and asks
+events to share registration data. All of it is built and **off** until it's
+turned on (below).
 
 ## Turning it on
 
@@ -80,6 +80,12 @@ Contest Terms (agreed at), MLH Emails Opt-In, Status, Checked In.
 
 - **Age** is worked out from the birthdate, on the first day of the event
   (`TIMELINE.eventStart` in `config.ts`).
+- **School** is in MLH's verified spelling where we know it: the form's schools
+  that MLH spells differently, however they were typed ("UCSD", "UC San Diego"
+  and "University of California, San Diego" all export as MLH's "University of
+  California San Diego"). Anything else goes as typed. The list is
+  `src/organizer/mlhSchools.json`; `python3 scripts/mlh-school-names.py` rebuilds
+  it from MLH's current `schools.csv`.
 - **Level of Study** is translated into MLH's wording ("Undergraduate University
   (3+ year)" and so on).
 - **Checked In** is the check-in data MLH asks for after the event.
@@ -87,18 +93,20 @@ Contest Terms (agreed at), MLH Emails Opt-In, Status, Checked In.
 ## MLH's required fields vs. our hacker form
 
 From the MLH 2027 Member Event Guidelines ("Required Registration Questions") and
-the MLH Organizer Guide ("Important Registration Fields"):
+the MLH Organizer Guide ("Important Registration Fields",
+<https://guide.mlh.com/general-information/managing-registrations/registrations>),
+checked again on 2026-11-11:
 
 | MLH requires | Our form | Notes |
 | --- | --- | --- |
 | First name, last name (separate) | Yes | |
 | Email | Yes | The sign-in email. |
-| Phone number | Yes | |
-| Age | Birthdate | The MLH export turns it into age. MLH recommends asking age, not birthdate ("We do not collect dates of birth as part of event registration to reduce data risk"); we keep birthdate because the 18+ check uses it. |
-| School | Yes, free text with suggestions | MLH asks for names from its verified list (`mlh-policies/schools.csv`). About half our suggestions are spelled the same as MLH's; UC San Diego isn't ("University of California, San Diego" vs MLH's "University of California San Diego"). Not changed: the waitlist's UCSD check relies on our spelling. Ask the MLH Hackathon Community Manager if they need MLH's spellings. |
-| Current level of study | Yes | Translated to MLH's wording in the export. MLH also lists "Less than Secondary / High School" and "Prefer not to answer"; DataHacks is 18+, and the question is required. |
-| Country of residence | Yes, a dropdown | MLH recommends ISO 3166 names; ours are common English names (e.g. "South Korea", "Türkiye"). |
-| The 3 MLH checkboxes | Behind the switch | |
+| Phone number | Yes | US format only ("(858) 555-0100"), which the database checks. |
+| Age | Birthdate | The MLH export turns it into age. MLH recommends "a dropdown with specific ages instead of date of births" ("We do not collect dates of birth as part of event registration to reduce data risk"). We keep birthdate because the 18+ checks use it: the form, the database (`application_birthdate_check`) and check-in (`is_18_plus_on`). Asking age instead needs a migration. |
+| School | Yes, free text with suggestions | MLH asks for names from its verified list (`mlh-policies/schools.csv`, about 19,000 names). Our suggestions are the Hipo list of US and Canadian schools (2,494); about half are spelled the same as MLH's. The export gives MLH's spelling for the ones that differ only in punctuation, "The" or "&" (see above). Switching the suggestions to MLH's list wouldn't break the UCSD checks (they accept "University of California San Diego" too) but is a bigger list to search and would mix spellings with earlier applications. |
+| Current level of study | Yes | Translated to MLH's wording in the export; every option has an MLH match. MLH also lists "Less than Secondary / High School" and "Prefer not to answer"; DataHacks is 18+, and the question is required. Adding them, or showing MLH's wording on the form, means new stored values and a migration (`application_level_of_study_check`). |
+| Country of residence | Yes, a dropdown | MLH recommends ISO 3166 names; ours are common English names (e.g. "South Korea", "Russia", "United States"), which is still one fixed spelling per country. |
+| The 3 MLH checkboxes | Behind the switch | MLH's current (2027) wording, with DEV. |
 
 Nothing required is missing, so no new questions were added.
 
@@ -119,6 +127,11 @@ Event Guidelines** (last updated May 22, 2026):
    <https://github.com/MLH/mlh-policies/blob/main/privacy-policy.md>)
 3. Optional: "I authorize MLH and DEV to send me occasional emails about relevant
    events, career opportunities, and community announcements."
+
+MLH changed the second and third on May 22, 2026 (DEV and dev.to were added).
+The MLH Organizer Guide's "Registrations" page got the same change that day but
+in slightly different words ("ranking, and administration", "MLH + DEV"); the
+Member Event Guidelines are the policy, and their wording is the one used here.
 
 The text lives in `src/staff-portal/mlh.tsx` (`MLH_TEXT`, `MLH_LINKS`) and is
 copied in `supabase/functions/mcp/application.ts`; `src/portal/mcpApplication.test.ts`

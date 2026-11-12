@@ -1,4 +1,6 @@
 import { TIMELINE } from "@/staff-portal/config";
+import MLH_SCHOOL_NAMES from "./mlhSchools.json";
+import { schoolKey } from "./stats";
 import { TAB_LABEL, tabOf, type Row } from "./types";
 
 /**
@@ -46,6 +48,26 @@ export const MLH_LEVEL_OF_STUDY: Record<string, string> = {
   "Other": "Other",
 };
 
+/**
+ * MLH asks for schools from its list of verified schools
+ * (https://github.com/MLH/mlh-policies/blob/main/schools.csv). mlhSchools.json
+ * has the form's schools that MLH spells differently ("University of
+ * California, San Diego" is MLH's "University of California San Diego"), and
+ * the nickname targets; scripts/mlh-school-names.py makes it.
+ */
+const MLH_SCHOOL_BY_KEY = new Map(
+  Object.entries(MLH_SCHOOL_NAMES as Record<string, string>).map(([ours, mlh]) => [schoolKey(ours), mlh]),
+);
+
+/**
+ * A school in MLH's spelling when we know it, however it was typed ("UCSD",
+ * "UC San Diego"...). Anything else is passed through as it is.
+ */
+export function mlhSchool(school: string | null): string {
+  const typed = (school ?? "").trim();
+  return typed ? MLH_SCHOOL_BY_KEY.get(schoolKey(typed)) ?? typed : "";
+}
+
 /** The calendar date in San Diego on `when`, as [year, month, day]. */
 function pacificDate(when: Date): [number, number, number] {
   const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Los_Angeles", year: "numeric", month: "numeric", day: "numeric" }).formatToParts(when);
@@ -83,7 +105,7 @@ export function mlhExportRows(apps: MlhExportApp[], rows: Row[], on: Date = TIME
     out.push([
       a.first_name ?? "", a.last_name ?? "", a.email ?? "", a.phone ?? "",
       ageOn(a.birthdate, on) ?? "",
-      a.school ?? "",
+      mlhSchool(a.school),
       a.level_of_study ? MLH_LEVEL_OF_STUDY[a.level_of_study] ?? a.level_of_study : "",
       a.country_of_residence ?? "",
       a.mlh_code_of_conduct_at, a.mlh_data_sharing_at, a.mlh_emails_opt_in ? "Yes" : "No",
