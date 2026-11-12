@@ -1,11 +1,9 @@
-# The homepage (the DataCraft site, served at /) is the page to index. /datacraft holds design drafts and the
-# older world; /pop, /press, /groove, /legacy and /themes are internal mockups with placeholder dates and
-# figures. Portal pages carry their own noindex.
+# The homepage (the DataCraft site, served at /) is the page to index. /pop, /press, /groove, /legacy and
+# /themes are internal mockups with placeholder dates and figures. Portal pages carry their own noindex.
+# /datacraft and /minecraft (the older world and its drafts) are gone and send visitors to the homepage.
 
 User-agent: *
 Allow: /
-Disallow: /datacraft
-Disallow: /minecraft
 Disallow: /pop
 Disallow: /press
 Disallow: /groove
@@ -14,8 +12,6 @@ Disallow: /themes
 
 User-agent: Googlebot
 Allow: /
-Disallow: /datacraft
-Disallow: /minecraft
 Disallow: /pop
 Disallow: /press
 Disallow: /groove
@@ -24,8 +20,6 @@ Disallow: /themes
 
 User-agent: Bingbot
 Allow: /
-Disallow: /datacraft
-Disallow: /minecraft
 Disallow: /pop
 Disallow: /press
 Disallow: /groove

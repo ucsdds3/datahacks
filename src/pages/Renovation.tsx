@@ -4,9 +4,9 @@ import "./renovation.css";
 /**
  * The public holding page.
  *
- * Deliberately not the themed site: the world under /datacraft is unfinished and
- * should not be the first thing a sponsor or a hacker sees. This says the one true
- * thing we have and gives people a way to reach us.
+ * Shown at "/" only when the real homepage (the static DataCraft build) is missing;
+ * see pages/Home. Deliberately plain: it says the one true thing we have and gives
+ * people a way to reach us.
  */
 export default function Renovation() {
   useEffect(() => {

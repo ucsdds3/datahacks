@@ -1,5 +1,5 @@
 /* The holding page. Self-contained: it must not import the themed stylesheets, so
-   work on the world under /datacraft can never break the one page the public sees.
+   work on the themes can never break the page shown when the homepage is missing.
 
    Palette sampled straight off public/datahacks-logo.png — #262626 ink, #12B2C8
    cyan and #F48035 orange are the three colours the mark is actually made of.
