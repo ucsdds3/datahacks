@@ -49,21 +49,16 @@
     <script type="module" crossorigin src="/home/index-4Zu8xK9g.js"></script>
     <link rel="stylesheet" crossorigin href="/home/index-IaFFHknE.css">
     <style>
-      /* Room for the MLH trust badge, top left at the very top of the page (it scrolls away with it):
-         24px from the left edge, --mlh-w wide, 1.752x as tall. The bundle's markup is untouched; these
+      /* Room for the MLH trust badge, top right at the very top of the page (it scrolls away with it):
+         24px from the right edge, --mlh-w wide, 1.752x as tall. The bundle's markup is untouched; these
          only move things out from under the badge. */
       :root { --mlh-w: clamp(48px, 5vw, 72px); --mlh-h: calc(var(--mlh-w) * 1.752); }
-      /* The home logo sits at the page column's left edge plus 24px; it moves right when the badge would cover it. */
-      #top a[aria-label="DataHacks 2027 home"] {
-        margin-left: max(0px, calc(24px + var(--mlh-w) + 16px - max(0px, (100vw - 1120px) / 2) - 24px));
-      }
-      /* Laptops: the left gutter is too narrow for the badge, so the hero starts just below it. */
-      @media (width >= 48rem) and (width < 1240px) {
-        #top > div:nth-child(2) { margin-top: max(0px, calc(var(--mlh-h) + 10px - 71px)); }
-      }
-      /* Narrow laptops and tablets, where the hero sits about 20px higher. */
-      @media (width >= 48rem) and (width < 56rem) {
-        #top > div:nth-child(2) { margin-top: max(0px, calc(var(--mlh-h) + 10px - 50px)); }
+      /* Tablets and up: the nav ends at the right of the header row (the page column, at most 1120px and
+         centred, with 30/1400 of its width as side padding), level with the badge. It stops 16px short of it. */
+      @media (width >= 48rem) {
+        #top nav {
+          margin-right: max(0px, calc(24px + var(--mlh-w) + 16px - max(0px, (100vw - 1120px) / 2) - min(100vw, 1120px) * 3 / 140));
+        }
       }
       /* Phones: the nav row (under the logo) starts just below the badge. */
       @media (width < 48rem) {
@@ -96,8 +91,8 @@
     </style>
   </head>
   <body>
-    <!-- MLH trust badge: MLH's embed code, unaltered apart from the colour (black) and its place: top left, smaller, and absolute so it scrolls away. https://www.mlh.com/brand-guidelines/#trust-badge -->
-    <a id="mlh-trust-badge" style="display:block;max-width:72px;min-width:48px;position:absolute;left:24px;top:0;width:5%;z-index:10000" href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2027-season&utm_content=black" target="_blank"><img src="https://logged-assets.s3.amazonaws.com/trust-badge/2027/mlh-trust-badge-2027-black.svg" alt="Major League Hacking 2027 Hackathon Season" style="width:100%"></a>
+    <!-- MLH trust badge: MLH's embed code, unaltered apart from the colour (black) and its place: top right, smaller, and absolute so it scrolls away. https://www.mlh.com/brand-guidelines/#trust-badge -->
+    <a id="mlh-trust-badge" style="display:block;max-width:72px;min-width:48px;position:absolute;right:24px;top:0;width:5%;z-index:10000" href="https://mlh.io/na?utm_source=na-hackathon&utm_medium=TrustBadge&utm_campaign=2027-season&utm_content=black" target="_blank"><img src="https://logged-assets.s3.amazonaws.com/trust-badge/2027/mlh-trust-badge-2027-black.svg" alt="Major League Hacking 2027 Hackathon Season" style="width:100%"></a>
     <div id="root"></div>
     <footer class="dh-footer">
       <span>DataHacks 2027</span> · <span>DS3 at UC San Diego</span> ·
