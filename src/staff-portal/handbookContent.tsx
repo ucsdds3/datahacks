@@ -120,7 +120,7 @@ export const HANDBOOK: HandbookSection[] = [
     id: "overview",
     title: "Overview & Theme",
     content: <>
-      <p>DataHacks is a 36-hour, MLH-certified hackathon bringing together 450+ students to build projects across 8 tracks: AI/ML, Data Analytics, Cloud, Hardware & IoT, Mechanical Design & Biotechnology, UI/UX & Web Development, Product & Entrepreneurship, and Economics.</p>
+      <p>DataHacks is a 24-hour, MLH-certified hackathon bringing together 450+ students to build projects across 8 tracks: AI/ML, Data Analytics, Cloud, Hardware & IoT, Mechanical Design & Biotechnology, UI/UX & Web Development, Product & Entrepreneurship, and Economics.</p>
       <p>A unifying theme is revealed at the Opening Ceremony, and every project is expected to tie into it. We provide curated datasets, and all tracks except Hardware & IoT and Mechanical Design & Biotechnology must use at least one. The theme and datasets are kept secret in advance to keep things fair and prevent pre-planning.</p>
       <p>DataHacks runs from April 18, 8:00 AM to April 19, 7:00 PM at the <A href="https://maps.app.goo.gl/urR3t44VuhGTbGkT7">UC San Diego Recreational Gymnasium</A> (2999 Scholars Ln, La Jolla, CA 92093), right beside the Main Gym. Workshops also run in <A href="https://maps.app.goo.gl/6YtZf9prgNVkj7Ey6">Price Center Theater</A> (3135 Matthews Ln).</p>
     </>,
