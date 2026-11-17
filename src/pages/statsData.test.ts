@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EVENT_CODE } from "@/portal/event";
 import {
-  APPLICANT_GOAL, STATS_EVENT_CODE, StatsPausedError, chartPoints, fetchPublicStats, formatCount, formatDay, formatPercent,
-  goalProgress, niceMax, parseStats, sortGraduationYears,
+  STATS_EVENT_CODE, StatsPausedError, chartPoints, fetchPublicStats, formatCount, formatDay, formatPercent, niceMax,
+  parseStats, sortGraduationYears,
 } from "./statsData";
 
 // event.ts imports the Supabase client; nothing here talks to Supabase through it.
@@ -15,7 +15,6 @@ afterEach(() => {
 
 describe("live stats settings", () => {
   it("shows the portal's current event", () => expect(STATS_EVENT_CODE).toBe(EVENT_CODE));
-  it("measures against the 1,500-applicant goal", () => expect(APPLICANT_GOAL).toBe(1500));
 });
 
 describe("formatting", () => {
@@ -30,13 +29,6 @@ describe("formatting", () => {
     expect(formatPercent(1, 1500)).toBe("<1%");
     expect(formatPercent(0, 10)).toBe("0%");
     expect(formatPercent(5, 0)).toBe("0%");
-  });
-
-  it("goal progress: the label can pass 100%, the bar stops there", () => {
-    expect(goalProgress(150)).toEqual({ label: "10%", fill: 10, reached: false });
-    expect(goalProgress(0)).toEqual({ label: "0%", fill: 0, reached: false });
-    expect(goalProgress(1800)).toEqual({ label: "120%", fill: 100, reached: true });
-    expect(goalProgress(1500).reached).toBe(true);
   });
 
   it("days read as written, whatever the viewer's time zone", () => {

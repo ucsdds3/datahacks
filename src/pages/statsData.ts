@@ -8,9 +8,6 @@
  * values shows the error state instead of failing to load (see portal/PortalShell).
  */
 
-/** DataHacks 2027 applicant goal. What the page's goal progress measures against (not stored in the database). */
-export const APPLICANT_GOAL = 1500;
-
 /**
  * The event whose stats the page shows. Must match EVENT_CODE in portal/event.ts
  * (a test checks); it's repeated here because that file loads the Supabase client.
@@ -137,15 +134,6 @@ export function formatPercent(part: number, whole: number): string {
   if (whole <= 0 || part <= 0) return "0%";
   const pct = Math.round((part / whole) * 100);
   return pct === 0 ? "<1%" : `${pct}%`;
-}
-
-/** How far along the goal is: the label can pass 100%, the bar stops there. */
-export function goalProgress(total: number, goal: number = APPLICANT_GOAL) {
-  return {
-    label: formatPercent(total, goal),
-    fill: goal > 0 ? Math.min(100, Math.max(0, (total / goal) * 100)) : 0,
-    reached: goal > 0 && total >= goal,
-  };
 }
 
 const parseDay = (date: string) => {
