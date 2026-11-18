@@ -65,7 +65,10 @@ const valid = {
   github_url: "https://github.com/ada", devpost_url: "", resume_url: "https://drive.google.com/file/d/x",
   essay_proudest_project: "The analytical engine.", essay_unique_thing: "Poetical science.", essay_goal: "Meet people.",
   funniest_joke: "", lifetime_goal: "", suggested_food: "Boba", suggested_activity: "Smash tournament",
-  heard_about: [HEARD_ABOUT[0]], wants_travel_stipend: false, travel_region: "",
+  heard_about: [HEARD_ABOUT[0]],
+  emergency_contact_name: "Anne Byron", emergency_contact_phone: "(858) 555-0199", emergency_contact_relation: "Mother",
+  dietary_restrictions: "", shirt_size: "M", overnight_stay: "Maybe", team_matching: "Yes, I'm looking for a team",
+  wants_travel_stipend: false, travel_region: "",
   travel_method: "", travel_distance: "", travel_stipend_reason: "", agreed_to_terms: true,
 };
 
@@ -381,5 +384,45 @@ describe("submit errors", () => {
     fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
     expect(await screen.findByText("portal home")).toBeInTheDocument();
     expect(db.inserts[0]).toMatchObject({ suggested_food: "Poke bowls", suggested_activity: "Karaoke night" });
+  });
+
+  it("saves the event details as the database's codes, marked as the applicant's own answers", async () => {
+    saveDraft({ ...valid, emergency_contact_name: "  Anne\tByron ", dietary_restrictions: "  Peanuts\nShellfish  " });
+    await mountWithSession();
+    expect(screen.getByLabelText(/Emergency contact's name/)).toBeRequired();
+    expect(screen.getByLabelText(/T-shirt size/)).toHaveValue("M");
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts[0]).toMatchObject({
+      emergency_contact_name: "Anne Byron", emergency_contact_phone: "(858) 555-0199", emergency_contact_relation: "Mother",
+      dietary_restrictions: "Peanuts\nShellfish", shirt_size: "M", overnight_stay: "maybe", team_matching: "looking_for_team",
+      logistics_source: "applicant",
+    });
+  });
+
+  it("leaves dietary restrictions out when blank", async () => {
+    saveDraft(valid);
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts[0]).toMatchObject({ dietary_restrictions: null });
+  });
+
+  it("needs an emergency contact: a name of only spaces or a short phone is pointed at, not sent", async () => {
+    saveDraft({ ...valid, emergency_contact_name: "   " });
+    await mountWithSession();
+    const form = screen.getByRole("button", { name: /Submit application/ }).closest("form")!;
+    fireEvent.submit(form);
+    const name = screen.getByLabelText(/Emergency contact's name/);
+    expect(name).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent("Tell us who to contact in an emergency.");
+    expect(db.inserts).toHaveLength(0);
+
+    fireEvent.change(name, { target: { value: "Anne Byron" } });
+    fireEvent.change(screen.getByLabelText(/Emergency contact's phone/), { target: { value: "858555" } });
+    fireEvent.submit(form);
+    expect(screen.getByLabelText(/Emergency contact's phone/)).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByRole("alert")).toHaveTextContent(/emergency contact's phone: Enter a 10-digit phone number/);
+    expect(db.inserts).toHaveLength(0);
   });
 });

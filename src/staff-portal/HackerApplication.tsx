@@ -16,8 +16,8 @@ import { MAX_LENGTH, applicationErrorMessage, birthdateBounds, cleanLine, cleanT
 import { Combobox, DateInput, LimitedTextarea, MultiSelect, PhoneInput, Req, Select, YesNo, phoneProblem } from './formFields'
 import { ApplyWithAiNote, DraftNote, SignedOutNotice, focusField } from './formDraftUi'
 import {
-  COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, RACES, SCHOOLS,
-  TRAVEL_DISTANCES, TRAVEL_METHODS,
+  COUNTRIES, GENDERS, GRADUATION_YEARS, HACKATHON_EXPERIENCE, HEARD_ABOUT, LEVELS_OF_STUDY, OVERNIGHT_STAY, RACES, SCHOOLS,
+  SHIRT_SIZES, TEAM_MATCHING, TRAVEL_DISTANCES, TRAVEL_METHODS,
 } from './formOptions'
 
 const SCHOOL_INDEX = indexSchools(SCHOOLS)
@@ -35,6 +35,9 @@ const blank = {
   essay_proudest_project: '', essay_unique_thing: '', essay_goal: '', funniest_joke: '', lifetime_goal: '',
   suggested_food: '', suggested_activity: '',
   heard_about: [] as string[],
+  // Event details: overnight_stay and team_matching hold what the form shows (OVERNIGHT_STAY / TEAM_MATCHING keys).
+  emergency_contact_name: '', emergency_contact_phone: '', emergency_contact_relation: '', dietary_restrictions: '',
+  shirt_size: '', overnight_stay: '', team_matching: '',
   wants_travel_stipend: null as boolean | null, travel_region: '', travel_method: '', travel_distance: '', travel_stipend_reason: '',
   agreed_to_terms: false,
   // MLH's checkboxes (mlh.tsx): only shown, checked and saved while MLH is on.
@@ -46,7 +49,9 @@ type Form = typeof blank
 const FIELD_ID: Partial<Record<keyof Form, string>> = {
   phone: 'hk-phone', race_ethnicity: 'hk-race', attended_before: 'hk-attended', birthdate: 'hk-birthdate',
   linkedin_url: 'hk-linkedin', github_url: 'hk-github', devpost_url: 'hk-devpost', resume_url: 'hk-resume',
-  suggested_food: 'hk-food', suggested_activity: 'hk-activity', heard_about: 'hk-heard', wants_travel_stipend: 'hk-travel', travel_region: 'hk-travel-region',
+  suggested_food: 'hk-food', suggested_activity: 'hk-activity', heard_about: 'hk-heard',
+  emergency_contact_name: 'hk-ec-name', emergency_contact_phone: 'hk-ec-phone', emergency_contact_relation: 'hk-ec-relation',
+  shirt_size: 'hk-shirt', overnight_stay: 'hk-overnight', team_matching: 'hk-team', wants_travel_stipend: 'hk-travel', travel_region: 'hk-travel-region',
   travel_method: 'hk-travel-method', travel_distance: 'hk-travel-distance', agreed_to_terms: 'hk-agree',
   mlh_code_of_conduct: mlhInputId('hk', 'mlh_code_of_conduct'), mlh_data_sharing: mlhInputId('hk', 'mlh_data_sharing'),
 }
@@ -68,6 +73,13 @@ export function formProblem(form: Form, today = new Date(), mlh = false): Proble
   if (!cleanLine(form.suggested_food)) return { field: 'suggested_food', message: 'Suggest a food item we should have at DataHacks.' }
   if (!cleanLine(form.suggested_activity)) return { field: 'suggested_activity', message: 'Suggest an activity we should run at DataHacks.' }
   if (form.heard_about.length === 0) return { field: 'heard_about', message: 'Tell us how you heard about DataHacks.' }
+  if (!cleanLine(form.emergency_contact_name)) return { field: 'emergency_contact_name', message: 'Tell us who to contact in an emergency.' }
+  const contactPhone = phoneProblem(form.emergency_contact_phone)
+  if (contactPhone) return { field: 'emergency_contact_phone', message: `Your emergency contact's phone: ${contactPhone}` }
+  if (!cleanLine(form.emergency_contact_relation)) return { field: 'emergency_contact_relation', message: 'Tell us how your emergency contact is related to you.' }
+  if (!SHIRT_SIZES.includes(form.shirt_size)) return { field: 'shirt_size', message: 'Choose a T-shirt size.' }
+  if (!(form.overnight_stay in OVERNIGHT_STAY)) return { field: 'overnight_stay', message: 'Tell us whether you\'ll stay at the venue overnight.' }
+  if (!(form.team_matching in TEAM_MATCHING)) return { field: 'team_matching', message: 'Tell us whether you\'d like help finding teammates.' }
   if (form.wants_travel_stipend === null) return { field: 'wants_travel_stipend', message: 'Tell us whether you need travel reimbursement.' }
   if (form.wants_travel_stipend) {
     const missing = !form.travel_region.trim() ? 'travel_region' : !form.travel_method ? 'travel_method' : !form.travel_distance ? 'travel_distance' : null
@@ -166,6 +178,12 @@ export default function HackerApplication() {
       lifetime_goal: cleanText(form.lifetime_goal),
       suggested_food: cleanLine(form.suggested_food),
       suggested_activity: cleanLine(form.suggested_activity),
+      emergency_contact_name: cleanLine(form.emergency_contact_name),
+      emergency_contact_relation: cleanLine(form.emergency_contact_relation),
+      dietary_restrictions: cleanText(form.dietary_restrictions) || null,
+      overnight_stay: OVERNIGHT_STAY[form.overnight_stay],
+      team_matching: TEAM_MATCHING[form.team_matching],
+      logistics_source: 'applicant',
       race_ethnicity: form.race_ethnicity.join('; '),
       attended_before: form.attended_before === true,
       wants_travel_stipend: travel === true,
@@ -325,6 +343,35 @@ export default function HackerApplication() {
             <MultiSelect id="hk-heard" options={HEARD_ABOUT} value={form.heard_about} onChange={v => update('heard_about', v)} {...mark('heard_about')} />
             {fieldError('heard_about')}
           </div>
+
+          <h2 className="sp-form-section">Event details</h2>
+          <label className={errorClass('emergency_contact_name')}>Emergency contact's name <Req />
+            <input id="hk-ec-name" required maxLength={MAX_LENGTH.short} {...text('emergency_contact_name')} {...mark('emergency_contact_name')} />
+            {fieldError('emergency_contact_name')}
+          </label>
+          <label htmlFor="hk-ec-phone" className={errorClass('emergency_contact_phone')}>Emergency contact's phone number <Req />
+            <PhoneInput id="hk-ec-phone" value={form.emergency_contact_phone} onChange={v => update('emergency_contact_phone', v)} {...mark('emergency_contact_phone')} />
+            {fieldError('emergency_contact_phone')}
+          </label>
+          <label className={errorClass('emergency_contact_relation')}>How are they related to you? <Req />
+            <input id="hk-ec-relation" required maxLength={MAX_LENGTH.name} placeholder="Parent, sibling, friend…" {...text('emergency_contact_relation')} {...mark('emergency_contact_relation')} />
+            {fieldError('emergency_contact_relation')}
+          </label>
+          <label>Food allergies or dietary restrictions <span>(optional)</span>
+            <LimitedTextarea rows={2} maxLength={MAX_LENGTH.brief} placeholder="Leave blank if none" {...text('dietary_restrictions')} />
+          </label>
+          <label className={errorClass('shirt_size')}>T-shirt size <Req />
+            <Select id="hk-shirt" options={SHIRT_SIZES} value={form.shirt_size} onChange={v => update('shirt_size', v)} />
+            {fieldError('shirt_size')}
+          </label>
+          <label className={errorClass('overnight_stay')}>Will you stay at the venue overnight? <Req />
+            <Select id="hk-overnight" options={Object.keys(OVERNIGHT_STAY)} value={form.overnight_stay} onChange={v => update('overnight_stay', v)} />
+            {fieldError('overnight_stay')}
+          </label>
+          <label className={errorClass('team_matching')}>Would you like help finding teammates? <Req />
+            <Select id="hk-team" options={Object.keys(TEAM_MATCHING)} value={form.team_matching} onChange={v => update('team_matching', v)} />
+            {fieldError('team_matching')}
+          </label>
 
           <h2 className="sp-form-section">Travel</h2>
           <div className={errorClass('wants_travel_stipend', 'sp-field')}>

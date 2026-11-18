@@ -31,7 +31,7 @@ import { withOAuthProtectedResource, withSupabase } from "npm:@supabase/server@1
 import { z } from "npm:zod@4.6.6";
 import {
   EVENT_CODE, GENDERS, HACKATHON_EXPERIENCE, HEARD_ABOUT, JUDGING_TRACKS, LEVELS_OF_STUDY, MAX_LENGTH,
-  MLH_ENABLED, MLH_LINKS, MLH_TEXT, RACES, STAFF_HEARD_ABOUT, STAFF_TYPES, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
+  MLH_ENABLED, MLH_LINKS, MLH_TEXT, OVERNIGHT_STAY, RACES, SHIRT_SIZES, STAFF_HEARD_ABOUT, STAFF_TYPES, TEAM_MATCHING, TRAVEL_DISTANCES, TRAVEL_METHODS, UCSD_AFFILIATIONS, checkHacker, checkStaff, cleanLine,
   closedMessage, databaseErrorMessage, graduationYears, insertErrorMessage, isValidEmail, matchOption, saveApplication, type Checked,
   type HackerAnswers,
 } from "./application.ts";
@@ -235,6 +235,13 @@ Deno.serve(
                 suggested_food: z.string().describe(`Suggest a food item we should have at DataHacks (e.g. boba, poke bowls). Their own idea, one line, at most ${MAX_LENGTH.short} characters`),
                 suggested_activity: z.string().describe(`Suggest an activity we should run at DataHacks (e.g. a Smash tournament, a 5K). Their own idea, one line, at most ${MAX_LENGTH.short} characters`),
                 heard_about: z.array(enumOf(HEARD_ABOUT)).min(1).describe("How they heard about DataHacks; pick all that apply"),
+                emergency_contact_name: z.string().describe(`Their emergency contact's name. At most ${MAX_LENGTH.short} characters`),
+                emergency_contact_phone: z.string().describe("Their emergency contact's 10-digit US phone number"),
+                emergency_contact_relation: z.string().describe(`How the emergency contact is related to them (e.g. parent, sibling, friend). At most ${MAX_LENGTH.name} characters`),
+                dietary_restrictions: z.string().optional().describe(`Food allergies or dietary restrictions (optional; leave out if none). At most ${MAX_LENGTH.brief} characters`),
+                shirt_size: enumOf(SHIRT_SIZES).describe("Their T-shirt size"),
+                overnight_stay: enumOf(Object.keys(OVERNIGHT_STAY)).describe("Will they stay at the venue overnight?"),
+                team_matching: enumOf(Object.keys(TEAM_MATCHING)).describe("Would they like help finding teammates?"),
                 wants_travel_stipend: z.boolean().describe("Would they need travel reimbursement to attend?"),
                 travel_region: z.string().optional().describe(`Where they're traveling from: city, state or country, at most ${MAX_LENGTH.short} characters. Required if they want travel reimbursement`),
                 travel_method: enumOf(TRAVEL_METHODS).optional().describe("Required if they want travel reimbursement"),

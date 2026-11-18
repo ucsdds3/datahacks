@@ -10,12 +10,12 @@ import { friendlyError } from "./friendlyError";
  * database's cap for that column (in brackets), so the form always stops first.
  */
 export const MAX_LENGTH = {
-  name: 80, // first_name, last_name [100]
-  short: 150, // city, school, major, organization, role, travel region, suggested food/activity [200]
+  name: 80, // first_name, last_name [100], emergency contact's relationship [100]
+  short: 150, // city, school, major, organization, role, travel region, suggested food/activity, emergency contact's name [200]
   link: 400, // every *_url [500]
   essay: 3000, // essays, travel note [4000]
   bio: 1500, // mentor blurb [4000]
-  brief: 500, // funniest joke, lifetime goal [1000]
+  brief: 500, // funniest joke, lifetime goal [1000], dietary restrictions [1000]
 } as const;
 
 /** Mirrors application_email_check: one plain address, nothing that could add recipients or headers. */
@@ -84,6 +84,9 @@ const FIELD_LABEL: Record<string, string> = {
   gender: "gender", race_ethnicity: "race/ethnicity", level_of_study: "level of study",
   graduation_year: "graduation year", hackathon_experience: "hackathon experience", travel_method: "travel method",
   travel_distance: "travel distance", heard_about: "how you heard about us", birthdate: "birthdate",
+  emergency_contact_name: "emergency contact's name", emergency_contact_phone: "emergency contact's phone number",
+  emergency_contact_relation: "emergency contact's relationship", dietary_restrictions: "dietary restrictions",
+  shirt_size: "T-shirt size", overnight_stay: "overnight answer", team_matching: "teammates answer",
 };
 
 /**
