@@ -7,7 +7,7 @@ import {
 import "./stats.css";
 
 export const STATS_TITLE = "DataHacks 2027 · Live stats";
-const PAGE_BACKGROUND = "#1a0a0b";
+const PAGE_BACKGROUND = "#f9e6c8";
 // Links open in the whole window: this page is also shown full-screen at stats.datahacks.ds3atucsd.com.
 const APPLY = "/apply/";
 
@@ -17,8 +17,8 @@ const plural = (n: number, one: string, many: string) => `${formatCount(n)} ${n 
  * The public live stats page (/stats): how many people have applied to
  * DataHacks 2027 and, in counts only, where they're from. The numbers come from
  * the database's public_event_stats() (see statsData.ts), refreshed every
- * minute while the page is on screen. Drawn in the portal's Nether look, with
- * none of the portal's own stylesheets.
+ * minute while the page is on screen. Drawn in the main website's parchment
+ * look (sponsors see it), with none of the portal's own stylesheets.
  */
 export default function Stats() {
   useEffect(() => {
@@ -50,7 +50,9 @@ export default function Stats() {
   return (
     <div className="dh-stats">
       <header className="dh-stats-top">
-        <a className="dh-stats-brand" href="/" target="_top">DataHacks <span>2027</span></a>
+        <a className="dh-stats-brand" href="/" target="_top">
+          <img src="/images/stats/lockup-2027.webp" alt="DataHacks 2027" width={204} height={132} />
+        </a>
         <nav className="dh-stats-nav" aria-label="DataHacks">
           <a className="dh-stats-home-link" href="/" target="_top">Home</a>
           <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
@@ -105,7 +107,6 @@ export default function Stats() {
           <a href="/" target="_top">DataHacks home</a> · <a href={APPLY} target="_top">Apply</a> · Questions? <a href="mailto:info@ds3.club">info@ds3.club</a>
         </p>
       </footer>
-      <div className="dh-stats-lava" aria-hidden="true" />
     </div>
   );
 }
