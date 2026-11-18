@@ -37,6 +37,15 @@ export type Application = {
   suggested_food: string | null;
   suggested_activity: string | null;
   heard_about: string[] | null;
+  /** Hackers' event details (*_hacker_logistics.sql): null until answered, or prefilled from DH26 (logistics_source). */
+  emergency_contact_name: string | null;
+  emergency_contact_phone: string | null;
+  emergency_contact_relation: string | null;
+  dietary_restrictions: string | null;
+  shirt_size: string | null;
+  overnight_stay: string | null;
+  team_matching: string | null;
+  logistics_source: string | null;
   gender: string | null;
   race_ethnicity: string | null;
   city_of_residence: string | null;

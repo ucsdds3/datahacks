@@ -18,6 +18,8 @@ const DETAIL_COLUMNS = [
   "organization", "role_title", "resume_url", "linkedin_url", "devpost_url",
   "judging_track", "bio", "essay_proudest_project", "essay_unique_thing", "essay_goal",
   "suggested_food", "suggested_activity", "heard_about",
+  "emergency_contact_name", "emergency_contact_phone", "emergency_contact_relation", "dietary_restrictions",
+  "shirt_size", "overnight_stay", "team_matching", "logistics_source",
   "gender", "race_ethnicity", "city_of_residence", "country_of_residence", "hackathon_experience", "github_url",
   "wants_travel_stipend", "travel_region", "travel_method", "travel_distance", "travel_stipend_reason",
   "decision_released_at", "decision_emailed_at",

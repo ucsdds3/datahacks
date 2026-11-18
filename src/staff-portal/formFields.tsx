@@ -105,6 +105,7 @@ export function LimitedTextarea({ value, onChange, maxLength, ...props }: {
   required?: boolean;
   minLength?: number;
   id?: string;
+  placeholder?: string;
 }) {
   const [rejected, setRejected] = useState<number | null>(null);
   const counterId = useId();

@@ -144,6 +144,17 @@ export const TRAVEL_METHODS = ["Car", "Bus", "Train", "Plane", "Other"] as const
 
 export const TRAVEL_DISTANCES = ["Under 50 miles", "50–200 miles", "200–500 miles", "Over 500 miles", "From outside the US"] as const;
 
+// "Event details": shirt sizes are saved as shown; the other two save the code for the answer.
+export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
+
+export const OVERNIGHT_STAY: Record<string, string> = { Yes: "yes", No: "no", Maybe: "maybe" };
+
+export const TEAM_MATCHING: Record<string, string> = {
+  "Yes, I'm looking for a team": "looking_for_team",
+  "Yes, my team is looking for more members": "team_needs_members",
+  "No, my team is set": "have_full_team",
+};
+
 // The mentor/judge form's choices (StaffApplication.tsx), which the baseline's
 // applications_*_check constraints restrict.
 export const STAFF_TYPES = ["mentor", "judge", "hybrid"] as const;
@@ -250,6 +261,15 @@ export type HackerAnswers = {
   suggested_food: string;
   suggested_activity: string;
   heard_about: string[];
+  emergency_contact_name: string;
+  emergency_contact_phone: string;
+  emergency_contact_relation: string;
+  dietary_restrictions?: string;
+  shirt_size: string;
+  /** A key of OVERNIGHT_STAY. */
+  overnight_stay: string;
+  /** A key of TEAM_MATCHING. */
+  team_matching: string;
   wants_travel_stipend: boolean;
   travel_region?: string;
   travel_method?: string;
@@ -319,6 +339,9 @@ export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Ch
     lifetime_goal: prose(MAX_LENGTH.brief, false),
     suggested_food: line(MAX_LENGTH.short),
     suggested_activity: line(MAX_LENGTH.short),
+    emergency_contact_name: line(MAX_LENGTH.short),
+    emergency_contact_relation: line(MAX_LENGTH.name),
+    dietary_restrictions: prose(MAX_LENGTH.brief, false),
     travel_region: line(MAX_LENGTH.short, travel),
     travel_stipend_reason: prose(MAX_LENGTH.essay, false),
   }, problems);
@@ -358,6 +381,14 @@ export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Ch
   if (heard.length === 0) {
     problems.push(`heard_about needs at least one of, and only: ${HEARD_ABOUT.join(", ")}.`);
   }
+  const contactPhone = toPhone(a.emergency_contact_phone ?? "");
+  if (!contactPhone) problems.push("emergency_contact_phone must be a 10-digit US number.");
+  const shirtSize = matchOption(SHIRT_SIZES, a.shirt_size);
+  if (!shirtSize) problems.push(`shirt_size must be one of: ${SHIRT_SIZES.join(", ")}.`);
+  const overnight = matchOption(Object.keys(OVERNIGHT_STAY), a.overnight_stay);
+  if (!overnight) problems.push(`overnight_stay must be one of: ${Object.keys(OVERNIGHT_STAY).join(", ")}.`);
+  const team = matchOption(Object.keys(TEAM_MATCHING), a.team_matching);
+  if (!team) problems.push(`team_matching must be one of: ${Object.keys(TEAM_MATCHING).join("; ")}.`);
   const travelMethod = matchOption(TRAVEL_METHODS, a.travel_method);
   const travelDistance = matchOption(TRAVEL_DISTANCES, a.travel_distance);
   if (travel) {
@@ -402,6 +433,14 @@ export function checkHacker(a: HackerAnswers, now = new Date(), mlh = false): Ch
       suggested_food: t.suggested_food,
       suggested_activity: t.suggested_activity,
       heard_about: heard,
+      emergency_contact_name: t.emergency_contact_name,
+      emergency_contact_phone: contactPhone,
+      emergency_contact_relation: t.emergency_contact_relation,
+      dietary_restrictions: t.dietary_restrictions || null,
+      shirt_size: shirtSize,
+      overnight_stay: OVERNIGHT_STAY[overnight!],
+      team_matching: TEAM_MATCHING[team!],
+      logistics_source: "applicant",
       wants_travel_stipend: travel,
       travel_region: travel ? t.travel_region : null,
       travel_method: travel ? travelMethod : null,

@@ -74,6 +74,21 @@ export const TRAVEL_METHODS = ["Car", "Bus", "Train", "Plane", "Other"];
 
 export const TRAVEL_DISTANCES = ["Under 50 miles", "50–200 miles", "200–500 miles", "Over 500 miles", "From outside the US"];
 
+// "Event details" (*_hacker_logistics.sql). Shirt sizes are saved as shown; the
+// other two show a sentence and save its code (application_*_check takes the codes).
+
+export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
+
+/** "Will you stay at the venue overnight?": what the form shows -> what's saved. */
+export const OVERNIGHT_STAY: Record<string, string> = { Yes: "yes", No: "no", Maybe: "maybe" };
+
+/** "Would you like help finding teammates?": what the form shows -> what's saved. */
+export const TEAM_MATCHING: Record<string, string> = {
+  "Yes, I'm looking for a team": "looking_for_team",
+  "Yes, my team is looking for more members": "team_needs_members",
+  "No, my team is set": "have_full_team",
+};
+
 /** Countries, United States first, then alphabetical. */
 export const COUNTRIES = ["United States", ...[
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",

@@ -2,11 +2,16 @@ import { useState } from "react";
 import { ExternalLink, X } from "lucide-react";
 import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
+import { OVERNIGHT_STAY, TEAM_MATCHING } from "@/staff-portal/formOptions";
 import { stageDecision, stageProblems, useApplication, useEventId } from "./data";
 import { errorText } from "./errors";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isDraft, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
+
+/** The form's wording for a saved code (OVERNIGHT_STAY, TEAM_MATCHING); unknown codes as saved. */
+const labelOf = (options: Record<string, string>, code: string | null) =>
+  code ? Object.keys(options).find(label => options[label] === code) ?? code : null;
 
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   if (value === null || value === undefined || value === "") return null;
@@ -122,6 +127,12 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Suggested food" value={app.suggested_food} />
             <Field label="Suggested activity" value={app.suggested_activity} />
             <Field label="Heard about us" value={app.heard_about?.join(", ")} />
+            <Field label="Emergency contact" value={[app.emergency_contact_name, app.emergency_contact_relation, app.emergency_contact_phone].filter(Boolean).join(" · ")} />
+            <Field label="Dietary restrictions" value={app.emergency_contact_name || app.shirt_size ? app.dietary_restrictions ?? "None" : null} />
+            <Field label="T-shirt size" value={app.shirt_size} />
+            <Field label="Staying overnight" value={labelOf(OVERNIGHT_STAY, app.overnight_stay)} />
+            <Field label="Teammates" value={labelOf(TEAM_MATCHING, app.team_matching)} />
+            <Field label="Event details from" value={app.logistics_source === "dh26_import" ? "Their DataHacks 2026 application" : null} />
           </>
         ) : (
           <>

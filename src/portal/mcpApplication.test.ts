@@ -34,6 +34,9 @@ describe("MCP application server matches the portal", () => {
     expect(mcp.TRAVEL_METHODS).toEqual(form.TRAVEL_METHODS);
     expect(mcp.TRAVEL_DISTANCES).toEqual(form.TRAVEL_DISTANCES);
     expect(mcp.COUNTRIES).toEqual(form.COUNTRIES);
+    expect(mcp.SHIRT_SIZES).toEqual(form.SHIRT_SIZES);
+    expect(mcp.OVERNIGHT_STAY).toEqual(form.OVERNIGHT_STAY);
+    expect(mcp.TEAM_MATCHING).toEqual(form.TEAM_MATCHING);
   });
 
   it("offers the same choices as the mentor/judge form", () => {
@@ -46,6 +49,17 @@ describe("MCP application server matches the portal", () => {
     const source = readFileSync(join(__dirname, "../../supabase/functions/mcp/index.ts"), "utf8");
     for (const field of ["suggested_food", "suggested_activity"]) {
       expect(source, field).toMatch(new RegExp(`\\n\\s+${field}: z\\.string\\(\\)\\.describe\\(`));
+    }
+  });
+
+  it("asks the hacker tool for the event details, required except dietary restrictions", () => {
+    const source = readFileSync(join(__dirname, "../../supabase/functions/mcp/index.ts"), "utf8");
+    for (const field of ["emergency_contact_name", "emergency_contact_phone", "emergency_contact_relation"]) {
+      expect(source, field).toMatch(new RegExp(`\\n\\s+${field}: z\\.string\\(\\)\\.describe\\(`));
+    }
+    expect(source).toMatch(/\n\s+dietary_restrictions: z\.string\(\)\.optional\(\)\.describe\(/);
+    for (const field of ["shirt_size", "overnight_stay", "team_matching"]) {
+      expect(source, field).toMatch(new RegExp(`\\n\\s+${field}: enumOf\\([^)]*\\)\\)?\\.describe\\(`));
     }
   });
 
@@ -143,6 +157,9 @@ describe("MCP application server matches the database", () => {
     expect(allowed("applications_judging_track_check")).toEqual([...mcp.JUDGING_TRACKS]);
     expect(allowed("applications_ucsd_affiliation_check")).toEqual([...mcp.UCSD_AFFILIATIONS]);
     expect(allowed("applications_applicant_type_check")).toEqual(["hacker", ...mcp.STAFF_TYPES]);
+    expect(allowed("application_shirt_size_check")).toEqual([...mcp.SHIRT_SIZES]);
+    expect(allowed("application_overnight_stay_check")).toEqual(Object.values(mcp.OVERNIGHT_STAY));
+    expect(allowed("application_team_matching_check")).toEqual(Object.values(mcp.TEAM_MATCHING));
   });
 
   // Needs 20261110060000_staff_heard_about.sql, which gives mentors and judges their own list.
@@ -160,7 +177,10 @@ const hacker: mcp.HackerAnswers = {
   linkedin_url: "https://www.linkedin.com/in/ada", github_url: "https://github.com/ada", resume_url: "https://drive.google.com/ada",
   essay_proudest_project: "An analytical engine.", essay_unique_thing: "Poetical science.", essay_goal: "Meet people.",
   suggested_food: "Boba", suggested_activity: "Smash tournament",
-  heard_about: ["Instagram"], wants_travel_stipend: false, agreed_to_terms: true,
+  heard_about: ["Instagram"],
+  emergency_contact_name: "Anne Byron", emergency_contact_phone: "858-555-0199", emergency_contact_relation: "Mother",
+  shirt_size: "M", overnight_stay: "Maybe", team_matching: "Yes, I'm looking for a team",
+  wants_travel_stipend: false, agreed_to_terms: true,
 };
 
 const problemFields = (result: mcp.Checked) => ("problems" in result ? result.problems.map(p => p.split(/[ :]/)[0]) : []);
@@ -172,7 +192,23 @@ describe("checkHacker", () => {
       applicant_type: "hacker", first_name: "Ada", phone: "(858) 555-0123", race_ethnicity: "White; Other",
       devpost_url: null, travel_region: null, funniest_joke: "", agreed_to_terms: true,
       suggested_food: "Boba", suggested_activity: "Smash tournament",
+      emergency_contact_name: "Anne Byron", emergency_contact_phone: "(858) 555-0199", emergency_contact_relation: "Mother",
+      dietary_restrictions: null, shirt_size: "M", overnight_stay: "maybe", team_matching: "looking_for_team", logistics_source: "applicant",
     });
+  });
+
+  it("needs the event details, and maps each choice to the code the database takes", () => {
+    const without: Partial<mcp.HackerAnswers> = { ...hacker };
+    for (const field of ["emergency_contact_name", "emergency_contact_phone", "emergency_contact_relation", "shirt_size", "overnight_stay", "team_matching"] as const) {
+      delete without[field];
+    }
+    expect(problemFields(mcp.checkHacker(without as mcp.HackerAnswers))).toEqual([
+      "emergency_contact_name", "emergency_contact_relation", "emergency_contact_phone", "shirt_size", "overnight_stay", "team_matching",
+    ]);
+    expect(problemFields(mcp.checkHacker({ ...hacker, shirt_size: "4XL", overnight_stay: "Sometimes", team_matching: "yes" })))
+      .toEqual(["shirt_size", "overnight_stay", "team_matching"]);
+    const near = mcp.checkHacker({ ...hacker, shirt_size: "m", overnight_stay: "yes", team_matching: "no, my team is set", dietary_restrictions: " Vegan " });
+    expect("row" in near && near.row).toMatchObject({ shirt_size: "M", overnight_stay: "yes", team_matching: "have_full_team", dietary_restrictions: "Vegan" });
   });
 
   it("needs a suggested food and activity, on one line, within the form's limit", () => {
