@@ -105,10 +105,10 @@ select pg_temp.expect('still the imported size', (select shirt_size from applica
 -- 3. The checks ------------------------------------------------------------------
 
 select pg_temp.expect('every shirt size fits',
-  (select string_agg(pg_temp.set_col('shirt_size', quote_literal(s)), ',') from unnest(array['XXS','XS','S','M','L','XL','XXL','3XL']) s),
-  'ok,ok,ok,ok,ok,ok,ok,ok');
+  (select string_agg(pg_temp.set_col('shirt_size', quote_literal(s)), ',') from unnest(array['XXS','XS','S','M','L','XL','XXL']) s),
+  'ok,ok,ok,ok,ok,ok,ok');
 select pg_temp.expect('a lowercase shirt size is refused', pg_temp.set_col('shirt_size', $$'m'$$), '23514: %application_shirt_size_check%');
-select pg_temp.expect('4XL is refused', pg_temp.set_col('shirt_size', $$'4XL'$$), '23514: %application_shirt_size_check%');
+select pg_temp.expect('3XL is refused (XXL is the largest)', pg_temp.set_col('shirt_size', $$'3XL'$$), '23514: %application_shirt_size_check%');
 select pg_temp.expect('overnight takes yes/no/maybe',
   pg_temp.set_col('overnight_stay', $$'yes'$$) || pg_temp.set_col('overnight_stay', $$'no'$$), 'okok');
 select pg_temp.expect('overnight "Yes" is refused', pg_temp.set_col('overnight_stay', $$'Yes'$$), '23514: %application_overnight_stay_check%');

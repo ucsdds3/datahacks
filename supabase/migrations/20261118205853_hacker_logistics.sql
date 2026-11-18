@@ -5,7 +5,7 @@
 -- applications.emergency_contact_phone     their number
 -- applications.emergency_contact_relation  e.g. Mother, Friend
 -- applications.dietary_restrictions        allergies or diet, as typed; null = none
--- applications.shirt_size                  XXS-3XL
+-- applications.shirt_size                  XXS-XXL
 -- applications.overnight_stay              yes / no / maybe
 -- applications.team_matching               looking_for_team / team_needs_members / have_full_team
 -- applications.logistics_source            where these came from: 'dh26_import'
@@ -62,7 +62,7 @@ alter table public.applications add constraint application_dietary_restrictions_
 
 alter table public.applications drop constraint if exists application_shirt_size_check;
 alter table public.applications add constraint application_shirt_size_check check (shirt_size is null
-  or shirt_size in ('XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'));
+  or shirt_size in ('XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'));
 
 alter table public.applications drop constraint if exists application_overnight_stay_check;
 alter table public.applications add constraint application_overnight_stay_check check (overnight_stay is null
@@ -85,7 +85,7 @@ comment on column public.applications.emergency_contact_relation is
 comment on column public.applications.dietary_restrictions is
   'Hackers: food allergies or dietary restrictions as typed; null means none given.';
 comment on column public.applications.shirt_size is
-  'Hackers: preferred T-shirt size, XXS-3XL.';
+  'Hackers: preferred T-shirt size, XXS-XXL.';
 comment on column public.applications.overnight_stay is
   'Hackers: plans to stay at the venue overnight: yes, no or maybe.';
 comment on column public.applications.team_matching is

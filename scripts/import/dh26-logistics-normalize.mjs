@@ -13,14 +13,18 @@ export function oneLine(raw, max = 200) {
   return text.slice(0, max);
 }
 
-const SHIRT_ALIASES = { XXXL: "3XL", "2XL": "XXL" };
-const SHIRTS = new Set(["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"]);
+// XXL is the largest size we order: 2XL is XXL, and anything bigger (3XL, XXXL, 4XL…)
+// becomes XXL too. The one DH26 "3XL (or 2XL)" answer said 2XL works.
+const SHIRT_ALIASES = { "2XL": "XXL" };
+const SHIRTS = new Set(["XXS", "XS", "S", "M", "L", "XL", "XXL"]);
+const ABOVE_XXL = /^(X{3,}L|[3-9]XL)\b/;
 
-/** "M", "xxl", "3XL (or 2XL)" -> "M", "XXL", "3XL". The first size named wins. */
+/** "M", "xxl", "3XL (or 2XL)" -> "M", "XXL", "XXL". The first size named wins. */
 export function shirtSize(raw) {
   const text = oneLine(raw).toUpperCase();
   if (!text) return { value: null, unmapped: false };
-  const first = text.match(/^(XXXL|3XL|2XL|XXL|XL|XXS|XS|S|M|L)\b/)?.[1];
+  if (ABOVE_XXL.test(text)) return { value: "XXL", unmapped: false };
+  const first = text.match(/^(2XL|XXL|XL|XXS|XS|S|M|L)\b/)?.[1];
   const size = first && (SHIRT_ALIASES[first] ?? first);
   return SHIRTS.has(size) ? { value: size, unmapped: false } : { value: null, unmapped: true };
 }

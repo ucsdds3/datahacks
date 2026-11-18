@@ -77,7 +77,7 @@ export const TRAVEL_DISTANCES = ["Under 50 miles", "50–200 miles", "200–500 
 // "Event details" (*_hacker_logistics.sql). Shirt sizes are saved as shown; the
 // other two show a sentence and save its code (application_*_check takes the codes).
 
-export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"];
+export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"];
 
 /** "Will you stay at the venue overnight?": what the form shows -> what's saved. */
 export const OVERNIGHT_STAY: Record<string, string> = { Yes: "yes", No: "no", Maybe: "maybe" };

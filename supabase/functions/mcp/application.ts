@@ -145,7 +145,7 @@ export const TRAVEL_METHODS = ["Car", "Bus", "Train", "Plane", "Other"] as const
 export const TRAVEL_DISTANCES = ["Under 50 miles", "50–200 miles", "200–500 miles", "Over 500 miles", "From outside the US"] as const;
 
 // "Event details": shirt sizes are saved as shown; the other two save the code for the answer.
-export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL"] as const;
+export const SHIRT_SIZES = ["XXS", "XS", "S", "M", "L", "XL", "XXL"] as const;
 
 export const OVERNIGHT_STAY: Record<string, string> = { Yes: "yes", No: "no", Maybe: "maybe" };
 

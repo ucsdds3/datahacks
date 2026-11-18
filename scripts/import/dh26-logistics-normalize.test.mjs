@@ -5,7 +5,9 @@ describe("DH26 logistics normalizers", () => {
   it("shirt sizes", () => {
     expect(shirtSize("M")).toEqual({ value: "M", unmapped: false });
     expect(shirtSize(" xxl ").value).toBe("XXL");
-    expect(shirtSize("3XL (or 2XL)").value).toBe("3XL");
+    expect(shirtSize("3XL (or 2XL)").value).toBe("XXL");
+    expect(shirtSize("2XL").value).toBe("XXL");
+    for (const big of ["3XL", "XXXL", "4XL", "xxxxl"]) expect(shirtSize(big), big).toEqual({ value: "XXL", unmapped: false });
     expect(shirtSize("XXS").value).toBe("XXS");
     expect(shirtSize("")).toEqual({ value: null, unmapped: false });
     expect(shirtSize("Medium")).toEqual({ value: null, unmapped: true });
