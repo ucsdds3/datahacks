@@ -111,10 +111,10 @@ import App from "@/App";
 /** Text that only a mentor, judge or organizer view has. */
 const STAFF_ONLY = [
   "Mentor Handbook", "Judge Handbook", "Mentor & Judge Handbook", "Judging Portal", "Scoring, assignments and submissions",
-  "Judge arrival", "Judge briefing", "First-round judging", "Second-round judging", "Mentor office hours",
+  "Judges arrive", "Mentor office hours",
   "Organizer console", "Hacker applications", "Mentor & judge applications",
 ];
-const JUDGE_ONLY = ["Judge Handbook", "Mentor & Judge Handbook", "Judging Portal", "Scoring, assignments and submissions", "Judge arrival", "Judge briefing", "First-round judging", "Second-round judging"];
+const JUDGE_ONLY = ["Judge Handbook", "Mentor & Judge Handbook", "Judging Portal", "Scoring, assignments and submissions", "Judges arrive"];
 const MENTOR_ONLY = ["Mentor Handbook", "Mentor & Judge Handbook", "Mentor office hours"];
 
 /** Everything that was ever put on the page, including nodes React removed again. */
@@ -302,7 +302,7 @@ describe("mentors and judges stay in their own section", () => {
   // The markers and page spies above are real: staff do get these.
   it.each([
     ["judge", "/portal/judge/judging", "Judging", ["Judging Portal", "Scoring, assignments and submissions"]],
-    ["judge", "/portal/judge/schedule", "Schedule", ["Judge briefing", "First-round judging"]],
+    ["judge", "/portal/judge/schedule", "Schedule", ["Judges arrive"]],
     ["mentor", "/portal/mentor/schedule", "Schedule", ["Mentor office hours"]],
     ["hybrid", "/portal/hybrid/handbook", "Handbook", ["Mentor & Judge Handbook", "Judging Portal"]],
   ])("an accepted %s on %s gets the page", async (type, url, page, markers) => {

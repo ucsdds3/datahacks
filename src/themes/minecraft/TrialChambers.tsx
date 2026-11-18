@@ -38,7 +38,7 @@ export default function TrialChambersPage() {
         <p className="mc-eyebrow">THE TRIAL CHAMBERS</p>
         <h1 tabIndex={-1}>Help the next<br /><em>builder level up.</em></h1>
         <p>Join DataHacks as a mentor or judge. A little guidance can open a whole new path.</p>
-        <div className="mc-guide-role"><span>01 / MENTOR</span><p>Ask good questions. Unstick an idea. Share your experience. Saturday, January 16, 12:30–4:30 PM.</p></div>
+        <div className="mc-guide-role"><span>01 / MENTOR</span><p>Ask good questions. Unstick an idea. Share your experience. Saturday, January 16, 11:00 AM–4:00 PM.</p></div>
         <div className="mc-guide-role"><span>02 / JUDGE</span><p>Explore the demos. Recognize thoughtful work. Offer useful feedback. Sunday, January 17.</p></div>
         <p className="mc-trial-date">JANUARY 16–17, 2027</p>
       </aside>

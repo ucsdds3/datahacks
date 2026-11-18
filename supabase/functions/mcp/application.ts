@@ -446,7 +446,7 @@ export function checkStaff(a: StaffAnswers): Checked {
     problems.push("acknowledged_in_person_judging: judges must confirm they'll judge in person (online judging isn't allowed).");
   }
   if (mentoring && a.acknowledged_onsite_mentoring !== true) {
-    problems.push("acknowledged_onsite_mentoring: mentors must confirm they'll be onsite 12:30–4:30 PM on Saturday, January 16th (check-in opens at 12:00 PM).");
+    problems.push("acknowledged_onsite_mentoring: mentors must confirm they'll be onsite 11:00 AM–4:00 PM on Saturday, January 16th (checking in at 11:00 AM).");
   }
   if (a.acknowledged_in_person !== true) {
     problems.push("acknowledged_in_person: they must confirm mentoring and judging are strictly in person (there are no online options for either).");

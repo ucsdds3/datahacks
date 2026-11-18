@@ -106,48 +106,48 @@ export type ScheduleDay = { label: string; date: string; events: ScheduleEvent[]
 /** Main venue, shown under the "Run of show" heading. */
 export const SCHEDULE_VENUE = "Price Center Ballrooms";
 
-// From "DataHacks Run of Show - Main Venue Run of Show 2 Day (24 hr)": the Public rows
-// plus the judging rows. Internal organizer and sponsor-only rows are left out.
+const WEST = "Price Center West Ballroom";
+const EAST = "Price Center East Ballroom";
+
+// From the "Run of Show" tab of "Final Sheet DataHacks 2027" (checked 2026-11-17): the
+// public rows plus the mentor and judge rows. Organizer-only rows (venue check, ballroom
+// divider, room check-out) are left out. Mentor hours are 11 AM–4 PM per Mohak, not the
+// sheet's 12–4. The sheet doesn't give a hacking or submission deadline yet.
 export const SCHEDULE: ScheduleDay[] = [
   {
     label: "Day 1",
     date: "Saturday, January 16",
     events: [
-      { start: "12:00 PM", title: "Doors open & check-in", description: "Participant check-in begins." },
-      { start: "12:30 PM", end: "4:30 PM", title: "Mentor office hours", location: "Art of Espresso", audience: "mentor", required: true },
-      { start: "1:00 PM", title: "Opening Ceremony", description: "Welcome, keynote, sponsor appreciation, logistics and Major League Hacking.", location: "Hassadar Building, Tsipis Hall" },
-      { start: "1:30 PM", title: "Team Matching & Registration", description: "Participants without a team are matched up, and teams are finalized." },
-      { start: "2:00 PM", title: "Lunch", location: "Price Center West Ballroom" },
-      { start: "2:30 PM", title: "Hacking begins", location: "Price Center West Ballroom" },
-      { start: "7:30 PM", title: "Dinner", location: "Price Center West Ballroom" },
+      { start: "8:00 AM", title: "Check-in & breakfast", description: "Check in and grab a bagel.", location: WEST },
+      { start: "9:30 AM", title: "Keynote", location: WEST },
+      { start: "10:00 AM", title: "Opening Ceremony", description: "Welcome, sponsor appreciation, logistics and Major League Hacking.", location: WEST },
+      { start: "10:30 AM", title: "Hacking begins", description: `Snacks and drinks are in the ${EAST} all day.`, location: `${WEST} A|B` },
+      { start: "11:00 AM", end: "4:00 PM", title: "Mentor office hours", description: "Mentors check in at 11:00 AM.", location: "Art of Espresso", audience: "mentor", required: true },
+      { start: "1:00 PM", title: "Lunch", location: EAST },
+      { start: "6:00 PM", title: "Dinner", location: EAST },
     ],
   },
   {
     label: "Day 2",
     date: "Sunday, January 17",
     events: [
-      { start: "12:00 AM", title: "Midnight Snack" },
-      { start: "9:00 AM", title: "Breakfast" },
-      { start: "10:00 AM", title: "Devpost Submissions Workshop / Q&A" },
-      { start: "11:00 AM", title: "Submissions due", description: "Soft deadline." },
-      { start: "12:00 PM", title: "Lunch" },
-      { start: "12:15 PM", title: "Judge arrival", audience: "judge", required: true },
-      { start: "12:45 PM", title: "Judge briefing", audience: "judge", required: true },
-      { start: "2:00 PM", title: "Hacking ends", description: "Hard submission deadline." },
-      { start: "2:00 PM", title: "First-round judging", description: "Expo-style: visit tables and pick the top 5 projects in each track.", audience: "judge", required: true },
-      { start: "3:30 PM", title: "Expo ends", description: "Hard deadline." },
-      { start: "4:00 PM", title: "Second-round judging", description: "15 teams (5 per track), 4-minute presentations each (overview + demo).", audience: "judge", required: true },
-      { start: "6:00 PM", title: "Clean-up", description: "Hackers tidy up the hacking space." },
-      { start: "6:30 PM", title: "Closing Ceremony", description: "Winners announced, MLH closing and closing logistics." },
-      { start: "7:00 PM", title: "Event ends" },
-      { start: "8:00 PM", title: "Venue closes for participants" },
+      { start: "12:00 AM", title: "Sleep section opens", description: "Ballroom A becomes a quiet sleep area overnight; hacking continues in Ballroom B.", location: `${WEST} A` },
+      { start: "8:00 AM", title: "Breakfast", location: EAST },
+      { start: "1:00 PM", title: "Lunch", location: EAST },
+      { start: "1:00 PM", title: "Judging set-up", location: WEST },
+      { start: "1:00 PM", title: "Judges arrive", location: "Muir College Room", audience: "judge", required: true },
+      { start: "2:00 PM", title: "Track judging", location: WEST },
+      { start: "2:00 PM", title: "Challenge judging", location: "Muir College Room" },
+      { start: "3:00 PM", title: "Track & challenge judging", location: WEST },
+      { start: "4:00 PM", title: "Closing keynote", location: WEST },
+      { start: "4:30 PM", title: "Prizes & Closing Ceremony", description: "Winners announced, MLH closing and closing logistics.", location: WEST },
+      { start: "6:00 PM", title: "Event ends", description: "Clean-up starts." },
     ],
   },
 ];
 
 /** The mentor office-hours block in the run of show: the one time mentors have to be there. */
 const MENTOR_BLOCK = SCHEDULE[0].events.find(e => e.audience === "mentor" && e.required)!;
-const DOORS_OPEN = SCHEDULE[0].events[0];
 
 /**
  * What mentors tick on the application, from the run of show above so the two can't
@@ -156,7 +156,7 @@ const DOORS_OPEN = SCHEDULE[0].events[0];
  */
 export const MENTOR_HOURS = `${MENTOR_BLOCK.start.replace(" PM", "")}–${MENTOR_BLOCK.end}`;
 export const MENTOR_ONSITE_ACKNOWLEDGEMENT =
-  `I understand that mentors must be onsite from ${MENTOR_HOURS} on ${SCHEDULE[0].date}th, with check-in opening at ${DOORS_OPEN.start}.`;
+  `I understand that mentors must be onsite from ${MENTOR_HOURS} on ${SCHEDULE[0].date}th, checking in at ${MENTOR_BLOCK.start}.`;
 
 export type Contact = { initials: string; name: string; role: string; email: string; phone?: string };
 
@@ -208,7 +208,7 @@ export const TIMELINE = {
     hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
   } satisfies Record<PortalRole, string>,
   /** Doors open on day 1: the date the MLH export works out each hacker's age on. */
-  eventStart: new Date("2027-01-16T12:00:00-08:00"),
+  eventStart: new Date("2027-01-16T08:00:00-08:00"),
   /**
    * Meant to be when the hacker Mentors tab appears (the morning of the event). Not
    * applied while organizers test the tab; re-enable it in StaffPortalLayout's navItems.

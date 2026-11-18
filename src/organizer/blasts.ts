@@ -53,7 +53,7 @@ export const BLASTS: Blast[] = [
     subject: "How to get to DataHacks this weekend",
     body:
       "Hi {{first_name}},\n\n" +
-      "DataHacks is this weekend at the Price Center Ballrooms, UC San Diego. Check-in opens [[12:00 PM]] on Saturday, January 16. " +
+      "DataHacks is this weekend at the Price Center Ballrooms, UC San Diego. Check-in opens [[8:00 AM]] on Saturday, January 16. " +
       "Here's how to get there.\n\n" +
       "If you're a UC San Diego student\n" +
       "Price Center is in the middle of campus, next to Library Walk. Walk or bike over, or take the campus shuttle.\n\n" +
@@ -83,9 +83,9 @@ export const BLASTS: Blast[] = [
       "Here's your check-in QR code for DataHacks. Show it at the check-in desk at the Price Center Ballrooms.\n\n" +
       "{{qr}}\n\n" +
       "Your check-in code is {{code}}, in case the QR code won't scan.\n\n" +
-      "Hackers: check-in opens Saturday, January 16 at [[12:00 PM]].\n" +
-      "Mentors: please arrive by [[12:15 PM]] on Saturday, January 16. Office hours run 12:30–4:30 PM.\n" +
-      "Judges: please arrive by [[12:15 PM]] on Sunday, January 17.\n\n" +
+      "Hackers: check-in opens Saturday, January 16 at [[8:00 AM]].\n" +
+      "Mentors: please arrive by [[11:00 AM]] on Saturday, January 16. Office hours run 11:00 AM–4:00 PM.\n" +
+      "Judges: please arrive by [[1:00 PM]] on Sunday, January 17.\n\n" +
       "Make sure you've signed the liability waiver on the portal before you arrive: https://datahacks.ds3ucsd.com/portal" +
       SIGN_OFF,
   },
