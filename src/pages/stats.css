@@ -1,57 +1,52 @@
-/* The public live stats page (Stats.tsx), in the applicant portal's Nether look: nether-brick wall,
-   a basalt board with a warm rim, Silkscreen headings, lava and warped-teal marks. The tokens are
-   copied from staff-portal/nether (nether-theme.css, nether-shell.css) rather than importing them,
-   so this page doesn't load the portal's stylesheets. */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Silkscreen:wght@400;700&display=swap");
+/* The public live stats page (Stats.tsx), in the main website's parchment look (the homepage's
+   source is datahacks-main-website/datahacks-2027): warm paper, dark-brown ink, framed cream cards,
+   Josefin Sans for spaced capitals, Merriweather for numbers and headings, Sorts Mill Goudy for the
+   title. Sponsors see this page, so it stays calm: one dark card, brown marks and a green live pill. */
+@import url("https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Open+Sans:wght@400;600;700&family=Sorts+Mill+Goudy&display=swap");
 
 .dh-stats {
-  --netherrack: #2a0f10;
-  --nav: #120708;
-  --blackstone: #2e2a30;
-  --edge: #0e0c0f;
-  --basalt: #1e1c22;
-  --warped: #2fb5a6;
-  --lava: #f2862f;
-  --lava-hot: #ff9e4a;
-  --lava-top: #ffc24a;
-  --lava-bottom: #b85a1c;
-  --lava-rim: #7a2e0c;
-  --glowstone: #f4c95d;
-  --text: #f4ebdd;
-  --muted: #b3aaa1;
-  --link: #4fd8e0;
-  --link-hover: #a5f0f3;
-  --card: rgb(14 12 15 / 0.55);
-  --card-edge: #3a363e;
-  --ring: #6b2a16;
-  --sign-top: #4a4450;
-  --sign-bottom: #1a171c;
-  --well: #141216;
-  --other: #6d6670;
-  --display: "Silkscreen", "VT323", monospace;
-  --body: "Nunito", system-ui, sans-serif;
+  --parchment: #f9e6c8;
+  --paper: #fffaf0;
+  --ink: #3f2a17;
+  --bark: #5a3b22;
+  --bark-dark: #3f2a17;
+  --line: #764a24;
+  --amber: #935b00;
+  --frame: #d8bd93;
+  --frame-inner: rgb(118 74 36 / 0.28);
+  --rule: #c9a476;
+  --well: #f1e2c6;
+  --muted: #6b5640; /* secondary text: 6:1 on the cards */
+  --bar: #a8743f;
+  --other: #d9c3a0;
+  --live: #3f6b1f;
+  --cream: #fff0db;
+  --title: "Sorts Mill Goudy", "Goudy Old Style", Garamond, serif;
+  --serif: "Merriweather", Georgia, serif;
+  --caps: "Josefin Sans", "Open Sans", system-ui, sans-serif;
+  --sans: "Open Sans", system-ui, sans-serif;
 
-  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
   overflow-x: clip;
   padding: 0 24px;
   background:
-    linear-gradient(rgb(18 7 8 / 0.55), rgb(18 7 8 / 0.75)),
-    url("/images/portal-nether/shell/nether-bricks.webp") 0 0 / 192px 240px repeat,
-    var(--netherrack);
-  color: var(--text);
-  font: 400 16px/1.5 var(--body);
-  image-rendering: pixelated;
+    radial-gradient(ellipse 90% 60% at 50% 0%, rgb(255 250 236 / 0.75), transparent 70%),
+    /* The homepage's paper fibre (.paper in its index.css). */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .45 0 0 0 0 .28 0 0 0 0 .12 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+    var(--parchment);
+  color: var(--ink);
+  font: 400 16px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
 }
 .dh-stats *,
 .dh-stats *::before,
 .dh-stats *::after { box-sizing: border-box; }
 .dh-stats :is(h1, h2, h3, p, ol, figure) { margin: 0; }
-.dh-stats a { color: var(--link); text-underline-offset: 3px; }
-.dh-stats a:hover { color: var(--link-hover); }
-.dh-stats :is(a, button, [tabindex]):focus-visible { outline: 2px solid var(--glowstone); outline-offset: 3px; }
+.dh-stats a { color: var(--bark); text-decoration-color: var(--rule); text-underline-offset: 3px; }
+.dh-stats a:hover { color: var(--amber); text-decoration-color: currentColor; }
+.dh-stats :is(a, button, [tabindex]):focus-visible { outline: 2px solid var(--amber); outline-offset: 3px; }
 
 .dh-stats-sr {
   position: absolute;
@@ -65,79 +60,77 @@
 /* ---- Top bar ---------------------------------------------------------------- */
 .dh-stats-top,
 .dh-stats-board,
-.dh-stats-foot { width: 100%; max-width: 1240px; margin-inline: auto; }
+.dh-stats-foot { width: 100%; max-width: 1180px; margin-inline: auto; }
 
 .dh-stats-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  min-height: 72px;
+  min-height: 96px;
 }
-.dh-stats .dh-stats-brand {
-  color: var(--text);
-  font: 400 20px/1 var(--display);
+.dh-stats-brand { display: block; line-height: 0; }
+.dh-stats-brand img { width: auto; height: 60px; }
+.dh-stats-nav { display: flex; align-items: center; gap: 22px; }
+.dh-stats .dh-stats-home-link {
+  color: var(--ink);
+  font: 600 13px/1 var(--caps);
+  letter-spacing: 0.16em;
   text-decoration: none;
   text-transform: uppercase;
-  white-space: nowrap;
 }
-.dh-stats .dh-stats-brand span { color: var(--lava); }
-.dh-stats .dh-stats-brand:hover { color: var(--text); }
-.dh-stats-nav { display: flex; align-items: center; gap: 18px; }
-.dh-stats .dh-stats-home-link { color: var(--text); font-weight: 700; text-decoration: none; }
-.dh-stats .dh-stats-home-link:hover { color: var(--glowstone); }
+.dh-stats .dh-stats-home-link:hover { color: var(--amber); }
 
-/* Blackstone buttons; the main action in lava (as the portal's .sp-button). */
+/* Outlined buttons; the main action in solid bark, as on the homepage. */
 .dh-stats-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 44px;
-  padding: 9px 18px 11px;
-  border: 1px solid var(--edge);
-  border-radius: 0;
-  background: var(--blackstone);
-  color: var(--text);
-  box-shadow: inset 0 3px var(--sign-top), inset 0 -5px var(--sign-bottom);
-  font: 400 14px/1.2 var(--display);
-  letter-spacing: 0.08em;
+  min-height: 42px;
+  padding: 12px 18px 10px;
+  border: 1.5px solid var(--bark);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--bark);
+  font: 600 13px/1 var(--caps);
+  letter-spacing: 0.14em;
   text-decoration: none;
   text-transform: uppercase;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color 0.15s, box-shadow 0.15s;
+  transition: background-color 0.15s, color 0.15s;
 }
-.dh-stats a.dh-stats-button { color: var(--text); }
-.dh-stats-button:hover:not(:disabled) { background: #3a353d; }
-.dh-stats-button:disabled { cursor: progress; opacity: 0.75; }
+.dh-stats a.dh-stats-button { color: var(--bark); }
+.dh-stats-button:hover:not(:disabled) { background: #f6e6c8; }
+.dh-stats-button:disabled { cursor: progress; opacity: 0.7; }
 .dh-stats .dh-stats-button.primary {
-  border-color: var(--lava-rim);
-  background: var(--lava);
-  color: var(--nav);
-  box-shadow: inset 0 3px var(--lava-top), inset 0 -5px var(--lava-bottom);
+  border-color: var(--bark-dark);
+  background: var(--bark);
+  color: var(--cream);
+  box-shadow: 0 3px 0 var(--bark-dark);
 }
-.dh-stats .dh-stats-button.primary:hover:not(:disabled) {
-  background: var(--lava-hot);
-  color: var(--nav);
-  box-shadow: inset 0 3px var(--lava-top), inset 0 -5px var(--lava-bottom), 0 0 16px rgb(242 134 47 / 0.5);
-}
-.dh-stats-button svg { width: 16px; height: 16px; flex: none; }
+.dh-stats .dh-stats-button.primary:hover:not(:disabled) { background: #6b4729; color: var(--cream); }
+.dh-stats-button svg { width: 15px; height: 15px; flex: none; margin-top: -2px; }
 @media (prefers-reduced-motion: no-preference) {
   .dh-stats-button svg.spin { animation: dh-stats-spin 0.9s linear infinite; }
 }
 @keyframes dh-stats-spin { to { transform: rotate(360deg); } }
 
-/* ---- The board --------------------------------------------------------------- */
+/* ---- The sheet ---------------------------------------------------------------- */
+/* A framed sheet of paper: a soft outer edge and a thin rule just inside it. */
 .dh-stats-board {
   display: flex;
   flex-direction: column;
-  gap: 36px;
-  padding: 36px 40px 40px;
-  border: 6px solid var(--edge);
-  border-radius: 30px;
-  background: rgb(30 28 34 / 0.92);
-  box-shadow: 0 0 0 3px var(--ring), 0 0 30px 2px rgb(242 134 47 / 0.14), 0 20px 50px rgb(8 2 3 / 0.4);
+  gap: 44px;
+  padding: 44px 48px 48px;
+  border: 1px solid var(--frame);
+  border-radius: 4px;
+  background: rgb(255 250 240 / 0.72);
+  box-shadow:
+    inset 0 0 0 6px rgb(255 250 240 / 0.6),
+    inset 0 0 0 7px var(--frame-inner),
+    0 18px 40px -18px rgb(90 59 34 / 0.25);
 }
 
 .dh-stats-head {
@@ -151,70 +144,90 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 8px 16px;
-  font: 400 32px/1.2 var(--display);
+  gap: 8px 18px;
+  color: var(--ink);
+  font: 400 46px/1.1 var(--title);
+  letter-spacing: -0.005em;
   text-wrap: balance;
 }
-.dh-stats-intro { margin-top: 8px; color: var(--muted); font-size: 16px; }
+.dh-stats-intro { margin-top: 10px; color: var(--muted); font: 400 16px/1.6 var(--serif); }
 
-/* The LIVE pill: warped teal, with a square ember that pulses. */
+/* The live pill: green, with a diamond that pulses. */
 .dh-stats-live {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 12px 6px;
-  border: 2px solid var(--warped);
-  background: rgb(47 181 166 / 0.12);
-  color: #7fe6da;
-  font: 400 13px/1 var(--display);
-  letter-spacing: 0.14em;
+  gap: 9px;
+  padding: 7px 12px 5px;
+  border: 1.5px solid currentColor;
+  border-radius: 999px;
+  background: rgb(95 140 45 / 0.1);
+  color: var(--live);
+  font: 700 11px/1 var(--caps);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
-.dh-stats-live::before { content: ""; width: 8px; height: 8px; background: var(--warped); box-shadow: 0 0 8px var(--warped); }
-.dh-stats-live.off { border-color: var(--card-edge); background: var(--well); color: var(--muted); }
-.dh-stats-live.off::before { background: var(--other); box-shadow: none; }
+.dh-stats-live::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  margin-top: -2px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.dh-stats-live.off { background: var(--well); color: var(--muted); }
 @media (prefers-reduced-motion: no-preference) {
   .dh-stats-live:not(.off)::before { animation: dh-stats-pulse 1.6s ease-in-out infinite; }
 }
 @keyframes dh-stats-pulse { 50% { opacity: 0.25; } }
 
-.dh-stats-refresh { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.dh-stats-refresh { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; }
 .dh-stats-refresh p { color: var(--muted); font-size: 13px; text-align: right; }
 
 .dh-stats-stale {
-  margin-top: -16px;
+  margin-top: -24px;
   padding: 10px 14px;
-  border: 2px solid rgb(244 201 93 / 0.5);
-  background: rgb(244 201 93 / 0.08);
-  color: var(--glowstone);
-  font-weight: 700;
+  border: 1px solid rgb(147 91 0 / 0.45);
+  border-radius: 3px;
+  background: rgb(147 91 0 / 0.07);
+  color: #7a4b00;
+  font-weight: 600;
 }
 
 /* ---- Sections, panels and cards ------------------------------------------------- */
-.dh-stats-section { display: flex; flex-direction: column; gap: 16px; }
+.dh-stats-section { display: flex; flex-direction: column; gap: 18px; }
 .dh-stats h2 {
   display: flex;
   align-items: center;
   gap: 14px;
-  color: var(--glowstone);
-  font: 400 15px/1.3 var(--display);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  color: var(--bark);
+  font: italic 700 22px/1.3 var(--serif);
 }
-.dh-stats-section > h2::after { content: ""; flex: 1; height: 2px; background: var(--card-edge); }
+/* A small diamond before the heading and a hairline after it, like the homepage's "◆ 2027 ◆" rule. */
+.dh-stats-section > h2::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  background: var(--amber);
+  transform: rotate(45deg);
+}
+.dh-stats-section > h2::after { content: ""; flex: 1; height: 1px; background: var(--rule); }
 
-.dh-stats-panel {
-  padding: 22px 24px 24px;
-  border: 2px solid var(--card-edge);
-  background: var(--card);
-  box-shadow: inset 0 2px rgb(255 255 255 / 0.04);
+/* Cards and panels: cream, with a thin brown rule inside the edge. */
+.dh-stats-panel,
+.dh-stats-card {
+  border: 1px solid var(--frame);
+  border-radius: 3px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 4px var(--paper), inset 0 0 0 5px var(--frame-inner);
 }
+.dh-stats-panel { padding: 24px 26px 26px; }
 .dh-stats-panel-note { color: var(--muted); font-size: 14px; }
 
 .dh-stats-cards {
   display: grid;
-  grid-template-columns: 1.4fr repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  grid-template-columns: 1.4fr repeat(3, minmax(0, 1fr));
+  gap: 16px;
 }
 /* Each card's label, number and note line up with its neighbours' (a label that wraps doesn't push its number down alone). */
 .dh-stats-card {
@@ -222,69 +235,43 @@
   grid-row: span 3;
   grid-template-rows: subgrid;
   align-content: start;
-  row-gap: 6px;
+  row-gap: 8px;
   min-width: 0;
-  padding: 20px 20px 22px;
-  border: 2px solid var(--card-edge);
-  background: var(--card);
-  box-shadow: inset 0 2px rgb(255 255 255 / 0.04);
+  padding: 22px 22px 24px;
 }
+/* The headline number: a dark card, with a dashed ring like the homepage's "Apply now" seal. */
 .dh-stats-card.featured {
-  border-color: var(--lava-rim);
-  background: linear-gradient(160deg, rgb(242 134 47 / 0.14), rgb(14 12 15 / 0.55) 60%);
-  box-shadow: inset 0 2px rgb(255 194 74 / 0.12), 0 0 18px rgb(242 134 47 / 0.12);
+  border-color: var(--bark-dark);
+  background: var(--bark);
+  box-shadow: 0 3px 0 var(--bark-dark);
+  outline: 1px dashed rgb(255 240 219 / 0.45);
+  outline-offset: -7px;
 }
 .dh-stats-card-label {
-  color: var(--muted);
-  font: 400 12px/1.3 var(--display);
-  letter-spacing: 0.1em;
+  color: var(--amber);
+  font: 700 12px/1.3 var(--caps);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 .dh-stats-card-value {
-  color: var(--text);
-  font: 400 40px/1.1 var(--display);
-  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  font: 900 40px/1.1 var(--serif);
+  font-variant-numeric: lining-nums tabular-nums;
   overflow-wrap: anywhere;
 }
-.dh-stats-card.featured .dh-stats-card-value { color: var(--glowstone); font-size: 52px; }
-.dh-stats-card-note { color: var(--muted); font-size: 14px; line-height: 1.35; }
+.dh-stats-card-note { color: var(--muted); font-size: 14px; line-height: 1.4; }
+.dh-stats-card.featured .dh-stats-card-label { color: #f4c98a; }
+.dh-stats-card.featured .dh-stats-card-value { color: var(--cream); font-size: 54px; }
+.dh-stats-card.featured .dh-stats-card-note { color: rgb(255 240 219 / 0.8); }
 
-.dh-stats-card.skeleton { min-height: 132px; }
+.dh-stats-card.skeleton { min-height: 140px; }
 @media (prefers-reduced-motion: no-preference) {
   .dh-stats-card.skeleton { animation: dh-stats-pulse 1.4s ease-in-out infinite; }
 }
 .dh-stats-loading { display: flex; flex-direction: column; gap: 16px; }
 
-/* ---- Goal ------------------------------------------------------------------------- */
-.dh-stats-goal { display: flex; flex-direction: column; gap: 12px; }
-.dh-stats-goal-row { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 16px; }
-.dh-stats-goal-label {
-  color: var(--text);
-  font: 400 14px/1.3 var(--display);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.dh-stats-goal-value { color: var(--glowstone); font-weight: 800; font-variant-numeric: tabular-nums; }
-.dh-stats-meter {
-  height: 22px;
-  border: 2px solid var(--edge);
-  background: var(--well);
-  box-shadow: inset 0 2px rgb(0 0 0 / 0.5);
-}
-.dh-stats-meter > span {
-  display: block;
-  height: 100%;
-  min-width: 4px;
-  /* Lava in pixel steps, lit along the top. */
-  background: repeating-linear-gradient(90deg, var(--lava) 0 14px, var(--lava-hot) 14px 18px);
-  box-shadow: inset 0 3px var(--lava-top), inset 0 -4px var(--lava-bottom), 0 0 12px rgb(242 134 47 / 0.45);
-  transition: width 0.6s ease-out;
-}
-.dh-stats-meter.reached > span {
-  background: var(--warped);
-  box-shadow: inset 0 3px #7fe6da, inset 0 -4px #1d7d72, 0 0 12px rgb(47 181 166 / 0.45);
-}
-.dh-stats-facts { color: var(--muted); font-size: 14px; }
+/* ---- Under the cards ----------------------------------------------------------------- */
+.dh-stats-facts { color: var(--muted); font: italic 400 15px/1.5 var(--serif); }
 
 /* ---- Chart -------------------------------------------------------------------------- */
 .dh-stats-chart { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
@@ -295,9 +282,9 @@
   cursor: crosshair;
 }
 .dh-stats-plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
-.dh-stats-plot .grid { stroke: rgb(244 235 221 / 0.12); stroke-width: 1; }
-.dh-stats-plot .area { fill: rgb(242 134 47 / 0.16); }
-.dh-stats-plot .line { fill: none; stroke: var(--lava); stroke-width: 2; stroke-linejoin: round; }
+.dh-stats-plot .grid { stroke: rgb(118 74 36 / 0.22); stroke-width: 1; stroke-dasharray: 3 5; }
+.dh-stats-plot .area { fill: rgb(147 91 0 / 0.12); }
+.dh-stats-plot .line { fill: none; stroke: var(--line); stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
 .dh-stats-axis {
   position: absolute;
   left: 0;
@@ -312,27 +299,27 @@
   top: 0;
   bottom: 0;
   width: 0;
-  border-left: 1px dashed rgb(244 235 221 / 0.45);
+  border-left: 1px dashed rgb(90 59 34 / 0.45);
   pointer-events: none;
 }
 .dh-stats-dot {
   position: absolute;
   width: 12px;
   height: 12px;
-  border: 2px solid var(--basalt);
-  background: var(--glowstone);
-  box-shadow: 0 0 10px rgb(244 201 93 / 0.6);
-  transform: translate(-50%, -50%);
+  border: 2px solid var(--bark);
+  background: var(--paper);
+  transform: translate(-50%, -50%) rotate(45deg);
   pointer-events: none;
 }
 .dh-stats-tip {
   position: absolute;
-  padding: 5px 10px;
-  border: 2px solid var(--edge);
-  background: var(--nav);
-  color: var(--text);
+  padding: 6px 11px;
+  border-radius: 3px;
+  background: var(--bark-dark);
+  color: var(--cream);
   font-size: 13px;
   white-space: nowrap;
+  box-shadow: 0 6px 16px -6px rgb(63 42 23 / 0.5);
   --tip-x: -50%;
   --tip-y: calc(-100% - 14px);
   transform: translate(var(--tip-x), var(--tip-y));
@@ -342,38 +329,38 @@
 .dh-stats-tip.start { --tip-x: -8px; }
 .dh-stats-tip.end { --tip-x: calc(-100% + 8px); }
 .dh-stats-tip.below { --tip-y: 14px; }
-.dh-stats-tip strong { color: var(--glowstone); font-weight: 800; }
+.dh-stats-tip strong { color: #f4c98a; font-weight: 700; }
 .dh-stats-x { display: flex; justify-content: space-between; color: var(--muted); font-size: 12px; }
 
 /* ---- Ranked lists --------------------------------------------------------------------- */
-.dh-stats-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.dh-stats-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .dh-stats-list h3 {
-  margin: 0 0 14px;
-  color: var(--text);
-  font: 400 15px/1.3 var(--display);
-  letter-spacing: 0.08em;
+  margin: 0 0 16px;
+  color: var(--amber);
+  font: 700 13px/1.3 var(--caps);
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 .dh-stats-list ol { display: flex; flex-direction: column; gap: 12px; padding: 0; list-style: none; }
 .dh-stats-list li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 5px 12px;
+  gap: 6px 12px;
   align-items: baseline;
 }
 .dh-stats-list-label { font-size: 15px; line-height: 1.3; }
 .dh-stats-list-count { color: var(--muted); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.dh-stats-list-bar { grid-column: 1 / -1; height: 8px; background: var(--well); }
+.dh-stats-list-bar { grid-column: 1 / -1; height: 7px; border-radius: 999px; background: var(--well); overflow: hidden; }
 .dh-stats-list-bar > span {
   display: block;
   height: 100%;
   min-width: 3px;
-  background: var(--warped);
-  box-shadow: inset 0 2px #7fe6da;
+  border-radius: inherit;
+  background: var(--bar);
   transition: width 0.6s ease-out;
 }
 .dh-stats-list li.other .dh-stats-list-label { color: var(--muted); font-style: italic; }
-.dh-stats-list li.other .dh-stats-list-bar > span { background: var(--other); box-shadow: none; }
+.dh-stats-list li.other .dh-stats-list-bar > span { background: var(--other); }
 
 /* ---- Empty, paused and error states ------------------------------------------------------ */
 .dh-stats-message {
@@ -383,61 +370,48 @@
   gap: 14px;
   padding: 36px 32px;
 }
-.dh-stats-message h2 { color: var(--text); font-size: 22px; letter-spacing: 0.04em; }
-.dh-stats-message p:not(.dh-stats-goal-label) { max-width: 60ch; color: var(--muted); }
+.dh-stats-message h2 { color: var(--ink); font-size: 24px; }
+.dh-stats-message p { max-width: 60ch; color: var(--muted); }
 .dh-stats-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
 
-/* ---- Footer and the lava ----------------------------------------------------------------- */
+/* ---- Footer --------------------------------------------------------------------------------- */
 .dh-stats-foot {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  padding: 28px 0 24px;
+  padding: 32px 0 40px;
   color: var(--muted);
   font-size: 14px;
   text-align: center;
 }
 .dh-stats-foot p:first-child { max-width: 72ch; margin-inline: auto; }
-.dh-stats-lava {
-  height: 56px;
-  margin: auto -24px 0;
-  background: url("/images/portal-nether/shell/lava.webp") 50% 100% / auto 100% repeat-x;
-}
 
 /* ---- Narrower windows --------------------------------------------------------------------- */
 @media (max-width: 1100px) {
-  .dh-stats-cards { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .dh-stats-card { grid-column: span 2; }
-  .dh-stats-card.featured { grid-column: span 2; }
-  .dh-stats-card:nth-child(4),
-  .dh-stats-card:nth-child(5) { grid-column: span 3; }
+  .dh-stats-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 860px) {
+  .dh-stats-board { padding: 32px 28px 36px; }
   .dh-stats-lists { grid-template-columns: minmax(0, 1fr); }
-  .dh-stats-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .dh-stats-card,
-  .dh-stats-card:nth-child(4),
-  .dh-stats-card:nth-child(5) { grid-column: span 1; }
-  .dh-stats-card.featured { grid-column: 1 / -1; }
   .dh-stats-refresh { align-items: flex-start; }
   .dh-stats-refresh p { text-align: left; }
 }
 @media (max-width: 560px) {
   .dh-stats { padding: 0 16px; }
-  .dh-stats-top { min-height: 64px; }
-  .dh-stats .dh-stats-brand { font-size: 16px; }
+  .dh-stats-top { min-height: 76px; }
+  .dh-stats-brand img { height: 44px; }
   .dh-stats .dh-stats-home-link { display: none; }
-  .dh-stats-top .dh-stats-button { min-height: 40px; padding: 8px 12px 10px; font-size: 12px; }
-  .dh-stats-board { gap: 28px; padding: 22px 16px 24px; border-width: 4px; border-radius: 20px; }
-  .dh-stats h1 { font-size: 22px; }
+  .dh-stats-top .dh-stats-button { min-height: 38px; padding: 10px 12px 8px; font-size: 12px; }
+  .dh-stats-board { gap: 32px; padding: 24px 16px 26px; }
+  .dh-stats h1 { font-size: 32px; }
   .dh-stats-intro { font-size: 15px; }
+  .dh-stats h2 { font-size: 19px; }
   .dh-stats-panel { padding: 18px 16px 20px; }
-  .dh-stats-card { padding: 14px 14px 16px; }
+  .dh-stats-card { padding: 16px 14px 18px; }
   .dh-stats-card-value { font-size: 28px; }
   .dh-stats-card.featured .dh-stats-card-value { font-size: 40px; }
   .dh-stats-card-note { font-size: 13px; }
   .dh-stats-plot { height: 180px; }
   .dh-stats-message { padding: 24px 18px; }
-  .dh-stats-message h2 { font-size: 18px; }
-  .dh-stats-lava { height: 40px; margin-inline: -16px; }
+  .dh-stats-message h2 { font-size: 20px; }
 }

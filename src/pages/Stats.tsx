@@ -1,13 +1,13 @@
 import { useEffect, useId, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  APPLICANT_GOAL, MIN_GROUP, REFRESH_MS, STATS_EVENT_CODE, StatsPausedError, chartPoints, fetchPublicStats, formatCount,
-  formatDay, formatPercent, formatUpdated, goalProgress, sortGraduationYears, type Bucket, type DayPoint, type PublicStats,
+  MIN_GROUP, REFRESH_MS, STATS_EVENT_CODE, StatsPausedError, chartPoints, fetchPublicStats, formatCount, formatDay,
+  formatPercent, formatUpdated, sortGraduationYears, type Bucket, type DayPoint, type PublicStats,
 } from "./statsData";
 import "./stats.css";
 
 export const STATS_TITLE = "DataHacks 2027 · Live stats";
-const PAGE_BACKGROUND = "#1a0a0b";
+const PAGE_BACKGROUND = "#f9e6c8";
 // Links open in the whole window: this page is also shown full-screen at stats.datahacks.ds3atucsd.com.
 const APPLY = "/apply/";
 
@@ -17,8 +17,8 @@ const plural = (n: number, one: string, many: string) => `${formatCount(n)} ${n 
  * The public live stats page (/stats): how many people have applied to
  * DataHacks 2027 and, in counts only, where they're from. The numbers come from
  * the database's public_event_stats() (see statsData.ts), refreshed every
- * minute while the page is on screen. Drawn in the portal's Nether look, with
- * none of the portal's own stylesheets.
+ * minute while the page is on screen. Drawn in the main website's parchment
+ * look (sponsors see it), with none of the portal's own stylesheets.
  */
 export default function Stats() {
   useEffect(() => {
@@ -50,7 +50,9 @@ export default function Stats() {
   return (
     <div className="dh-stats">
       <header className="dh-stats-top">
-        <a className="dh-stats-brand" href="/" target="_top">DataHacks <span>2027</span></a>
+        <a className="dh-stats-brand" href="/" target="_top">
+          <img src="/images/stats/lockup-2027.webp" alt="DataHacks 2027" width={204} height={132} />
+        </a>
         <nav className="dh-stats-nav" aria-label="DataHacks">
           <a className="dh-stats-home-link" href="/" target="_top">Home</a>
           <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
@@ -105,21 +107,17 @@ export default function Stats() {
           <a href="/" target="_top">DataHacks home</a> · <a href={APPLY} target="_top">Apply</a> · Questions? <a href="mailto:info@ds3.club">info@ds3.club</a>
         </p>
       </footer>
-      <div className="dh-stats-lava" aria-hidden="true" />
     </div>
   );
 }
 
 function Dashboard({ stats }: { stats: PublicStats }) {
-  const goal = goalProgress(stats.hackers);
-  const goalText = `${formatCount(stats.hackers)} of ${formatCount(APPLICANT_GOAL)} applicants (${goal.label})`;
   return (
     <>
       <section className="dh-stats-section" aria-labelledby="dh-stats-overview">
         <h2 id="dh-stats-overview">Overview</h2>
         <div className="dh-stats-cards">
           <Card featured label="Applications" value={formatCount(stats.hackers)} note="hacker applications so far" />
-          <Card label="Goal progress" value={goal.label} note={`of the ${formatCount(APPLICANT_GOAL)}-applicant goal`} />
           <Card label="Schools" value={formatCount(stats.schools)} note={stats.schools === 1 ? "school represented" : "schools represented"} />
           <Card
             label="First-time hackers"
@@ -129,26 +127,9 @@ function Dashboard({ stats }: { stats: PublicStats }) {
           <Card label="Mentors & judges" value={formatCount(stats.mentorsJudges)} note="applied to mentor or judge" />
         </div>
 
-        <div className="dh-stats-panel dh-stats-goal">
-          <div className="dh-stats-goal-row">
-            <span className="dh-stats-goal-label">Goal: {formatCount(APPLICANT_GOAL)} applicants</span>
-            <span className="dh-stats-goal-value">{goalText}</span>
-          </div>
-          <div
-            className={goal.reached ? "dh-stats-meter reached" : "dh-stats-meter"}
-            role="progressbar"
-            aria-label="Progress toward the applicant goal"
-            aria-valuemin={0}
-            aria-valuemax={APPLICANT_GOAL}
-            aria-valuenow={Math.min(stats.hackers, APPLICANT_GOAL)}
-            aria-valuetext={goalText}
-          >
-            <span style={{ width: `${goal.fill}%` }} />
-          </div>
-          <p className="dh-stats-facts">
-            From {plural(stats.countries, "country", "countries")} · {formatCount(stats.attendedBefore)} have been to DataHacks before
-          </p>
-        </div>
+        <p className="dh-stats-facts">
+          From {plural(stats.countries, "country", "countries")} · {formatCount(stats.attendedBefore)} have been to DataHacks before
+        </p>
       </section>
 
       <section className="dh-stats-section" aria-labelledby="dh-stats-growth">
@@ -295,7 +276,6 @@ function Empty() {
     <section className="dh-stats-panel dh-stats-message">
       <h2>Applications just opened</h2>
       <p>No hacker applications yet, so be one of the first. This page fills in as applications come in.</p>
-      <p className="dh-stats-goal-label">Goal: {formatCount(APPLICANT_GOAL)} applicants</p>
       <div className="dh-stats-actions">
         <a className="dh-stats-button primary" href={APPLY} target="_top">Apply now</a>
       </div>
@@ -332,7 +312,7 @@ function Loading() {
     <div className="dh-stats-loading">
       <p className="dh-stats-panel-note">Loading the latest numbers…</p>
       <div className="dh-stats-cards" aria-hidden="true">
-        {[0, 1, 2, 3, 4].map(i => <div key={i} className={i === 0 ? "dh-stats-card featured skeleton" : "dh-stats-card skeleton"} />)}
+        {[0, 1, 2, 3].map(i => <div key={i} className={i === 0 ? "dh-stats-card featured skeleton" : "dh-stats-card skeleton"} />)}
       </div>
     </div>
   );

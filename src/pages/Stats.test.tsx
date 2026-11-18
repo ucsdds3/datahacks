@@ -44,7 +44,7 @@ afterEach(() => {
 });
 
 describe("live stats page", () => {
-  it("shows the counts, the goal and the lists", async () => {
+  it("shows the counts and the lists, with no applicant goal", async () => {
     renderPage();
     expect(await screen.findByText("hacker applications so far")).toBeInTheDocument();
     expect(document.title).toBe(STATS_TITLE);
@@ -54,12 +54,10 @@ describe("live stats page", () => {
 
     const cards = screen.getByRole("heading", { name: "Overview" }).parentElement!;
     expect(within(cards).getByText("180")).toBeInTheDocument();
-    expect(within(cards).getByText("12%")).toBeInTheDocument(); // 180 of 1,500
-    expect(within(cards).getByText("of the 1,500-applicant goal")).toBeInTheDocument();
     expect(within(cards).getByText("45%")).toBeInTheDocument(); // 81 of 180 first-timers
     expect(within(cards).getByText("81 applicants are new to hackathons")).toBeInTheDocument();
-    expect(within(cards).getByText("Goal: 1,500 applicants")).toBeInTheDocument();
-    expect(screen.getByRole("progressbar", { name: "Progress toward the applicant goal" })).toHaveAttribute("aria-valuenow", "180");
+    expect(screen.queryByText(/goal/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole("progressbar")).not.toBeInTheDocument();
     expect(screen.getByText("From 3 countries · 30 have been to DataHacks before")).toBeInTheDocument();
 
     const schools = screen.getByRole("region", { name: "Top schools" });
