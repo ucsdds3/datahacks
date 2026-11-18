@@ -29,7 +29,7 @@ describe("the schedule on passes", () => {
   });
 
   it("uses each role's own times for the event TIMELINE describes", () => {
-    expect(whenFor("mentor", dh27)).toEqual({ long: "Saturday, January 16, 2027 · mentoring 12:30–4:30 PM", short: "Sat, Jan 16" });
+    expect(whenFor("mentor", dh27)).toEqual({ long: "Saturday, January 16, 2027 · mentoring 11:00 AM–4:00 PM", short: "Sat, Jan 16" });
     expect(whenFor("judge", dh27)).toEqual({ long: "Sunday, January 17, 2027", short: "Sun, Jan 17" });
   });
 
@@ -102,8 +102,8 @@ describe("the pass email", () => {
     const mentor = buildEmail(dh27, person(["mentor"]), pass);
     expect(mentor.subject).toBe("Your DataHacks 2027 mentor pass");
     expect(mentor.text).toContain("[MENTOR] Thanks for mentoring at DataHacks 2027!");
-    expect(mentor.text).toContain("When: Saturday, January 16, 2027 · mentoring 12:30–4:30 PM");
-    expect(mentor.html).toContain("<strong>When:</strong> Saturday, January 16, 2027 · mentoring 12:30–4:30 PM");
+    expect(mentor.text).toContain("When: Saturday, January 16, 2027 · mentoring 11:00 AM–4:00 PM");
+    expect(mentor.html).toContain("<strong>When:</strong> Saturday, January 16, 2027 · mentoring 11:00 AM–4:00 PM");
 
     const hybrid = buildEmail(dh27, person(["mentor", "judge"]), pass);
     expect(hybrid.subject).toBe("Your DataHacks 2027 mentor & judge pass");

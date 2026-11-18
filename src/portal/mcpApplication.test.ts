@@ -83,17 +83,17 @@ describe("MCP application server matches the portal", () => {
 
   it("gives mentors the same hours as the form and the run of show", () => {
     const sources = ["index.ts", "application.ts"].map(f => readFileSync(join(__dirname, "../../supabase/functions/mcp", f), "utf8"));
-    const doors = SCHEDULE[0].events[0].start;
+    const checkInAt = SCHEDULE[0].events.find(e => e.audience === "mentor" && e.required)!.start;
     for (const source of sources) {
-      const mentions = [...source.matchAll(/onsite (\d{1,2}:\d{2}–\d{1,2}:\d{2} [AP]M)[^"]*?(\d{1,2}:\d{2} [AP]M)/g)];
+      const mentions = [...source.matchAll(/onsite (\d{1,2}:\d{2}(?: [AP]M)?–\d{1,2}:\d{2} [AP]M)[^"]*?(\d{1,2}:\d{2} [AP]M)/g)];
       expect(mentions.length).toBeGreaterThan(0);
       for (const [, hours, checkIn] of mentions) {
         expect(hours).toBe(MENTOR_HOURS);
-        expect(checkIn).toBe(doors);
+        expect(checkIn).toBe(checkInAt);
       }
     }
     expect(MENTOR_ONSITE_ACKNOWLEDGEMENT).toContain(MENTOR_HOURS);
-    expect(MENTOR_ONSITE_ACKNOWLEDGEMENT).toContain(doors);
+    expect(MENTOR_ONSITE_ACKNOWLEDGEMENT).toContain(checkInAt);
   });
 
   it("says applications are closed the way the portal does", () => {

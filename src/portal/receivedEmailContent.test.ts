@@ -79,7 +79,7 @@ describe("what it says", () => {
   });
 
   it.each([
-    ["mentor", "We've received your DataHacks 2027 mentor application", "When we'd need you: Saturday, January 16, 2027 · mentoring 12:30–4:30 PM."],
+    ["mentor", "We've received your DataHacks 2027 mentor application", "When we'd need you: Saturday, January 16, 2027 · mentoring 11:00 AM–4:00 PM."],
     ["judge", "We've received your DataHacks 2027 judge application", "When we'd need you: Sunday, January 17, 2027."],
     ["hybrid", "We've received your DataHacks 2027 mentor and judge application", "When we'd need you: Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)."],
   ])("a %s: their role, their dates, and what their review promises", (type, subject, dates) => {

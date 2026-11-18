@@ -56,7 +56,7 @@ export const DEFAULT_TEMPLATES: Record<`${Decision}:${Kind}`, Template> = {
     body:
       "Hi {{first_name}},\n\n" +
       "Thank you for applying. We're excited to confirm you as a {{type}} at DataHacks 2027!\n\n" +
-      "Mentors: we need you on Saturday, January 16, from 12:30 to 4:30 PM.\n" +
+      "Mentors: we need you on Saturday, January 16, from 11:00 AM to 4:00 PM.\n" +
       "Judges: judging is on Sunday, January 17.\n\n" +
       "Your check-in code is {{code}}.\n\n" +
       "Please sign in to the portal to sign the liability waiver and read your handbook and the run of show:\n" +

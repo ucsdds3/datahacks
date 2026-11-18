@@ -70,7 +70,7 @@ export const SCHEDULE = {
   firstDay: "2027-01-16",
   when: {
     hacker: "Saturday–Sunday, January 16–17, 2027",
-    mentor: "Saturday, January 16, 2027 · mentoring 12:30–4:30 PM",
+    mentor: "Saturday, January 16, 2027 · mentoring 11:00 AM–4:00 PM",
     judge: "Sunday, January 17, 2027",
     hybrid: "Saturday–Sunday, January 16–17, 2027 (mentoring Saturday, judging Sunday)",
   } satisfies Record<PassRole, string>,

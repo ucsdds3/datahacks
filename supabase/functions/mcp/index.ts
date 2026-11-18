@@ -266,7 +266,7 @@ Deno.serve(
                 bio: z.string().optional().describe(`Mentors and hybrids only, optional: a short blurb shown to hackers on the mentor calendar, up to ${MAX_LENGTH.bio} characters, in their own words. Leave it out and organizers write one`),
                 heard_about: z.array(enumOf(STAFF_HEARD_ABOUT)).min(1).describe("How they heard about DataHacks; pick all that apply"),
                 acknowledged_in_person_judging: z.boolean().optional().describe("Judges and hybrids: they understand online judging isn't allowed, judges must be there in person"),
-                acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 12:30–4:30 PM on Saturday, January 16th, with check-in opening at 12:00 PM"),
+                acknowledged_onsite_mentoring: z.boolean().optional().describe("Mentors and hybrids: they understand mentors must be onsite 11:00 AM–4:00 PM on Saturday, January 16th, checking in at 11:00 AM"),
                 acknowledged_in_person: z.boolean().describe("Everyone (mentors, judges, both): they understand mentoring and judging are strictly in person, with no online options for either"),
               }),
             },
