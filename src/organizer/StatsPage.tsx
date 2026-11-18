@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useState, type KeyboardEvent } from "react";
 import { RefreshCw } from "lucide-react";
 import { TIMELINE } from "@/staff-portal/config";
 import DailyChart from "./DailyChart";
@@ -9,13 +9,19 @@ import "./checkin.css";
 import "./stats.css";
 
 /**
- * The console's Stats section: how applications are going, live. Counts come
- * from the application rows (stats.ts); the page reloads them every minute
- * while it's open and the browser tab is showing, and on Refresh.
- * It only reads.
+ * The console's Stats section: how applications are going, live, in two tabs:
+ * hackers, and mentors & judges. Counts come from the application rows
+ * (stats.ts); the page reloads them every minute while it's open and the
+ * browser tab is showing, and on Refresh. It only reads.
  */
 
 const num = (n: number) => n.toLocaleString("en-US");
+
+type Tab = "hackers" | "staff";
+const TABS: { id: Tab; label: string }[] = [
+  { id: "hackers", label: "Hackers" },
+  { id: "staff", label: "Mentors & judges" },
+];
 
 const PRIORITY_DEADLINE = TIMELINE.priorityDeadline.toLocaleString("en-US", {
   month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "America/Los_Angeles",
@@ -24,6 +30,7 @@ const PRIORITY_DEADLINE = TIMELINE.priorityDeadline.toLocaleString("en-US", {
 export default function StatsPage({ eventId }: { eventId: string }) {
   const query = useStats(eventId);
   const stats = useMemo(() => (query.data ? computeStats(query.data.rows) : null), [query.data]);
+  const [tab, setTab] = useState<Tab>("hackers");
 
   if (query.isPending) return <p className="og-empty">Loading stats…</p>;
   if (!stats) return <p className="sp-error">Couldn't load stats: {(query.error as Error | null)?.message ?? "unknown error"}</p>;
@@ -31,9 +38,12 @@ export default function StatsPage({ eventId }: { eventId: string }) {
   const updated = new Date(query.dataUpdatedAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
   const stale = query.isError;
 
+  const hasRoster = query.data?.hasRoster ?? false;
+
   return (
     <div className="og-st-page">
       <div className="og-ci-status og-st-status">
+        <StatsTabs tab={tab} onChange={setTab} counts={{ hackers: stats.hackers, staff: stats.staff.total }} />
         <span className={`og-ci-live og-st-live ${stale ? "polling" : "live"}`}>
           <span className="og-ci-live-dot" aria-hidden />
           {stale ? "Offline" : "Live"}
@@ -49,7 +59,64 @@ export default function StatsPage({ eventId }: { eventId: string }) {
         <p className="sp-error" role="alert">Couldn't refresh: {(query.error as Error).message}. These are the numbers from {updated}.</p>
       )}
 
-      <Overview stats={stats} />
+      <div id="og-st-panel" className="og-st-panel" role="tabpanel" aria-labelledby={`og-st-tab-${tab}`} tabIndex={0}>
+        {tab === "hackers" ? <HackerStats stats={stats} hasRoster={hasRoster} /> : <StaffStats stats={stats} hasRoster={hasRoster} />}
+      </div>
+    </div>
+  );
+}
+
+/** Hackers | Mentors & judges, each with its count. Arrow keys, Home and End move between them. */
+function StatsTabs({ tab, onChange, counts }: { tab: Tab; onChange: (tab: Tab) => void; counts: Record<Tab, number> }) {
+  const buttons = useRef<Partial<Record<Tab, HTMLButtonElement | null>>>({});
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    const at = TABS.findIndex(t => t.id === tab);
+    const to =
+      e.key === "ArrowRight" ? (at + 1) % TABS.length
+      : e.key === "ArrowLeft" ? (at - 1 + TABS.length) % TABS.length
+      : e.key === "Home" ? 0
+      : e.key === "End" ? TABS.length - 1
+      : null;
+    if (to === null) return;
+    e.preventDefault();
+    onChange(TABS[to].id);
+    buttons.current[TABS[to].id]?.focus();
+  };
+  return (
+    <div className="sp-tabs og-st-tabs" role="tablist" aria-label="Stats for" onKeyDown={onKeyDown}>
+      {TABS.map(t => (
+        <button
+          key={t.id}
+          ref={el => { buttons.current[t.id] = el; }}
+          type="button"
+          role="tab"
+          id={`og-st-tab-${t.id}`}
+          aria-controls="og-st-panel"
+          aria-selected={t.id === tab}
+          tabIndex={t.id === tab ? 0 : -1}
+          className={t.id === tab ? "active" : ""}
+          onClick={() => onChange(t.id)}
+        >
+          {t.label} <span className="og-count">{num(counts[t.id])}</span>
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function HackerStats({ stats, hasRoster }: { stats: Stats; hasRoster: boolean }) {
+  const tiles: Tile[] = [
+    {
+      label: "Applications", big: num(stats.hackers), sub: `hackers submitted · ${num(stats.hackerDrafts)} drafts`,
+      note: `+${num(stats.recent.today)} today · +${num(stats.recent.week)} in 7 days`,
+    },
+    { label: "Goal progress", big: `${Math.round(stats.progress * 100)}%`, sub: `of the ${num(stats.goal)} applicant goal`, meter: Math.min(stats.progress * 100, 100) },
+    { label: "Schools", big: num(stats.schoolsRepresented), sub: "represented" },
+    { label: "First-time hackers", big: num(stats.firstTimers), sub: `${share(stats.firstTimers, stats.hackers) || "0%"} of applicants` },
+  ];
+  return (
+    <>
+      <Overview tiles={tiles} label="Hacker overview" />
       <Goal stats={stats} />
 
       <div className="og-st-grid">
@@ -60,11 +127,10 @@ export default function StatsPage({ eventId }: { eventId: string }) {
         <section className="sp-card og-st-card">
           <div className="og-st-card-head"><h3>Decisions</h3><span className="og-st-sub">{num(stats.hackers)} submitted</span></div>
           <Decisions counts={stats.decisions} of={stats.hackers} />
-          {query.data?.hasRoster && <CheckedIn {...stats.checkin} />}
+          {hasRoster && <CheckedIn {...stats.checkin} />}
         </section>
       </div>
 
-      <h2 className="og-st-heading">Hackers <small>submitted applications</small></h2>
       <div className="og-st-columns">
         <BarCard title="Schools" breakdown={stats.hacker.schools} sub={`${num(stats.schoolsRepresented)} schools`}
           foot="Spellings are grouped: UCSD, UC San Diego and University of California, San Diego are one school." />
@@ -102,48 +168,51 @@ export default function StatsPage({ eventId }: { eventId: string }) {
           </p>
         </section>
       </div>
-
-      <h2 className="og-st-heading">Mentors &amp; judges <small>submitted applications</small></h2>
-      <div className="og-st-columns">
-        <section className="sp-card og-st-card">
-          <div className="og-st-card-head"><h3>Roles</h3><span className="og-st-sub">{num(stats.staff.total)} submitted · {num(stats.staff.drafts)} drafts</span></div>
-          <Bars breakdown={stats.staff.byRole} tone="teal" />
-        </section>
-        <section className="sp-card og-st-card">
-          <div className="og-st-card-head"><h3>Decisions</h3><span className="og-st-sub">{num(stats.staff.total)} submitted</span></div>
-          <Decisions counts={stats.staff.decisions} of={stats.staff.total} />
-          {query.data?.hasRoster && <CheckedIn {...stats.staff.checkin} />}
-        </section>
-        <BarCard title="Companies & labs" breakdown={stats.staff.companies} tone="teal" sub={`${num(stats.staff.companies.distinct)} organizations`}
-          foot="As typed, grouped ignoring capitals, punctuation and endings like Inc. or LLC; UCSD's spellings are one." />
-        <BarCard title="Job roles" breakdown={stats.staff.jobs} tone="teal"
-          foot="Each job title sorted into a kind of role by the words in it (Data Scientist is Data / Analytics, ML Engineer is Machine Learning / AI)." />
-        <BarCard title="Judging tracks" breakdown={stats.staff.tracks} tone="teal"
-          foot="Judges and mentor & judges: the track they'd like to judge. Every track is listed, 0 where no one has picked it yet." />
-        <BarCard title="UCSD affiliation" breakdown={stats.staff.affiliation} tone="teal" />
-        <BarCard title="How they heard about DataHacks" breakdown={stats.staff.heardAbout} tone="teal" multi />
-      </div>
-    </div>
+    </>
   );
 }
 
-function Overview({ stats }: { stats: Stats }) {
-  const roles = new Map(stats.staff.byRole.items.map(i => [i.key, i.count]));
-  const tiles: { label: string; big: string; sub: string; note?: string; meter?: number }[] = [
-    {
-      label: "Applications", big: num(stats.hackers), sub: `hackers submitted · ${num(stats.hackerDrafts)} drafts`,
-      note: `+${num(stats.recent.today)} today · +${num(stats.recent.week)} in 7 days`,
-    },
-    { label: "Goal progress", big: `${Math.round(stats.progress * 100)}%`, sub: `of the ${num(stats.goal)} applicant goal`, meter: Math.min(stats.progress * 100, 100) },
-    { label: "Schools", big: num(stats.schoolsRepresented), sub: "represented" },
-    { label: "First-time hackers", big: num(stats.firstTimers), sub: `${share(stats.firstTimers, stats.hackers) || "0%"} of applicants` },
-    {
-      label: "Mentors & judges", big: num(stats.staff.total),
-      sub: `${num(roles.get("mentor") ?? 0)} mentors · ${num(roles.get("judge") ?? 0)} judges · ${num(roles.get("hybrid") ?? 0)} both`,
-    },
+function StaffStats({ stats, hasRoster }: { stats: Stats; hasRoster: boolean }) {
+  const { staff } = stats;
+  const roles = new Map(staff.byRole.items.map(i => [i.key, i.count]));
+  const role = (key: string, label: string, sub: string): Tile => {
+    const n = roles.get(key) ?? 0;
+    return { label, big: num(n), sub: `${share(n, staff.total) || "0%"} ${sub}` };
+  };
+  const tiles: Tile[] = [
+    { label: "Applications", big: num(staff.total), sub: `submitted · ${num(staff.drafts)} drafts` },
+    role("mentor", "Mentors", "of applicants"),
+    role("judge", "Judges", "of applicants"),
+    role("hybrid", "Mentor & judge", "applied for both"),
+    { label: "Organizations", big: num(staff.companies.distinct), sub: "companies & labs" },
   ];
   return (
-    <ul className="og-st-tiles" aria-label="Overview">
+    <>
+      <Overview tiles={tiles} label="Mentor and judge overview" />
+      <div className="og-st-columns">
+        <section className="sp-card og-st-card">
+          <div className="og-st-card-head"><h3>Decisions</h3><span className="og-st-sub">{num(staff.total)} submitted</span></div>
+          <Decisions counts={staff.decisions} of={staff.total} />
+          {hasRoster && <CheckedIn {...staff.checkin} />}
+        </section>
+        <BarCard title="Companies & labs" breakdown={staff.companies} tone="teal" sub={`${num(staff.companies.distinct)} organizations`}
+          foot="As typed, grouped ignoring capitals, punctuation and endings like Inc. or LLC; UCSD's spellings are one." />
+        <BarCard title="Job roles" breakdown={staff.jobs} tone="teal"
+          foot="Each job title sorted into a kind of role by the words in it (Data Scientist is Data / Analytics, ML Engineer is Machine Learning / AI)." />
+        <BarCard title="Judging tracks" breakdown={staff.tracks} tone="teal"
+          foot="Judges and mentor & judges: the track they'd like to judge. Every track is listed, 0 where no one has picked it yet." />
+        <BarCard title="UCSD affiliation" breakdown={staff.affiliation} tone="teal" />
+        <BarCard title="How they heard about DataHacks" breakdown={staff.heardAbout} tone="teal" multi />
+      </div>
+    </>
+  );
+}
+
+type Tile = { label: string; big: string; sub: string; note?: string; meter?: number };
+
+function Overview({ tiles, label }: { tiles: Tile[]; label: string }) {
+  return (
+    <ul className="og-st-tiles" aria-label={label}>
       {tiles.map(t => (
         <li key={t.label} className="sp-card og-ci-tile">
           <span className="og-ci-tile-label">{t.label}</span>

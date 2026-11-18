@@ -61,15 +61,16 @@
   --og-row-hover: rgb(242 134 47 / 0.07);
   --og-row-picked: rgb(242 134 47 / 0.14);
 
-  /* The frame. */
-  --bar-h: 56px;
-  --lava-h: 84px;
+  /* The frame. Kept tight so the board gets the room. */
+  --bar-h: 52px;
+  --lava-h: 64px;
   --side-w: 220px;
-  --frame-left: 32px;
-  --frame-right: 24px;
-  --frame-gap: 16px;
-  --board-top: 16px; /* from the top bar to the board */
-  --board-bottom: 14px; /* from the board to the lava */
+  --frame-left: 20px;
+  --frame-right: 16px;
+  --frame-gap: 14px;
+  --board-top: 10px; /* from the top bar to the board */
+  --board-bottom: 8px; /* from the board to the lava */
+  --board-pad-x: 20px; /* the board's padding left and right */
 
   /* The base stylesheet's colours, for anything not restyled below. */
   --sp-bg: var(--nether-basalt);
@@ -321,7 +322,7 @@
 .sp-root.og-root.og-nether .sp-main.og-main {
   flex: 1 1 0;
   min-width: 0;
-  padding: 24px 24px 26px;
+  padding: 18px var(--board-pad-x) 18px;
   border: 6px solid var(--nether-edge);
   border-radius: 30px;
   background: rgb(30 28 34 / 0.9);
@@ -406,8 +407,8 @@
   }
   /* Pages that are a column of panels scroll as one, with the scrollbar out at the board's edge. */
   .sp-root.og-root.og-nether .og-main > :is(.og-st-page, .og-checkin, .og-dayof, .og-email, .og-organizers) {
-    margin-right: -20px;
-    padding-right: 14px;
+    margin-right: calc(4px - var(--board-pad-x));
+    padding-right: calc(var(--board-pad-x) - 8px);
     scrollbar-gutter: stable;
   }
   .sp-root.og-root.og-nether .og-main > :is(.og-email, .og-organizers) { max-width: none; }
@@ -450,8 +451,8 @@
 
 /* Laptops (1366 x 768, 1280 x 720): a lower lava line and a tighter board. */
 @media (min-width: 861px) and (max-height: 880px) {
-  .sp-root.og-root.og-nether { --lava-h: 70px; --bar-h: 52px; --board-top: 12px; --board-bottom: 12px; }
-  .sp-root.og-root.og-nether .sp-main.og-main { padding: 20px 24px 22px; }
+  .sp-root.og-root.og-nether { --lava-h: 52px; --bar-h: 48px; --board-top: 8px; --board-bottom: 8px; --board-pad-x: 16px; }
+  .sp-root.og-root.og-nether .sp-main.og-main { padding: 14px var(--board-pad-x) 14px; }
   .sp-root.og-root.og-nether .sp-nav { gap: 6px; }
   .sp-root.og-root.og-nether .sp-nav-link.og-nav-button {
     min-height: 34px;
@@ -463,8 +464,7 @@
   }
 }
 @media (min-width: 861px) and (max-width: 1180px) {
-  .sp-root.og-root.og-nether { --frame-left: 20px; --frame-right: 20px; --side-w: 216px; }
-  .sp-root.og-root.og-nether .sp-main.og-main { padding-inline: 20px; }
+  .sp-root.og-root.og-nether { --frame-left: 14px; --frame-right: 14px; --side-w: 216px; --board-pad-x: 16px; }
 }
 /* The top bar runs short of room: the event plaque goes, then the address shortens. */
 @media (min-width: 861px) and (max-width: 1100px) {
@@ -484,7 +484,7 @@
 .sp-root.og-root.og-nether :is(a, button, input, select, textarea, summary):focus-visible { outline: 2px solid var(--nether-glowstone); outline-offset: 2px; }
 
 /* The title bar: the section's name and the actions for every section. */
-.sp-root.og-root.og-nether .og-topbar { gap: 12px 16px; margin-bottom: 18px; }
+.sp-root.og-root.og-nether .og-topbar { gap: 12px 16px; margin-bottom: 12px; }
 .sp-root.og-root.og-nether .og-topbar h1 {
   color: var(--nether-text);
   font: 400 24px/1.2 var(--nether-font-display);
@@ -1061,18 +1061,12 @@
    Stats (StatsPage.tsx, stats.css): a teal LIVE pill, glowstone section headings,
    lava bars for hackers and teal for mentors and judges, in dark wells
    --------------------------------------------------------------------------- */
-.sp-root.og-root.og-nether .og-st-page { gap: 14px; }
+.sp-root.og-root.og-nether .og-st-page { gap: 12px; }
+.sp-root.og-root.og-nether .og-st-panel:focus-visible { outline-color: var(--nether-glowstone); }
+.sp-root.og-root.og-nether .sp-card.og-st-card { padding: 14px 16px 16px; }
+.sp-root.og-root.og-nether .og-st-tiles .og-ci-tile { padding: 10px 14px 12px; }
 .sp-root.og-root.og-nether .og-st-live { border-color: rgb(47 181 166 / 0.55); background: rgb(47 181 166 / 0.1); color: var(--og-teal-text); }
 .sp-root.og-root.og-nether .og-st-live.polling { border-color: rgb(244 201 93 / 0.55); background: rgb(244 201 93 / 0.08); color: var(--nether-glowstone); }
-.sp-root.og-root.og-nether .og-st-heading {
-  margin-top: 12px;
-  color: var(--nether-glowstone);
-  font: 400 15px/1.3 var(--nether-font-display);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-.sp-root.og-root.og-nether .og-st-heading small { color: var(--nether-muted); font: 600 13px/1.3 var(--nether-font-body); letter-spacing: 0; text-transform: none; }
-.sp-root.og-root.og-nether .og-st-heading::after { background: var(--nether-card-edge); }
 .sp-root.og-root.og-nether .og-st-card h3 {
   color: var(--nether-lava);
   font: 400 14px/1.3 var(--nether-font-display);
@@ -1108,9 +1102,10 @@
 /* Laptop heights: more rows of data on screen, with a smaller title and tighter panels. */
 @media (min-width: 861px) and (max-height: 880px) {
   /* More rows of data on screen: a smaller title, tighter panels. */
-  .sp-root.og-root.og-nether .og-topbar { margin-bottom: 14px; }
+  .sp-root.og-root.og-nether .og-topbar { margin-bottom: 10px; }
   .sp-root.og-root.og-nether .og-topbar h1 { font-size: 21px; }
   .sp-root.og-root.og-nether .sp-card { padding: 14px 16px 16px; }
+  .sp-root.og-root.og-nether .sp-card.og-st-card { padding: 12px 14px 14px; }
   .sp-root.og-root.og-nether .og-table-card .sp-table-wrap { margin-top: 12px; }
 }
 
@@ -1165,14 +1160,15 @@
   .sp-root.og-root.og-nether .og-sidebar-footer .sp-account { flex: 1 1 auto; justify-content: flex-end; }
   .sp-root.og-root.og-nether .sp-account-email { max-width: 100%; }
   .sp-root.og-root.og-nether .sp-main.og-main {
-    margin: 4px 0 calc(var(--lava-h) + 20px);
-    padding: 20px 14px 22px;
+    margin: 4px 0 calc(var(--lava-h) + 12px);
+    padding: 14px 10px 16px;
     border-width: 4px;
     border-radius: 20px;
     box-shadow: 0 0 0 2px var(--nether-ring), 0 0 24px rgb(242 134 47 / 0.14);
   }
   .sp-root.og-root.og-nether .og-topbar h1 { font-size: 20px; }
   .sp-root.og-root.og-nether .sp-card { padding: 16px 14px 18px; }
+  .sp-root.og-root.og-nether .sp-card.og-st-card { padding: 12px 12px 14px; }
   .sp-root.og-root.og-nether .og-search input { font-size: 16px; } /* so phones don't zoom in */
   .sp-root.og-root.og-nether :is(.og-template, .og-compose, .og-confirm, .og-filters, .og-add-organizer, .og-dayof-form) :is(input:not([type="checkbox"]), textarea, select) { font-size: 16px; }
   /* The drawer takes the whole screen. */
