@@ -89,6 +89,14 @@ export const TEAM_MATCHING: Record<string, string> = {
   "No, my team is set": "have_full_team",
 };
 
+/** Mentors and judges: "Are you a UCSD student, alum or faculty member?": what the form shows -> what's saved. */
+export const UCSD_AFFILIATION: Record<string, string> = {
+  "UCSD Student": "student",
+  "UCSD Alumni": "alumni",
+  "UCSD Faculty Member": "faculty",
+  "Not Affiliated with UCSD": "none",
+};
+
 /** Countries, United States first, then alphabetical. */
 export const COUNTRIES = ["United States", ...[
   "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia",

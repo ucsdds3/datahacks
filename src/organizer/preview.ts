@@ -27,7 +27,8 @@ const base: Omit<Application, "id" | "applicant_type" | "status" | "first_name" 
   user_id: null, event_id: PREVIEW_EVENT_ID, submitted_at: "2026-11-10T12:00:00-08:00", phone: "(858) 555-0100",
   school: null, level_of_study: null, major: null, graduation_year: null, organization: null, role_title: null,
   resume_url: null, linkedin_url: "https://www.linkedin.com/in/example", devpost_url: null,
-  judging_track: null, bio: null, essay_proudest_project: null, essay_unique_thing: null, essay_goal: null,
+  judging_track: null, bio: null, ucsd_affiliation: null, essay_proudest_project: null, essay_unique_thing: null, essay_goal: null,
+  funniest_joke: null, lifetime_goal: null, birthdate: null, attended_before: null,
   suggested_food: null, suggested_activity: null, heard_about: null,
   emergency_contact_name: null, emergency_contact_phone: null, emergency_contact_relation: null, dietary_restrictions: null,
   shirt_size: null, overnight_stay: null, team_matching: null, logistics_source: null,
@@ -46,6 +47,8 @@ const hacker = (id: number, first: string, last: string, school: string, extra: 
   email: `${first.toLowerCase()}@example.edu`, school, level_of_study: "Undergraduate", major: "Data Science",
   graduation_year: "2028", essay_proudest_project: "A model that predicts campus shuttle delays from GPS pings.",
   essay_unique_thing: "I've run three workshops on data visualization.", essay_goal: "Ship something end to end in a weekend.",
+  funniest_joke: id % 2 === 0 ? "I told a joke about a regression model. It didn't fit." : null,
+  lifetime_goal: id % 3 === 0 ? "Teach a stats class someday." : null, birthdate: "2005-06-15", attended_before: id % 2 === 0,
   suggested_food: "Boba", suggested_activity: "Smash tournament", heard_about: ["Tabling on campus"], code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null,
   // Every other sample hacker has agreed to MLH's checkboxes (shown with ?preview&mlh).
   mlh: id % 2 === 0
@@ -56,7 +59,7 @@ const hacker = (id: number, first: string, last: string, school: string, extra: 
 
 const staff = (id: number, first: string, last: string, type: Application["applicant_type"], org: string, extra: Partial<Sample> = {}): Sample => ({
   ...base, id: `s${id}`, applicant_type: type, status: "submitted", first_name: first, last_name: last,
-  email: `${first.toLowerCase()}@example.com`, organization: org, role_title: "Engineer",
+  email: `${first.toLowerCase()}@example.com`, organization: org, role_title: "Engineer", ucsd_affiliation: "alumni",
   resume_url: "https://drive.google.com/file/d/example/view",
   bio: type === "judge" ? null : "I build data pipelines and love helping teams get unstuck on modelling questions.",
   judging_track: type === "mentor" ? null : "biotech_life_sciences", code: null, checkedIn: false, passSentAt: null, waiverSignedAt: null, ...extra,

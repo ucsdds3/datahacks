@@ -19,6 +19,15 @@
 .og-topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
 .og-topbar h1 { margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.01em; }
 .og-topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.og-topbar-title { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.og-sidebar-toggle { flex: none; }
+/* Sidebar hidden (desktop only; phones stack it above the page and don't get the button). */
+@media (min-width: 861px) {
+  .og-root.og-sidebar-collapsed .og-sidebar { display: none; }
+}
+@media (max-width: 860px) {
+  .og-sidebar-toggle { display: none; }
+}
 .sp-root .sp-button.og-danger { border-color: var(--sp-red); background: var(--sp-red); color: #fff; }
 .sp-root .sp-button.og-danger:hover:not(:disabled) { background: #b83232; color: #fff; }
 
@@ -65,6 +74,7 @@ td .og-badge { margin-left: 0; }
   box-shadow: -12px 0 32px rgb(0 0 0 / 0.08);
 }
 .og-drawer-header { display: flex; justify-content: space-between; gap: 12px; }
+.og-drawer-actions { display: flex; gap: 8px; align-items: flex-start; flex: none; }
 .og-drawer-header h2 { margin: 0; font-size: 20px; }
 .og-drawer-header p { margin: 4px 0 0; color: var(--sp-muted); font-size: 14px; }
 .og-icon-button { display: grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--sp-border); border-radius: 8px; background: var(--sp-surface); color: var(--sp-muted); cursor: pointer; }
@@ -77,6 +87,16 @@ td .og-badge { margin-left: 0; }
 .og-field dt { color: var(--sp-muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
 .og-field dd { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .og-field a { display: inline-flex; align-items: center; gap: 4px; }
+/* Expanded: twice as wide, short answers in a grid, essays across the whole width. Phones always get the narrow layout. */
+@media (min-width: 861px) {
+  .og-drawer.og-drawer-expanded { width: min(1040px, 100vw); }
+  .og-drawer-expanded .og-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); column-gap: 24px; }
+  .og-drawer-expanded .og-field-long { grid-column: 1 / -1; }
+  .og-drawer-expanded .og-field-long dd { max-width: 75ch; line-height: 1.5; }
+}
+@media (max-width: 860px) {
+  .og-expand { display: none; }
+}
 
 /* Release dialog */
 .og-overlay { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgb(22 24 26 / 0.45); }
