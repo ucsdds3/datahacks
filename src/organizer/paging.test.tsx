@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // A fake Supabase client: every query chain is recorded, and `tables` answers
@@ -278,6 +278,8 @@ describe("ApplicationDetail", () => {
       major: "Cognitive Science", essay_proudest_project: "A model that predicts shuttle delays.",
       essay_goal: "Ship something end to end.", heard_about: ["Instagram"],
       suggested_food: "Poke bowls", suggested_activity: "Smash tournament",
+      funniest_joke: "Why do programmers prefer dark mode? Light attracts bugs.", lifetime_goal: null,
+      birthdate: "2005-11-24", attended_before: true,
     });
     fake.tables.applications = [full, application(8)];
     // What the table hands the drawer: the list columns only.
@@ -296,11 +298,44 @@ describe("ApplicationDetail", () => {
     expect(screen.getByText("Ship something end to end.")).toBeInTheDocument();
     expect(screen.getByText("Suggested food").nextSibling).toHaveTextContent("Poke bowls");
     expect(screen.getByText("Suggested activity").nextSibling).toHaveTextContent("Smash tournament");
+    // The optional questions: what they wrote, or that they skipped it.
+    expect(screen.getByText("Funniest joke").nextSibling).toHaveTextContent("Why do programmers prefer dark mode? Light attracts bugs.");
+    expect(screen.getByText("A lifetime goal").nextSibling).toHaveTextContent("(left blank)");
+    expect(screen.getByText("Devpost").nextSibling).toHaveTextContent("(left blank)");
+    expect(screen.getByText("Birthdate").nextSibling).toHaveTextContent("2005-11-24");
+    expect(screen.getByText("Been to DataHacks before").nextSibling).toHaveTextContent("Yes");
     const detail = fake.calls.find(c => c.table === "applications" && c.single)!;
     expect(detail.eq).toEqual([["id", id(7)], ["event_id", "event-1"]]);
     expect(detail.select).toMatch(/essay_proudest_project/);
     expect(detail.select).toMatch(/suggested_food, suggested_activity/);
+    expect(detail.select).toMatch(/funniest_joke, lifetime_goal, birthdate, attended_before/);
     await waitFor(() => expect(screen.queryByText(/Loading the application/)).not.toBeInTheDocument());
+  });
+});
+
+describe("ApplicationDetail expand", () => {
+  it("widens the drawer and remembers it for the next application", async () => {
+    window.localStorage.removeItem("og-drawer-expanded");
+    fake.tables.applications = [application(1)];
+    const row = { ...Object.fromEntries(LIST_FIELDS.map(f => [f, (application(1) as Record<string, unknown>)[f] ?? null])), code: null, checkedIn: false, passSentAt: null } as unknown as Row;
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const drawer = () => (
+      <QueryClientProvider client={client}>
+        <ApplicationDetail row={row} onClose={() => {}} onChanged={() => {}} />
+      </QueryClientProvider>
+    );
+
+    const { unmount } = render(drawer());
+    expect(screen.getByRole("complementary")).not.toHaveClass("og-drawer-expanded");
+    fireEvent.click(screen.getByRole("button", { name: "Expand the application" }));
+    expect(screen.getByRole("complementary")).toHaveClass("og-drawer-expanded");
+    unmount();
+
+    render(drawer());
+    expect(screen.getByRole("complementary")).toHaveClass("og-drawer-expanded");
+    fireEvent.click(screen.getByRole("button", { name: "Shrink the application" }));
+    expect(screen.getByRole("complementary")).not.toHaveClass("og-drawer-expanded");
+    window.localStorage.removeItem("og-drawer-expanded");
   });
 });
 

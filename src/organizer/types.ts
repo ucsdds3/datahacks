@@ -33,6 +33,15 @@ export type Application = {
   essay_proudest_project: string | null;
   essay_unique_thing: string | null;
   essay_goal: string | null;
+  /** Hackers' two optional questions. */
+  funniest_joke: string | null;
+  lifetime_goal: string | null;
+  /** Hackers: YYYY-MM-DD. */
+  birthdate: string | null;
+  /** Hackers: "Have you attended DataHacks before?" */
+  attended_before: boolean | null;
+  /** Mentors and judges: a UCSD_AFFILIATION code. */
+  ucsd_affiliation: string | null;
   /** Hackers: a food item and an activity they suggest (required on the form; null on older rows). */
   suggested_food: string | null;
   suggested_activity: string | null;

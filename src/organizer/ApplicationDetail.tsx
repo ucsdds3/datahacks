@@ -1,22 +1,27 @@
 import { useState } from "react";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, Maximize2, Minimize2, X } from "lucide-react";
 import { safeHref, safeMailto } from "@/lib/applicantInput";
 import { applicationBatch } from "@/staff-portal/config";
-import { OVERNIGHT_STAY, TEAM_MATCHING } from "@/staff-portal/formOptions";
+import { OVERNIGHT_STAY, TEAM_MATCHING, UCSD_AFFILIATION } from "@/staff-portal/formOptions";
 import { stageDecision, stageProblems, useApplication, useEventId } from "./data";
 import { errorText } from "./errors";
+import { useStoredFlag } from "./storedFlag";
 import { DECISION_LABEL, TAB_LABEL, TYPE_LABEL, fullName, isDraft, isStaged, placeOf, tabOf, type Decision, type Row } from "./types";
 
 const formatDate = (iso: string | null) => (iso ? new Date(iso).toLocaleString() : "—");
 
-/** The form's wording for a saved code (OVERNIGHT_STAY, TEAM_MATCHING); unknown codes as saved. */
+/** The form's wording for a saved code (OVERNIGHT_STAY, TEAM_MATCHING, UCSD_AFFILIATION); unknown codes as saved. */
 const labelOf = (options: Record<string, string>, code: string | null) =>
   code ? Object.keys(options).find(label => options[label] === code) ?? code : null;
 
-function Field({ label, value }: { label: string; value: React.ReactNode }) {
+/** Shown for an optional question they skipped, so it doesn't look like the drawer left it out. */
+const BLANK = "(left blank)";
+
+/** `long` answers (essays) take the whole width when the drawer is expanded. */
+function Field({ label, value, long = false }: { label: string; value: React.ReactNode; long?: boolean }) {
   if (value === null || value === undefined || value === "") return null;
   return (
-    <div className="og-field">
+    <div className={long ? "og-field og-field-long" : "og-field"}>
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
@@ -48,6 +53,8 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
   const app = full.data;
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Opens wide if it was wide last time.
+  const [expanded, toggleExpanded] = useStoredFlag("og-drawer-expanded");
 
   const stage = async (decision: Decision | null) => {
     setBusy(true);
@@ -64,10 +71,12 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
     }
   };
   const draft = isDraft(row);
+  // A draft hasn't answered anything yet, so nothing counts as skipped.
+  const skipped = draft ? null : BLANK;
 
   const hacker = row.applicant_type === "hacker";
   return (
-    <aside className="og-drawer" aria-label={`Application from ${fullName(row)}`}>
+    <aside className={expanded ? "og-drawer og-drawer-expanded" : "og-drawer"} aria-label={`Application from ${fullName(row)}`}>
       <header className="og-drawer-header">
         <div>
           <h2>{fullName(row)}</h2>
@@ -76,7 +85,13 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             {isStaged(row) && <span className={`og-badge ${row.decision}`}>Not released{tabOf(row.status) !== "applied" ? ` · they still see ${TAB_LABEL[tabOf(row.status)].toLowerCase()}` : ""}</span>}
           </p>
         </div>
-        <button className="og-icon-button" onClick={onClose} aria-label="Close"><X size={18} /></button>
+        <div className="og-drawer-actions">
+          <button className="og-icon-button og-expand" onClick={toggleExpanded} aria-pressed={expanded}
+            aria-label={expanded ? "Shrink the application" : "Expand the application"} title={expanded ? "Shrink" : "Expand"}>
+            {expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+          <button className="og-icon-button" onClick={onClose} aria-label="Close"><X size={18} /></button>
+        </div>
       </header>
 
       <div className="og-decide">
@@ -112,18 +127,22 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
             <Field label="Graduation year" value={app.graduation_year} />
             <Field label="Gender" value={app.gender} />
             <Field label="Race/ethnicity" value={app.race_ethnicity} />
+            <Field label="Birthdate" value={app.birthdate} />
             <Field label="Lives in" value={[app.city_of_residence, app.country_of_residence].filter(Boolean).join(", ") || null} />
             <Field label="Hackathons before" value={app.hackathon_experience} />
-            <Field label="Resume" value={<Link href={app.resume_url} />} />
-            <Field label="LinkedIn" value={<Link href={app.linkedin_url} />} />
-            <Field label="GitHub" value={<Link href={app.github_url} />} />
-            <Field label="Devpost" value={<Link href={app.devpost_url} />} />
+            <Field label="Been to DataHacks before" value={app.attended_before === null ? null : app.attended_before ? "Yes" : "No"} />
+            <Field label="Resume" value={app.resume_url && <Link href={app.resume_url} />} />
+            <Field label="LinkedIn" value={app.linkedin_url && <Link href={app.linkedin_url} />} />
+            <Field label="GitHub" value={app.github_url && <Link href={app.github_url} />} />
+            <Field label="Devpost" value={app.devpost_url ? <Link href={app.devpost_url} /> : skipped} />
             <Field label="Travel reimbursement" value={app.wants_travel_stipend
               ? [app.travel_region, app.travel_method, app.travel_distance].filter(Boolean).join(" · ") + (app.travel_stipend_reason ? ` (${app.travel_stipend_reason})` : "")
-              : "No"} />
-            <Field label="Project they're proudest of" value={app.essay_proudest_project} />
-            <Field label="Something unique they'd bring" value={app.essay_unique_thing} />
-            <Field label="What they want from the event" value={app.essay_goal} />
+              : "No"} long={!!app.travel_stipend_reason} />
+            <Field label="Project they're proudest of" value={app.essay_proudest_project} long />
+            <Field label="Something unique they'd bring" value={app.essay_unique_thing} long />
+            <Field label="What they want from the event" value={app.essay_goal} long />
+            <Field label="Funniest joke" value={app.funniest_joke || skipped} long />
+            <Field label="A lifetime goal" value={app.lifetime_goal || skipped} long />
             <Field label="Suggested food" value={app.suggested_food} />
             <Field label="Suggested activity" value={app.suggested_activity} />
             <Field label="Heard about us" value={app.heard_about?.join(", ")} />
@@ -138,10 +157,11 @@ export default function ApplicationDetail({ row, onClose, onChanged }: { row: Ro
           <>
             <Field label="Organization" value={app.organization} />
             <Field label="Role" value={app.role_title} />
+            <Field label="UCSD affiliation" value={labelOf(UCSD_AFFILIATION, app.ucsd_affiliation)} />
             <Field label="Judging track" value={app.judging_track?.replace(/_/g, " ")} />
-            <Field label="Resume" value={<Link href={app.resume_url} />} />
-            <Field label="LinkedIn" value={<Link href={app.linkedin_url} />} />
-            <Field label="Mentor blurb" value={app.bio} />
+            <Field label="Resume" value={app.resume_url && <Link href={app.resume_url} />} />
+            <Field label="LinkedIn" value={app.linkedin_url && <Link href={app.linkedin_url} />} />
+            <Field label="Mentor blurb" value={app.bio} long />
             <Field label="Heard about us" value={app.heard_about?.join(", ")} />
           </>
         ))}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { BarChart3, ClipboardCheck, DoorOpen, FileSignature, Mail, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
+import { BarChart3, ClipboardCheck, DoorOpen, FileSignature, Mail, PanelLeftClose, PanelLeftOpen, Send, ShieldCheck, Ticket, Users, UserCog } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { EVENT_CODE } from "@/portal/event";
 import { portal } from "@/portal/paths";
@@ -18,6 +18,7 @@ import CheckinPage from "./CheckinPage";
 import EmailComposer from "./EmailComposer";
 import ReleaseDialog, { type PassPick } from "./ReleaseDialog";
 import PassesPage from "./PassesPage";
+import { useStoredFlag } from "./storedFlag";
 import DayOfPage from "./DayOfPage";
 import WaiversPage from "./WaiversPage";
 import StatsPage from "./StatsPage";
@@ -71,6 +72,8 @@ export default function OrganizerConsole() {
   const apps = useApplications(isOrganizer ? event.data : undefined);
   const refresh = useRefreshApplications();
   const [section, setSection] = useState<Section>("hackers");
+  // Desktop: hide the section list to give the tables the whole width (remembered on this device).
+  const [collapsed, toggleCollapsed] = useStoredFlag("og-sidebar-collapsed");
   const [dialog, setDialog] = useState<"release" | "retry" | null>(null);
   // Who "Send pass" was pressed for in a table, to select on the Passes page; null when it was opened any other way.
   const [passPick, setPassPick] = useState<{ ids: string[]; n: number } | null>(null);
@@ -101,7 +104,7 @@ export default function OrganizerConsole() {
   const current = SECTIONS.find(s => s.id === section)!;
 
   return (
-    <div className={`sp-root og-root${nether ? " og-nether" : ""}`}>
+    <div className={`sp-root og-root${nether ? " og-nether" : ""}${collapsed ? " og-sidebar-collapsed" : ""}`}>
       {nether && <NetherSky />}
       <aside className="sp-sidebar og-sidebar">
         <div className="sp-brand">
@@ -131,7 +134,13 @@ export default function OrganizerConsole() {
 
       <main className="sp-main og-main">
         <header className="og-topbar">
-          <h1>{current.title}</h1>
+          <div className="og-topbar-title">
+            <button className="og-icon-button og-sidebar-toggle" onClick={toggleCollapsed} aria-pressed={collapsed}
+              aria-label={collapsed ? "Show the sidebar" : "Hide the sidebar"} title={collapsed ? "Show sidebar" : "Hide sidebar"}>
+              {collapsed ? <PanelLeftOpen size={16} /> : <PanelLeftClose size={16} />}
+            </button>
+            <h1>{current.title}</h1>
+          </div>
           <div className="og-topbar-actions">
             {section !== "passes" && (
               <button className="sp-button" onClick={() => goTo("passes")}>

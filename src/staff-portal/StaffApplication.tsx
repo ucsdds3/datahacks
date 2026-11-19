@@ -12,7 +12,7 @@ import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink,
 import { LimitedTextarea, MultiSelect, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
 import { ApplyWithAiNote, DraftNote, SignedOutNotice, focusField } from './formDraftUi'
 import { MENTOR_ONSITE_ACKNOWLEDGEMENT } from './config'
-import { STAFF_HEARD_ABOUT } from './formOptions'
+import { STAFF_HEARD_ABOUT, UCSD_AFFILIATION } from './formOptions'
 import { PrivacyNotice } from './mlh'
 
 type ApplicantType = 'mentor' | 'judge' | 'hybrid'
@@ -23,12 +23,7 @@ const applicantTypeOptions: { value: ApplicantType; label: string }[] = [
   { value: 'hybrid', label: 'Both' },
 ]
 
-const ucsdOptions = [
-  { value: 'student', label: 'UCSD Student' },
-  { value: 'alumni', label: 'UCSD Alumni' },
-  { value: 'faculty', label: 'UCSD Faculty Member' },
-  { value: 'none', label: 'Not Affiliated with UCSD' },
-]
+const ucsdOptions = Object.entries(UCSD_AFFILIATION).map(([label, value]) => ({ value, label }))
 
 const trackOptions = [
   { value: 'social_good', label: 'Social Good' },
