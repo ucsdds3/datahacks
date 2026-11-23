@@ -21,7 +21,6 @@ export const RACES = [
 ];
 
 export const LEVELS_OF_STUDY = [
-  "High school",
   "Undergraduate (2-year: community college, associate's)",
   "Undergraduate (3+ year: bachelor's)",
   "Graduate (master's, doctoral)",

@@ -74,7 +74,6 @@ export async function previewStats(mode: string): Promise<PublicStats> {
       ["Undergraduate (3+ year: bachelor's)", 0.71],
       ["Graduate (master's, doctoral)", 0.17],
       ["Undergraduate (2-year: community college, associate's)", 0.06],
-      ["High school", 0.025],
     ]),
     majors: split(hackers, [
       ["Data Science", 0.31],

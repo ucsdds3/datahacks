@@ -23,7 +23,7 @@
     },
      {
        question: "Who can participate in DataHacks?",
-       answer: "DataHacks is open to all undergraduate and graduate students from any university. No prior hackathon experience is required, we welcome beginners and experts alike!",
+       answer: "DataHacks is open to all undergraduate and graduate students from any university. High school students aren't eligible. No prior hackathon experience is required, we welcome beginners and experts alike!",
      },
      {
        question: "How much does it cost to participate?",
