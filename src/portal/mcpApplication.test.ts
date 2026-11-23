@@ -149,7 +149,8 @@ describe("MCP application server matches the database", () => {
   it("sends only values the CHECK constraints accept", () => {
     expect(allowed("application_gender_check")).toEqual([...mcp.GENDERS]);
     expect(allowed("application_race_ethnicity_check").filter(v => v !== "; ")).toEqual([...mcp.RACES]);
-    expect(allowed("application_level_of_study_check")).toEqual([...mcp.LEVELS_OF_STUDY]);
+    // The database still accepts "High school" for applications sent before it left the form.
+    expect(allowed("application_level_of_study_check")).toEqual(["High school", ...mcp.LEVELS_OF_STUDY]);
     expect(allowed("application_hackathon_experience_check")).toEqual([...mcp.HACKATHON_EXPERIENCE]);
     expect(allowed("application_travel_method_check")).toEqual([...mcp.TRAVEL_METHODS]);
     expect(allowed("application_travel_distance_check")).toEqual([...mcp.TRAVEL_DISTANCES]);
