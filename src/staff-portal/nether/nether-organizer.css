@@ -383,6 +383,12 @@
   .sp-root.og-root.og-nether .og-sidebar-footer > strong { order: 1; }
   .sp-root.og-root.og-nether .og-sidebar-footer > .og-theme-toggle { order: 2; }
   .sp-root.og-root.og-nether .og-sidebar-footer > .sp-account { order: 3; }
+  /* Sidebar hidden: the signs and chains go and the board takes their room. The name and the
+     footer stay, since they sit in the top bar. */
+  .sp-root.og-root.og-nether.og-sidebar-collapsed .og-sidebar { display: flex; flex-basis: 0; width: 0; margin-right: calc(-1 * var(--frame-gap)); }
+  .sp-root.og-root.og-nether.og-sidebar-collapsed .og-sidebar .sp-nav { display: none; }
+  .sp-root.og-root.og-nether.og-sidebar-collapsed .og-sidebar::before,
+  .sp-root.og-root.og-nether.og-sidebar-collapsed .og-sidebar::after { display: none; }
   .sp-root.og-root.og-nether .sp-main.og-main { margin: calc(var(--bar-h) + var(--board-top)) 0 calc(var(--lava-h) + var(--board-bottom)); }
 }
 
@@ -848,6 +854,9 @@
   box-shadow: 0 0 0 3px var(--nether-ring), 0 0 36px 4px rgb(242 134 47 / 0.18), -24px 0 60px rgb(8 2 3 / 0.55);
   scrollbar-width: thin;
   overscroll-behavior: contain;
+}
+@media (min-width: 861px) {
+  .sp-root.og-root.og-nether .og-drawer.og-drawer-expanded { width: min(1040px, calc(100vw - 24px)); }
 }
 .sp-root.og-root.og-nether .og-drawer-header h2 {
   color: var(--nether-text);
