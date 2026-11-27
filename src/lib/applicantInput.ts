@@ -3,6 +3,7 @@
 // for anyone who skips the website; these keep a person from hitting them.
 // See docs/untrusted-input.md.
 
+import { GENERAL_CONTACT_EMAIL } from "@/staff-portal/config";
 import { friendlyError } from "./friendlyError";
 
 /**
@@ -102,6 +103,13 @@ export function applicationErrorMessage(error: { code?: string; message: string 
   // 23505 = unique violation: one application per account per event
   if (error.code === "23505") return "You've already applied. Your status is on the portal's Status page.";
   if (isApplicationsClosedError(error)) return error.message;
+  // 23503 = foreign key violation: applications.user_id needs the account's profiles row.
+  // The form makes it just before saving (portal/profile.ts), so this means that failed
+  // too; submitting again tries both again.
+  if (error.code === "23503") {
+    console.error("Couldn't save the application:", error);
+    return `We couldn't finish setting up your DataHacks account. Submit again in a minute; if it keeps happening, email ${GENERAL_CONTACT_EMAIL}.`;
+  }
   if (error.code === "23514") {
     const field = error.message.match(/application_([a-z_]+)_check/)?.[1];
     const label = field && FIELD_LABEL[field];

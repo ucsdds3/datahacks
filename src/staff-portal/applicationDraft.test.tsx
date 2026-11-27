@@ -5,14 +5,19 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // The hacker and mentor/judge forms keep a draft of what's typed (localStorage, per
-// account and event), restore it, delete it after submitting or signing out, and
-// keep the answers on screen when the session ends mid-form.
+// account and event), restore it, delete it after submitting (signing out keeps it),
+// and keep the answers on screen when the session ends mid-form. Before saving an
+// application they make sure the account's profiles row exists (portal/profile.ts).
 
 const db = vi.hoisted(() => ({
   session: { user: { id: "u1", email: "ada@example.com" } } as null | { user: { id: string; email: string } },
   listeners: [] as ((event: string, session: unknown) => void)[],
   insertError: null as null | { code?: string; message: string },
   inserts: [] as Record<string, unknown>[],
+  profileError: null as null | { code?: string; message: string },
+  /** Writes in order: "profiles upsert" / "applications insert". */
+  writes: [] as string[],
+  upserts: [] as { row: Record<string, unknown>; options: unknown }[],
   invokes: [] as { name: string; body: unknown }[],
 }));
 
@@ -31,7 +36,16 @@ vi.mock("@/lib/supabaseClient", () => ({
       const result = async () => (table === "events" ? { data: { id: "event-1" }, error: null } : { data: [], error: null });
       const query = {
         select: () => query, eq: () => query, in: () => query, order: () => query, limit: result, maybeSingle: result,
-        insert: async (row: Record<string, unknown>) => { db.inserts.push(row); return { error: db.insertError }; },
+        insert: async (row: Record<string, unknown>) => {
+          db.writes.push(`${table} insert`);
+          db.inserts.push(row);
+          return { error: db.insertError };
+        },
+        upsert: async (row: Record<string, unknown>, options: unknown) => {
+          db.writes.push(`${table} upsert`);
+          db.upserts.push({ row, options });
+          return { error: db.profileError };
+        },
         then: (resolve: (v: unknown) => unknown, reject: (e: unknown) => unknown) => result().then(resolve, reject),
       };
       return query;
@@ -118,6 +132,9 @@ beforeEach(() => {
   db.listeners = [];
   db.insertError = null;
   db.inserts = [];
+  db.profileError = null;
+  db.writes = [];
+  db.upserts = [];
   db.invokes = [];
   forgetReceivedEmailRequests();
   vi.spyOn(console, "error").mockImplementation(() => {});
@@ -135,7 +152,7 @@ describe("application drafts", () => {
     await mountWithSession();
     fireEvent.change(screen.getByLabelText(/First name/), { target: { value: "Ada" } });
     await waitFor(() => expect(savedForm(draftKey("hacker", EVENT_CODE, "u1"))?.first_name).toBe("Ada"), { timeout: 2000 });
-    expect(HACKER_KEY.startsWith("datahacks.")).toBe(true); // signOutEverywhere clears datahacks.*
+    expect(HACKER_KEY.startsWith("datahacks.draft.")).toBe(true); // signOutEverywhere keeps datahacks.draft.*
   });
 
   it("restores a saved draft when the form opens again", async () => {
@@ -164,14 +181,27 @@ describe("application drafts", () => {
     expect(localStorage.getItem(HACKER_KEY)).toBeNull();
   });
 
-  it("is deleted by signing out, and an open form doesn't write it back", async () => {
+  it("signing out with no form open keeps every saved draft, and clears the rest", async () => {
     saveDraft(valid);
+    saveDraft(staffDraft, STAFF_KEY);
+    localStorage.setItem("datahacks.waiverSigned", "1");
+    await signOutEverywhere();
+    expect(savedForm()?.first_name).toBe("Ada");
+    expect(savedForm(STAFF_KEY)?.first_name).toBe("Grace");
+    expect(localStorage.getItem("datahacks.waiverSigned")).toBeNull();
+  });
+
+  it("survives signing out, with the latest answers, while the rest of the portal's settings go", async () => {
+    saveDraft(valid);
+    localStorage.setItem("datahacks.waiverSigned", "1");
+    localStorage.setItem("sb-auth-auth-token", "{}");
     await mountWithSession();
-    await act(async () => { await signOutEverywhere(); });
-    expect(localStorage.getItem(HACKER_KEY)).toBeNull();
     fireEvent.change(screen.getByLabelText(/First name/), { target: { value: "Ada B." } });
-    await new Promise(r => setTimeout(r, 600));
-    expect(localStorage.getItem(HACKER_KEY)).toBeNull();
+    await act(async () => { await signOutEverywhere(); });
+    expect(localStorage.getItem("datahacks.waiverSigned")).toBeNull();
+    expect(localStorage.getItem("sb-auth-auth-token")).toBeNull();
+    await waitFor(() => expect(savedForm()?.first_name).toBe("Ada B."), { timeout: 2000 });
+    expect(savedForm()?.essay_goal).toBe(valid.essay_goal);
   });
 
   it("asks before leaving the page while there are unsubmitted answers", async () => {
@@ -310,6 +340,46 @@ describe("signed out mid-form", () => {
     expect(await screen.findByText(/You were signed out\./)).toBeInTheDocument();
     expect(screen.queryByText(/JWT/)).toBeNull();
     expect(savedForm()?.first_name).toBe("Ada");
+  });
+});
+
+describe("the account's profile row (applications.user_id references profiles)", () => {
+  it("the hacker form makes sure it exists, without overwriting one, before saving the application", async () => {
+    saveDraft(valid);
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.writes).toEqual(["profiles upsert", "applications insert"]);
+    expect(db.upserts).toEqual([{ row: { id: "u1", email: "ada@example.com" }, options: { onConflict: "id", ignoreDuplicates: true } }]);
+  });
+
+  it("so does the mentor/judge form", async () => {
+    saveDraft(staffDraft, STAFF_KEY);
+    await mountWithSession("staff");
+    fireEvent.submit(screen.getByRole("button", { name: /Submit Application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.writes).toEqual(["profiles upsert", "applications insert"]);
+  });
+
+  it("if that fails, the application still goes in", async () => {
+    saveDraft(valid);
+    db.profileError = { code: "", message: "TypeError: Load failed" };
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    expect(await screen.findByText("portal home")).toBeInTheDocument();
+    expect(db.inserts).toHaveLength(1);
+  });
+
+  it("a missing profile the database still refuses (23503) says so, not \"something went wrong\"", async () => {
+    saveDraft(valid);
+    db.profileError = { code: "", message: "TypeError: Load failed" };
+    db.insertError = { code: "23503", message: 'insert or update on table "applications" violates foreign key constraint "applications_user_id_fkey"' };
+    await mountWithSession();
+    fireEvent.submit(screen.getByRole("button", { name: /Submit application/ }).closest("form")!);
+    const alert = await screen.findByText(/couldn't finish setting up your DataHacks account/);
+    expect(alert).toHaveTextContent("Your answers are saved on this device.");
+    expect(screen.queryByText(/Something went wrong on our side/)).toBeNull();
+    expect(screen.getByLabelText(/First name/)).toHaveValue("Ada");
   });
 });
 

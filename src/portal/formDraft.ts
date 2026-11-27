@@ -2,9 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 // Application drafts. The forms keep what's been typed in this browser's
 // localStorage, per account and event, so a refresh, a closed tab, Back, or a
-// sign-in that expires mid-form doesn't lose three essays. The key starts with
-// "datahacks.", so signing out (signOutEverywhere) clears it with the rest of
-// the portal's saved settings.
+// sign-in that expires mid-form doesn't lose three essays. Signing out
+// (signOutEverywhere) clears the portal's other saved settings but keeps drafts:
+// each is stored under its account's id, so only signing back in as that
+// account brings it back.
 
 export const DRAFT_PREFIX = "datahacks.draft.";
 
@@ -13,7 +14,7 @@ export const draftKey = (form: string, eventCode: string, userId: string) => `${
 type Saved = { v: 1; savedAt: string; form: Record<string, unknown> };
 
 // Set before leaving the page on purpose (signing out, signing in again): no
-// "leave this page?" prompt, and nothing written back after sign-out cleared it.
+// "leave this page?" prompt. The answers are still saved on the way out.
 let leavingOnPurpose = false;
 export function allowLeaving() {
   leavingOnPurpose = true;
@@ -95,11 +96,11 @@ export function useFormDraft<T extends object>({ form: name, eventCode, userId, 
   const done = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /** Writes the draft now (also called when the session ends, in case another tab's sign-out cleared it). */
+  /** Writes the draft now (also called when the session ends, so the latest answers are kept). */
   const save = useCallback(() => {
     if (timer.current) clearTimeout(timer.current);
     timer.current = null;
-    if (!key || done.current || leavingOnPurpose) return;
+    if (!key || done.current) return;
     writeDraft(key, latest.current, blankRef.current);
   }, [key]);
 

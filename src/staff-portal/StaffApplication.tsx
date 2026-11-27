@@ -7,6 +7,7 @@ import { portal } from '@/portal/paths'
 import { EVENT_CODE, currentEventId } from '@/portal/event'
 import { useFormDraft } from '@/portal/formDraft'
 import { requestReceivedEmail } from '@/portal/receivedEmail'
+import { ensureProfile } from '@/portal/profile'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { MAX_LENGTH, applicationErrorMessage, cleanLine, cleanText, isHttpsLink, isValidEmail } from '@/lib/applicantInput'
 import { LimitedTextarea, MultiSelect, PhoneInput, Req, isValidPhone, phoneProblem } from './formFields'
@@ -149,6 +150,9 @@ export default function StaffApplication() {
       setSubmitting(false)
       return
     }
+
+    // applications.user_id needs the account's profiles row; a sign-in that never finished leaves none.
+    await ensureProfile(session.user.id, session.user.email)
 
     const { error: insertError } = await supabase.from('applications').insert({
       user_id: session.user.id,
