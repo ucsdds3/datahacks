@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import { portal, rememberApplyAs } from "./paths";
-import { allowLeaving } from "./formDraft";
+import { DRAFT_PREFIX, allowLeaving } from "./formDraft";
 
 /** Who a sign-in is for: picks where the callback sends them. It never grants anything. */
 export type SignInAs = "hacker" | "staff" | "organizer";
@@ -25,19 +25,21 @@ export async function startGoogleSignIn(as: SignInAs, next?: string) {
 }
 
 /**
- * Signs out and leaves nothing behind on this browser: the session, cached
- * portal data and the portal's own saved settings (like a signed waiver flag),
- * so the next person on the same computer starts clean.
+ * Signs out and clears this browser of the session, cached portal data and the
+ * portal's own saved settings (like a signed waiver flag), so the next person on
+ * the same computer starts clean. Unsent application drafts stay, so signing out
+ * (or "Use a different account") never loses someone's answers: each is kept
+ * under its account's id and only comes back when that account signs in again.
  */
 export async function signOutEverywhere() {
-  // Signing out deletes any application draft (datahacks.draft.*) below: an open form
-  // mustn't write it back, or ask "leave this page?" on the way to the sign-in page.
+  // No "leave this page?" on the way to the sign-in page (an open form still saves its answers).
   allowLeaving();
   await supabase.auth.signOut();
   try {
     // Dev test tabs keep their login in this tab only: leave the organizer's alone.
     const testTab = import.meta.env.DEV && sessionStorage.getItem("datahacks.testTab");
     if (!testTab) for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(DRAFT_PREFIX)) continue;
       if (key.startsWith("datahacks.") || key.startsWith("sb-")) localStorage.removeItem(key);
     }
     sessionStorage.clear();

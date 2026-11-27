@@ -7,6 +7,7 @@ import { portal } from '@/portal/paths'
 import { EVENT_CODE, currentEventId } from '@/portal/event'
 import { useFormDraft } from '@/portal/formDraft'
 import { requestReceivedEmail } from '@/portal/receivedEmail'
+import { ensureProfile } from '@/portal/profile'
 import { errorKind, friendlyError } from '@/lib/friendlyError'
 import { formatPacificDate } from '@/lib/pacificTime'
 import { TIMELINE } from './config'
@@ -153,6 +154,9 @@ export default function HackerApplication() {
       setSubmitting(false)
       return
     }
+
+    // applications.user_id needs the account's profiles row; a sign-in that never finished leaves none.
+    await ensureProfile(session.user.id, session.user.email)
 
     const travel = form.wants_travel_stipend
     // MLH's answers only go in while it's on (a database from before the switch has no such columns).

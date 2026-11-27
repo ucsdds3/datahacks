@@ -137,6 +137,17 @@ describe("applicationErrorMessage", () => {
     expect(applicationErrorMessage({ code: "XX000", message: "internal error" })).toMatch(/Something went wrong on our side/);
   });
 
+  it("says the account isn't set up when its profile row is missing (23503), not the catch-all", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const message = applicationErrorMessage({
+      code: "23503",
+      message: 'insert or update on table "applications" violates foreign key constraint "applications_user_id_fkey"',
+    });
+    expect(message).toMatch(/couldn't finish setting up your DataHacks account/);
+    expect(message).toMatch(/Submit again/);
+    expect(message).not.toMatch(/Something went wrong on our side/);
+  });
+
   it("says applications are closed, in the database's words, like the MCP server", () => {
     const closed = { code: "23514", message: "Applications for DataHacks 2027 aren't open right now." };
     expect(applicationErrorMessage(closed)).toBe("Applications for DataHacks 2027 aren't open right now.");
