@@ -362,6 +362,10 @@
 .dh-stats-list li.other .dh-stats-list-label { color: var(--muted); font-style: italic; }
 .dh-stats-list li.other .dh-stats-list-bar > span { background: var(--other); }
 
+/* The accounts funnel in the Overview: the same bars, with the numbers in ink. */
+.dh-stats-funnel .dh-stats-list-count { color: var(--ink); font-size: 15px; }
+.dh-stats-funnel .dh-stats-panel-note { margin-top: 16px; }
+
 /* ---- Empty, paused and error states ------------------------------------------------------ */
 .dh-stats-message {
   display: flex;

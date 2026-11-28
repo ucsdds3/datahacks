@@ -38,7 +38,7 @@ export async function previewStats(mode: string): Promise<PublicStats> {
   if (mode === "paused") throw new StatsPausedError();
   if (mode === "empty") {
     return {
-      hackers: 0, schools: 0, firstTime: 0, attendedBefore: 0, countries: 0, mentorsJudges: 2,
+      hackers: 0, schools: 0, firstTime: 0, attendedBefore: 0, countries: 0, mentorsJudges: 2, accounts: 9, accountsSubmitted: 2,
       topSchools: [], levels: [], majors: [], graduationYears: [], perDay: [{ date: pacificToday(), count: 0, total: 0 }],
     };
   }
@@ -52,6 +52,8 @@ export async function previewStats(mode: string): Promise<PublicStats> {
     return { date: daysBefore(today, counts.length - 1 - i), count, total };
   });
   const hackers = total;
+  // Most mentors and judges apply from an account; some accounts only have a draft, or nothing yet.
+  const accountsSubmitted = hackers + 31;
 
   return {
     hackers,
@@ -60,6 +62,8 @@ export async function previewStats(mode: string): Promise<PublicStats> {
     attendedBefore: Math.round(hackers * 0.18),
     countries: 6,
     mentorsJudges: 37,
+    accounts: accountsSubmitted + Math.round(hackers * 0.38) + arrivals,
+    accountsSubmitted,
     topSchools: split(hackers, [
       ["University of California, San Diego", 0.52],
       ["University of California, Irvine", 0.07],

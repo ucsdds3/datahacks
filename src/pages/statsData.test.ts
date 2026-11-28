@@ -75,12 +75,14 @@ describe("parseStats", () => {
   it("reads the database's JSON", () => {
     const stats = parseStats({
       hackers: 23, schools: 4, first_time: 10, attended_before: 6, countries: 2, mentors_judges: 3,
+      accounts: 40, accounts_submitted: 25,
       top_schools: [{ label: "UC San Diego", count: 12 }, { label: "Other", count: 6 }],
       levels: [], majors: [], graduation_years: [{ label: "2027", count: 10 }],
       per_day: [{ date: "2026-11-07", count: 12, total: 12 }],
     });
     expect(stats).toMatchObject({
       hackers: 23, schools: 4, firstTime: 10, attendedBefore: 6, countries: 2, mentorsJudges: 3,
+      accounts: 40, accountsSubmitted: 25,
       topSchools: [{ label: "UC San Diego", count: 12 }, { label: "Other", count: 6 }],
       graduationYears: [{ label: "2027", count: 10 }],
       perDay: [{ date: "2026-11-07", count: 12, total: 12 }],
@@ -90,6 +92,7 @@ describe("parseStats", () => {
   it("anything missing or malformed reads as zero or empty", () => {
     expect(parseStats(null)).toEqual({
       hackers: 0, schools: 0, firstTime: 0, attendedBefore: 0, countries: 0, mentorsJudges: 0,
+      accounts: null, accountsSubmitted: null,
       topSchools: [], levels: [], majors: [], graduationYears: [], perDay: [],
     });
     const stats = parseStats({ hackers: "12", schools: -3, top_schools: [null, { label: "", count: 9 }, { label: "A", count: "7" }], per_day: [{ date: "soon" }] });
@@ -97,6 +100,12 @@ describe("parseStats", () => {
     expect(stats.schools).toBe(0);
     expect(stats.topSchools).toEqual([{ label: "A", count: 7 }]);
     expect(stats.perDay).toEqual([]);
+  });
+
+  it("the accounts counts are null until the database sends them, and zero stays zero", () => {
+    expect(parseStats({ hackers: 23, mentors_judges: 3 })).toMatchObject({ accounts: null, accountsSubmitted: null });
+    expect(parseStats({ accounts: 0, accounts_submitted: 0 })).toMatchObject({ accounts: 0, accountsSubmitted: 0 });
+    expect(parseStats({ accounts: "40", accounts_submitted: -2 })).toMatchObject({ accounts: 40, accountsSubmitted: 0 });
   });
 });
 

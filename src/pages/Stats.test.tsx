@@ -7,6 +7,7 @@ import Stats, { STATS_TITLE } from "./Stats";
 const SAMPLE = {
   event: "DH27",
   hackers: 180, schools: 23, first_time: 81, attended_before: 30, countries: 3, mentors_judges: 12,
+  accounts: 250, accounts_submitted: 190,
   top_schools: [{ label: "University of California, San Diego", count: 96 }, { label: "San Diego State University", count: 11 }, { label: "Other", count: 73 }],
   levels: [{ label: "Undergraduate (3+ year: bachelor's)", count: 150 }, { label: "Other", count: 30 }],
   majors: [],
@@ -75,6 +76,25 @@ describe("live stats page", () => {
     expect(screen.getByText(/Last updated .* · refreshes every 60 seconds/)).toBeInTheDocument();
     for (const link of screen.getAllByRole("link", { name: "Apply now" })) expect(link).toHaveAttribute("href", "/apply/");
     expect(screen.getByRole("link", { name: "DataHacks home" })).toHaveAttribute("href", "/");
+  });
+
+  it("the Overview tracks accounts made this cycle against applications submitted", async () => {
+    renderPage();
+    const overview = (await screen.findByRole("heading", { name: "Overview" })).parentElement!;
+    const funnel = within(overview).getByRole("region", { name: "From account to application" });
+    expect(within(funnel).getAllByRole("listitem").map(li => li.textContent)).toEqual([
+      "Accounts created250", "Applications submitted190 of 250 (76%)",
+    ]);
+    expect(within(funnel).getByText(/Organizer and test accounts aren't counted/)).toBeInTheDocument();
+  });
+
+  it("before the database sends the accounts counts, the rest of the page shows without them", async () => {
+    fetchMock.mockImplementation(async () => json(200, { ...SAMPLE, accounts: undefined, accounts_submitted: undefined }));
+    renderPage();
+    expect(await screen.findByText("hacker applications so far")).toBeInTheDocument();
+    expect(screen.getByRole("region", { name: "Top schools" })).toBeInTheDocument();
+    expect(screen.queryByRole("region", { name: "From account to application" })).not.toBeInTheDocument();
+    expect(screen.queryByText("Accounts created")).not.toBeInTheDocument();
   });
 
   it("Refresh fetches again", async () => {

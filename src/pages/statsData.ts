@@ -31,6 +31,13 @@ export type PublicStats = {
   attendedBefore: number;
   countries: number;
   mentorsJudges: number;
+  /**
+   * People with an account this cycle, and how many of them have submitted an
+   * application of any type (organizer and test accounts left out). Null when
+   * the database doesn't send them yet (before *_public_stats_accounts.sql).
+   */
+  accounts: number | null;
+  accountsSubmitted: number | null;
   topSchools: Bucket[];
   levels: Bucket[];
   majors: Bucket[];
@@ -51,6 +58,9 @@ const count = (value: unknown) => {
   return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
 };
 
+/** A count the database may not send: null when it's missing, otherwise read like `count`. */
+const optionalCount = (value: unknown) => (value === undefined || value === null ? null : count(value));
+
 const buckets = (value: unknown): Bucket[] =>
   Array.isArray(value)
     ? value
@@ -67,7 +77,10 @@ const days = (value: unknown): DayPoint[] =>
         .filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d.date))
     : [];
 
-/** The database's JSON, checked: anything missing or malformed reads as zero or empty rather than breaking the page. */
+/**
+ * The database's JSON, checked: anything missing or malformed reads as zero or empty rather than breaking the page.
+ * The accounts counts read as null when they're missing, so the page can leave them out instead of showing 0.
+ */
 export function parseStats(raw: unknown): PublicStats {
   const s = (typeof raw === "object" && raw !== null ? raw : {}) as Record<string, unknown>;
   return {
@@ -77,6 +90,8 @@ export function parseStats(raw: unknown): PublicStats {
     attendedBefore: count(s.attended_before),
     countries: count(s.countries),
     mentorsJudges: count(s.mentors_judges),
+    accounts: optionalCount(s.accounts),
+    accountsSubmitted: optionalCount(s.accounts_submitted),
     topSchools: buckets(s.top_schools),
     levels: buckets(s.levels),
     majors: buckets(s.majors),
