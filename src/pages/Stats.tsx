@@ -130,6 +130,10 @@ function Dashboard({ stats }: { stats: PublicStats }) {
         <p className="dh-stats-facts">
           From {plural(stats.countries, "country", "countries")} · {formatCount(stats.attendedBefore)} have been to DataHacks before
         </p>
+
+        {stats.accounts !== null && stats.accountsSubmitted !== null && stats.accounts > 0 && (
+          <AccountsFunnel accounts={stats.accounts} submitted={stats.accountsSubmitted} />
+        )}
       </section>
 
       <section className="dh-stats-section" aria-labelledby="dh-stats-growth">
@@ -160,6 +164,36 @@ function Card({ label, value, note, featured = false }: { label: string; value: 
       <p className="dh-stats-card-value">{value}</p>
       <p className="dh-stats-card-note">{note}</p>
     </div>
+  );
+}
+
+/** Accounts made this cycle, then how many of them have sent an application, as a share of the first bar. */
+function AccountsFunnel({ accounts, submitted }: { accounts: number; submitted: number }) {
+  const id = useId();
+  return (
+    <section className="dh-stats-panel dh-stats-list dh-stats-funnel" aria-labelledby={id}>
+      <h3 id={id}>From account to application</h3>
+      <ol>
+        <li>
+          <span className="dh-stats-list-label">Accounts created</span>
+          <span className="dh-stats-list-count">{formatCount(accounts)}</span>
+          <span className="dh-stats-list-bar" aria-hidden="true"><span style={{ width: "100%" }} /></span>
+        </li>
+        <li>
+          <span className="dh-stats-list-label">Applications submitted</span>
+          <span className="dh-stats-list-count">
+            {formatCount(submitted)} of {formatCount(accounts)} ({formatPercent(submitted, accounts)})
+          </span>
+          <span className="dh-stats-list-bar" aria-hidden="true">
+            <span style={{ width: `${Math.min(1, submitted / accounts) * 100}%` }} />
+          </span>
+        </li>
+      </ol>
+      <p className="dh-stats-panel-note">
+        Everyone who made or signed in to a DataHacks account this cycle, and how many of them have sent a hacker, mentor
+        or judge application. Organizer and test accounts aren't counted.
+      </p>
+    </section>
   );
 }
 

@@ -5,12 +5,15 @@
 \set ON_ERROR_STOP on
 
 -- The real event and the test event (DH26 comes from baseline_data), then the
--- migration again (it is safe to re-run) so it sees DH27.
+-- migration again (it is safe to re-run) so it sees DH27, and the one that
+-- redefines the function after it (the accounts counts, tested in
+-- public_stats_accounts.test.sql), so this tests the function as it is now.
 insert into public.events (id, name, code, applications_open) values
   ('00000000-0000-0000-0000-0000000000b1', 'DataHacks 2027 Beta', 'DH27BETA', true),
   ('00000000-0000-0000-0000-0000000000d7', 'DataHacks 2027', 'DH27', true);
 set client_min_messages = warning;
 \ir ../migrations/20261110002651_public_event_stats.sql
+\ir ../migrations/20261128023516_public_stats_accounts.sql
 set client_min_messages = notice;
 
 -- Runs one statement as a request: sub = user id (null = no user), role = API role.
@@ -156,7 +159,7 @@ select pg_temp.expect('per day: the last day is today in Pacific time',
 -- 6. Nothing about a person ---------------------------------------------------------
 select pg_temp.expect('only the documented keys',
   (select string_agg(k, ',' order by k) from out, jsonb_object_keys(s) k),
-  'attended_before,countries,event,first_time,generated_at,graduation_years,hackers,levels,majors,mentors_judges,per_day,schools,top_schools');
+  'accounts,accounts_submitted,attended_before,countries,event,first_time,generated_at,graduation_years,hackers,levels,majors,mentors_judges,per_day,schools,top_schools');
 select pg_temp.expect('no names, emails, phones, essays, links, gender or small schools in the output',
   (select (s::text ~* 'secret|person|mentorname|judgename|@|555|essay|linkedin|woman|tiny college|small u|physics|draft|beta|mexico')::text from out),
   'false');
